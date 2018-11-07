@@ -102,31 +102,105 @@ async function deploy (walletPath, contractPath, options) {
     process.exit(1)
   }
 }
-// ## Function which `call` contract
-async function call (walletPath, descrPath, fn, returnType, args, options) {
-  const ttl = parseInt(options.ttl)
-  const nonce = parseInt(options.nonce)
-  const gas = parseInt(options.gas)
 
-  if (!path || !fn || !returnType) {
+const grabDesc = async descrPath => descrPath && await readJSONFile(path.resolve(process.cwd(), descrPath))
+const prepareCallParams = async (name, { descrPath,  contractAddress, gas, ttl, nonce }) => {
+  ttl = parseInt(ttl)
+  nonce = parseInt(nonce)
+  gas = parseInt(gas)
+
+  if (!descrPath && !contractAddress) throw new Error('contract-descriptor or contract-address requires')
+
+  if (contractAddress) {
+    return {
+      code: contractAddress,
+      address: contractAddress,
+      abi: 'sophia-address',
+      name,
+      options: { options: { ttl, gas, nonce }}
+    }
+  }
+
+  const descr = await grabDesc(descrPath)
+  if (!descr) throw new Error('Descriptor file not found')
+
+  return {
+    code: descr.bytecode,
+    abi: descr.abi,
+    name: name,
+    address: descr.address,
+    options: { options: { ttl, nonce, gas } }
+  }
+}
+
+// ## Function which `call` contract
+async function call (walletPath, fn, returnType, args, options) {
+  const { callStatic } = options
+  if (!fn || !returnType) {
     program.outputHelp()
     process.exit(1)
   }
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
-    const descr = await readJSONFile(path.resolve(process.cwd(), descrPath))
+    const params = await prepareCallParams(fn, options)
+    console.log(params)
+
+    // Prepare args
+    args = args.filter(arg => arg !== '[object Object]')
+    args = args.length ? `(${args.join(',')})` : '()'
 
     await handleApiError(
       async () => {
-        args = args.filter(arg => arg !== '[object Object]')
-        args = args.length ? `(${args.join(',')})` : '()'
-        // Send ContractCall Tx
-        const callResult = await client.contractCall(descr.bytecode, descr.abi || 'sophia', descr.address, fn, { args, options: { ttl, gas, nonce } })
+        // TODO check why on-chain call using address doesn't work
+        // Call static or call
+        const callResult = callStatic ?
+          await client.contractCallStatic(params.code, params.abi, params.name, { ...params.options, args }) :
+          await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, args })
         // The execution result, if successful, will be an AEVM-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
         // not be a hexadecimal string, anymore.
-        print('Contract address_________ ' + descr.address)
+        print('Contract address_________ ' + params.address)
+        print('Gas price________________ ' + R.path(['result', 'gasPrice'])(callResult))
+        print('Gas used_________________ ' + R.path(['result', 'gasUsed'])(callResult))
+        print('Return value (encoded)___ ' + R.path(['result', 'returnValue'])(callResult))
+        // Decode result
+        const { type, value } = await callResult.decode(returnType)
+        print('Return value (decoded)___ ' + value)
+        print('Return remote type_______ ' + type)
+      }
+    )
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
+// ## Function which `call` contract
+async function callTypeChecked (walletPath, fn, returnType, callContract, options) {
+  const { callStatic } = options
+  if (!fn || !returnType) {
+    program.outputHelp()
+    process.exit(1)
+  }
+  try {
+    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+    const client = await initClientByWalletFile(walletPath, options)
+    const params = await prepareCallParams(fn, R.merge(options, { callContract }))
+    const call = readFile(path.resolve(process.cwd(), callContract), 'utf-8')
+    console.log(params)
+
+    await handleApiError(
+      async () => {
+        // TODO check why on-chain call using address doesn't work
+        // Call static or call
+        const callResult = callStatic ?
+          await client.contractCallStatic(params.code, params.abi, params.name, { ...params.options, call }) :
+          await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, call })
+        // The execution result, if successful, will be an AEVM-encoded result
+        // value. Once type decoding will be implemented in the SDK, this value will
+        // not be a hexadecimal string, anymore.
+        print('Contract address_________ ' + params.address)
         print('Gas price________________ ' + R.path(['result', 'gasPrice'])(callResult))
         print('Gas used_________________ ' + R.path(['result', 'gasUsed'])(callResult))
         print('Return value (encoded)___ ' + R.path(['result', 'returnValue'])(callResult))
@@ -145,5 +219,6 @@ async function call (walletPath, descrPath, fn, returnType, args, options) {
 export const Contract = {
   compile,
   deploy,
-  call
+  call,
+  callTypeChecked
 }
