@@ -106,7 +106,8 @@ function signTx (tx, privKey) {
   // ... and sign the binary create_contract transaction
   const binaryTx = Crypto.decodeBase58Check(base58CheckTx)
 
-  const signature = Crypto.sign(binaryTx, decryptedKey)
+  // Prepend NETWORK_ID and sign
+  const signature = Crypto.sign(Buffer.concat([Buffer.from(Crypto.NETWORK_ID), binaryTx]), decryptedKey)
 
   // the signed tx deserializer expects a 4-tuple:
   // <tag, version, signatures_array, binary_tx>

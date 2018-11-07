@@ -60,7 +60,7 @@ We'll need the main client module `Ae` in the `Cli` flavor from the SDK.
   
 
 ```js
-const { Cli: Ae } = require('@aeternity/aepp-sdk')
+const { Universal: Ae } = require('@aeternity/aepp-sdk')
 const program = require('commander')
 
 function spend (receiver, amount, { host, debug }) {

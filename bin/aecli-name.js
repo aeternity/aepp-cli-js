@@ -40,9 +40,9 @@ program
 
 // ## Initialize `claim` command
 //
-// You can use this command to `claim` AENS name. Name must end on `.aet`.
+// You can use this command to `claim` AENS name. Name must end on `.test`.
 //
-// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.aet`
+// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.test`
 //
 // This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
 //
@@ -56,7 +56,7 @@ program
 //
 // You can use this command to `destroy` AENS name.
 //
-// Example: `aecli name revoke ./myWalletKeyFile --password testpass testname.aet`
+// Example: `aecli name revoke ./myWalletKeyFile --password testpass testname.test`
 program
   .command('revoke  <wallet_path> <name>')
   .description('Revoke a domain name')
@@ -66,7 +66,7 @@ program
 //
 // You can use this command to `transfer` AENS name to another account.
 //
-// Example: `aecli name transfer ./myWalletKeyFile --password testpass testname.aet ak_qqwemjgflewgkj349gjdslksd`
+// Example: `aecli name transfer ./myWalletKeyFile --password testpass testname.test ak_qqwemjgflewgkj349gjdslksd`
 program
   .command('transfer <wallet_path> <name> <address>')
   .description('Transfer a name to another account')
@@ -76,7 +76,7 @@ program
 //
 // You can use this command to `update` pointer of AENS name.
 //
-// Example: `aecli name update ./myWalletKeyFile --password testpass testname.aet ak_qwe23dffasfgdesag323`
+// Example: `aecli name update ./myWalletKeyFile --password testpass testname.test ak_qwe23dffasfgdesag323`
 program
   .command('update <wallet_path> <name> <address>')
   .description('Update a name pointer')
