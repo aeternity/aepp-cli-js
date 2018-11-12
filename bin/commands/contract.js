@@ -144,7 +144,6 @@ async function call (walletPath, fn, returnType, args, options) {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
     const params = await prepareCallParams(fn, options)
-    console.log(params)
 
     // Prepare args
     args = args.filter(arg => arg !== '[object Object]')
@@ -152,7 +151,6 @@ async function call (walletPath, fn, returnType, args, options) {
 
     await handleApiError(
       async () => {
-        // TODO check why on-chain call using address doesn't work
         // Call static or call
         const callResult = callStatic ?
           await client.contractCallStatic(params.code, params.abi, params.name, { ...params.options, args }) :
@@ -188,11 +186,9 @@ async function callTypeChecked (walletPath, fn, returnType, callContract, option
     const client = await initClientByWalletFile(walletPath, options)
     const params = await prepareCallParams(fn, R.merge(options, { callContract }))
     const call = readFile(path.resolve(process.cwd(), callContract), 'utf-8')
-    console.log(params)
 
     await handleApiError(
       async () => {
-        // TODO check why on-chain call using address doesn't work
         // Call static or call
         const callResult = callStatic ?
           await client.contractCallStatic(params.code, params.abi, params.name, { ...params.options, call }) :
