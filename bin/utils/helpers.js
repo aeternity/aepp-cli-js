@@ -74,7 +74,9 @@ export function readJSONFile (filePath) {
   try {
     return JSON.parse(readFile(filePath))
   } catch (e) {
-    printError('READ FILE ERROR: ' + e.message)
+    printError('READ FILE ERROR:')
+    printError('  message: ' + e.message)
+    printError('  path: ' + filePath)
     process.exit(1)
   }
 }

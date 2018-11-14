@@ -22,7 +22,7 @@ const path = require('path')
 
 
 require = require('esm')(module/*, options */) // use to handle es6 import/export
-const Crypto = require('../es/utils/crypto')
+const { Crypto } = require('@aeternity/aepp-sdk')
 const utils = require('./utils/index')
 
 // The `prompt` library provides concealed input of passwords.
@@ -96,7 +96,7 @@ function signTx (tx, privKey) {
   // ... and sign the binary create_contract transaction
   const binaryTx = Crypto.decodeBase58Check(base58CheckTx)
 
-  const signature = Crypto.sign(binaryTx, decryptedKey)
+  const signature = Crypto.sign(Buffer.concat([Buffer.from(Crypto.NETWORK_ID), binaryTx]), decryptedKey)
 
   // the signed tx deserializer expects a 4-tuple:
   // <tag, version, signatures_array, binary_tx>

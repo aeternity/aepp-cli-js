@@ -31,7 +31,7 @@ const path = require('path')
 
 
 require = require('esm')(module/*, options */) // use to handle es6 import/export
-const Crypto = require('../es/utils/crypto')
+const { Crypto } = require('@aeternity/aepp-sdk')
 const utils = require('./utils/index')
 
 
@@ -189,7 +189,7 @@ Split the base58Check part of the transaction
 ```js
   const binaryTx = Crypto.decodeBase58Check(base58CheckTx)
 
-  const signature = Crypto.sign(binaryTx, decryptedKey)
+  const signature = Crypto.sign(Buffer.concat([Buffer.from(Crypto.NETWORK_ID), binaryTx]), decryptedKey)
 
 
 ```

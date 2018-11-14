@@ -227,7 +227,22 @@ Split the base58Check part of the transaction
 ```js
   const binaryTx = Crypto.decodeBase58Check(base58CheckTx)
 
-  const signature = Crypto.sign(binaryTx, decryptedKey)
+
+```
+
+
+
+
+
+
+
+Prepend NETWORK_ID and sign
+
+
+  
+
+```js
+  const signature = Crypto.sign(Buffer.concat([Buffer.from(Crypto.NETWORK_ID), binaryTx]), decryptedKey)
 
 
 ```

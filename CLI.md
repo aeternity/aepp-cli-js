@@ -226,28 +226,28 @@ $ ./aecli.js name
 
 Create and register a name for your account (public key):
 ``` 
-$ aecli name claim test --password test testname.aet
+$ aecli name claim test --password test testname.test
 ``` 
 
 #### revoke
 
 You can delete your name using the following command:
 ``` 
-$ aecli name revoke test --password test testname.aet
+$ aecli name revoke test --password test testname.test
 ``` 
 
 #### transfer
 
 You can transfer a name to another account or contract, just indicate another account's address. You will pass all rights regarding the name to another account:
 ``` 
-$ aecli name transfer test --password test testname.aet ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
+$ aecli name transfer test --password test testname.test ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
 ``` 
 
 #### update
 
 Use this command to update a name. For example, you can assign it to another account, but still you will have rights to do other operations with this name:
 ``` 
-$ aecli name update test --password test testname.aet ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
+$ aecli name update test --password test testname.test ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
 ``` 
 
 ## The contracts group 

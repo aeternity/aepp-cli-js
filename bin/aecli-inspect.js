@@ -38,7 +38,7 @@ program
 //
 // You can use this command to get info about account, block, transaction or name
 //
-// Example: `aecli inspect testName.aet` --> get info about AENS `name`
+// Example: `aecli inspect testName.test` --> get info about AENS `name`
 //
 // Example: `aecli inspect ak_134defawsgf34gfq4f` --> get info about `account`
 //
@@ -51,7 +51,7 @@ program
 // Example: `aecli inspect th_asfwegfj34234t34t` --> get info about `transaction` by transaction `hash`
 program
   .arguments('<hash>')
-  .description('Hash or Name to inspect (eg: ak_..., mk_..., name.aet)')
+  .description('Hash or Name to inspect (eg: ak_..., mk_..., name.test)')
   .action(async (hash, cmd) => await Inspect.inspect(hash, cmd))
 
 // Parse arguments or show `help` if argument's is empty

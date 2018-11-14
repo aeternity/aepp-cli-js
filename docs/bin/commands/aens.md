@@ -114,7 +114,7 @@ Validate `name`
 
 ```js
 const validateName = (name) => {
-  if (R.last(name.split('.')) !== 'aet') { throw new Error('AENS TLDs must end in .aet') }
+  if (R.last(name.split('.')) !== 'test') { throw new Error('AENS TLDs must end in .test') }
 }
 
 
@@ -160,7 +160,7 @@ Parse options(`ttl`, `nameTtl`)
 
 
 
-Validate `name`(check if `name` end on `.aet`)
+Validate `name`(check if `name` end on `.test`)
 
 
   
