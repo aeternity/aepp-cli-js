@@ -38,7 +38,7 @@ async function spend (walletPath, receiver, amount, options) {
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
-      let tx = await client.spend(parseInt(amount), receiver, { ttl, nonce })
+      let tx = await client.spend(amount, receiver, { ttl, nonce })
       // if waitMined false
       if (typeof tx !== 'object') {
         tx = await client.tx(tx)
