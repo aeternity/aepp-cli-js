@@ -30,6 +30,7 @@ const { Contract } = require('./commands')
 program
   .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
+  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.CONTRACT_TTL)
   .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-f --force', 'Ignore epoch version compatibility check')
