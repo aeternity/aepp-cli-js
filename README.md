@@ -1,5 +1,5 @@
 # ️⚠️ [WIP] ae-js-cli
-Command Line Interface for the æternity blockchain. This project is dependent from
+Command Line Interface for the æternity blockchain.
 
 ## Disclaimer
 
@@ -12,7 +12,7 @@ check out the [develop branch].
 
 
 ## Installation
-> ️⚠️ **TODO**: The package is not yet published, so you can only install it by cloning this projec.
+> ️⚠️ **TODO**: The package is not yet published, so you can only install it by cloning this project.
 >
 You can install this `CLI` using your preferred tool (`pnpm`, `yarn` or `npm`). Here's an `npm` example
 ```
