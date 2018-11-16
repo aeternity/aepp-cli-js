@@ -62,6 +62,7 @@ program
 program
   .command('call <wallet_path> <fn> <return_type> [args...]')
   .option('-P, --password [password]', 'Wallet Password')
+  .option('--native', 'Build transaction natively', true)
   .option('-G --gas [gas]', 'Amount of gas to call the contract', utils.constant.GAS)
   .option('-d --descrPath [descrPath]', 'Path to contract descriptor file')
   .option('-s --callStatic', 'Call static', false)
