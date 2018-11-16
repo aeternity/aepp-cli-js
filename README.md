@@ -1,27 +1,58 @@
-# aecli-js
-Command line interface for the æternity blockchain
+# ️⚠️ [WIP] ae-js-cli
+Command Line Interface for the æternity blockchain.
 
-aecli is [hosted on GitHub].
+## Disclaimer
 
-[æternity]: https://aeternity.com/
+This project is a work-in-progress and things might break. We aim to make our
+pre-releases as stable as possible. Neverless it should not be taken as
+production-ready. To catch up with even more edgy state of development please
+check out the [develop branch].
 
-#### Disclaimer
+[develop branch]: https://github.com/aeternity/aecli-js/tree/develop
+
 
 ## Installation
+> ️⚠️ **TODO**: The package is not yet published, so you can only install it by cloning this project.
+>
+You can install this `CLI` using your preferred tool (`pnpm`, `yarn` or `npm`). Here's an `npm` example
 ```
-npm : npm install --global @aeternity/aecli
-# or
-pnpm: ``pnpm install @aeternity/aecli``    
-```  
+npm install --global @aeternity/aecli
+```
 
 Run `npm link` for linking `aecli` name to `aecli/bin/aecli.js`
 
-## [Usage Documentation]
- 
+
+## Usage Documentation
+
+You can install, use and work on this `CLI` tool, by following these instructions:
+
+1. Clone this repository
+2. With your terminal: enter in folder when the repo has been cloned
+3. Run `bin/aecli.js` to see the (following) available commands:
+
+```
+Usage: aecli [options] [command]
+
+Options:
+  -V, --version  output the version number
+  -h, --help     output usage information
+
+Commands:
+  config         Print the client configuration
+  chain          Interact with the blockchain
+  inspect        Get information on transactions, blocks,...
+  account        Handle wallet operations
+  contract       Compile contracts
+  name           AENS system
+  crypto         Crypto helpers
+  help [cmd]     display help for [cmd]
+```
+
+4. To read documentation of other commands and sub-commands, you can append `--help`. For example, type `bin/aecli.js account --help` to get a list of `account`'s available sub-commands.
+
 ## [Change Log]
 
 [Change Log]: CHANGELOG.md
-[Usage Documentation]: CLI.md
 
 ## License
 
