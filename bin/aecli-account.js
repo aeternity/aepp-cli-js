@@ -52,6 +52,18 @@ program
   .description('Create a transaction to another wallet')
   .action(async (walletPath, receiver, amount, ...arguments) => await Wallet.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
 
+// ## Initialize `sign` command
+//
+// You can use this command to sign your transaction's
+//
+// Example: `aecli account sign ./myWalletKeyFile tx_1241rioefwj23f2wfdsfsdsdfsasdf --password testpassword`
+program
+  .command('sign <wallet_path> <tx>>')
+  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.SPEND_TX_TTL)
+  .description('Create a transaction to another wallet')
+  .action(async (walletPath, tx, ...arguments) => await Wallet.sign(walletPath, tx, utils.cli.getCmdFromArguments(arguments)))
+
+
 // ## Initialize `balance` command
 //
 // You can use this command to retrieve balance of account

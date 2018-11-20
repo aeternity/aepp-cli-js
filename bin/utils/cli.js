@@ -19,6 +19,7 @@
 import * as R from 'ramda'
 
 import Ae from '@aeternity/aepp-sdk/es/ae/universal'
+import Account from '@aeternity/aepp-sdk/es/account/memory'
 import { getWalletByPathAndDecrypt } from './account'
 
 // ## Merge options with parent options.
@@ -39,12 +40,13 @@ export async function initClient ({url, keypair, internalUrl, force: forceCompat
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
-  const { password, privateKey  } = options
+  const { password, privateKey, accountOnly } = options
   const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
 
+  const client = accountOnly ? await Account({ keypair }) : await initClient(R.merge(options, { keypair }))
   if (returnKeyPair)
-    return { client: await initClient(R.merge(options, { keypair })), keypair }
-  return initClient(R.merge(options, { keypair }))
+    return { client, keypair }
+  return client
 }
 
 // ## Initialize commander executable commands
