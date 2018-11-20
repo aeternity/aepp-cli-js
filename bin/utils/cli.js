@@ -31,8 +31,8 @@ export function getCmdFromArguments (args) {
 }
 
 // Create `Ae` client
-export async function initClient ({url, keypair, internalUrl, force: forceCompatibility, native: nativeMode = true}) {
-  return await Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode })
+export async function initClient ({url, keypair, internalUrl, force: forceCompatibility, native: nativeMode = true, networkId}) {
+  return await Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode, networkId })
 }
 
 // ## Get account files and decrypt it using password
