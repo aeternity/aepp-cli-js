@@ -44,6 +44,7 @@ export const GAS = 1600000 - 21000 // MAX GAS
 // ## AENS
 export const AENS_TX_TTL = 500
 export const NAME_TTL = 50000
+export const CLIENT_TTL = 1
 
 // ## ACCOUNT
 export const SPEND_TX_TTL = 500

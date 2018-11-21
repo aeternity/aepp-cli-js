@@ -49,6 +49,44 @@ program
   .description('Build Spend Transaction')
   .action(async (senderId, receiverId, amount, ...arguments) => await Transaction.spend(senderId, receiverId, amount, utils.cli.getCmdFromArguments(arguments)))
 
+// ## Initialize `name-preclaim` command
+//
+// You can use this command to build `preclaim` transaction
+//
+// Example: `aecli tx name-preclaim ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.test`
+program
+  .command('name-preclaim <accountId> <domain>')
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.AENS_TX_TTL)
+  .option('-F, --fee [fee]', 'Transaction fee.', utils.constant.SPEND_TX_FEE)
+  .description('Build name preclaim transaction.')
+  .action(async (accountId, domain, ...arguments) => await Transaction.namePreClaim(accountId, domain, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `name-update` command
+//
+// You can use this command to build `update` transaction
+//
+// Example: `aecli tx name-update ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.test`
+program
+  .command('name-update <accountId> <domain> [pointers...]')
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.AENS_TX_TTL)
+  .option('-F, --fee [fee]', 'Transaction fee.', utils.constant.SPEND_TX_FEE)
+  .option('--nameTtl [nameTtl]', 'Validity of name.', utils.constant.NAME_TTL)
+  .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
+  .description('Build name update transaction.')
+  .action(async (accountId, domain, pointers, ...arguments) => await Transaction.nameUpdate(accountId, domain, pointers, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `name-claim` command
+//
+// You can use this command to build `claim` transaction
+//
+// Example: `aecli tx name-claim ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.test`
+program
+  .command('name-claim <accountId> <salt> <domain>')
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.AENS_TX_TTL)
+  .option('-F, --fee [fee]', 'Transaction fee.', utils.constant.SPEND_TX_FEE)
+  .description('Build name claim transaction.')
+  .action(async (accountId, salt, domain, ...arguments) => await Transaction.nameClaim(accountId, salt, domain, utils.cli.getCmdFromArguments(arguments)))
+
 // ## Initialize `broadcast` command
 //
 // You can use this command to send `transaction` to the `chain`
