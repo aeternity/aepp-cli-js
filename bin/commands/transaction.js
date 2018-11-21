@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// # æternity CLI `chain` file
+// # æternity CLI `transaction` file
 //
-// This script initialize all `chain` function
+// This script initialize all `transaction` function
 /*
  * ISC License (ISC)
  * Copyright (c) 2018 aeternity developers
@@ -185,14 +185,14 @@ async function nameUpdate (accountId, domain, pointers, options) {
 
 // ## Send 'transaction' to the chain
 async function broadcast (signedTx, options) {
-  let { json } = options
+  let { json, waitMined } = options
   try {
     // Initialize `Ae`
     const client = await initClient(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const tx = await client.sendTransaction(signedTx)
-      printTransaction(tx, json)
+      const tx = await client.sendTransaction(signedTx, { waitMined })
+      waitMined ? printTransaction(tx, json) : print('Transaction send to the chain')
     })
   } catch (e) {
     printError(e.message)
