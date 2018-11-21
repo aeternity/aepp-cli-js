@@ -35,7 +35,7 @@ async function sign (walletPath, tx, options) {
     if (tx.slice(0, 2) !== 'tx')
       throw new Error('Invalid transaction hash')
 
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
     const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
 
     await handleApiError(async () => {

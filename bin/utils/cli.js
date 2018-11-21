@@ -31,7 +31,7 @@ export function getCmdFromArguments (args) {
 }
 
 // Create `Ae` client
-export async function initClient ({url, keypair, internalUrl, force: forceCompatibility, native: nativeMode = true, networkId}) {
+export async function initClient ({ url, keypair, internalUrl, force: forceCompatibility, native: nativeMode = true, networkId }) {
   return await Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode, networkId })
 }
 
@@ -40,10 +40,10 @@ export async function initClient ({url, keypair, internalUrl, force: forceCompat
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
-  const { password, privateKey, accountOnly } = options
+  const { password, privateKey, accountOnly, networkId } = options
   const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
 
-  const client = accountOnly ? await Account({ keypair }) : await initClient(R.merge(options, { keypair }))
+  const client = accountOnly ? await Account({ keypair, networkId }) : await initClient(R.merge(options, { keypair }))
   if (returnKeyPair)
     return { client, keypair }
   return client
