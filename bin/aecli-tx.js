@@ -79,13 +79,37 @@ program
 //
 // You can use this command to build `claim` transaction
 //
-// Example: `aecli tx name-claim ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.test`
+// Example: `aecli tx name-claim ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi 12327389123 testname.test`
 program
   .command('name-claim <accountId> <salt> <domain>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.AENS_TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.', utils.constant.SPEND_TX_FEE)
   .description('Build name claim transaction.')
   .action(async (accountId, salt, domain, ...arguments) => await Transaction.nameClaim(accountId, salt, domain, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `name-transfer` command
+//
+// You can use this command to build `tansfer` transaction
+//
+// Example: `aecli tx name-transfer ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.test`
+program
+  .command('name-transfer <accountId> <recipientId> <domain>')
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.AENS_TX_TTL)
+  .option('-F, --fee [fee]', 'Transaction fee.', utils.constant.SPEND_TX_FEE)
+  .description('Build name tansfer transaction.')
+  .action(async (accountId, transferId, domain, ...arguments) => await Transaction.nameTransfer(accountId, transferId, domain, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `name-revoke` command
+//
+// You can use this command to build `revoke` transaction
+//
+// Example: `aecli tx name-revoke ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.test`
+program
+  .command('name-revoke <accountId> <domain>')
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.AENS_TX_TTL)
+  .option('-F, --fee [fee]', 'Transaction fee.', utils.constant.SPEND_TX_FEE)
+  .description('Build name revoke transaction.')
+  .action(async (accountId, domain, ...arguments) => await Transaction.nameRevoke(accountId, domain, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `broadcast` command
 //

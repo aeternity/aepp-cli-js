@@ -183,6 +183,72 @@ async function nameUpdate (accountId, domain, pointers, options) {
   }
 }
 
+// ## Build `nameTransfer` transaction
+async function nameTransfer (accountId, recipientId, domain, options) {
+  let { ttl, json, nonce, fee } = options
+  ttl = parseInt(ttl)
+  nonce = parseInt(nonce)
+  try {
+    // Validate `name`(check if `name` end on `.test`)
+    validateName(domain)
+    // Initialize `Ae`
+    const client = await initTxBuilder(options)
+    // Build `claim` transaction's
+    await handleApiError(async () => {
+      // Check if that `name' available
+      const name = await updateNameStatus(domain)(client)
+      if (isAvailable(name)) {
+        print('Domain is available. You need to claim it before transfer')
+        process.exit(1)
+      }
+
+      // Create `transfer` transaction
+      const transferTx = await client.nameTransferTx({ accountId, nonce, nameId: name.id, recipientId, fee, ttl })
+
+      if (json)
+        print({ tx: transferTx })
+      else
+        printUnderscored('Transfer TX', transferTx)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
+// ## Build `nameRevoke` transaction
+async function nameRevoke (accountId, domain, options) {
+  let { ttl, json, nonce, fee } = options
+  ttl = parseInt(ttl)
+  nonce = parseInt(nonce)
+  try {
+    // Validate `name`(check if `name` end on `.test`)
+    validateName(domain)
+    // Initialize `Ae`
+    const client = await initTxBuilder(options)
+    // Build `claim` transaction's
+    await handleApiError(async () => {
+      // Check if that `name' available
+      const name = await updateNameStatus(domain)(client)
+      if (isAvailable(name)) {
+        print('Domain is available. Nothing to revoke')
+        process.exit(1)
+      }
+
+      // Create `revoke` transaction
+      const revokeTx = await client.nameRevokeTx({ accountId, nonce, nameId: name.id, fee, ttl })
+
+      if (json)
+        print({ tx: revokeTx })
+      else
+        printUnderscored('Revoke TX', revokeTx)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
 // ## Send 'transaction' to the chain
 async function broadcast (signedTx, options) {
   let { json, waitMined } = options
@@ -205,5 +271,7 @@ export const Transaction = {
   namePreClaim,
   nameClaim,
   nameUpdate,
+  nameRevoke,
+  nameTransfer,
   broadcast
 }
