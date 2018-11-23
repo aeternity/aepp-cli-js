@@ -146,7 +146,9 @@ export function readJSONFile (filePath) {
   try {
     return JSON.parse(readFile(filePath))
   } catch (e) {
-    printError('READ FILE ERROR: ' + e.message)
+    printError('READ FILE ERROR:')
+    printError('  message: ' + e.message)
+    printError('  path: ' + filePath)
     process.exit(1)
   }
 }
@@ -209,6 +211,79 @@ export function readFile (path, encoding = null, errTitle = 'READ FILE ERR') {
         throw e
     }
   }
+}
+
+
+```
+
+
+
+
+
+
+
+## AENS helpers methods
+
+
+
+
+
+
+
+
+Get `name` status
+
+
+  
+
+```js
+export function updateNameStatus (name) {
+ return async (client) => {
+   try {
+     return await client.api.getNameEntryByName(name)
+   } catch (e) {
+     if (e.response && e.response.status === 404) {
+       return {name, status: 'AVAILABLE'}
+     }
+     throw e
+   }
+ }
+}
+
+
+```
+
+
+
+
+
+
+
+Check if `name` is `AVAILABLE`
+
+
+  
+
+```js
+export function isAvailable (name) { return name.status === 'AVAILABLE' }
+
+
+```
+
+
+
+
+
+
+
+Validate `name`
+
+
+  
+
+```js
+export function validateName (name) {
+  if (R.last(name.split('.')) !== 'test') { throw new Error('AENS TLDs must end in .test') }
 }
 
 

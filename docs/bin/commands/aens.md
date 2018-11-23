@@ -42,80 +42,10 @@ This script initialize all `AENS` function
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import * as R from 'ramda'
-
 import { initClientByWalletFile } from '../utils/cli'
 import { printError, print, printUnderscored } from '../utils/print'
 import { handleApiError } from '../utils/errors'
-
-
-```
-
-
-
-
-
-
-
-## Name helpers methods
-
-
-
-
-
-
-
-
-Get `name` status
-
-
-  
-
-```js
-const updateNameStatus = (name) => async (client) => {
-  try {
-    return await client.api.getNameEntryByName(name)
-  } catch (e) {
-    if (e.response && e.response.status === 404) { return { name, status: 'AVAILABLE' } }
-    throw e
-  }
-}
-
-
-```
-
-
-
-
-
-
-
-Check if `name` is `AVAILABLE`
-
-
-  
-
-```js
-const isAvailable = (name) => name.status === 'AVAILABLE'
-
-
-```
-
-
-
-
-
-
-
-Validate `name`
-
-
-  
-
-```js
-const validateName = (name) => {
-  if (R.last(name.split('.')) !== 'test') { throw new Error('AENS TLDs must end in .test') }
-}
+import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
 
 
 ```

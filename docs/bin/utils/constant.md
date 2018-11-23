@@ -130,6 +130,7 @@ export const GAS = 1600000 - 21000 // MAX GAS
 ```js
 export const AENS_TX_TTL = 500
 export const NAME_TTL = 50000
+export const CLIENT_TTL = 1
 
 
 ```
@@ -147,6 +148,7 @@ export const NAME_TTL = 50000
 
 ```js
 export const SPEND_TX_TTL = 500
+export const SPEND_TX_FEE = 1
 
 
 ```
