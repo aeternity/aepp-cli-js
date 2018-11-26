@@ -257,7 +257,7 @@ async function broadcast (signedTx, options) {
     const client = await initClient(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const tx = await client.sendTransaction(signedTx, { waitMined })
+      const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined })
       waitMined ? printTransaction(tx, json) : print('Transaction send to the chain')
     })
   } catch (e) {
