@@ -153,7 +153,7 @@ async function call (walletPath, fn, returnType, args, options) {
       async () => {
         // Call static or call
         const callResult = callStatic ?
-          await client.contractCallStatic(params.code, params.abi, params.name, { ...params.options, args }) :
+          await client.contractCallStatic(params.address, 'sophia-address', params.name, { ...params.options, args }) :
           await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, args })
         // The execution result, if successful, will be an AEVM-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
@@ -191,7 +191,7 @@ async function callTypeChecked (walletPath, fn, returnType, callContract, option
       async () => {
         // Call static or call
         const callResult = callStatic ?
-          await client.contractCallStatic(params.code, params.abi, params.name, { ...params.options, call }) :
+          await client.contractCallStatic(params.address, 'sophia-address', params.name, { ...params.options, call }) :
           await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, call })
         // The execution result, if successful, will be an AEVM-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
