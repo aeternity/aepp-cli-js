@@ -50,7 +50,6 @@ describe('CLI Inspect Module', function () {
   it('Inspect Transaction', async () => {
     const recipient = (generateKeyPair()).publicKey
     const amount = 420
-
     // Create transaction to inspect
     const { hash } = await wallet.spend(amount, recipient)
 

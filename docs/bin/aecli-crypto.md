@@ -117,7 +117,7 @@ function extractReadableKeys (dir, options) {
   
 
 ```js
-async function generateKeyPair (name, { output, password }) {
+async function generateKeyPair (name, { output, password } = {}) {
   await utils.account.generateSecureWallet(name, { output, password })
 }
 
@@ -277,7 +277,7 @@ program
   .description('Generate keypair')
   .option('-o, --output [directory]', 'Output directory for the keys', '.')
   .option('-p, --password [directory]', 'Password for keypair', '.')
-  .action(async (keyname) => await generateKeyPair(keyname))
+  .action(async (keyname, ...arguments) => await generateKeyPair(keyname, arguments))
 
 program
   .command('sign <tx> [privkey]')

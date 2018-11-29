@@ -73,7 +73,7 @@ describe('CLI Wallet Module', function () {
   it('Check Wallet Balance', async () => {
     const balance = await wallet.balance(await wallet.address())
     const cliBalance = parseBlock(await execute(['account', 'balance', WALLET_NAME, '--password', 'test']))
-    parseInt(cliBalance['your_balance_is']).should.equal(balance)
+    cliBalance['your_balance_is'].should.equal(balance)
   })
   it('Spend coins to another wallet', async () => {
     const amount = 100
@@ -84,6 +84,6 @@ describe('CLI Wallet Module', function () {
     // send coins
     await execute(['account', 'spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount])
     const receiverBalance = await receiver.balance(await receiver.address())
-    await receiverBalance.should.equal(amount)
+    await parseInt(receiverBalance).should.equal(amount)
   })
 })

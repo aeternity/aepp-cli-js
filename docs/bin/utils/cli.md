@@ -28,6 +28,8 @@ That script contains helper function's for work with `cli`
 import * as R from 'ramda'
 
 import Ae from '@aeternity/aepp-sdk/es/ae/universal'
+import Account from '@aeternity/aepp-sdk/es/account/memory'
+import Tx from '@aeternity/aepp-sdk/es/tx/tx'
 import { getWalletByPathAndDecrypt } from './account'
 
 
@@ -67,8 +69,12 @@ Create `Ae` client
   
 
 ```js
-export async function initClient ({url, keypair, internalUrl, force: forceCompatibility, nativeMode = true}) {
-  return await Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode })
+export async function initClient ({ url, keypair, internalUrl, force: forceCompatibility, native: nativeMode = false, networkId }) {
+  return await Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode, networkId })
+}
+
+export async function initTxBuilder({ url, internalUrl, force: forceCompatibility, native: nativeMode = true }) {
+  return await Tx({ url, internalUrl, forceCompatibility, nativeMode })
 }
 
 
@@ -90,12 +96,13 @@ We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from fi
 
 ```js
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
-  const { password, privateKey  } = options
+  const { password, privateKey, accountOnly, networkId } = options
   const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
 
+  const client = accountOnly ? await Account({ keypair, networkId }) : await initClient(R.merge(options, { keypair }))
   if (returnKeyPair)
-    return { client: await initClient(R.merge(options, { keypair })), keypair }
-  return initClient(R.merge(options, { keypair }))
+    return { client, keypair }
+  return client
 }
 
 

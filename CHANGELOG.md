@@ -6,3 +6,10 @@ log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 ### Added
 - Init CLI repository 
 
+## [1.0.0]
+### Added
+- `tx` root command, which allow to build transaction's in offline-mode
+- Add `broadcast` sub-command to `tx`
+- Add 'sign' sub-command to `account`  
+### Changed
+- Default node url changed to [sdk-mainnet.aepp.com](https://sdk-mainnet.aepp.com/v2/status)

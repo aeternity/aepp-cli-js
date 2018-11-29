@@ -46,8 +46,75 @@ import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/
 import { HASH_TYPES } from '../utils/constant'
 import { initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { print, printError, printTransaction } from '../utils/print'
+import { print, printError, printTransaction, printUnderscored } from '../utils/print'
 import { checkPref } from '../utils/helpers'
+
+
+```
+
+
+
+
+
+
+
+## Sign function
+this function allow you to `sign` transaction's
+
+
+  
+
+```js
+async function sign (walletPath, tx, options) {
+  let { json } = options
+  try {
+
+```
+
+
+
+
+
+
+
+Validate `tx` hash
+
+
+  
+
+```js
+    if (tx.slice(0, 2) !== 'tx')
+      throw new Error('Invalid transaction hash')
+
+
+```
+
+
+
+
+
+
+
+Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+
+
+  
+
+```js
+    const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
+
+    await handleApiError(async () => {
+      const signedTx = await client.signTransaction(tx)
+      if (json)
+        print({ signedTx })
+      else
+        printUnderscored('Signed transaction', signedTx)
+    })
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
 
 
 ```
@@ -89,7 +156,7 @@ Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
-      let tx = await client.spend(parseInt(amount), receiver, { ttl, nonce })
+      let tx = await client.spend(amount, receiver, { ttl, nonce })
 
 ```
 
@@ -260,7 +327,8 @@ export const Wallet = {
   getBalance,
   getAddress,
   createSecureWallet,
-  createSecureWalletByPrivKey
+  createSecureWalletByPrivKey,
+  sign
 }
 
 

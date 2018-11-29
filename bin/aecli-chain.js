@@ -31,6 +31,7 @@ const { Chain } = require('./commands')
 program
   .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
+  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-L --limit [playlimit]', 'Limit for play command', utils.constant.PLAY_LIMIT)
   .option('-P --height [playToHeight]', 'Play to selected height')
   .option('-f --force', 'Ignore epoch version compatibility check')

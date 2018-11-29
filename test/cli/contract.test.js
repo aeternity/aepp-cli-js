@@ -31,7 +31,7 @@ const contractCall = `contract StateContract =
 
 plan(1000000000)
 
-describe.only('CLI Contract Module', function () {
+describe('CLI Contract Module', function () {
   configure(this)
   const contractFile = 'testContract'
   let cAddress

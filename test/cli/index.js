@@ -26,6 +26,7 @@ const cliCommand = './bin/aecli.js'
 
 const url = process.env.TEST_URL || 'http://localhost:3013'
 const internalUrl = process.env.TEST_INTERNAL_URL || 'http://localhost:3113'
+const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
 const TIMEOUT = 18000000
 
 export const KEY_PAIR = generateKeyPair()
@@ -50,7 +51,7 @@ export function plan (amount) {
 export async function ready (mocha) {
   configure(mocha)
 
-  const ae = await BaseAe()
+  const ae = await BaseAe({ networkId })
   await ae.awaitHeight(3)
 
   if (!charged && planned > 0) {
@@ -59,7 +60,7 @@ export async function ready (mocha) {
     charged = true
   }
 
-  const client = await BaseAe()
+  const client = await BaseAe({ networkId })
   client.setKeypair(KEY_PAIR)
   await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey])
   return client
@@ -68,7 +69,7 @@ export async function ready (mocha) {
 export async function execute (args) {
   return new Promise((resolve, reject) => {
     let result = ''
-    const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl])
+    const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, '--networkId', networkId])
     child.stdin.setEncoding('utf-8')
     child.stdout.on('data', (data) => {
       result += (data.toString())

@@ -193,7 +193,7 @@ function printNameUpdateTransaction(tx = {}, tabs = '') {
   printUnderscored(tabs + 'Client TTL', R.defaultTo('N/A', R.path(['tx', 'clientTtl'], tx)))
   printUnderscored(tabs + 'Name ID', R.defaultTo('N/A', R.path(['tx', 'nameId'], tx)))
   printUnderscored(tabs + 'Name TTL', R.defaultTo('N/A', R.path(['tx', 'nameTtl'], tx)))
-  printUnderscored(tabs + 'Pointers', R.defaultTo('N/A', R.path(['tx', 'pointers'], tx)))
+  printUnderscored(tabs + 'Pointers', R.defaultTo('N/A', JSON.stringify(R.path(['tx', 'pointers'], tx))))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
   printUnderscored(tabs + 'Nonce', R.defaultTo('N/A', R.path(['tx', 'nonce'], tx)))
@@ -249,7 +249,7 @@ export function printName (name, json) {
   printUnderscored('Status', R.defaultTo('N/A', R.prop('status', name)))
   printUnderscored('Name hash', R.defaultTo('N/A', R.prop('id', name)))
   printUnderscored('Pointers', R.defaultTo('N/A', JSON.stringify(R.prop('pointers', name))))
-  printUnderscored('TTL', R.defaultTo(0, R.prop('nameTtl', name)))
+  printUnderscored('TTL', R.defaultTo(0, R.prop('ttl', name)))
 }
 
 // Print `contract_descriptor` file

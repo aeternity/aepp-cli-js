@@ -31,7 +31,7 @@ const { Wallet } = require('./commands')
 program
   .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('--native', 'Build transaction natively', true)
+  .option('--native', 'Build transaction natively')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-P, --password [password]', 'Wallet Password')
   .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
@@ -52,6 +52,18 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.SPEND_TX_TTL)
   .description('Create a transaction to another wallet')
   .action(async (walletPath, receiver, amount, ...arguments) => await Wallet.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `sign` command
+//
+// You can use this command to sign your transaction's
+//
+// Example: `aecli account sign ./myWalletKeyFile tx_1241rioefwj23f2wfdsfsdsdfsasdf --password testpassword`
+program
+  .command('sign <wallet_path> <tx>')
+  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.SPEND_TX_TTL)
+  .description('Create a transaction to another wallet')
+  .action(async (walletPath, tx, ...arguments) => await Wallet.sign(walletPath, tx, utils.cli.getCmdFromArguments(arguments)))
+
 
 // ## Initialize `balance` command
 //
