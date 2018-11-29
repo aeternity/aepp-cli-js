@@ -29,9 +29,9 @@ export const HASH_TYPES = {
 }
 
 // ## CONNECTION
-export const EPOCH_URL = 'https://sdk-edgenet.aepps.com'
-export const EPOCH_INTERNAL_URL = 'https://sdk-edgenet.aepps.com'
-export const EPOCH_WEBSOCKET_URL = 'https://sdk-edgenet.aepps.com'
+export const EPOCH_URL = 'https://sdk-mainnet.aepp.com'
+export const EPOCH_INTERNAL_URL = 'https://sdk-mainnet.aepp.com'
+export const EPOCH_WEBSOCKET_URL = 'https://sdk-testnet.aepps.com'
 
 // ## CHAIN
 export const PLAY_LIMIT = 10

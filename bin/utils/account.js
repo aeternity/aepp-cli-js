@@ -61,7 +61,7 @@ async function promptPasswordAsync () {
 // ##WALLET HELPERS
 
 // Generate `keypair` encrypt it using password and write to `ethereum` keystore file
-export async function generateSecureWallet (name, { output, password }) {
+export async function generateSecureWallet (name, { output = '', password }) {
   password = password || await promptPasswordAsync()
   const { secretKey, publicKey } = Crypto.generateKeyPair(true)
 

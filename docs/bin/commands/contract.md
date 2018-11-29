@@ -358,7 +358,7 @@ Call static or call
 
 ```js
         const callResult = callStatic ?
-          await client.contractCallStatic(params.code, params.abi, params.name, { ...params.options, args }) :
+          await client.contractCallStatic(params.address, 'sophia-address', params.name, { ...params.options, args }) :
           await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, args })
 
 ```
@@ -466,7 +466,7 @@ Call static or call
 
 ```js
         const callResult = callStatic ?
-          await client.contractCallStatic(params.code, params.abi, params.name, { ...params.options, call }) :
+          await client.contractCallStatic(params.address, 'sophia-address', params.name, { ...params.options, call }) :
           await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, call })
 
 ```
