@@ -4,7 +4,7 @@
 
 
 
-  
+
 
 ```js
 /*
@@ -45,7 +45,7 @@ That script contains default configuration for `CLI`
 ## HAST TYPES
 
 
-  
+
 
 ```js
 export const HASH_TYPES = {
@@ -70,11 +70,11 @@ export const HASH_TYPES = {
 ## CONNECTION
 
 
-  
+
 
 ```js
-export const EPOCH_URL = 'https://sdk-mainnet.aepp.com'
-export const EPOCH_INTERNAL_URL = 'https://sdk-mainnet.aepp.com'
+export const EPOCH_URL = 'https://sdk-mainnet.aepps.com'
+export const EPOCH_INTERNAL_URL = 'https://sdk-mainnet.aepps.com'
 export const EPOCH_WEBSOCKET_URL = 'https://sdk-testnet.aepps.com'
 
 
@@ -89,7 +89,7 @@ export const EPOCH_WEBSOCKET_URL = 'https://sdk-testnet.aepps.com'
 ## CHAIN
 
 
-  
+
 
 ```js
 export const PLAY_LIMIT = 10
@@ -107,7 +107,7 @@ export const PLAY_INTERVAL = 1000
 ## CONTRACT
 
 
-  
+
 
 ```js
 export const CONTRACT_TTL = 500
@@ -125,7 +125,7 @@ export const GAS = 1600000 - 21000 // MAX GAS
 ## AENS
 
 
-  
+
 
 ```js
 export const AENS_TX_TTL = 500
@@ -144,7 +144,7 @@ export const CLIENT_TTL = 1
 ## ACCOUNT
 
 
-  
+
 
 ```js
 export const SPEND_TX_TTL = 500
