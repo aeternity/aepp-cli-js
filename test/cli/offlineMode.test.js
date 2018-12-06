@@ -40,7 +40,7 @@ async function signAndPost (tx, assert) {
   return res
 }
 
-describe.only('CLI Transaction Module', function () {
+describe('CLI Transaction Module', function () {
   configure(this)
   let wallet
   let salt
@@ -60,7 +60,7 @@ describe.only('CLI Transaction Module', function () {
     await signAndPost(transaction_hash, true)
   })
 
-  it.only('Build preclaim tx offline and send the chain', async () => {
+  it('Build preclaim tx offline and send the chain', async () => {
     const { preclaim_tx, salt: _salt } = parseBlock(await execute(['tx', 'name-preclaim', KEY_PAIR.publicKey, name]))
     salt = _salt
     const res = (parseBlock(await signAndPost(preclaim_tx)))
@@ -68,28 +68,28 @@ describe.only('CLI Transaction Module', function () {
     isMined.should.be.equal(true)
   })
 
-  it.only('Build claim tx offline and send the chain', async () => {
+  it('Build claim tx offline and send the chain', async () => {
     const { claim_tx } = parseBlock(await execute(['tx', 'name-claim', KEY_PAIR.publicKey, salt, name]))
     const res = (parseBlock(await signAndPost(claim_tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
   })
 
-  it.only('Build update tx offline and send the chain', async () => {
+  it('Build update tx offline and send the chain', async () => {
     const { update_tx } = parseBlock(await execute(['tx', 'name-update', KEY_PAIR.publicKey, name, KEY_PAIR.publicKey]))
     const res = (parseBlock(await signAndPost(update_tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
   })
 
-  it.only('Build transfer tx offline and send the chain', async () => {
+  it('Build transfer tx offline and send the chain', async () => {
     const { transfer_tx } = parseBlock(await execute(['tx', 'name-transfer', KEY_PAIR.publicKey, KEY_PAIR.publicKey, name]))
     const res = (parseBlock(await signAndPost(transfer_tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
   })
 
-  it.only('Build revoke tx offline and send the chain', async () => {
+  it('Build revoke tx offline and send the chain', async () => {
     const { revoke_tx } = parseBlock(await execute(['tx', 'name-revoke', KEY_PAIR.publicKey, name]))
     const res = (parseBlock(await signAndPost(revoke_tx)))
     const isMined = !isNaN(res['block_height'])

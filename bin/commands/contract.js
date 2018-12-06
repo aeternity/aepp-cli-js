@@ -37,7 +37,7 @@ export async function compile (file, options) {
 
     await handleApiError(async () => {
       // Call `Epoch` API which return `compiled code`
-      const contract = await client.contractCompile(code)
+      const contract = await client.compileEpochContract(code)
       print(`Contract bytecode:
       ${contract.bytecode}`)
     })
