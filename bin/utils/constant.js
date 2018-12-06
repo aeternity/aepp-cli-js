@@ -48,4 +48,4 @@ export const CLIENT_TTL = 1
 
 // ## ACCOUNT
 export const SPEND_TX_TTL = 500
-export const SPEND_TX_FEE = 16740
+export const SPEND_TX_FEE = 20000
