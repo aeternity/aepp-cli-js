@@ -20,7 +20,7 @@
  */
 
 import { encodeBase58Check, salt } from '@aeternity/aepp-sdk/es/utils/crypto'
-import { initClient, initTxBuilder } from '../utils/cli'
+import {initChain, initTxBuilder} from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
@@ -254,7 +254,7 @@ async function broadcast (signedTx, options) {
   let { json, waitMined } = options
   try {
     // Initialize `Ae`
-    const client = await initClient(options)
+    const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
       const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined })

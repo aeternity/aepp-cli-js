@@ -23,7 +23,7 @@ import * as R from 'ramda'
 import path from 'path'
 
 import { readFile, readJSONFile, writeFile } from '../utils/helpers'
-import { initClient, initClientByWalletFile } from '../utils/cli'
+import { initChain, initClientByWalletFile} from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, logContractDescriptor } from '../utils/print'
 
@@ -33,11 +33,11 @@ export async function compile (file, options) {
     const code = readFile(path.resolve(process.cwd(), file), 'utf-8')
     if (!code) throw new Error('Contract file not found')
 
-    const client = await initClient(options)
+    const client = await initChain(options)
 
     await handleApiError(async () => {
       // Call `Epoch` API which return `compiled code`
-      const contract = await client.contractCompile(code)
+      const contract = await client.compileEpochContract(code)
       print(`Contract bytecode:
       ${contract.bytecode}`)
     })

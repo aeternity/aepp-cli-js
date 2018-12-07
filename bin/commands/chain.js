@@ -19,7 +19,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { initClient } from '../utils/cli'
+import { initChain } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printBlock, print, printBlockTransactions, printError, printUnderscored } from '../utils/print'
 import { getBlock } from '../utils/helpers'
@@ -28,7 +28,7 @@ import { getBlock } from '../utils/helpers'
 async function version (options) {
   try {
     // Initialize `Ae`
-    const client = await initClient(options)
+    const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
       const { nodeVersion } = await client.api.getStatus()
@@ -45,7 +45,7 @@ async function top (options) {
   const { json } = options
   try {
     // Initialize `Ae`
-    const client = await initClient(options)
+    const client = await initChain(options)
     // Call `getTopBlock` API and print it
     await handleApiError(
       async () => printBlock(await client.topBlock(), json)
@@ -61,7 +61,7 @@ async function mempool (options) {
   const { json } = options
   try {
     // Initialize `Ae`
-    const client = await initClient(options)
+    const client = await initChain(options)
 
     await handleApiError(async () => {
       // Get `mempool` from `API`
@@ -86,7 +86,7 @@ async function play (options) {
   limit = parseInt(limit)
   height = parseInt(height)
   try {
-    const client = await initClient(options)
+    const client = await initChain(options)
 
     await handleApiError(async () => {
       // Get top block from `Epoch`. It is a start point for play.

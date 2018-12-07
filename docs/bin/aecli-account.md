@@ -114,7 +114,7 @@ Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasd
 ```js
 program
   .command('spend <wallet_path> <receiver> <amount>')
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.SPEND_TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .description('Create a transaction to another wallet')
   .action(async (walletPath, receiver, amount, ...arguments) => await Wallet.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
 
@@ -139,7 +139,7 @@ Example: `aecli account sign ./myWalletKeyFile tx_1241rioefwj23f2wfdsfsdsdfsasdf
 ```js
 program
   .command('sign <wallet_path> <tx>')
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.SPEND_TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .description('Create a transaction to another wallet')
   .action(async (walletPath, tx, ...arguments) => await Wallet.sign(walletPath, tx, utils.cli.getCmdFromArguments(arguments)))
 

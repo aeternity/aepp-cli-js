@@ -21,6 +21,8 @@ import * as R from 'ramda'
 import Ae from '@aeternity/aepp-sdk/es/ae/universal'
 import Account from '@aeternity/aepp-sdk/es/account/memory'
 import Tx from '@aeternity/aepp-sdk/es/tx/tx'
+import Chain from '@aeternity/aepp-sdk/es/chain/epoch'
+import EpochContract from '@aeternity/aepp-sdk/es/contract/epoch'
 import { getWalletByPathAndDecrypt } from './account'
 
 // ## Merge options with parent options.
@@ -32,12 +34,16 @@ export function getCmdFromArguments (args) {
 }
 
 // Create `Ae` client
-export async function initClient ({ url, keypair, internalUrl, force: forceCompatibility, native: nativeMode = false, networkId }) {
+export async function initClient ({ url, keypair, internalUrl, force: forceCompatibility, native: nativeMode = true, networkId }) {
   return await Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode, networkId })
 }
-
-export async function initTxBuilder({ url, internalUrl, force: forceCompatibility, native: nativeMode = true }) {
+// Create `TxBuilder` client
+export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true }) {
   return await Tx({ url, internalUrl, forceCompatibility, nativeMode })
+}
+// Create `Chain` client
+export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
+  return await Chain.compose(EpochContract)({ url, internalUrl, forceCompatibility })
 }
 
 // ## Get account files and decrypt it using password

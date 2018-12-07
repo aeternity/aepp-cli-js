@@ -147,8 +147,8 @@ export const CLIENT_TTL = 1
 
 
 ```js
-export const SPEND_TX_TTL = 500
-export const SPEND_TX_FEE = 16740
+export const TX_TTL = 500
+export const TX_FEE = 16740
 
 
 ```
