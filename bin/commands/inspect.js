@@ -66,6 +66,10 @@ async function inspect (hash, option) {
     case HASH_TYPES.transaction:
       await getTransactionByHash(hash, option)
       break
+    // Get `contract` by `contractId`
+    case HASH_TYPES.contract:
+      await getContract(hash, option)
+      break
     // Get `name`
     default:
       await getName(hash, option)
@@ -151,6 +155,22 @@ async function getName (name, options) {
     } else {
       printError(e.message)
     }
+  }
+}
+
+async function getContract(contractId, options) {
+  const { json } = options
+  try {
+    const client = await initChain(options)
+
+    await handleApiError(
+      async () => {
+        console.log(await client.api.getContract(contractId))
+        printTransaction(await client.api.getContract(contractId), json)
+      }
+    )
+  } catch (e) {
+    printError(e.message)
   }
 }
 

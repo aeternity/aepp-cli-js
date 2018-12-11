@@ -126,6 +126,18 @@ program
   .description('Build contract create transaction.')
   .action(async (ownerId, contract, ...arguments) => await Transaction.contractDeploy(ownerId, contract, utils.cli.getCmdFromArguments(arguments)))
 
+// ## Initialize `contract-call` command
+//
+// You can use this command to build `contract call` transaction
+//
+// Example: `aecli tx contract-call ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi test.contract`
+program
+  .command('contract-call <callerId> <descrPath> <fn> <return_type> [args...]')
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+  .option('-F, --fee [fee]', 'Transaction fee.')
+  .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
+  .description('Build contract create transaction.')
+  .action(async (callerId, descrPath, fn, returnType, args, ...arguments) => await Transaction.contractCall(callerId, descrPath, fn, returnType, args, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `broadcast` command
 //

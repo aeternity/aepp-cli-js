@@ -22,7 +22,7 @@
 import * as R from 'ramda'
 import path from 'path'
 
-import { readFile, readJSONFile, writeFile } from '../utils/helpers'
+import { grabDesc, readFile, writeFile } from '../utils/helpers'
 import { initChain, initClientByWalletFile} from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, logContractDescriptor } from '../utils/print'
@@ -102,7 +102,6 @@ async function deploy (walletPath, contractPath, options) {
   }
 }
 
-const grabDesc = async descrPath => descrPath && await readJSONFile(path.resolve(process.cwd(), descrPath))
 const prepareCallParams = async (name, { descrPath,  contractAddress, gas, ttl, nonce }) => {
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
