@@ -23,6 +23,7 @@ import Account from '@aeternity/aepp-sdk/es/account/memory'
 import Tx from '@aeternity/aepp-sdk/es/tx/tx'
 import Chain from '@aeternity/aepp-sdk/es/chain/epoch'
 import EpochContract from '@aeternity/aepp-sdk/es/contract/epoch'
+import EpochOracle  from '@aeternity/aepp-sdk/es/oracle/epoch'
 import { getWalletByPathAndDecrypt } from './account'
 
 // ## Merge options with parent options.
@@ -43,7 +44,7 @@ export async function initTxBuilder ({ url, internalUrl, force: forceCompatibili
 }
 // Create `Chain` client
 export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
-  return await Chain.compose(EpochContract)({ url, internalUrl, forceCompatibility })
+  return await Chain.compose(EpochContract, EpochOracle)({ url, internalUrl, forceCompatibility })
 }
 
 // ## Get account files and decrypt it using password

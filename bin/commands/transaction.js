@@ -19,11 +19,12 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
+import path from "path"
 import { encodeBase58Check, salt } from '@aeternity/aepp-sdk/es/utils/crypto'
 import {initChain, initTxBuilder} from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
-import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
+import { isAvailable, readFile, updateNameStatus, validateName } from '../utils/helpers'
 
 // ## Build `spend` transaction
 async function spend (senderId, recipientId, amount, options) {
@@ -249,6 +250,39 @@ async function nameRevoke (accountId, domain, options) {
   }
 }
 
+// ## Build `contractDeploy` transaction
+async function contractDeploy (ownerId, contractPath, options) {
+  let { ttl, json, nonce, fee, init = '()', gas } = options
+  ttl = parseInt(ttl)
+  nonce = parseInt(nonce)
+  try {
+    // Get contract file
+    const contractFile = readFile(path.resolve(process.cwd(), contractPath), 'utf-8')
+
+    // Initialize `Ae`
+    const txBuilder = await initTxBuilder(options)
+    const chain = await initChain(options)
+    // Build `claim` transaction's
+    await handleApiError(async () => {
+      // Compile contract using `debug API`
+      const { bytecode: code } = await chain.compileEpochContract(contractFile, { gas })
+      // Prepare `callData`
+      const callData = await chain.contractEpochEncodeCallData(code, 'sophia', 'init', init)
+      // Create `contract-deploy` transaction
+      const { tx, contractId } = await txBuilder.contractCreateTx({ code, nonce, fee, ttl, gas, ownerId, callData })
+
+      if (json)
+        print({ tx, contractId })
+      else
+        printUnderscored('Contract Deploy TX', tx)
+        printUnderscored('Contract ID', contractId)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
 // ## Send 'transaction' to the chain
 async function broadcast (signedTx, options) {
   let { json, waitMined } = options
@@ -273,5 +307,6 @@ export const Transaction = {
   nameUpdate,
   nameRevoke,
   nameTransfer,
-  broadcast
+  broadcast,
+  contractDeploy
 }

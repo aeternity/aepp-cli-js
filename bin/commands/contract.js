@@ -48,9 +48,8 @@ export async function compile (file, options) {
 
 // ## Function which `deploy ` contract
 async function deploy (walletPath, contractPath, options) {
-  const { init, json } = options
+  const { init, json, gas } = options
   const ttl = parseInt(options.ttl)
-  const gas = parseInt(options.gas)
   const nonce = parseInt(options.nonce)
 
   // Deploy a contract to the chain and create a deploy descriptor

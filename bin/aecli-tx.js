@@ -112,6 +112,21 @@ program
   .description('Build name revoke transaction.')
   .action(async (accountId, domain, ...arguments) => await Transaction.nameRevoke(accountId, domain, utils.cli.getCmdFromArguments(arguments)))
 
+// ## Initialize `contract-deploy` command
+//
+// You can use this command to build `contract create` transaction
+//
+// Example: `aecli tx contract-deploy ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi test.contract`
+program
+  .command('contract-deploy <ownerId> <contract>')
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+  .option('-F, --fee [fee]', 'Transaction fee.')
+  .option('-I, --init [state]', 'Deploying contract arguments for constructor function')
+  .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
+  .description('Build contract create transaction.')
+  .action(async (ownerId, contract, ...arguments) => await Transaction.contractDeploy(ownerId, contract, utils.cli.getCmdFromArguments(arguments)))
+
+
 // ## Initialize `broadcast` command
 //
 // You can use this command to send `transaction` to the `chain`
