@@ -21,10 +21,15 @@
 
 import path from "path"
 import { encodeBase58Check, salt } from '@aeternity/aepp-sdk/es/utils/crypto'
-import {initChain, initTxBuilder} from '../utils/cli'
+import { initChain, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
 import { isAvailable, readFile, updateNameStatus, validateName } from '../utils/helpers'
+import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE } from '../utils/constant'
+
+// Default transaction build param's
+const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE}
+
 
 // ## Build `spend` transaction
 async function spend (senderId, recipientId, amount, options) {
@@ -269,7 +274,7 @@ async function contractDeploy (ownerId, contractPath, options) {
       // Prepare `callData`
       const callData = await chain.contractEpochEncodeCallData(code, 'sophia', 'init', init)
       // Create `contract-deploy` transaction
-      const { tx, contractId } = await txBuilder.contractCreateTx({ code, nonce, fee, ttl, gas, ownerId, callData })
+      const { tx, contractId } = await txBuilder.contractCreateTx({ ...DEFAULT_CONTRACT_PARAMS, code, nonce, fee, ttl, gas, ownerId, callData })
 
       if (json)
         print({ tx, contractId })
