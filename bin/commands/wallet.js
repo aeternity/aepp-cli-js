@@ -54,7 +54,7 @@ async function sign (walletPath, tx, options) {
 // ## Spend function
 // this function allow you to `send` token's to another `account`
 async function spend (walletPath, receiver, amount, options) {
-  let { ttl, json, nonce } = options
+  let { ttl, json, nonce, payload, fee } = options
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
   try {
@@ -63,7 +63,7 @@ async function spend (walletPath, receiver, amount, options) {
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
-      let tx = await client.spend(amount, receiver, { ttl, nonce })
+      let tx = await client.spend(amount, receiver, { ttl, nonce, payload, fee })
       // if waitMined false
       if (typeof tx !== 'object') {
         tx = await client.tx(tx)
