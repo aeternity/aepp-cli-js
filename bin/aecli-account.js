@@ -36,7 +36,7 @@ program
   .option('-P, --password [password]', 'Wallet Password')
   .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-f --force', 'Ignore epoch version compatibility check')
-  .option('--json ', 'Print result in json format')
+  .option('--json', 'Print result in json format')
 
 // ## Initialize `spend` command
 //
@@ -52,7 +52,8 @@ program
   .option('--payload [payload]', 'Transaction payload.', '')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .description('Create a transaction to another wallet')
+  .option('-F, --fee [fee]', 'Spend transaction fee.', utils.constant.TX_FEE)
+  .option('--payload [payload]', 'Transaction payload.')
   .action(async (walletPath, receiver, amount, ...arguments) => await Wallet.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `sign` command
