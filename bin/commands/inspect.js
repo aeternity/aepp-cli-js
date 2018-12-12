@@ -165,7 +165,6 @@ async function getContract(contractId, options) {
 
     await handleApiError(
       async () => {
-        console.log(await client.api.getContract(contractId))
         printTransaction(await client.api.getContract(contractId), json)
       }
     )

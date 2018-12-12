@@ -45,7 +45,7 @@ program
 program
   .command('spend <senderId> <recieverId> <amount>')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Spend transaction fee.', utils.constant.TX_FEE)
+  .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('--payload [payload]', 'Transaction payload.', '')
   .description('Build Spend Transaction')
   .action(async (senderId, receiverId, amount, ...arguments) => await Transaction.spend(senderId, receiverId, amount, utils.cli.getCmdFromArguments(arguments)))
@@ -58,7 +58,7 @@ program
 program
   .command('name-preclaim <accountId> <domain>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Transaction fee.', utils.constant.TX_FEE)
+  .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build name preclaim transaction.')
   .action(async (accountId, domain, ...arguments) => await Transaction.namePreClaim(accountId, domain, utils.cli.getCmdFromArguments(arguments)))
 
@@ -70,7 +70,7 @@ program
 program
   .command('name-update <accountId> <domain> [pointers...]')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Transaction fee.', utils.constant.TX_FEE)
+  .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--nameTtl [nameTtl]', 'Validity of name.', utils.constant.NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
   .description('Build name update transaction.')
@@ -84,7 +84,7 @@ program
 program
   .command('name-claim <accountId> <salt> <domain>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Transaction fee.', utils.constant.TX_FEE)
+  .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build name claim transaction.')
   .action(async (accountId, salt, domain, ...arguments) => await Transaction.nameClaim(accountId, salt, domain, utils.cli.getCmdFromArguments(arguments)))
 
@@ -96,7 +96,7 @@ program
 program
   .command('name-transfer <accountId> <recipientId> <domain>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Transaction fee.', utils.constant.TX_FEE)
+  .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build name tansfer transaction.')
   .action(async (accountId, transferId, domain, ...arguments) => await Transaction.nameTransfer(accountId, transferId, domain, utils.cli.getCmdFromArguments(arguments)))
 
@@ -108,7 +108,7 @@ program
 program
   .command('name-revoke <accountId> <domain>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Transaction fee.', utils.constant.TX_FEE)
+  .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build name revoke transaction.')
   .action(async (accountId, domain, ...arguments) => await Transaction.nameRevoke(accountId, domain, utils.cli.getCmdFromArguments(arguments)))
 
