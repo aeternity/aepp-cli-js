@@ -140,7 +140,7 @@ async function call (walletPath, fn, returnType, args, options) {
   }
   try {
     // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const client = callStatic ? await initChain(options) : await initClientByWalletFile(walletPath, options)
+    const client = await initClientByWalletFile(walletPath, options)
     const params = await prepareCallParams(fn, options)
 
     // Prepare args
@@ -183,7 +183,7 @@ async function callTypeChecked (walletPath, fn, returnType, callContract, option
   }
   try {
     // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const client = callStatic ? await initChain(options) : await initClientByWalletFile(walletPath, options)
+    const client = await initClientByWalletFile(walletPath, options)
     const params = await prepareCallParams(fn, R.merge(options, { callContract }))
     const call = readFile(path.resolve(process.cwd(), callContract), 'utf-8')
 
