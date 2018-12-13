@@ -289,7 +289,7 @@ async function contractDeploy (ownerId, contractPath, options) {
 }
 
 // ## Build `contractCall` transaction
-async function contractCall (callerId, descrPath, fn, returnType, args, options) {
+async function contractCall (callerId, contractId, fn, returnType, args, options) {
   let { ttl, json, nonce, fee, gas } = options
   nonce = parseInt(nonce)
   try {
@@ -297,15 +297,13 @@ async function contractCall (callerId, descrPath, fn, returnType, args, options)
     args = args.filter(arg => arg !== '[object Object]')
     args = args.length ? `(${args.join(',')})` : '()'
 
-    // Grab contract descriptor
-    const { address: contractId, bytecode, abi } = await grabDesc(descrPath)
     // Build `call` transaction's
     await handleApiError(async () => {
       // Initialize `Ae`
       const txBuilder = await initTxBuilder(options)
       const chain = await initChain(options)
       // Prepare `callData`
-      const callData = await chain.contractEpochEncodeCallData(bytecode, abi, fn, args)
+      const callData = await chain.contractEpochEncodeCallData(contractId, 'sophia-address', fn, args)
       // Create `contract-call` transaction
       const tx = await txBuilder.contractCallTx({ ...DEFAULT_CONTRACT_PARAMS, callerId, nonce, ttl, fee, gas, callData, contractId })
 
