@@ -25,7 +25,7 @@ import path from 'path'
 import { grabDesc, readFile, writeFile } from '../utils/helpers'
 import { initChain, initClientByWalletFile} from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { printError, print, logContractDescriptor } from '../utils/print'
+import {printError, print, logContractDescriptor, printTransaction, printUnderscored} from '../utils/print'
 
 // ## Function which compile your `source` code
 export async function compile (file, options) {
@@ -133,7 +133,7 @@ const prepareCallParams = async (name, { descrPath,  contractAddress, gas, ttl, 
 
 // ## Function which `call` contract
 async function call (walletPath, fn, returnType, args, options) {
-  const { callStatic } = options
+  const { callStatic, json } = options
   if (!fn || !returnType) {
     program.outputHelp()
     process.exit(1)
@@ -156,14 +156,16 @@ async function call (walletPath, fn, returnType, args, options) {
         // The execution result, if successful, will be an AEVM-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
         // not be a hexadecimal string, anymore.
-        print('Contract address_________ ' + params.address)
-        print('Gas price________________ ' + R.path(['result', 'gasPrice'])(callResult))
-        print('Gas used_________________ ' + R.path(['result', 'gasUsed'])(callResult))
-        print('Return value (encoded)___ ' + R.path(['result', 'returnValue'])(callResult))
+        if (callResult) printTransaction(await client.tx(callResult.hash), json)
+        print('----------------------Transaction info-----------------------')
+        printUnderscored('Contract address', params.address)
+        printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
+        printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
+        printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
         // Decode result
         const { type, value } = await callResult.decode(returnType)
-        print('Return value (decoded)___ ' + value)
-        print('Return remote type_______ ' + type)
+        printUnderscored('Return value (decoded)', value)
+        printUnderscored('Return remote type', type)
       }
     )
   } catch (e) {
