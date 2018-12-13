@@ -52,7 +52,7 @@ program
   .option('--payload [payload]', 'Transaction payload.', '')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Spend transaction fee.', utils.constant.TX_FEE)
+  .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('--payload [payload]', 'Transaction payload.')
   .action(async (walletPath, receiver, amount, ...arguments) => await Wallet.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
 
