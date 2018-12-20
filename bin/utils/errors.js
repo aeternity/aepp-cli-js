@@ -21,7 +21,7 @@ import { printError, print } from './print'
 import { isExecCommand } from './cli'
 
 // ## `API` errors logger
-export function logApiError (error) { printError(`API ERROR: ${error}`) }
+export function logApiError (error) { printError(`API ERROR: `, error) }
 
 // ## `API` errors handler
 export async function handleApiError (fn) {

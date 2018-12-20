@@ -19,11 +19,17 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
+import path from "path"
 import { encodeBase58Check, salt } from '@aeternity/aepp-sdk/es/utils/crypto'
-import {initChain, initTxBuilder} from '../utils/cli'
+import { initChain, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
-import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
+import { grabDesc, isAvailable, readFile, updateNameStatus, validateName } from '../utils/helpers'
+import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE } from '../utils/constant'
+
+// Default transaction build param's
+const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE}
+
 
 // ## Build `spend` transaction
 async function spend (senderId, recipientId, amount, options) {
@@ -249,6 +255,69 @@ async function nameRevoke (accountId, domain, options) {
   }
 }
 
+// ## Build `contractDeploy` transaction
+async function contractDeploy (ownerId, contractPath, options) {
+  let { ttl, json, nonce, fee, init = '()', gas } = options
+  ttl = parseInt(ttl)
+  nonce = parseInt(nonce)
+  try {
+    // Get contract file
+    const contractFile = readFile(path.resolve(process.cwd(), contractPath), 'utf-8')
+
+    // Initialize `Ae`
+    const txBuilder = await initTxBuilder(options)
+    const chain = await initChain(options)
+    // Build `deploy` transaction's
+    await handleApiError(async () => {
+      // Compile contract using `debug API`
+      const { bytecode: code } = await chain.compileEpochContract(contractFile, { gas })
+      // Prepare `callData`
+      const callData = await chain.contractEpochEncodeCallData(code, 'sophia', 'init', init)
+      // Create `contract-deploy` transaction
+      const { tx, contractId } = await txBuilder.contractCreateTx({ ...DEFAULT_CONTRACT_PARAMS, code, nonce, fee, ttl, gas, ownerId, callData })
+
+      if (json)
+        print({ tx, contractId })
+      else
+        printUnderscored('Contract Deploy TX', tx)
+        printUnderscored('Contract ID', contractId)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
+// ## Build `contractCall` transaction
+async function contractCall (callerId, contractId, fn, returnType, args, options) {
+  let { ttl, json, nonce, fee, gas } = options
+  nonce = parseInt(nonce)
+  try {
+    // Prepare args
+    args = args.filter(arg => arg !== '[object Object]')
+    args = args.length ? `(${args.join(',')})` : '()'
+
+    // Build `call` transaction's
+    await handleApiError(async () => {
+      // Initialize `Ae`
+      const txBuilder = await initTxBuilder(options)
+      const chain = await initChain(options)
+      // Prepare `callData`
+      const callData = await chain.contractEpochEncodeCallData(contractId, 'sophia-address', fn, args)
+      // Create `contract-call` transaction
+      const tx = await txBuilder.contractCallTx({ ...DEFAULT_CONTRACT_PARAMS, callerId, nonce, ttl, fee, gas, callData, contractId })
+
+      if (json)
+        print({ tx })
+      else
+        printUnderscored('Contract Call TX', tx)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
 // ## Send 'transaction' to the chain
 async function broadcast (signedTx, options) {
   let { json, waitMined } = options
@@ -273,5 +342,7 @@ export const Transaction = {
   nameUpdate,
   nameRevoke,
   nameTransfer,
-  broadcast
+  broadcast,
+  contractDeploy,
+  contractCall
 }
