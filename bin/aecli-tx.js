@@ -112,6 +112,7 @@ program
   .description('Build name revoke transaction.')
   .action(async (accountId, domain, ...arguments) => await Transaction.nameRevoke(accountId, domain, utils.cli.getCmdFromArguments(arguments)))
 
+
 // ## Initialize `contract-deploy` command
 //
 // You can use this command to build `contract create` transaction
@@ -138,6 +139,22 @@ program
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
   .description('Build contract create transaction.')
   .action(async (callerId, contractId, fn, returnType, args, ...arguments) => await Transaction.contractCall(callerId, contractId, fn, returnType, args, utils.cli.getCmdFromArguments(arguments)))
+
+
+// ## Initialize `oracle-register` command
+//
+// You can use this command to build `oracle-register` transaction
+//
+// Example: `aecli tx oracle-register ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  testname.test`
+program
+  .command('oracle-register <accountId> <queryFormat> <responseFormat>')
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+  .option('-F, --fee [fee]', 'Transaction fee.')
+  .option('--queryFee [queryFee]', 'Oracle Query fee.', utils.constant.QUERY_FEE)
+  .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.ORACLE_TTL)
+  .description('Build name revoke transaction.')
+  .action(async (accountId, queryFormat, responseFormat, ...arguments) => await Transaction.oracleRegister(accountId, queryFormat, responseFormat, utils.cli.getCmdFromArguments(arguments)))
+
 
 // ## Initialize `broadcast` command
 //

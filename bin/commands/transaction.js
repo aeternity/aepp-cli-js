@@ -19,17 +19,17 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import path from "path"
+import path from 'path'
 import { encodeBase58Check, salt } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/js'
 import { initChain, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
-import { grabDesc, isAvailable, readFile, updateNameStatus, validateName } from '../utils/helpers'
-import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE } from '../utils/constant'
+import { isAvailable, readFile, updateNameStatus, validateName } from '../utils/helpers'
+import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE, BUILD_ORACLE_TTL } from '../utils/constant'
 
 // Default transaction build param's
 const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE}
-
 
 // ## Build `spend` transaction
 async function spend (senderId, recipientId, amount, options) {
@@ -43,7 +43,7 @@ async function spend (senderId, recipientId, amount, options) {
     await handleApiError(async () => {
       const tx = await client.spendTx({ senderId, recipientId, amount, ttl, nonce, fee, payload })
       if (json)
-        print({tx})
+        print({ tx })
       else
         printUnderscored('Transaction Hash', tx)
     })
@@ -75,7 +75,7 @@ async function namePreClaim (accountId, domain, options) {
 
       // Generate `salt` and `commitmentId` and build `name` hash
       const _salt = salt()
-      const commitmentId = await client.commitmentHash(domain, _salt)
+      const commitmentId = await commitmentHash(domain, _salt)
       const nameHash = `nm_${encodeBase58Check(Buffer.from(domain))}`
 
       // Create `preclaim` transaction
@@ -83,8 +83,7 @@ async function namePreClaim (accountId, domain, options) {
 
       if (json) {
         print({ tx: preclaimTx, salt: _salt, commitmentId })
-      }
-      else {
+      } else {
         printUnderscored('Preclaim TX', preclaimTx)
         printUnderscored('Salt', _salt)
         printUnderscored('Commitment ID', commitmentId)
@@ -176,7 +175,16 @@ async function nameUpdate (accountId, domain, pointers, options) {
 
       pointers = pointers.map(id => Object.assign({}, { id, key: classify(id) }))
       // Create `update` transaction
-      const updateTx = await client.nameUpdateTx({ accountId, nonce, nameId: name.id, nameTtl, pointers, clientTtl, fee, ttl })
+      const updateTx = await client.nameUpdateTx({
+        accountId,
+        nonce,
+        nameId: name.id,
+        nameTtl,
+        pointers,
+        clientTtl,
+        fee,
+        ttl
+      })
 
       if (json)
         print({ tx: updateTx })
@@ -276,11 +284,13 @@ async function contractDeploy (ownerId, contractPath, options) {
       // Create `contract-deploy` transaction
       const { tx, contractId } = await txBuilder.contractCreateTx({ ...DEFAULT_CONTRACT_PARAMS, code, nonce, fee, ttl, gas, ownerId, callData })
 
-      if (json)
+      if (json) {
         print({ tx, contractId })
-      else
+      }
+      else {
         printUnderscored('Contract Deploy TX', tx)
         printUnderscored('Contract ID', contractId)
+      }
     })
   } catch (e) {
     printError(e.message)
@@ -318,6 +328,31 @@ async function contractCall (callerId, contractId, fn, returnType, args, options
   }
 }
 
+// ## Build `oracleRegister` transaction
+async function oracleRegister (accountId, queryFormat, responseFormat, options) {
+  let { ttl, json, nonce, fee, queryFee, oracleTtl } = options
+  queryFee = parseInt(queryFee)
+  oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl))
+  nonce = parseInt(nonce)
+  try {
+    // Initialize `TxBuilder`
+    const client = await initTxBuilder(options)
+    // Build `claim` transaction's
+    await handleApiError(async () => {
+      // Create `oracleRegister` transaction
+      const oracleRegisterTx = await client.oracleRegisterTx({ accountId, nonce, queryFormat, responseFormat, queryFee, oracleTtl, fee, ttl })
+      console.log(oracleRegisterTx)
+      if (json)
+        print({ tx: oracleRegisterTx })
+      else
+        printUnderscored('OracleRegister TX', oracleRegisterTx)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
 // ## Send 'transaction' to the chain
 async function broadcast (signedTx, options) {
   let { json, waitMined } = options
@@ -344,5 +379,6 @@ export const Transaction = {
   nameTransfer,
   broadcast,
   contractDeploy,
-  contractCall
+  contractCall,
+  oracleRegister
 }
