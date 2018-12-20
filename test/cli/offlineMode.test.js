@@ -19,6 +19,12 @@ import { describe, it } from 'mocha'
 
 import { configure, BaseAe, execute, parseBlock, KEY_PAIR, WALLET_NAME, ready } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import fs from "fs"
+
+const testContract = `contract Identity =
+  type state = ()
+  function main(x : int, y: int) = x + y
+`
 
 function randomName () {
   return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(36) + '.test'
@@ -44,10 +50,15 @@ describe('CLI Transaction Module', function () {
   configure(this)
   let wallet
   let salt
+  let contractId
   let name = randomName()
 
   before(async function() {
     wallet = await ready(this)
+    fs.writeFileSync('contractTest', testContract)
+  })
+  after(async function() {
+    if (fs.existsSync('contractTest')) { fs.unlinkSync('contractTest') }
   })
 
   it('Build spend tx offline and send the chain', async () => {
@@ -92,6 +103,22 @@ describe('CLI Transaction Module', function () {
   it('Build revoke tx offline and send the chain', async () => {
     const { revoke_tx } = parseBlock(await execute(['tx', 'name-revoke', KEY_PAIR.publicKey, name]))
     const res = (parseBlock(await signAndPost(revoke_tx)))
+    const isMined = !isNaN(res['block_height'])
+    isMined.should.be.equal(true)
+  })
+
+  it('Build contract create tx offline and send the chain', async () => {
+    const { contract_deploy_tx, contract_id } = parseBlock(await execute(['tx', 'contract-deploy', KEY_PAIR.publicKey, 'contractTest']))
+    contractId = contract_id
+    const res = (parseBlock(await signAndPost(contract_deploy_tx)))
+    console.log(res)
+    const isMined = !isNaN(res['block_height'])
+    isMined.should.be.equal(true)
+  })
+
+  it('Build contract call tx offline and send the chain', async () => {
+    const { contract_call_tx } = parseBlock(await execute(['tx', 'contract-call', KEY_PAIR.publicKey, contractId, 'main', 'int', 2, 3]))
+    const res = (parseBlock(await signAndPost(contract_call_tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
   })

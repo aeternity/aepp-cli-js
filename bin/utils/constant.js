@@ -39,6 +39,10 @@ export const PLAY_INTERVAL = 1000
 
 // ## CONTRACT
 export const GAS = 1600000 - 21000 // MAX GAS
+export const DEPOSIT = 4
+export const VM_VERSION = 1
+export const GAS_PRICE = 1
+export const AMOUNT = 1
 
 // ## AENS
 export const NAME_TTL = 50000

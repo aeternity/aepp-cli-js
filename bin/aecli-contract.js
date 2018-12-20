@@ -92,7 +92,7 @@ program
   .option('-G --gas [gas]', 'Amount of gas to call the contract', utils.constant.GAS)
   .option('-s --callStatic', 'Call static', false)
   .option('-d --descrPath [descrPath]', 'path to contract descriptor file')
-  .option('--contractAddress [contracAddress]', 'path to call pseudo contract(Using for type-checked call\'s)')
+  .option('--contractAddress [contracAddress]', 'Contract address)')
   .description('Execute a function of the contract using type-checked call')
   .action(async (walletPath, fn, returnType, callContractPath, ...arguments) => await Contract.callTypeChecked(walletPath, fn, returnType, callContractPath, utils.cli.getCmdFromArguments(arguments)))
 

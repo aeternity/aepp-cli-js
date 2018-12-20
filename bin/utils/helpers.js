@@ -22,6 +22,7 @@ import fs from 'fs'
 
 import { HASH_TYPES } from './constant'
 import { printError } from './print'
+import path from "path"
 
 // ## Method which retrieve block info by hash
 // if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`
@@ -136,3 +137,7 @@ export function isAvailable (name) { return name.status === 'AVAILABLE' }
 export function validateName (name) {
   if (R.last(name.split('.')) !== 'test') { throw new Error('AENS TLDs must end in .test') }
 }
+
+// Grab contract descriptor by path
+export const grabDesc = async descrPath => descrPath && await readJSONFile(path.resolve(process.cwd(), descrPath))
+

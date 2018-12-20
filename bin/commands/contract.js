@@ -22,10 +22,10 @@
 import * as R from 'ramda'
 import path from 'path'
 
-import { readFile, readJSONFile, writeFile } from '../utils/helpers'
+import { grabDesc, readFile, writeFile } from '../utils/helpers'
 import { initChain, initClientByWalletFile} from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { printError, print, logContractDescriptor } from '../utils/print'
+import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
 
 // ## Function which compile your `source` code
 export async function compile (file, options) {
@@ -48,9 +48,8 @@ export async function compile (file, options) {
 
 // ## Function which `deploy ` contract
 async function deploy (walletPath, contractPath, options) {
-  const { init, json } = options
+  const { init, json, gas } = options
   const ttl = parseInt(options.ttl)
-  const gas = parseInt(options.gas)
   const nonce = parseInt(options.nonce)
 
   // Deploy a contract to the chain and create a deploy descriptor
@@ -103,7 +102,6 @@ async function deploy (walletPath, contractPath, options) {
   }
 }
 
-const grabDesc = async descrPath => descrPath && await readJSONFile(path.resolve(process.cwd(), descrPath))
 const prepareCallParams = async (name, { descrPath,  contractAddress, gas, ttl, nonce }) => {
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
@@ -135,13 +133,13 @@ const prepareCallParams = async (name, { descrPath,  contractAddress, gas, ttl, 
 
 // ## Function which `call` contract
 async function call (walletPath, fn, returnType, args, options) {
-  const { callStatic } = options
+  const { callStatic, json } = options
   if (!fn || !returnType) {
     program.outputHelp()
     process.exit(1)
   }
   try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+    // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
     const params = await prepareCallParams(fn, options)
 
@@ -158,14 +156,16 @@ async function call (walletPath, fn, returnType, args, options) {
         // The execution result, if successful, will be an AEVM-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
         // not be a hexadecimal string, anymore.
-        print('Contract address_________ ' + params.address)
-        print('Gas price________________ ' + R.path(['result', 'gasPrice'])(callResult))
-        print('Gas used_________________ ' + R.path(['result', 'gasUsed'])(callResult))
-        print('Return value (encoded)___ ' + R.path(['result', 'returnValue'])(callResult))
+        if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json)
+        print('----------------------Transaction info-----------------------')
+        printUnderscored('Contract address', params.address)
+        printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
+        printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
+        printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
         // Decode result
         const { type, value } = await callResult.decode(returnType)
-        print('Return value (decoded)___ ' + value)
-        print('Return remote type_______ ' + type)
+        printUnderscored('Return value (decoded)', value)
+        printUnderscored('Return remote type', type)
       }
     )
   } catch (e) {
@@ -176,13 +176,13 @@ async function call (walletPath, fn, returnType, args, options) {
 
 // ## Function which `call` contract
 async function callTypeChecked (walletPath, fn, returnType, callContract, options) {
-  const { callStatic } = options
+  const { callStatic, json } = options
   if (!fn || !returnType) {
     program.outputHelp()
     process.exit(1)
   }
   try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+    // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
     const params = await prepareCallParams(fn, R.merge(options, { callContract }))
     const call = readFile(path.resolve(process.cwd(), callContract), 'utf-8')
@@ -196,14 +196,16 @@ async function callTypeChecked (walletPath, fn, returnType, callContract, option
         // The execution result, if successful, will be an AEVM-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
         // not be a hexadecimal string, anymore.
-        print('Contract address_________ ' + params.address)
-        print('Gas price________________ ' + R.path(['result', 'gasPrice'])(callResult))
-        print('Gas used_________________ ' + R.path(['result', 'gasUsed'])(callResult))
-        print('Return value (encoded)___ ' + R.path(['result', 'returnValue'])(callResult))
+        if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json)
+        print('----------------------Transaction info-----------------------')
+        printUnderscored('Contract address', params.address)
+        printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
+        printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
+        printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
         // Decode result
         const { type, value } = await callResult.decode(returnType)
-        print('Return value (decoded)___ ' + value)
-        print('Return remote type_______ ' + type)
+        printUnderscored('Return value (decoded)', value)
+        printUnderscored('Return remote type', type)
       }
     )
   } catch (e) {
