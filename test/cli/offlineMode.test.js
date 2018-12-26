@@ -19,7 +19,7 @@ import { describe, it } from 'mocha'
 
 import { configure, BaseAe, execute, parseBlock, KEY_PAIR, WALLET_NAME, ready } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
-import fs from "fs"
+import fs from 'fs'
 
 const testContract = `contract Identity =
   type state = ()
@@ -53,11 +53,11 @@ describe('CLI Transaction Module', function () {
   let contractId
   let name = randomName()
 
-  before(async function() {
+  before(async function () {
     wallet = await ready(this)
     fs.writeFileSync('contractTest', testContract)
   })
-  after(async function() {
+  after(async function () {
     if (fs.existsSync('contractTest')) { fs.unlinkSync('contractTest') }
   })
 
@@ -123,4 +123,21 @@ describe('CLI Transaction Module', function () {
     isMined.should.be.equal(true)
   })
 
+  it('Build oracle register tx offline and send the chain', async () => {
+    const { oracleregister_tx } = parseBlock(await execute(['tx', 'oracle-register', KEY_PAIR.publicKey, '{city: "str"}', '{tmp:""num}']))
+    const res = (parseBlock(await signAndPost(oracleregister_tx)))
+    const isMined = !isNaN(res['block_height'])
+    isMined.should.be.equal(true)
+  })
+  it('Build oracle post query tx offline and send the chain', async () => {
+    const oracleId = 'ok_' + KEY_PAIR.publicKey.slice(3)
+    const { oraclepostquery_tx } = parseBlock(await execute(['tx', 'oracle-post-query', KEY_PAIR.publicKey, oracleId, '{city: "Berlin"}']))
+    const res = (parseBlock(await signAndPost(oraclepostquery_tx)))
+    const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
+    const isMined = !isNaN(res['block_height'])
+    const hasQuery = !!queries.length
+    console.log(await wallet.getOracleQueries(oracleId))
+    isMined.should.be.equal(true)
+    hasQuery.should.be.equal(true)
+  })
 })

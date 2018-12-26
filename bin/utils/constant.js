@@ -25,6 +25,8 @@ export const HASH_TYPES = {
   micro_block: 'mh',
   signature: 'sg',
   account: 'ak',
+  oracle: 'ok',
+  oracleQuery: 'oq',
   stateHash: 'bs'
 }
 

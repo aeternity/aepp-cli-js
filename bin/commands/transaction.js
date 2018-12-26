@@ -29,7 +29,7 @@ import { isAvailable, readFile, updateNameStatus, validateName } from '../utils/
 import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE, BUILD_ORACLE_TTL } from '../utils/constant'
 
 // Default transaction build param's
-const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE}
+const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE }
 
 // ## Build `spend` transaction
 async function spend (senderId, recipientId, amount, options) {
@@ -282,12 +282,20 @@ async function contractDeploy (ownerId, contractPath, options) {
       // Prepare `callData`
       const callData = await chain.contractEpochEncodeCallData(code, 'sophia', 'init', init)
       // Create `contract-deploy` transaction
-      const { tx, contractId } = await txBuilder.contractCreateTx({ ...DEFAULT_CONTRACT_PARAMS, code, nonce, fee, ttl, gas, ownerId, callData })
+      const { tx, contractId } = await txBuilder.contractCreateTx({
+        ...DEFAULT_CONTRACT_PARAMS,
+        code,
+        nonce,
+        fee,
+        ttl,
+        gas,
+        ownerId,
+        callData
+      })
 
       if (json) {
         print({ tx, contractId })
-      }
-      else {
+      } else {
         printUnderscored('Contract Deploy TX', tx)
         printUnderscored('Contract ID', contractId)
       }
@@ -315,7 +323,16 @@ async function contractCall (callerId, contractId, fn, returnType, args, options
       // Prepare `callData`
       const callData = await chain.contractEpochEncodeCallData(contractId, 'sophia-address', fn, args)
       // Create `contract-call` transaction
-      const tx = await txBuilder.contractCallTx({ ...DEFAULT_CONTRACT_PARAMS, callerId, nonce, ttl, fee, gas, callData, contractId })
+      const tx = await txBuilder.contractCallTx({
+        ...DEFAULT_CONTRACT_PARAMS,
+        callerId,
+        nonce,
+        ttl,
+        fee,
+        gas,
+        callData,
+        contractId
+      })
 
       if (json)
         print({ tx })
@@ -334,18 +351,68 @@ async function oracleRegister (accountId, queryFormat, responseFormat, options) 
   queryFee = parseInt(queryFee)
   oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl))
   nonce = parseInt(nonce)
+  console.log(queryFormat)
+  console.log(responseFormat)
+
   try {
     // Initialize `TxBuilder`
     const client = await initTxBuilder(options)
     // Build `claim` transaction's
     await handleApiError(async () => {
       // Create `oracleRegister` transaction
-      const oracleRegisterTx = await client.oracleRegisterTx({ accountId, nonce, queryFormat, responseFormat, queryFee, oracleTtl, fee, ttl })
+      const oracleRegisterTx = await client.oracleRegisterTx({
+        accountId,
+        nonce,
+        queryFormat,
+        responseFormat,
+        queryFee,
+        oracleTtl,
+        fee,
+        ttl
+      })
       console.log(oracleRegisterTx)
       if (json)
         print({ tx: oracleRegisterTx })
       else
         printUnderscored('OracleRegister TX', oracleRegisterTx)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
+// ## Build `oraclePostQuery` transaction
+async function oraclePostQuery (senderId, oracleId, query, options) {
+  let { ttl, json, nonce, fee, queryFee, queryTtl, responseTtl } = options
+  queryFee = parseInt(queryFee)
+  queryTtl = BUILD_ORACLE_TTL(parseInt(queryTtl))
+  responseTtl = BUILD_ORACLE_TTL(parseInt(responseTtl))
+  nonce = parseInt(nonce)
+
+  try {
+    // Initialize `TxBuilder`
+    const client = await initTxBuilder(options)
+    // Build `claim` transaction's
+    await handleApiError(async () => {
+      // Create `oracleRegister` transaction
+      const oraclePostQueryTx = await client.oraclePostQueryTx({
+        oracleId,
+        responseTtl,
+        query,
+        queryTtl,
+        queryFee,
+        senderId,
+        nonce,
+        fee,
+        ttl
+      })
+      if (json) {
+        print(oraclePostQueryTx)
+      } else {
+        printUnderscored('OraclePostQuery TX', oraclePostQueryTx.tx)
+        printUnderscored('Query ID', oraclePostQueryTx.queryId)
+      }
     })
   } catch (e) {
     printError(e.message)
@@ -362,7 +429,7 @@ async function broadcast (signedTx, options) {
     // Call `getStatus` API and print it
     await handleApiError(async () => {
       const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined })
-      waitMined ? printTransaction(tx, json) : print('Transaction send to the chain')
+      waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx)
     })
   } catch (e) {
     printError(e.message)
@@ -380,5 +447,6 @@ export const Transaction = {
   broadcast,
   contractDeploy,
   contractCall,
-  oracleRegister
+  oracleRegister,
+  oraclePostQuery
 }
