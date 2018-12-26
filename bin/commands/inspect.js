@@ -187,7 +187,6 @@ async function getOracle (oracleId, options) {
         printOracle(await client.getOracle(oracleId), json)
         const { oracleQueries: queries } = await client.getOracleQueries(oracleId)
         if (queries) printQueries(queries, json)
-        console.log(await client.getOracleQuery(oracleId, 'oq_zivSLdqHbpyCUkCMLXMWKmHL2tYo5KMNxEYTMKKyH44MqmX2N'))
       }
     )
   } catch (e) {

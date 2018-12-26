@@ -136,7 +136,6 @@ describe('CLI Transaction Module', function () {
     const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
     const isMined = !isNaN(res['block_height'])
     const hasQuery = !!queries.length
-    console.log(await wallet.getOracleQueries(oracleId))
     isMined.should.be.equal(true)
     hasQuery.should.be.equal(true)
   })
