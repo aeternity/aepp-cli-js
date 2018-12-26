@@ -145,7 +145,7 @@ program
 //
 // You can use this command to build `oracle-register` transaction
 //
-// Example: `aecli tx oracle-register ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  testname.test`
+// Example: `aecli tx oracle-register ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  "{city: 'string'}" "{tmp: 'num'}"``
 program
   .command('oracle-register <accountId> <queryFormat> <responseFormat>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
@@ -160,7 +160,7 @@ program
 //
 // You can use this command to build `oracle-post-query` transaction
 //
-// Example: `aecli tx oracle-post-query ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad {city: ''Berlin}`
+// Example: `aecli tx oracle-post-query ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad {city: 'Berlin'}`
 program
   .command('oracle-post-query <accountId> <oracleId> <query>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
@@ -170,6 +170,31 @@ program
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.RESPONSE_TTL)
   .description('Build oracle post query transaction.')
   .action(async (accountId, oracleId, query, ...arguments) => await Transaction.oraclePostQuery(accountId, oracleId, query, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `oracle-extend` command
+//
+// You can use this command to build `oracle-extend` transaction
+//
+// Example: `aecli tx oracle-extend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad 100
+program
+  .command('oracle-extend <callerId> <oracleId> <oracleTtl>')
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+  .option('-F, --fee [fee]', 'Transaction fee.')
+  .description('Build oracle extend transaction.')
+  .action(async (callerId, oracleId, oracleTtl, ...arguments) => await Transaction.oracleExtend(callerId, oracleId, oracleTtl, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `oracle-respond` command
+//
+// You can use this command to build `oracle-respond` transaction
+//
+// Example: `aecli tx oracle-respond ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad oq_asdjn23ifsdiuhfk2h3fuksadh {tmp: 1}`
+program
+  .command('oracle-respond <callerId> <oracleId> <queryId> <response>')
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+  .option('-F, --fee [fee]', 'Transaction fee.')
+  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.RESPONSE_TTL)
+  .description('Build oracle extend transaction.')
+  .action(async (callerId, oracleId, queryId, response, ...arguments) => await Transaction.oracleRespond(callerId, oracleId, queryId, response, utils.cli.getCmdFromArguments(arguments)))
 
 
 // ## Initialize `broadcast` command

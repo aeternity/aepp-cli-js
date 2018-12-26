@@ -370,7 +370,6 @@ async function oracleRegister (accountId, queryFormat, responseFormat, options) 
         fee,
         ttl
       })
-      console.log(oracleRegisterTx)
       if (json)
         print({ tx: oracleRegisterTx })
       else
@@ -420,6 +419,72 @@ async function oraclePostQuery (senderId, oracleId, query, options) {
   }
 }
 
+// ## Build `oracleExtend` transaction
+async function oracleExtend (callerId, oracleId, oracleTtl, options) {
+  let { ttl, json, nonce, fee } = options
+  oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl))
+  nonce = parseInt(nonce)
+
+  try {
+    // Initialize `TxBuilder`
+    const client = await initTxBuilder(options)
+    // Build `claim` transaction's
+    await handleApiError(async () => {
+      // Create `oracleRegister` transaction
+      const oracleExtendTx = await client.oracleExtendTx({
+        oracleId,
+        oracleTtl,
+        callerId,
+        nonce,
+        fee,
+        ttl
+      })
+      if (json) {
+        print(oracleExtendTx)
+      } else {
+        printUnderscored('OracleExtend TX', oracleExtendTx)
+      }
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
+// ## Build `oracleRespond` transaction
+async function oracleRespond (callerId, oracleId, queryId, response, options) {
+  let { ttl, json, nonce, fee, responseTtl } = options
+  responseTtl = BUILD_ORACLE_TTL(parseInt(responseTtl))
+  nonce = parseInt(nonce)
+
+  try {
+    // Initialize `TxBuilder`
+    const client = await initTxBuilder(options)
+    // Build `claim` transaction's
+    await handleApiError(async () => {
+      // Create `oracleRegister` transaction
+      const oracleRespondTx = await client.oracleRespondTx({
+        oracleId,
+        responseTtl,
+        callerId,
+        queryId,
+        response,
+        nonce,
+        fee,
+        ttl
+      })
+      if (json) {
+        print(oracleRespondTx)
+      } else {
+        printUnderscored('OracleRespond TX', oracleRespondTx)
+      }
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
 // ## Send 'transaction' to the chain
 async function broadcast (signedTx, options) {
   let { json, waitMined } = options
@@ -448,5 +513,7 @@ export const Transaction = {
   contractDeploy,
   contractCall,
   oracleRegister,
-  oraclePostQuery
+  oraclePostQuery,
+  oracleExtend,
+  oracleRespond
 }

@@ -31,7 +31,9 @@ const TX_TYPE_PRINT_MAP = {
   'NameUpdateTx': printNameUpdateTransaction,
   'NameRevokeTx': printNameRevokeTransaction,
   'OracleRegisterTx': printOracleRegisterTransaction,
-  'OracleQueryTx': printOraclePostQueryTransaction
+  'OracleQueryTx': printOraclePostQueryTransaction,
+  'OracleExtendTx': printOracleExtendTransaction,
+  'OracleResponseTx': printOracleResponseTransaction
 }
 // ## Row width
 const WIDTH = 40
@@ -248,6 +250,28 @@ function printOraclePostQueryTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
   printUnderscored(tabs + 'Query Fee', R.defaultTo('N/A', R.path(['tx', 'queryFee'], tx)))
   printUnderscored(tabs + 'Query Ttl', R.defaultTo('N/A', R.path(['tx', 'queryTtl'], tx)))
+  printUnderscored(tabs + 'Response Ttl', R.defaultTo('N/A', R.path(['tx', 'responseTtl'], tx)))
+  printUnderscored(tabs + 'Nonce', R.defaultTo('N/A', R.path(['tx', 'nonce'], tx)))
+  printUnderscored(tabs + 'TTL', R.defaultTo('N/A', R.path(['tx', 'ttl'], tx)))
+}
+
+// Print `oracle-extend` info
+function printOracleExtendTransaction (tx = {}, tabs = '') {
+  printUnderscored(tabs + 'Oracle ID', R.defaultTo('N/A', 'ok_' + R.path(['tx', 'oracleId'], tx).slice(3)))
+
+  printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
+  printUnderscored(tabs + 'Oracle Ttl', R.defaultTo('N/A', R.path(['tx', 'oracleTtl'], tx)))
+  printUnderscored(tabs + 'Nonce', R.defaultTo('N/A', R.path(['tx', 'nonce'], tx)))
+  printUnderscored(tabs + 'TTL', R.defaultTo('N/A', R.path(['tx', 'ttl'], tx)))
+}
+
+// Print `oracle-response` info
+function printOracleResponseTransaction (tx = {}, tabs = '') {
+  printUnderscored(tabs + 'Oracle ID', R.defaultTo('N/A', 'ok_' + R.path(['tx', 'oracleId'], tx).slice(3)))
+  printUnderscored(tabs + 'Query', R.defaultTo('N/A', R.path(['tx', 'queryId'], tx)))
+
+  printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
+  printUnderscored(tabs + 'Response', R.defaultTo('N/A', R.path(['tx', 'response'], tx)))
   printUnderscored(tabs + 'Response Ttl', R.defaultTo('N/A', R.path(['tx', 'responseTtl'], tx)))
   printUnderscored(tabs + 'Nonce', R.defaultTo('N/A', R.path(['tx', 'nonce'], tx)))
   printUnderscored(tabs + 'TTL', R.defaultTo('N/A', R.path(['tx', 'ttl'], tx)))
