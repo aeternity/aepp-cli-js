@@ -37,15 +37,14 @@ describe('CLI Inspect Module', function () {
   configure(this)
   let wallet
 
-  before(async function() {
+  before(async function () {
     wallet = await ready(this)
   })
   it('Inspect Account', async () => {
-
-    const balance = await wallet.balance(KEY_PAIR.publicKey)
+    const balance = await wallet.balance(KEY_PAIR.publicKey, { format: false })
     const { account_balance } = parseBlock(await execute(['inspect', KEY_PAIR.publicKey]))
 
-    parseInt(balance).should.equal(parseInt(account_balance))
+    balance.should.equal(account_balance)
   })
   it('Inspect Transaction', async () => {
     const recipient = (generateKeyPair()).publicKey

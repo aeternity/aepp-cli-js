@@ -28,7 +28,7 @@ import path from "path"
 // if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`
 //
 // if it's `BLOCK` call `getKeyBlockByHash`
-export function getBlock(hash) {
+export function getBlock (hash) {
   return async (client) => {
     if (hash.indexOf(HASH_TYPES.block + '_') !== -1) {
       return await client.api.getKeyBlockByHash(hash)
@@ -118,16 +118,16 @@ export function readFile (path, encoding = null, errTitle = 'READ FILE ERR') {
 
 // Get `name` status
 export function updateNameStatus (name) {
- return async (client) => {
-   try {
-     return await client.api.getNameEntryByName(name)
-   } catch (e) {
-     if (e.response && e.response.status === 404) {
-       return {name, status: 'AVAILABLE'}
-     }
-     throw e
-   }
- }
+  return async (client) => {
+    try {
+      return await client.api.getNameEntryByName(name)
+    } catch (e) {
+      if (e.response && e.response.status === 404) {
+        return { name, status: 'AVAILABLE' }
+      }
+      throw e
+    }
+  }
 }
 
 // Check if `name` is `AVAILABLE`

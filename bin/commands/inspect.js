@@ -31,7 +31,7 @@ import {
   printBlockTransactions,
   printContractDescr,
   printError,
-  printName,
+  printName, printOracle, printQueries,
   printTransaction,
   printUnderscored
 } from '../utils/print'
@@ -69,6 +69,9 @@ async function inspect (hash, option) {
     // Get `contract` by `contractId`
     case HASH_TYPES.contract:
       await getContract(hash, option)
+      break
+    case HASH_TYPES.oracle:
+      await getOracle(hash, option)
       break
     // Get `name`
     default:
@@ -114,8 +117,8 @@ async function getAccountByHash (hash, options) {
     const client = await initChain(options)
     await handleApiError(
       async () => {
-        const {id, nonce} = await client.api.getAccountByPubkey(hash)
-        const balance = await client.balance(hash)
+        const { id, nonce } = await client.api.getAccountByPubkey(hash)
+        const balance = await client.balance(hash, { format: false })
         printUnderscored('Account ID', id)
         printUnderscored('Account balance', balance)
         printUnderscored('Account nonce', nonce)
@@ -158,7 +161,7 @@ async function getName (name, options) {
   }
 }
 
-async function getContract(contractId, options) {
+async function getContract (contractId, options) {
   const { json } = options
   try {
     const client = await initChain(options)
@@ -166,6 +169,24 @@ async function getContract(contractId, options) {
     await handleApiError(
       async () => {
         printTransaction(await client.api.getContract(contractId), json)
+      }
+    )
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
+async function getOracle (oracleId, options) {
+  const { json } = options
+  try {
+    const client = await initChain(options)
+
+    await handleApiError(
+      async () => {
+        // printTransaction(await client.api.getContract(contractId), json)
+        printOracle(await client.getOracle(oracleId), json)
+        const { oracleQueries: queries } = await client.getOracleQueries(oracleId)
+        if (queries) printQueries(queries, json)
       }
     )
   } catch (e) {

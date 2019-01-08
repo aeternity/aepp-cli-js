@@ -25,6 +25,8 @@ export const HASH_TYPES = {
   micro_block: 'mh',
   signature: 'sg',
   account: 'ak',
+  oracle: 'ok',
+  oracleQuery: 'oq',
   stateHash: 'bs'
 }
 
@@ -51,3 +53,10 @@ export const CLIENT_TTL = 1
 // ## ACCOUNT
 export const TX_TTL = 0
 export const TX_FEE = 20000
+
+// ## ORACLE
+export const QUERY_FEE = 30000
+export const BUILD_ORACLE_TTL = (ttl) => { return { type: 'delta', value: ttl } }
+export const ORACLE_TTL = 500
+export const QUERY_TTL = 10
+export const RESPONSE_TTL = 10
