@@ -18,6 +18,8 @@ log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 ### Added
 - Add contract inspect command
 - Improve error printing
+- Add --networkId flag to each command which build a tx
+- Remove default fee for each command's (SDK calculate fee by itself)
 - Add `AENS` transaction's build commands for offline mode to `tx` module
 - Add `contract` transaction's build commands for offline mode to `tx` module
 - Add `oracle` transaction's build commands for offline mode to `tx` module
