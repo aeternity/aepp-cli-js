@@ -13,3 +13,11 @@ log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 - Add 'sign' sub-command to `account`
 ### Changed
 - Default node url changed to [sdk-mainnet.aepps.com](https://sdk-mainnet.aepps.com/v2/status)
+
+## [1.1.0]
+### Added
+- Add contract inspect command
+- Improve error printing
+- Add `AENS` transaction's build commands for offline mode to `tx` module
+- Add `contract` transaction's build commands for offline mode to `tx` module
+- Add `oracle` transaction's build commands for offline mode to `tx` module

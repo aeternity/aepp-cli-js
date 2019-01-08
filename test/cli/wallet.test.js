@@ -66,9 +66,9 @@ describe('CLI Wallet Module', function () {
   })
   it('Check Wallet Address with Private Key', async () => {
     // check if wallet valid
-    const res =  parseBlock(await execute(['account', 'address', WALLET_NAME, '--password', 'test', '--privateKey']))
-    const [pub, priv] = Object.keys(res)
-   res[priv].should.equal(KEY_PAIR.secretKey)
+    const res = parseBlock(await execute(['account', 'address', WALLET_NAME, '--password', 'test', '--privateKey']))
+    const [_, priv] = Object.keys(res)
+    res[priv].should.equal(KEY_PAIR.secretKey)
   })
   it('Check Wallet Balance', async () => {
     const balance = await wallet.balance(await wallet.address())
