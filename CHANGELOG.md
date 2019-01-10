@@ -14,7 +14,7 @@ log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 ### Changed
 - Default node url changed to [sdk-mainnet.aepps.com](https://sdk-mainnet.aepps.com/v2/status)
 
-## [1.1.0]
+## [1.0.1]
 ### Added
 - Add contract inspect command
 - Improve error printing

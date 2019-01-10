@@ -1,12 +1,12 @@
 {
   "name": "@aeternity/aecli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Aeternity command line interface",
   "bin": {
     "aecli": "./bin/aecli.js"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "1.1.0",
+    "@aeternity/aepp-sdk": "1.2.1",
     "child_process": "^1.0.2",
     "commander": "^2.19.0",
     "esm": "^3.0.84",
@@ -25,6 +25,7 @@
     "@babel/preset-env": "^7.0.0",
     "@babel/register": "^7.0.0",
     "@babel/runtime": "^7.0.0",
+    "bn.js": "^4.11.8",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.0.0-beta.2",
     "babel-plugin-ramda": "^1.6.1",
@@ -52,8 +53,7 @@
     "test": "mocha --recursive --require @babel/register",
     "test:watch": "mocha --recursive --require @babel/register --watch",
     "test-jenkins": "mocha --recursive --require @babel/register --reporter mocha-junit-reporter",
-    "prepublishOnly": "npm run docs",
-    "postinstall": "postinstall-build --only-as-dependency dist"
+    "prepublishOnly": "npm run docs"
   },
   "keywords": [
     "CLI",
