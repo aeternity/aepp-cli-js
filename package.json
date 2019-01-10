@@ -1,6 +1,6 @@
 {
   "name": "@aeternity/aecli",
-  "version": "1.1.0",
+  "version": "1.0.1",
   "description": "Aeternity command line interface",
   "bin": {
     "aecli": "./bin/aecli.js"
