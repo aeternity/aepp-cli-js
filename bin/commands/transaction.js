@@ -21,12 +21,15 @@
 
 import path from 'path'
 import { encodeBase58Check, salt } from '@aeternity/aepp-sdk/es/utils/crypto'
-import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/js'
+import JsTx from '@aeternity/aepp-sdk/es/tx/js'
 import { initChain, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
 import { isAvailable, readFile, updateNameStatus, validateName } from '../utils/helpers'
 import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE, BUILD_ORACLE_TTL } from '../utils/constant'
+
+// Temporary fix for commitmentHash issue
+const commitmentHash = JsTx.methods.commitmentHash
 
 // Default transaction build param's
 const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE }
