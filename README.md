@@ -28,7 +28,7 @@ Run `npm link` for linking `aecli` name to `aecli/bin/aecli.js`
 3. Enter a new `ssh` session and try `aecli` command to see if everything is okay.
 4. If you have any issue, open an `issue` in github
 
-__If you have problems linking, try also `npm install` and then `npm link` __
+__If you have problems linking, try also `npm install` and then `npm link`__
 
 ## Usage Documentation
 
