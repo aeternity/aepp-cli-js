@@ -19,8 +19,16 @@ You can install this `CLI` using your preferred tool (`pnpm`, `yarn` or `npm`). 
 npm install --global @aeternity/aecli
 ```
 
+---
+### Local symlink to aecli
 Run `npm link` for linking `aecli` name to `aecli/bin/aecli.js`
 
+1. Clone or copy the `aepp-cli-js` git repository into any place you like
+2. Enter the folder and run `npm link`
+3. Enter a new `bash` session and try `aecli` command to see if everything is okay.
+4. If you have any issue, open an `issue` in github
+
+__If you have problems linking, try also `npm install` and then `npm link`__
 
 ## Usage Documentation
 
