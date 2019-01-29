@@ -23,7 +23,7 @@ import * as R from 'ramda'
 import path from 'path'
 
 import { grabDesc, readFile, writeFile } from '../utils/helpers'
-import { initChain, initClientByWalletFile} from '../utils/cli'
+import { initChain, initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
 
@@ -102,7 +102,7 @@ async function deploy (walletPath, contractPath, options) {
   }
 }
 
-const prepareCallParams = async (name, { descrPath,  contractAddress, gas, ttl, nonce }) => {
+const prepareCallParams = async (name, { descrPath, contractAddress, gas, ttl, nonce }) => {
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
   gas = parseInt(gas)
@@ -115,7 +115,7 @@ const prepareCallParams = async (name, { descrPath,  contractAddress, gas, ttl, 
       address: contractAddress,
       abi: 'sophia-address',
       name,
-      options: { options: { ttl, gas, nonce }}
+      options: { options: { ttl, gas, nonce } }
     }
   }
 

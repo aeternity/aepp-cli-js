@@ -37,7 +37,7 @@ describe('CLI AENS Module', function () {
   })
 
   it('Claim Name', async () => {
-    console.log((await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name])))
+    await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name])
 
     const nameResult = parseBlock(await execute(['inspect', name]))
     const isHash = nameResult.name_hash !== 'N/A'
@@ -47,7 +47,7 @@ describe('CLI AENS Module', function () {
   })
   it('Update Name', async () => {
     const { publicKey } = generateKeyPair()
-    console.log(await execute(['name', 'update', WALLET_NAME, '--password', 'test', name, publicKey]))
+    await execute(['name', 'update', WALLET_NAME, '--password', 'test', name, publicKey])
 
     const nameResult = parseBlock(await execute(['inspect', name]))
     const isHaveUpdatedPointer = !!(JSON.parse(nameResult.pointers).find(p => p.id === publicKey))
@@ -56,7 +56,7 @@ describe('CLI AENS Module', function () {
     isHaveUpdatedPointer.should.equal(true)
   })
   it('Revoke Name', async () => {
-    console.log(await execute(['name', 'revoke', WALLET_NAME, '--password', 'test', name]))
+    await execute(['name', 'revoke', WALLET_NAME, '--password', 'test', name])
 
     const nameResult = parseBlock(await execute(['inspect', name]))
 

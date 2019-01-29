@@ -23,7 +23,7 @@ import Account from '@aeternity/aepp-sdk/es/account/memory'
 import Tx from '@aeternity/aepp-sdk/es/tx/tx'
 import Chain from '@aeternity/aepp-sdk/es/chain/epoch'
 import EpochContract from '@aeternity/aepp-sdk/es/contract/epoch'
-import EpochOracle  from '@aeternity/aepp-sdk/es/oracle/epoch'
+import EpochOracle from '@aeternity/aepp-sdk/es/oracle/epoch'
 import { getWalletByPathAndDecrypt } from './account'
 
 // ## Merge options with parent options.
@@ -36,15 +36,15 @@ export function getCmdFromArguments (args) {
 
 // Create `Ae` client
 export async function initClient ({ url, keypair, internalUrl, force: forceCompatibility, native: nativeMode = true, networkId }) {
-  return await Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode, networkId })
+  return Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode, networkId })
 }
 // Create `TxBuilder` client
 export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true }) {
-  return await Tx({ url, internalUrl, forceCompatibility, nativeMode })
+  return Tx({ url, internalUrl, forceCompatibility, nativeMode })
 }
 // Create `Chain` client
 export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
-  return await Chain.compose(EpochContract, EpochOracle)({ url, internalUrl, forceCompatibility })
+  return Chain.compose(EpochContract, EpochOracle)({ url, internalUrl, forceCompatibility })
 }
 
 // ## Get account files and decrypt it using password
