@@ -31,8 +31,11 @@ async function version (options) {
     const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const { nodeVersion } = await client.api.getStatus()
-      print(`Epoch node version____________  ${nodeVersion}`)
+      const { nodeVersion, nodeRevision, genesisKeyBlockHash, networkId } = await client.api.getStatus()
+      print(`Node version______________  ${nodeVersion}`)
+      print(`Node revision ____________  ${nodeRevision}`)
+      print(`Genesis hash______________  ${genesisKeyBlockHash}`)
+      print(`Network ID________________  ${networkId}`)
     })
   } catch (e) {
     printError(e.message)
