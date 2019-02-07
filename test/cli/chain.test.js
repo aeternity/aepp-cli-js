@@ -16,7 +16,6 @@
  */
 
 import { before, describe, it } from 'mocha'
-import * as R from 'ramda'
 import { configure, BaseAe, execute, parseBlock, ready } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 
@@ -39,8 +38,9 @@ describe('CLI Chain Module', function () {
     wallet.setKeypair(generateKeyPair())
 
     const { nodeVersion } = await wallet.api.getStatus()
-    const res = await execute(['chain', 'status'])
-    R.last(res.split(/_/)).trim().should.equal(nodeVersion)
+    const res = parseBlock(await execute(['chain', 'status']))
+
+    res['node_version'].should.equal(nodeVersion)
   })
   it('PLAY', async () => {
     const res = await execute(['chain', 'play', '--limit', '4'])
