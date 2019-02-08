@@ -205,6 +205,7 @@ program
 program
   .command('broadcast <tx>')
   .option('--waitMined', 'Transaction payload.')
+  .option('--verify', 'Verify Transaction before broadcast.')
   .description('Send transaction to the chain')
   .action(async (tx, ...arguments) => await Transaction.broadcast(tx, utils.cli.getCmdFromArguments(arguments)))
 

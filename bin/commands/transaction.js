@@ -487,19 +487,47 @@ async function oracleRespond (callerId, oracleId, queryId, response, options) {
 
 // ## Send 'transaction' to the chain
 async function broadcast (signedTx, options) {
-  let { json, waitMined } = options
+  let { json, waitMined, verify } = options
   try {
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined })
-      waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx)
+      try {
+        const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify })
+        waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx.hash)
+      } catch (e) {
+        printValidation(e.errorData)
+      }
     })
   } catch (e) {
     printError(e.message)
     process.exit(1)
   }
+}
+
+function printValidation ({ validation, tx, txType }) {
+  print('----------------------------- TX DATA -------------------------------')
+  Object.entries({ ...{ type: txType }, ...tx }).forEach(([key, value]) => printUnderscored(key, value))
+  validation
+    .reduce(
+      (acc, { msg, txKey, type }) => {
+        type === 'error' ? acc[0].push({ msg, txKey }) : acc[1].push({ msg, txKey })
+        return acc
+      },
+      [[], []]
+    )
+    .forEach((el, i) => {
+      if (el.length) {
+        i === 0
+          ? print('\n------------------------------ ERRORS ------------------------------\n')
+          : print('\n----------------------------- WARNINGS -----------------------------\n')
+        el
+          .forEach(({ msg, txKey }) => {
+            printUnderscored(txKey, msg)
+          })
+      }
+    })
 }
 
 export const Transaction = {

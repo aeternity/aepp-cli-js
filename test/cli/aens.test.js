@@ -56,9 +56,12 @@ describe('CLI AENS Module', function () {
     isHaveUpdatedPointer.should.equal(true)
   })
   it('Revoke Name', async () => {
+    let nameResult = parseBlock(await execute(['inspect', name]))
+    nameResult.status.should.equal('CLAIMED')
+
     await execute(['name', 'revoke', WALLET_NAME, '--password', 'test', name])
 
-    const nameResult = parseBlock(await execute(['inspect', name]))
+    nameResult = parseBlock(await execute(['inspect', name]))
 
     nameResult.status.should.equal('AVAILABLE')
     nameResult.name_hash.should.equal('N/A')
