@@ -125,15 +125,10 @@ describe.only('CLI Transaction Module', function () {
   })
 
   it('Build oracle register tx offline and send the chain', async () => {
-    try {
-      const { oracleregister_tx } = parseBlock(await execute(['tx', 'oracle-register', KEY_PAIR.publicKey, '{city: "str"}', '{tmp:""num}'], true))
-      console.log(oracleregister_tx)
-      const res = (parseBlock(await signAndPost(oracleregister_tx)))
-      const isMined = !isNaN(res['block_height'])
-      isMined.should.be.equal(true)
-    } catch (e) {
-      console.log(e.toString())
-    }
+    const { oracleregister_tx } = parseBlock(await execute(['tx', 'oracle-register', KEY_PAIR.publicKey, '{city: "str"}', '{tmp:""num}'], true))
+    const res = (parseBlock(await signAndPost(oracleregister_tx)))
+    const isMined = !isNaN(res['block_height'])
+    isMined.should.be.equal(true)
   })
   it('Build oracle extend  tx offline and send the chain', async () => {
     const oracleCurrentTtl = await wallet.getOracle(oracleId)
