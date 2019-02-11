@@ -34,12 +34,12 @@ program
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-L --limit [playlimit]', 'Limit for play command', utils.constant.PLAY_LIMIT)
   .option('-P --height [playToHeight]', 'Play to selected height')
-  .option('-f --force', 'Ignore epoch version compatibility check')
+  .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
 // ## Initialize `top` command
 //
-// You can use this command to retrieve `top block` from `epoch`
+// You can use this command to retrieve `top block` from `node`
 //
 // Example: `aecli chain top`
 program
@@ -49,17 +49,17 @@ program
 
 // ## Initialize `status` command
 //
-// You can use this command to retrieve `epoch version`
+// You can use this command to retrieve `node version`
 //
 // Example: `aecli chain status`
 program
   .command('status')
-  .description('Get Epoch version')
+  .description('Get node version')
   .action(async (...arguments) => await Chain.version(utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `mempool` command
 //
-// You can use this command to retrieve list of `mempool` transaction from `epoch`
+// You can use this command to retrieve list of `mempool` transaction from `node`
 //
 // Example: `aecli chain mempool`
 program

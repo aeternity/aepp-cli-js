@@ -33,7 +33,11 @@ describe('CLI AENS Module', function () {
 
   before(async function () {
     // Spend tokens for wallet
-    wallet = await ready(this)
+    try {
+      wallet = await ready(this)
+    } catch (e) {
+      console.log(e.toString())
+    }
   })
 
   it('Claim Name', async () => {

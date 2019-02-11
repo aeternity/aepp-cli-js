@@ -21,7 +21,7 @@
 
 import path from 'path'
 import { encodeBase58Check, salt } from '@aeternity/aepp-sdk/es/utils/crypto'
-import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/js'
+import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 import { initChain, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
@@ -278,9 +278,9 @@ async function contractDeploy (ownerId, contractPath, options) {
     // Build `deploy` transaction's
     await handleApiError(async () => {
       // Compile contract using `debug API`
-      const { bytecode: code } = await chain.compileEpochContract(contractFile, { gas })
+      const { bytecode: code } = await chain.compileNodeContract(contractFile, { gas })
       // Prepare `callData`
-      const callData = await chain.contractEpochEncodeCallData(code, 'sophia', 'init', init)
+      const callData = await chain.contractNodeEncodeCallData(code, 'sophia', 'init', init)
       // Create `contract-deploy` transaction
       const { tx, contractId } = await txBuilder.contractCreateTx({
         ...DEFAULT_CONTRACT_PARAMS,
@@ -321,7 +321,7 @@ async function contractCall (callerId, contractId, fn, returnType, args, options
       const txBuilder = await initTxBuilder(options)
       const chain = await initChain(options)
       // Prepare `callData`
-      const callData = await chain.contractEpochEncodeCallData(contractId, 'sophia-address', fn, args)
+      const callData = await chain.contractNodeEncodeCallData(contractId, 'sophia-address', fn, args)
       // Create `contract-call` transaction
       const tx = await txBuilder.contractCallTx({
         ...DEFAULT_CONTRACT_PARAMS,
@@ -351,8 +351,6 @@ async function oracleRegister (accountId, queryFormat, responseFormat, options) 
   queryFee = parseInt(queryFee)
   oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl))
   nonce = parseInt(nonce)
-  console.log(queryFormat)
-  console.log(responseFormat)
 
   try {
     // Initialize `TxBuilder`

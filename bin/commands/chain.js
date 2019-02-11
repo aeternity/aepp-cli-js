@@ -24,7 +24,7 @@ import { handleApiError } from '../utils/errors'
 import { printBlock, print, printBlockTransactions, printError, printUnderscored } from '../utils/print'
 import { getBlock } from '../utils/helpers'
 
-// ## Retrieve `Epoch` version
+// ## Retrieve `node` version
 async function version (options) {
   try {
     // Initialize `Ae`
@@ -92,7 +92,7 @@ async function play (options) {
     const client = await initChain(options)
 
     await handleApiError(async () => {
-      // Get top block from `Epoch`. It is a start point for play.
+      // Get top block from `node`. It is a start point for play.
       const top = await client.topBlock()
 
       if (height && height > parseInt(top.height)) {

@@ -36,8 +36,8 @@ export async function compile (file, options) {
     const client = await initChain(options)
 
     await handleApiError(async () => {
-      // Call `Epoch` API which return `compiled code`
-      const contract = await client.compileEpochContract(code)
+      // Call `node` API which return `compiled code`
+      const contract = await client.compileNodeContract(code)
       print(`Contract bytecode:
       ${contract.bytecode}`)
     })

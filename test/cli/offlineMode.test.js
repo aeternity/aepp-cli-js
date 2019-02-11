@@ -46,7 +46,7 @@ async function signAndPost (tx, assert) {
   return res
 }
 
-describe('CLI Transaction Module', function () {
+describe.only('CLI Transaction Module', function () {
   configure(this)
   const oracleId = 'ok_' + KEY_PAIR.publicKey.slice(3)
   let wallet
@@ -125,14 +125,19 @@ describe('CLI Transaction Module', function () {
   })
 
   it('Build oracle register tx offline and send the chain', async () => {
-    const { oracleregister_tx } = parseBlock(await execute(['tx', 'oracle-register', KEY_PAIR.publicKey, '{city: "str"}', '{tmp:""num}']))
-    const res = (parseBlock(await signAndPost(oracleregister_tx)))
-    const isMined = !isNaN(res['block_height'])
-    isMined.should.be.equal(true)
+    try {
+      const { oracleregister_tx } = parseBlock(await execute(['tx', 'oracle-register', KEY_PAIR.publicKey, '{city: "str"}', '{tmp:""num}'], true))
+      console.log(oracleregister_tx)
+      const res = (parseBlock(await signAndPost(oracleregister_tx)))
+      const isMined = !isNaN(res['block_height'])
+      isMined.should.be.equal(true)
+    } catch (e) {
+      console.log(e.toString())
+    }
   })
   it('Build oracle extend  tx offline and send the chain', async () => {
     const oracleCurrentTtl = await wallet.getOracle(oracleId)
-    const { oracleextend_tx } = parseBlock(await execute(['tx', 'oracle-extend', KEY_PAIR.publicKey, oracleId, 100]))
+    const { oracleextend_tx } = parseBlock(await execute(['tx', 'oracle-extend', KEY_PAIR.publicKey, oracleId, 100], true))
     const res = (parseBlock(await signAndPost(oracleextend_tx)))
     const oracleTtl = await wallet.getOracle(oracleId)
     const isExtended = +oracleTtl.ttl === +oracleCurrentTtl.ttl + 100
@@ -141,7 +146,7 @@ describe('CLI Transaction Module', function () {
     isMined.should.be.equal(true)
   })
   it('Build oracle post query tx offline and send the chain', async () => {
-    const { oraclepostquery_tx } = parseBlock(await execute(['tx', 'oracle-post-query', KEY_PAIR.publicKey, oracleId, '{city: "Berlin"}']))
+    const { oraclepostquery_tx } = parseBlock(await execute(['tx', 'oracle-post-query', KEY_PAIR.publicKey, oracleId, '{city: "Berlin"}'], true))
     const res = (parseBlock(await signAndPost(oraclepostquery_tx)))
     const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
     queryId = queries[0].id
@@ -152,7 +157,7 @@ describe('CLI Transaction Module', function () {
   })
   it('Build oracle respond tx offline and send the chain', async () => {
     const response = '{tmp: 10}'
-    const { oraclerespond_tx } = parseBlock(await execute(['tx', 'oracle-respond', KEY_PAIR.publicKey, oracleId, queryId, response]))
+    const { oraclerespond_tx } = parseBlock(await execute(['tx', 'oracle-respond', KEY_PAIR.publicKey, oracleId, queryId, response], true))
     const res = (parseBlock(await signAndPost(oraclerespond_tx)))
     const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
     const responseQuery = decodeBase64Check(queries[0].response.slice(3)).toString()

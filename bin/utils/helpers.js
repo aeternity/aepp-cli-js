@@ -22,7 +22,7 @@ import fs from 'fs'
 
 import { HASH_TYPES } from './constant'
 import { printError } from './print'
-import path from "path"
+import path from 'path'
 
 // ## Method which retrieve block info by hash
 // if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`
@@ -31,7 +31,7 @@ import path from "path"
 export function getBlock (hash) {
   return async (client) => {
     if (hash.indexOf(HASH_TYPES.block + '_') !== -1) {
-      return await client.api.getKeyBlockByHash(hash)
+      return client.api.getKeyBlockByHash(hash)
     }
     if (hash.indexOf(HASH_TYPES.micro_block + '_') !== -1) {
       return R.merge(

@@ -66,7 +66,7 @@ export async function ready (mocha) {
   return client
 }
 
-export async function execute (args) {
+export async function execute (args, withOutReject = false) {
   return new Promise((resolve, reject) => {
     let result = ''
     const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, '--networkId', networkId])
@@ -76,7 +76,7 @@ export async function execute (args) {
     })
 
     child.stderr.on('data', (data) => {
-      reject(data)
+      if (!withOutReject) reject(data)
     })
 
     child.on('close', (code) => {

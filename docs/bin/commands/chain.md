@@ -56,7 +56,7 @@ import { getBlock } from '../utils/helpers'
 
 
 
-## Retrieve `Epoch` version
+## Retrieve `node` version
 
 
   
@@ -97,7 +97,7 @@ Call `getStatus` API and print it
 ```js
     await handleApiError(async () => {
       const { nodeVersion } = await client.api.getStatus()
-      print(`Epoch node version____________  ${nodeVersion}`)
+      print(`node node version____________  ${nodeVersion}`)
     })
   } catch (e) {
     printError(e.message)
@@ -275,7 +275,7 @@ async function play (options) {
 
 
 
-Get top block from `Epoch`. It is a start point for play.
+Get top block from `node`. It is a start point for play.
 
 
   

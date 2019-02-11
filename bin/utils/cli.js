@@ -19,11 +19,8 @@
 import * as R from 'ramda'
 
 import Ae from '@aeternity/aepp-sdk/es/ae/universal'
-import Account from '@aeternity/aepp-sdk/es/account/memory'
 import Tx from '@aeternity/aepp-sdk/es/tx/tx'
-import Chain from '@aeternity/aepp-sdk/es/chain/epoch'
-import EpochContract from '@aeternity/aepp-sdk/es/contract/epoch'
-import EpochOracle from '@aeternity/aepp-sdk/es/oracle/epoch'
+import Chain from '@aeternity/aepp-sdk/es/chain/node'
 import { getWalletByPathAndDecrypt } from './account'
 
 // ## Merge options with parent options.
@@ -44,7 +41,7 @@ export async function initTxBuilder ({ url, internalUrl, force: forceCompatibili
 }
 // Create `Chain` client
 export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
-  return Chain.compose(EpochContract, EpochOracle)({ url, internalUrl, forceCompatibility })
+  return Chain({ url, internalUrl, forceCompatibility })
 }
 
 // ## Get account files and decrypt it using password
