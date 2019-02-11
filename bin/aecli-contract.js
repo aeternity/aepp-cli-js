@@ -34,7 +34,7 @@ program
   .option('--native', 'Build transaction natively')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .option('-f --force', 'Ignore epoch version compatibility check')
+  .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
 // ## Initialize `compile` command
@@ -67,6 +67,7 @@ program
   .option('-G --gas [gas]', 'Amount of gas to call the contract', utils.constant.GAS)
   .option('-d --descrPath [descrPath]', 'Path to contract descriptor file')
   .option('-s --callStatic', 'Call static', false)
+  .option('-t --topHash', 'Hash of block to make call')
   .option('--contractAddress [contractAddress]', 'Contract address to call')
   .description('Execute a function of the contract')
   .action(async (walletPath, fn, returnType, args, ...arguments) => await Contract.call(walletPath, fn, returnType, args, utils.cli.getCmdFromArguments(arguments)))
@@ -91,6 +92,7 @@ program
   .option('-P, --password [password]', 'Wallet Password')
   .option('-G --gas [gas]', 'Amount of gas to call the contract', utils.constant.GAS)
   .option('-s --callStatic', 'Call static', false)
+  .option('-t --topHash', 'Hash of block to make call')
   .option('-d --descrPath [descrPath]', 'path to contract descriptor file')
   .option('--contractAddress [contracAddress]', 'Contract address)')
   .description('Execute a function of the contract using type-checked call')

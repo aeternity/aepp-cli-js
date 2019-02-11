@@ -36,8 +36,8 @@ export async function compile (file, options) {
     const client = await initChain(options)
 
     await handleApiError(async () => {
-      // Call `Epoch` API which return `compiled code`
-      const contract = await client.compileEpochContract(code)
+      // Call `node` API which return `compiled code`
+      const contract = await client.compileNodeContract(code)
       print(`Contract bytecode:
       ${contract.bytecode}`)
     })
@@ -133,7 +133,7 @@ const prepareCallParams = async (name, { descrPath, contractAddress, gas, ttl, n
 
 // ## Function which `call` contract
 async function call (walletPath, fn, returnType, args, options) {
-  const { callStatic, json } = options
+  const { callStatic, json, top } = options
   if (!fn || !returnType) {
     program.outputHelp()
     process.exit(1)
@@ -150,9 +150,9 @@ async function call (walletPath, fn, returnType, args, options) {
     await handleApiError(
       async () => {
         // Call static or call
-        const callResult = callStatic ?
-          await client.contractCallStatic(params.address, 'sophia-address', params.name, { ...params.options, args }) :
-          await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, args })
+        const callResult = callStatic
+          ? await client.contractCallStatic(params.address, 'sophia-address', params.name, { top, ...params.options, args })
+          : await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, args })
         // The execution result, if successful, will be an AEVM-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
         // not be a hexadecimal string, anymore.
@@ -176,7 +176,7 @@ async function call (walletPath, fn, returnType, args, options) {
 
 // ## Function which `call` contract
 async function callTypeChecked (walletPath, fn, returnType, callContract, options) {
-  const { callStatic, json } = options
+  const { callStatic, json, top } = options
   if (!fn || !returnType) {
     program.outputHelp()
     process.exit(1)
@@ -190,9 +190,9 @@ async function callTypeChecked (walletPath, fn, returnType, callContract, option
     await handleApiError(
       async () => {
         // Call static or call
-        const callResult = callStatic ?
-          await client.contractCallStatic(params.address, 'sophia-address', params.name, { ...params.options, call }) :
-          await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, call })
+        const callResult = callStatic
+          ? await client.contractCallStatic(params.address, 'sophia-address', params.name, { top, ...params.options, call })
+          : await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, call })
         // The execution result, if successful, will be an AEVM-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
         // not be a hexadecimal string, anymore.

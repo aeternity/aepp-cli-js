@@ -24,15 +24,18 @@ import { handleApiError } from '../utils/errors'
 import { printBlock, print, printBlockTransactions, printError, printUnderscored } from '../utils/print'
 import { getBlock } from '../utils/helpers'
 
-// ## Retrieve `Epoch` version
+// ## Retrieve `node` version
 async function version (options) {
   try {
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const { nodeVersion } = await client.api.getStatus()
-      print(`Epoch node version____________  ${nodeVersion}`)
+      const { nodeVersion, nodeRevision, genesisKeyBlockHash, networkId } = await client.api.getStatus()
+      print(`Node version______________  ${nodeVersion}`)
+      print(`Node revision ____________  ${nodeRevision}`)
+      print(`Genesis hash______________  ${genesisKeyBlockHash}`)
+      print(`Network ID________________  ${networkId}`)
     })
   } catch (e) {
     printError(e.message)
@@ -89,7 +92,7 @@ async function play (options) {
     const client = await initChain(options)
 
     await handleApiError(async () => {
-      // Get top block from `Epoch`. It is a start point for play.
+      // Get top block from `node`. It is a start point for play.
       const top = await client.topBlock()
 
       if (height && height > parseInt(top.height)) {

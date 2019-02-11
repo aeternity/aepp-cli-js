@@ -19,11 +19,8 @@
 import * as R from 'ramda'
 
 import Ae from '@aeternity/aepp-sdk/es/ae/universal'
-import Account from '@aeternity/aepp-sdk/es/account/memory'
 import Tx from '@aeternity/aepp-sdk/es/tx/tx'
-import Chain from '@aeternity/aepp-sdk/es/chain/epoch'
-import EpochContract from '@aeternity/aepp-sdk/es/contract/epoch'
-import EpochOracle from '@aeternity/aepp-sdk/es/oracle/epoch'
+import Chain from '@aeternity/aepp-sdk/es/chain/node'
 import { getWalletByPathAndDecrypt } from './account'
 
 // ## Merge options with parent options.
@@ -39,12 +36,12 @@ export async function initClient ({ url, keypair, internalUrl, force: forceCompa
   return Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode, networkId })
 }
 // Create `TxBuilder` client
-export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true }) {
-  return Tx({ url, internalUrl, forceCompatibility, nativeMode })
+export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true, showWarning = true }) {
+  return Tx({ url, internalUrl, forceCompatibility, nativeMode, showWarning })
 }
 // Create `Chain` client
 export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
-  return Chain.compose(EpochContract, EpochOracle)({ url, internalUrl, forceCompatibility })
+  return Chain({ url, internalUrl, forceCompatibility })
 }
 
 // ## Get account files and decrypt it using password
@@ -52,10 +49,11 @@ export async function initChain ({ url, internalUrl, force: forceCompatibility }
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
-  const { password, privateKey, accountOnly, networkId } = options
+  const { password, privateKey } = options
   const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
 
-  const client = accountOnly ? await Account({ keypair, networkId }) : await initClient(R.merge(options, { keypair }))
+  const client = await initClient(R.merge(options, { keypair }))
+  // const client = accountOnly ? await Account({ keypair, networkId }) : await initClient(R.merge(options, { keypair }))
   if (returnKeyPair)
     return { client, keypair }
   return client

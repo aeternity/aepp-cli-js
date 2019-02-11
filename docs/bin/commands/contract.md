@@ -82,7 +82,7 @@ export async function compile (file, options) {
 
 
 
-Call `Epoch` API which return `compiled code`
+Call `node` API which return `compiled code`
 
 
   

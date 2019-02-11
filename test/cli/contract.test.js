@@ -94,7 +94,7 @@ describe('CLI Contract Module', function () {
     // Call contract
     const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--descrPath', deployDescriptor, 'main', 'int', '1', '2', '--callStatic'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
-    isValid.should.be.equal(false)
+    isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
     callResponse.return_remote_type.should.equal('word')
   })
@@ -108,9 +108,10 @@ describe('CLI Contract Module', function () {
   it('Call Contract static by contract address', async () => {
     const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, 'main', 'int', '1', '2', '--callStatic'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
-    isValid.should.be.equal(false)
+
+    isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
-    callResponse.return_remote_type.should.equal('word')
+    callResponse['return_remote_type'].should.equal('word')
   })
 
   it('Type-checked Call Contract  using descriptor', async () => {
@@ -123,7 +124,7 @@ describe('CLI Contract Module', function () {
   it('Type-checked Call Contract static  using descriptor', async () => {
     const callResponse = (parseBlock(await execute(['contract', 'callChecked', WALLET_NAME, '--password', 'test', '--descrPath', deployDescriptor, 'main', 'int', 'callC', '--callStatic'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
-    isValid.should.be.equal(false)
+    isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
     callResponse.return_remote_type.should.equal('word')
   })
@@ -137,7 +138,7 @@ describe('CLI Contract Module', function () {
   it('Type-checked Call Contract static  using address', async () => {
     const callResponse = (parseBlock(await execute(['contract', 'callChecked', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, 'main', 'int', 'callC', '--callStatic'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
-    isValid.should.be.equal(false)
+    isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
     callResponse.return_remote_type.should.equal('word')
   })

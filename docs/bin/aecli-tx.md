@@ -85,7 +85,7 @@ program
   .option('-P, --password [password]', 'Wallet Password')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .option('-f --force', 'Ignore epoch version compatibility check')
+  .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
 

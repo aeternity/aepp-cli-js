@@ -21,7 +21,7 @@
 
 import path from 'path'
 import { encodeBase58Check, salt } from '@aeternity/aepp-sdk/es/utils/crypto'
-import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/js'
+import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 import { initChain, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
@@ -278,9 +278,9 @@ async function contractDeploy (ownerId, contractPath, options) {
     // Build `deploy` transaction's
     await handleApiError(async () => {
       // Compile contract using `debug API`
-      const { bytecode: code } = await chain.compileEpochContract(contractFile, { gas })
+      const { bytecode: code } = await chain.compileNodeContract(contractFile, { gas })
       // Prepare `callData`
-      const callData = await chain.contractEpochEncodeCallData(code, 'sophia', 'init', init)
+      const callData = await chain.contractNodeEncodeCallData(code, 'sophia', 'init', init)
       // Create `contract-deploy` transaction
       const { tx, contractId } = await txBuilder.contractCreateTx({
         ...DEFAULT_CONTRACT_PARAMS,
@@ -321,7 +321,7 @@ async function contractCall (callerId, contractId, fn, returnType, args, options
       const txBuilder = await initTxBuilder(options)
       const chain = await initChain(options)
       // Prepare `callData`
-      const callData = await chain.contractEpochEncodeCallData(contractId, 'sophia-address', fn, args)
+      const callData = await chain.contractNodeEncodeCallData(contractId, 'sophia-address', fn, args)
       // Create `contract-call` transaction
       const tx = await txBuilder.contractCallTx({
         ...DEFAULT_CONTRACT_PARAMS,
@@ -351,8 +351,6 @@ async function oracleRegister (accountId, queryFormat, responseFormat, options) 
   queryFee = parseInt(queryFee)
   oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl))
   nonce = parseInt(nonce)
-  console.log(queryFormat)
-  console.log(responseFormat)
 
   try {
     // Initialize `TxBuilder`
@@ -487,19 +485,47 @@ async function oracleRespond (callerId, oracleId, queryId, response, options) {
 
 // ## Send 'transaction' to the chain
 async function broadcast (signedTx, options) {
-  let { json, waitMined } = options
+  let { json, waitMined, verify } = options
   try {
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined })
-      waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx)
+      try {
+        const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify })
+        waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx.hash)
+      } catch (e) {
+        printValidation(e.errorData)
+      }
     })
   } catch (e) {
     printError(e.message)
     process.exit(1)
   }
+}
+
+function printValidation ({ validation, tx, txType }) {
+  print('----------------------------- TX DATA -------------------------------')
+  Object.entries({ ...{ type: txType }, ...tx }).forEach(([key, value]) => printUnderscored(key, value))
+  validation
+    .reduce(
+      (acc, { msg, txKey, type }) => {
+        type === 'error' ? acc[0].push({ msg, txKey }) : acc[1].push({ msg, txKey })
+        return acc
+      },
+      [[], []]
+    )
+    .forEach((el, i) => {
+      if (el.length) {
+        i === 0
+          ? print('\n------------------------------ ERRORS ------------------------------\n')
+          : print('\n----------------------------- WARNINGS -----------------------------\n')
+        el
+          .forEach(({ msg, txKey }) => {
+            printUnderscored(txKey, msg)
+          })
+      }
+    })
 }
 
 export const Transaction = {

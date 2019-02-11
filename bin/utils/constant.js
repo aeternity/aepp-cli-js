@@ -52,7 +52,6 @@ export const CLIENT_TTL = 1
 
 // ## ACCOUNT
 export const TX_TTL = 0
-export const TX_FEE = 20000
 
 // ## ORACLE
 export const QUERY_FEE = 30000

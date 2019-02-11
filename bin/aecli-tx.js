@@ -34,7 +34,7 @@ program
   .option('-P, --password [password]', 'Wallet Password')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .option('-f --force', 'Ignore epoch version compatibility check')
+  .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
 // ## Initialize `spend` command
@@ -205,6 +205,7 @@ program
 program
   .command('broadcast <tx>')
   .option('--waitMined', 'Transaction payload.')
+  .option('--verify', 'Verify Transaction before broadcast.')
   .description('Send transaction to the chain')
   .action(async (tx, ...arguments) => await Transaction.broadcast(tx, utils.cli.getCmdFromArguments(arguments)))
 
