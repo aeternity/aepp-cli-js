@@ -46,7 +46,7 @@ async function signAndPost (tx, assert) {
   return res
 }
 
-describe.only('CLI Transaction Module', function () {
+describe('CLI Transaction Module', function () {
   configure(this)
   const oracleId = 'ok_' + KEY_PAIR.publicKey.slice(3)
   let wallet
