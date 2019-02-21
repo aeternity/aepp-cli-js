@@ -69,8 +69,8 @@ describe('CLI Transaction Module', function () {
     const receiver = await BaseAe()
     receiver.setKeypair(receiverKeys)
 
-    const { unsigned_transaction_hash } = parseBlock(await execute(['tx', 'spend', KEY_PAIR.publicKey, KEY_PAIR.publicKey, amount]))
-    await signAndPost(unsigned_transaction_hash, true)
+    const { unsigned_spend_tx } = parseBlock(await execute(['tx', 'spend', KEY_PAIR.publicKey, KEY_PAIR.publicKey, amount]))
+    await signAndPost(unsigned_spend_tx, true)
   })
 
   it('Build preclaim tx offline and send the chain', async () => {

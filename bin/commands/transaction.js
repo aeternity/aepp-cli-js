@@ -45,7 +45,7 @@ async function spend (senderId, recipientId, amount, options) {
       if (json)
         print({ tx })
       else
-        printUnderscored('Unsigned Transaction Hash', tx)
+        printUnderscored('Unsigned Spend TX', tx)
     })
   } catch (e) {
     printError(e.message)
