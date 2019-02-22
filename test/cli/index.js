@@ -55,8 +55,8 @@ export async function ready (mocha) {
   await ae.awaitHeight(3)
 
   if (!charged && planned > 0) {
-    console.log(`Charging new wallet ${KEY_PAIR.publicKey} with ${planned}`)
-    await ae.spend(planned, KEY_PAIR.publicKey)
+    console.log(`Charging new wallet ${KEY_PAIR.publicKey} with ${'100000000000000000000000'}`)
+    await ae.spend('100000000000000000000000', KEY_PAIR.publicKey)
     charged = true
   }
 
@@ -94,7 +94,7 @@ export function parseBlock (res) {
       return Object.assign(
         acc,
         {
-          [R.head(v).replace(' ', '_').replace(' ', '_').toLowerCase()]: R.last(R.last(v).split(/_ /)).trim()
+          [R.head(v).replace(' ', '_').replace(' ', '_').replace(' ', '_').toLowerCase()]: R.last(R.last(v).split(/_ /)).trim()
         }
       )
     }, {})

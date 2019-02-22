@@ -45,7 +45,7 @@ async function spend (senderId, recipientId, amount, options) {
       if (json)
         print({ tx })
       else
-        printUnderscored('Transaction Hash', tx)
+        printUnderscored('Unsigned Spend TX', tx)
     })
   } catch (e) {
     printError(e.message)
@@ -76,7 +76,6 @@ async function namePreClaim (accountId, domain, options) {
       // Generate `salt` and `commitmentId` and build `name` hash
       const _salt = salt()
       const commitmentId = await commitmentHash(domain, _salt)
-      const nameHash = `nm_${encodeBase58Check(Buffer.from(domain))}`
 
       // Create `preclaim` transaction
       const preclaimTx = await client.namePreclaimTx({ accountId, nonce, commitmentId, ttl, fee })
@@ -84,7 +83,7 @@ async function namePreClaim (accountId, domain, options) {
       if (json) {
         print({ tx: preclaimTx, salt: _salt, commitmentId })
       } else {
-        printUnderscored('Preclaim TX', preclaimTx)
+        printUnderscored('Unsigned Preclaim TX', preclaimTx)
         printUnderscored('Salt', _salt)
         printUnderscored('Commitment ID', commitmentId)
       }
@@ -125,7 +124,7 @@ async function nameClaim (accountId, nameSalt, domain, options) {
       if (json)
         print({ tx: claimTx })
       else
-        printUnderscored('Claim TX', claimTx)
+        printUnderscored('Unsigned Claim TX', claimTx)
     })
   } catch (e) {
     printError(e.message)
@@ -189,7 +188,7 @@ async function nameUpdate (accountId, domain, pointers, options) {
       if (json)
         print({ tx: updateTx })
       else
-        printUnderscored('Update TX', updateTx)
+        printUnderscored('Unsigned Update TX', updateTx)
     })
   } catch (e) {
     printError(e.message)
@@ -222,7 +221,7 @@ async function nameTransfer (accountId, recipientId, domain, options) {
       if (json)
         print({ tx: transferTx })
       else
-        printUnderscored('Transfer TX', transferTx)
+        printUnderscored('Unsigned Transfer TX', transferTx)
     })
   } catch (e) {
     printError(e.message)
@@ -255,7 +254,7 @@ async function nameRevoke (accountId, domain, options) {
       if (json)
         print({ tx: revokeTx })
       else
-        printUnderscored('Revoke TX', revokeTx)
+        printUnderscored('Unsigned Revoke TX', revokeTx)
     })
   } catch (e) {
     printError(e.message)
@@ -296,7 +295,7 @@ async function contractDeploy (ownerId, contractPath, options) {
       if (json) {
         print({ tx, contractId })
       } else {
-        printUnderscored('Contract Deploy TX', tx)
+        printUnderscored('Unsigned Contract Deploy TX', tx)
         printUnderscored('Contract ID', contractId)
       }
     })
@@ -337,7 +336,7 @@ async function contractCall (callerId, contractId, fn, returnType, args, options
       if (json)
         print({ tx })
       else
-        printUnderscored('Contract Call TX', tx)
+        printUnderscored('Unsigned Contract Call TX', tx)
     })
   } catch (e) {
     printError(e.message)
@@ -371,7 +370,7 @@ async function oracleRegister (accountId, queryFormat, responseFormat, options) 
       if (json)
         print({ tx: oracleRegisterTx })
       else
-        printUnderscored('OracleRegister TX', oracleRegisterTx)
+        printUnderscored('Unsigned OracleRegister TX', oracleRegisterTx)
     })
   } catch (e) {
     printError(e.message)
@@ -407,7 +406,7 @@ async function oraclePostQuery (senderId, oracleId, query, options) {
       if (json) {
         print(oraclePostQueryTx)
       } else {
-        printUnderscored('OraclePostQuery TX', oraclePostQueryTx.tx)
+        printUnderscored('Unsigned OraclePostQuery TX', oraclePostQueryTx.tx)
         printUnderscored('Query ID', oraclePostQueryTx.queryId)
       }
     })
@@ -440,7 +439,7 @@ async function oracleExtend (callerId, oracleId, oracleTtl, options) {
       if (json) {
         print(oracleExtendTx)
       } else {
-        printUnderscored('OracleExtend TX', oracleExtendTx)
+        printUnderscored('Unsigned OracleExtend TX', oracleExtendTx)
       }
     })
   } catch (e) {
@@ -474,7 +473,7 @@ async function oracleRespond (callerId, oracleId, queryId, response, options) {
       if (json) {
         print(oracleRespondTx)
       } else {
-        printUnderscored('OracleRespond TX', oracleRespondTx)
+        printUnderscored('Unsigned OracleRespond TX', oracleRespondTx)
       }
     })
   } catch (e) {
