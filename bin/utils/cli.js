@@ -21,6 +21,7 @@ import * as R from 'ramda'
 import Ae from '@aeternity/aepp-sdk/es/ae/universal'
 import Tx from '@aeternity/aepp-sdk/es/tx/tx'
 import Chain from '@aeternity/aepp-sdk/es/chain/node'
+import Account from '@aeternity/aepp-sdk/es/account/memory'
 import { getWalletByPathAndDecrypt } from './account'
 
 // ## Merge options with parent options.
@@ -49,10 +50,13 @@ export async function initChain ({ url, internalUrl, force: forceCompatibility }
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
-  const { password, privateKey } = options
+  const { password, privateKey, accountOnly = false } = options
   const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
 
-  const client = await initClient(R.merge(options, { keypair }))
+  console.log(accountOnly)
+  const client = accountOnly
+    ? await Account(R.merge(options, { keypair }))
+    : await initClient(R.merge(options, { keypair }))
   // const client = accountOnly ? await Account({ keypair, networkId }) : await initClient(R.merge(options, { keypair }))
   if (returnKeyPair)
     return { client, keypair }
