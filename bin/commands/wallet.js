@@ -25,6 +25,7 @@ import { initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
 import { checkPref } from '../utils/helpers'
+import { PROMPT_TYPE, prompt } from '../utils/prompt'
 
 // ## `Sign` function
 // this function allow you to `sign` transaction's
@@ -109,7 +110,11 @@ async function getAddress (walletPath, options) {
     await handleApiError(
       async () => {
         printUnderscored('Address', await client.address())
-        if (privateKey) { printUnderscored('Secret Key', keypair.secretKey) }
+        if (privateKey) {
+          if (await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
+            printUnderscored('Secret Key', keypair.secretKey)
+          }
+        }
       }
     )
   } catch (e) {
