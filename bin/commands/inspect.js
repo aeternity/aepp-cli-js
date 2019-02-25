@@ -35,7 +35,7 @@ import {
   printTransaction,
   printUnderscored
 } from '../utils/print'
-import { checkPref, getBlock, getNonce, readJSONFile } from '../utils/helpers'
+import { checkPref, getBlock, readJSONFile } from '../utils/helpers'
 
 // ## Inspect function
 // That function get the param(`hash`, `height` or `name`) and show you info about it
@@ -117,9 +117,9 @@ async function getAccountByHash (hash, options) {
     const client = await initChain(options)
     await handleApiError(
       async () => {
-        const { id, nonce } = await getNonce(hash)(client)
+        const nonce = await client.getAccountNonce(hash)
         const balance = await client.balance(hash)
-        printUnderscored('Account ID', id)
+        printUnderscored('Account ID', hash)
         printUnderscored('Account balance', balance)
         printUnderscored('Account nonce', nonce)
         print('Account Transactions: ')

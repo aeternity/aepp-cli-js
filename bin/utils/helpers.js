@@ -24,11 +24,6 @@ import { HASH_TYPES } from './constant'
 import { printError } from './print'
 import path from 'path'
 
-export function getNonce (address) {
-  return async (client) => {
-    return client.api.getAccountByPubkey(address).catch(() => ({ id: address, nonce: 0 }))
-  }
-}
 // ## Method which retrieve block info by hash
 // if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`
 //
@@ -49,8 +44,9 @@ export function getBlock (hash) {
 
 // ## Method which validate `hash`
 export function checkPref (hash, hashType) {
-  if (hash.length < 3 || hash.indexOf('_') === -1)
+  if (hash.length < 3 || hash.indexOf('_') === -1) {
     throw new Error(`Invalid input, likely you forgot to escape the $ sign (use \\_)`)
+  }
 
   /* block and micro block check */
   if (Array.isArray(hashType)) {
@@ -112,7 +108,6 @@ export function readFile (path, encoding = null, errTitle = 'READ FILE ERR') {
     switch (e.code) {
       case 'ENOENT':
         throw new Error('File not found')
-        break
       default:
         throw e
     }
@@ -149,4 +144,4 @@ export function validateName (name) {
 }
 
 // Grab contract descriptor by path
-export const grabDesc = async descrPath => descrPath && await readJSONFile(path.resolve(process.cwd(), descrPath))
+export const grabDesc = async descrPath => descrPath && readJSONFile(path.resolve(process.cwd(), descrPath))

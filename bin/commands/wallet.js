@@ -24,7 +24,7 @@ import { HASH_TYPES } from '../utils/constant'
 import { initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
-import { checkPref, getNonce } from '../utils/helpers'
+import { checkPref } from '../utils/helpers'
 
 // ## `Sign` function
 // this function allow you to `sign` transaction's
@@ -87,8 +87,8 @@ async function getBalance (walletPath, options) {
     const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
     await handleApiError(
       async () => {
-        const { id, nonce } = await getNonce(keypair.publicKey)(client)
-        printUnderscored('Balance', await client.balance(id))
+        const nonce = await client.getAccountNonce(keypair.publicKey)
+        printUnderscored('Balance', await client.balance(keypair.publicKey))
         printUnderscored('ID', await client.address())
         printUnderscored('Nonce', nonce)
       }
@@ -126,8 +126,8 @@ async function getAccountNonce (walletPath, options) {
 
     await handleApiError(
       async () => {
-        const { id, nonce } = await getNonce(keypair.publicKey)(client)
-        printUnderscored('ID', id)
+        const nonce = await client.getAccountNonce(keypair.publicKey)
+        printUnderscored('ID', keypair.publicKey)
         printUnderscored('Nonce', nonce)
       }
     )
