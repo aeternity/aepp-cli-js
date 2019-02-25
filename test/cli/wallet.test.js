@@ -42,7 +42,7 @@ describe('CLI Wallet Module', function () {
 
   it('Create Wallet', async () => {
     // create wallet
-    await execute(['account', 'create', walletName, '--password', 'test'])
+    await execute(['account', 'create', walletName, '--password', 'test', '--overwrite'])
 
     // check for wallet files
     fs.existsSync(walletName).should.equal(true)
@@ -52,7 +52,7 @@ describe('CLI Wallet Module', function () {
   })
   it('Create Wallet From Private Key', async () => {
     // create wallet
-    await execute(['account', 'save', walletName, '--password', 'test', KEY_PAIR.secretKey])
+    await execute(['account', 'save', walletName, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
 
     // check for wallet files
     fs.existsSync(walletName).should.equal(true)

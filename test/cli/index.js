@@ -62,7 +62,7 @@ export async function ready (mocha) {
 
   const client = await BaseAe({ networkId })
   client.setKeypair(KEY_PAIR)
-  await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey])
+  await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
   return client
 }
 
