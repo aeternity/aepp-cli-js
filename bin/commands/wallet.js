@@ -126,9 +126,10 @@ async function getAccountNonce (walletPath, options) {
 
 // ## Create secure `wallet` file
 // This function allow you to generate `keypair` and write it to secure `ethereum` like key-file
-async function createSecureWallet (walletPath, { output, password }) {
+async function createSecureWallet (walletPath, { output, password, overwrite }) {
   try {
-    await generateSecureWallet(walletPath, { output, password })
+    await generateSecureWallet(walletPath, { output, password, overwrite })
+    process.exit(1)
   } catch (e) {
     printError(e.message)
   }
@@ -136,9 +137,10 @@ async function createSecureWallet (walletPath, { output, password }) {
 
 // ## Create secure `wallet` file from `private-key`
 // This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
-async function createSecureWalletByPrivKey (walletPath, priv, { output, password }) {
+async function createSecureWalletByPrivKey (walletPath, priv, { output, password, overwrite }) {
   try {
-    await generateSecureWalletFromPrivKey(walletPath, priv, { output, password })
+    await generateSecureWalletFromPrivKey(walletPath, priv, { output, password, overwrite })
+    process.exit(1)
   } catch (e) {
     printError(e.message)
   }

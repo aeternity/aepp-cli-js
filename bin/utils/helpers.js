@@ -114,6 +114,11 @@ export function readFile (path, encoding = null, errTitle = 'READ FILE ERR') {
   }
 }
 
+// Is file exist
+export function isFileExist (path) {
+  return fs.existsSync(path)
+}
+
 // ## AENS helpers methods
 
 // Get `name` status

@@ -17,54 +17,24 @@
 *  PERFORMANCE OF THIS SOFTWARE.
 */
 import path from 'path'
-import prompt from 'prompt'
 
 import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto'
 import { dump, getAddressFromPriv, recover } from '@aeternity/aepp-sdk/es/utils/keystore'
 
 import { print } from './print'
-import { readJSONFile, writeFile } from './helpers'
+import { isFileExist, readJSONFile, writeFile } from './helpers'
+import { PROMPT_TYPE, prompt } from './prompt'
 
-// ## The `prompt` library provides concealed input of passwords.
-
-// `prompt` schema
-const PROMPT_PASSWORD = {
-  properties: {
-    password: {
-      type: 'string',
-      description: 'Enter your password',
-      hidden: true,
-      required: false,
-      replace: '*',
-      conform: function () {
-        return true
-      }
-    }
-  }
+async function askForOverwrite (name, output) {
+  return isFileExist(path.join(name, output))
+    ? prompt(PROMPT_TYPE.askOverwrite)
+    : true
 }
-
-// `Async` prompt password using `prompt`
-async function promptPasswordAsync (schema) {
-  return new Promise(
-    (resolve, reject) => {
-      const promptSchema = schema || PROMPT_PASSWORD
-      prompt.start()
-      prompt.get(
-        promptSchema,
-        (err, res) => {
-          const prop = Object.keys(promptSchema.properties)[0]
-          resolve(res[prop])
-        }
-      )
-    }
-  )
-}
-
-// ##WALLET HELPERS
 
 // Generate `keypair` encrypt it using password and write to `ethereum` keystore file
-export async function generateSecureWallet (name, { output = '', password }) {
-  password = password || await promptPasswordAsync()
+export async function generateSecureWallet (name, { output = '', password, overwrite }) {
+  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(0)
+  password = password || await prompt(PROMPT_TYPE.askPassword)
   const { secretKey, publicKey } = Crypto.generateKeyPair(true)
 
   writeFile(path.join(output, name), JSON.stringify(await dump(name, password, secretKey)))
@@ -77,8 +47,9 @@ export async function generateSecureWallet (name, { output = '', password }) {
 }
 
 // Generate `keypair` from `PRIVATE KEY` encrypt it using password and to `ethereum` keystore file
-export async function generateSecureWalletFromPrivKey (name, priv, { output, password }) {
-  password = password || await promptPasswordAsync()
+export async function generateSecureWalletFromPrivKey (name, priv, { output = '', password, overwrite }) {
+  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(0)
+  password = password || await prompt(PROMPT_TYPE.askPassword)
 
   const hexStr = Crypto.hexStringToByte(priv.trim())
   const keys = Crypto.generateKeyPairFromSecret(hexStr)
@@ -90,7 +61,7 @@ export async function generateSecureWalletFromPrivKey (name, priv, { output, pas
   print(`
     Wallet saved
     Wallet address________________ ${Crypto.aeEncodeKey(keys.publicKey)}
-    Wallet path___________________ ${path.resolve(process.cwd(), name)}
+    Wallet path___________________ ${path.resolve(process.cwd(), path.join(output, name))}
   `)
 }
 
@@ -99,7 +70,7 @@ export async function getWalletByPathAndDecrypt (walletPath, { password } = {}) 
   try {
     const keyFile = readJSONFile(path.resolve(process.cwd(), walletPath))
 
-    if (!password || typeof password !== 'string' || !password.length) password = await promptPasswordAsync()
+    if (!password || typeof password !== 'string' || !password.length) password = await prompt(PROMPT_TYPE.askPassword)
 
     const privKey = await recover(password, keyFile)
 

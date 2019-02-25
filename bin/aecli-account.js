@@ -100,6 +100,7 @@ program
 program
   .command('create <name>')
   .option('-O, --output [output]', 'Output directory', '.')
+  .option('--overwrite', 'Overwrite if exist')
   .description('Create a secure wallet')
   .action(async (name, ...arguments) => await Wallet.createSecureWallet(name, utils.cli.getCmdFromArguments(arguments)))
 
@@ -116,6 +117,7 @@ program
 program
   .command('save <name> <privkey>')
   .option('-O, --output [output]', 'Output directory', '.')
+  .option('--overwrite', 'Overwrite if exist')
   .description('Save a private keys string to a password protected file wallet')
   .action(async (name, priv, ...arguments) => await Wallet.createSecureWalletByPrivKey(name, priv, utils.cli.getCmdFromArguments(arguments)))
 
