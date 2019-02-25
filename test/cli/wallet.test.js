@@ -20,6 +20,7 @@ import { before, describe, it } from 'mocha'
 
 import { configure, plan, ready, execute, parseBlock, BaseAe, KEY_PAIR, WALLET_NAME } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { getNonce } from '../../bin/utils/helpers'
 
 const walletName = 'test.wallet'
 
@@ -85,5 +86,9 @@ describe('CLI Wallet Module', function () {
     await execute(['account', 'spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount])
     const receiverBalance = await receiver.balance(await receiver.address())
     await parseInt(receiverBalance).should.equal(amount)
+  })
+  it('Get account nonce', async () => {
+    const { nonce } = await getNonce(await wallet.address())(wallet)
+    parseBlock(await execute(['account', 'nonce', WALLET_NAME, '--password', 'test']))['nonce'].should.equal(`${nonce}`)
   })
 })

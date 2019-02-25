@@ -15,5 +15,7 @@ const PROMPT_SCHEMA = {
 export const prompt = async (type, params) => {
   const schema = PROMPT_SCHEMA[type](params)
   if (!schema) throw new Error('Prompt schema not found')
-  return (await prompts(schema))[schema.name]
+  const r = (await prompts(schema))[schema.name]
+  if (typeof r === 'undefined') process.exit(0) // Canceled `ctrl + c`
+  return r
 }

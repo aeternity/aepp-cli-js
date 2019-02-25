@@ -25,7 +25,8 @@ import { printUnderscored } from './print'
 import { isFileExist, readJSONFile, writeFile } from './helpers'
 import { PROMPT_TYPE, prompt } from './prompt'
 
-async function askForOverwrite (name, output) {
+// Helper function which check if `account file` exist and `ask for overwriting`
+export async function askForOverwrite (name, output) {
   return isFileExist(path.join(name, output))
     ? prompt(PROMPT_TYPE.askOverwrite)
     : true

@@ -24,6 +24,11 @@ import { HASH_TYPES } from './constant'
 import { printError } from './print'
 import path from 'path'
 
+export function getNonce (address) {
+  return async (client) => {
+    return client.api.getAccountByPubkey(address).catch(() => ({ id: address, nonce: 0 }))
+  }
+}
 // ## Method which retrieve block info by hash
 // if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`
 //
