@@ -32,24 +32,19 @@ async function sign (walletPath, tx, options) {
   let { json } = options
   try {
     // Validate `tx` hash
-    if (tx.slice(0, 2) !== 'tx')
-      throw new Error('Invalid transaction hash')
+    if (tx.slice(0, 2) !== 'tx') { throw new Error('Invalid transaction hash') }
 
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
     const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
 
     await handleApiError(async () => {
       const signedTx = await client.signTransaction(tx)
-      if (json)
-        print({ signedTx })
-      else
-        printUnderscored('Signed transaction', signedTx)
+      if (json) { print({ signedTx }) } else { printUnderscored('Signed transaction', signedTx) }
     })
   } catch (e) {
     printError(e.message)
   }
 }
-
 
 // ## Spend function
 // this function allow you to `send` token's to another `account`
@@ -102,8 +97,26 @@ async function getAddress (walletPath, options) {
     await handleApiError(
       async () => {
         print('Your address is: ' + await client.address())
-        if (privateKey)
-          print('Your private key is: ' + keypair.secretKey)
+        if (privateKey) { print('Your private key is: ' + keypair.secretKey) }
+      }
+    )
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
+// ## Get `nonce` function
+// This function allow you retrieve account `nonce`
+async function getAccountNonce (walletPath, options) {
+  try {
+    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+    const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
+
+    await handleApiError(
+      async () => {
+        const { id, nonce } = await client.api.getAccountByPubkey(keypair.publicKey)
+        printUnderscored('ID', id)
+        printUnderscored('Nonce', nonce)
       }
     )
   } catch (e) {
@@ -135,6 +148,7 @@ export const Wallet = {
   spend,
   getBalance,
   getAddress,
+  getAccountNonce,
   createSecureWallet,
   createSecureWalletByPrivKey,
   sign

@@ -118,7 +118,7 @@ async function getAccountByHash (hash, options) {
     await handleApiError(
       async () => {
         const { id, nonce } = await client.api.getAccountByPubkey(hash)
-        const balance = await client.balance(hash, { format: false })
+        const balance = await client.balance(hash)
         printUnderscored('Account ID', id)
         printUnderscored('Account balance', balance)
         printUnderscored('Account nonce', nonce)

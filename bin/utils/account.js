@@ -28,7 +28,7 @@ import { readJSONFile, writeFile } from './helpers'
 // ## The `prompt` library provides concealed input of passwords.
 
 // `prompt` schema
-const PROMPT_SCHEMA = {
+const PROMPT_PASSWORD = {
   properties: {
     password: {
       type: 'string',
@@ -44,14 +44,16 @@ const PROMPT_SCHEMA = {
 }
 
 // `Async` prompt password using `prompt`
-async function promptPasswordAsync () {
+async function promptPasswordAsync (schema) {
   return new Promise(
     (resolve, reject) => {
+      const promptSchema = schema || PROMPT_PASSWORD
       prompt.start()
       prompt.get(
-        PROMPT_SCHEMA,
+        promptSchema,
         (err, res) => {
-            resolve(res.password)
+          const prop = Object.keys(promptSchema.properties)[0]
+          resolve(res[prop])
         }
       )
     }

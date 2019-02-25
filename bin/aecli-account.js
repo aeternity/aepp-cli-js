@@ -31,10 +31,8 @@ const { Wallet } = require('./commands')
 program
   .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('--native', 'Build transaction natively')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-P, --password [password]', 'Wallet Password')
-  .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
@@ -52,8 +50,7 @@ program
   .option('--payload [payload]', 'Transaction payload.', '')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Spend transaction fee.')
-  .option('--payload [payload]', 'Transaction payload.')
+  .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .action(async (walletPath, receiver, amount, ...arguments) => await Wallet.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `sign` command
@@ -85,8 +82,8 @@ program
 //
 // Example: `aecli account address ./myWalletKeyFile --password testpassword --privateKey` --> show  public key and private key
 program
-  .command('address [wallet_path]')
-  .option('-K, --privateKey', 'Print private key')
+  .command('address <wallet_path>')
+  .option('--privateKey', 'Print private key')
   .description('Get wallet address')
   .action(async (walletPath, ...arguments) => await Wallet.getAddress(walletPath, utils.cli.getCmdFromArguments(arguments)))
 
@@ -121,6 +118,19 @@ program
   .option('-O, --output [output]', 'Output directory', '.')
   .description('Save a private keys string to a password protected file wallet')
   .action(async (name, priv, ...arguments) => await Wallet.createSecureWalletByPrivKey(name, priv, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `nonce` command
+//
+// You can use this command to get `account nonce`.
+//
+// You can use `--output ./keys` to set directory to save you key
+//
+// Example: `aecli account nonce myWalletName --password testpassword
+program
+  .command('nonce <wallet_path>')
+  .description('Get account nonce')
+  .action(async (walletPath, ...arguments) => await Wallet.getAccountNonce(walletPath, utils.cli.getCmdFromArguments(arguments)))
+
 
 // Handle unknown command's
 program.on('command:*', () => utils.errors.unknownCommandHandler(program)())

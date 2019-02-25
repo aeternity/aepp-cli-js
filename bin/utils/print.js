@@ -287,7 +287,6 @@ export function printTransaction (tx, json, tabs = 0) {
   const tabsString = getTabs(tabs)
   printTxBase(tx, tabsString)
   TX_TYPE_PRINT_MAP[R.path(['tx', 'type'], tx)](tx, tabsString)
-
 }
 
 // ##OTHER

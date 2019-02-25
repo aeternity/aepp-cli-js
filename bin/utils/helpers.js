@@ -140,4 +140,3 @@ export function validateName (name) {
 
 // Grab contract descriptor by path
 export const grabDesc = async descrPath => descrPath && await readJSONFile(path.resolve(process.cwd(), descrPath))
-
