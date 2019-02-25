@@ -21,7 +21,7 @@ import path from 'path'
 import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto'
 import { dump, getAddressFromPriv, recover } from '@aeternity/aepp-sdk/es/utils/keystore'
 
-import { print } from './print'
+import { printUnderscored } from './print'
 import { isFileExist, readJSONFile, writeFile } from './helpers'
 import { PROMPT_TYPE, prompt } from './prompt'
 
@@ -39,11 +39,8 @@ export async function generateSecureWallet (name, { output = '', password, overw
 
   writeFile(path.join(output, name), JSON.stringify(await dump(name, password, secretKey)))
 
-  print(`
-    Wallet saved
-    Wallet address________________ ${Crypto.aeEncodeKey(publicKey)}
-    Wallet path___________________ ${path.resolve(process.cwd(), path.join(output, name))}
-  `)
+  printUnderscored('Address', Crypto.aeEncodeKey(publicKey))
+  printUnderscored('Path', path.resolve(process.cwd(), path.join(output, name)))
 }
 
 // Generate `keypair` from `PRIVATE KEY` encrypt it using password and to `ethereum` keystore file
@@ -58,11 +55,8 @@ export async function generateSecureWalletFromPrivKey (name, priv, { output = ''
 
   writeFile(path.join(output, name), JSON.stringify(encryptedKeyPair))
 
-  print(`
-    Wallet saved
-    Wallet address________________ ${Crypto.aeEncodeKey(keys.publicKey)}
-    Wallet path___________________ ${path.resolve(process.cwd(), path.join(output, name))}
-  `)
+  printUnderscored('Address', Crypto.aeEncodeKey(keys.publicKey))
+  printUnderscored('Path', path.resolve(process.cwd(), path.join(output, name)))
 }
 
 // Get account file by path, decrypt it using password and return `keypair`

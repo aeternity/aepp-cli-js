@@ -26,7 +26,7 @@ import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
 import { checkPref } from '../utils/helpers'
 
-// ## Sign function
+// ## `Sign` function
 // this function allow you to `sign` transaction's
 async function sign (walletPath, tx, options) {
   let { json } = options
@@ -39,14 +39,21 @@ async function sign (walletPath, tx, options) {
 
     await handleApiError(async () => {
       const signedTx = await client.signTransaction(tx)
-      if (json) { print({ signedTx }) } else { printUnderscored('Signed transaction', signedTx) }
+      if (json) {
+        print({ signedTx })
+      } else {
+        printUnderscored('Signing account address', await client.address())
+        printUnderscored('Network ID', client.networkId || client.nodeNetworkId || 'ae_mainnet') // TODO add getNetworkId function to SDK
+        printUnderscored('Unsigned', tx)
+        printUnderscored('Signed', signedTx)
+      }
     })
   } catch (e) {
     printError(e.message)
   }
 }
 
-// ## Spend function
+// ## `Spend` function
 // this function allow you to `send` token's to another `account`
 async function spend (walletPath, receiver, amount, options) {
   let { ttl, json, nonce, payload, fee } = options
@@ -72,14 +79,19 @@ async function spend (walletPath, receiver, amount, options) {
   }
 }
 
-// ## Get `balace` function
+// ## Get `balance` function
 // This function allow you retrieve account `balance`
 async function getBalance (walletPath, options) {
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const client = await initClientByWalletFile(walletPath, options)
+    const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
     await handleApiError(
-      async () => print('Your balance is: ' + (await client.balance(await client.address())))
+      async () => {
+        const { id, nonce } = await client.api.getAccountByPubkey(keypair.publicKey)
+        printUnderscored('Balance', await client.balance(id))
+        printUnderscored('ID', await client.address())
+        printUnderscored('Nonce', nonce)
+      }
     )
   } catch (e) {
     printError(e.message)
@@ -96,8 +108,8 @@ async function getAddress (walletPath, options) {
 
     await handleApiError(
       async () => {
-        print('Your address is: ' + await client.address())
-        if (privateKey) { print('Your private key is: ' + keypair.secretKey) }
+        printUnderscored('Address', await client.address())
+        if (privateKey) { printUnderscored('Secret Key', keypair.secretKey) }
       }
     )
   } catch (e) {
