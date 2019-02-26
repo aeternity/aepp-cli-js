@@ -32,10 +32,10 @@ function randomName () {
 
 async function signAndPost (tx, assert) {
   const signedRes = await execute(['account', 'sign', WALLET_NAME, tx, '--password', 'test'])
-  const data = parseBlock(signedRes)
+  const { signed } = parseBlock(signedRes)
   return assert
-    ? (await execute(['tx', 'broadcast', data])).indexOf('Transaction send to the chain').should.be.equal(0)
-    : execute(['tx', 'broadcast', data, '--waitMined'])
+    ? (await execute(['tx', 'broadcast', signed])).indexOf('Transaction send to the chain').should.be.equal(0)
+    : execute(['tx', 'broadcast', signed, '--waitMined'])
 }
 
 describe('CLI Transaction Module', function () {

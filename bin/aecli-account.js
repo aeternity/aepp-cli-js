@@ -84,6 +84,7 @@ program
 program
   .command('address <wallet_path>')
   .option('--privateKey', 'Print private key')
+  .option('--forcePrompt', 'Force prompting')
   .description('Get wallet address')
   .action(async (walletPath, ...arguments) => await Wallet.getAddress(walletPath, utils.cli.getCmdFromArguments(arguments)))
 

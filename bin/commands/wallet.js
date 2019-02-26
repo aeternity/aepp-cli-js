@@ -102,7 +102,7 @@ async function getBalance (walletPath, options) {
 // ## Get `address` function
 // This function allow you retrieve account `public` and `private` keys
 async function getAddress (walletPath, options) {
-  const { privateKey } = options
+  const { privateKey, forcePrompt = false } = options
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
@@ -111,7 +111,7 @@ async function getAddress (walletPath, options) {
       async () => {
         printUnderscored('Address', await client.address())
         if (privateKey) {
-          if (await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
+          if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
             printUnderscored('Secret Key', keypair.secretKey)
           }
         }

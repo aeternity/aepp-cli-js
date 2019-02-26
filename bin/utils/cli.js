@@ -53,7 +53,6 @@ export async function initClientByWalletFile (walletPath, options, returnKeyPair
   const { password, privateKey, accountOnly = false } = options
   const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
 
-  console.log(accountOnly)
   const client = accountOnly
     ? await Account(R.merge(options, { keypair }))
     : await initClient(R.merge(options, { keypair }))
