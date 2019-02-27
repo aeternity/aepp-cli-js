@@ -85,11 +85,11 @@ async function ttl (absoluteTtl, options) {
     await handleApiError(async () => {
       const height = await client.height()
       if (json) {
-        print({ absoluteTtl, relativeTtl: +height + absoluteTtl })
+        print({ absoluteTtl, relativeTtl: +height + +absoluteTtl })
         process.exit(1)
       }
       printUnderscored('Absolute TTL', absoluteTtl)
-      printUnderscored('Relative TTL', +height + absoluteTtl)
+      printUnderscored('Relative TTL', +height + +absoluteTtl)
     })
   } catch (e) {
     printError(e.message)
@@ -107,30 +107,6 @@ async function top (options) {
     await handleApiError(
       async () => printBlock(await client.topBlock(), json)
     )
-  } catch (e) {
-    printError(e.message)
-    process.exit(1)
-  }
-}
-
-// ## Retrieve `mempool`
-async function mempool (options) {
-  const { json } = options
-  try {
-    // Initialize `Ae`
-    const client = await initChain(options)
-
-    await handleApiError(async () => {
-      // Get `mempool` from `API`
-      const { transactions } = await client.mempool()
-
-      printUnderscored('Mempool', '')
-      printUnderscored('Pending Transactions Count', transactions.length)
-      // If we have `transaction's` in `mempool` print them
-      if (transactions && transactions.length) {
-        printBlockTransactions(transactions, json)
-      }
-    })
   } catch (e) {
     printError(e.message)
     process.exit(1)
