@@ -21,7 +21,7 @@
 
 import { initChain } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { printBlock, print, printBlockTransactions, printError, printUnderscored } from '../utils/print'
+import { printBlock, print, printError, printUnderscored } from '../utils/print'
 import { getBlock } from '../utils/helpers'
 
 // ## Retrieve `node` version
