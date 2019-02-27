@@ -26,16 +26,48 @@ import { getBlock } from '../utils/helpers'
 
 // ## Retrieve `node` version
 async function version (options) {
+  const { json } = options
   try {
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const { nodeVersion, nodeRevision, genesisKeyBlockHash, networkId } = await client.api.getStatus()
-      print(`Node version______________  ${nodeVersion}`)
-      print(`Node revision ____________  ${nodeRevision}`)
-      print(`Genesis hash______________  ${genesisKeyBlockHash}`)
-      print(`Network ID________________  ${networkId}`)
+      const status = await client.api.getStatus()
+      if (json) {
+        print(status)
+        process.exit(1)
+      }
+      printUnderscored(`Difficulty`, status.difficulty)
+      printUnderscored(`Node version`, status.nodeVersion)
+      printUnderscored(`Node revision`, status.nodeRevision)
+      printUnderscored(`Genesis hash`, status.genesisKeyBlockHash)
+      printUnderscored(`Network ID`, status.networkId)
+      printUnderscored(`Listening`, status.listening)
+      printUnderscored(`Peer count`, status.peerCount)
+      printUnderscored(`Pending transactions count`, status.pendingTransactionsCount)
+      printUnderscored(`Solutions`, status.solutions)
+      printUnderscored(`Syncing`, status.syncing)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
+// ## Retrieve `node` version
+async function getNetworkId (options) {
+  const { json } = options
+  try {
+    // Initialize `Ae`
+    const client = await initChain(options)
+    // Call `getStatus` API and print it
+    await handleApiError(async () => {
+      const { networkId } = await client.api.getStatus()
+      if (json) {
+        print({ networkId })
+        process.exit(1)
+      }
+      printUnderscored(`Network ID`, networkId)
     })
   } catch (e) {
     printError(e.message)
@@ -163,9 +195,9 @@ function playWithHeight (height, blockHash) {
 }
 
 export const Chain = {
-  mempool,
   top,
   version,
   play,
-  ttl
+  ttl,
+  getNetworkId
 }

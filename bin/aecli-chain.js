@@ -67,6 +67,16 @@ program
   .description('Get relative ttl')
   .action(async (absoluteTtl, ...arguments) => await Chain.ttl(absoluteTtl, utils.cli.getCmdFromArguments(arguments)))
 
+// ## Initialize `ttl` command
+//
+// You can use this command to retrieve relative `ttl`
+//
+// Example: `aecli chain ttl <absolute_ttl>`
+program
+  .command('network_id')
+  .description('Get network ID')
+  .action(async (...arguments) => await Chain.getNetworkId(utils.cli.getCmdFromArguments(arguments)))
+
 // ## Initialize `play` command
 //
 // You can use this command to get list of block by some condition(by `limit` or `height`)
