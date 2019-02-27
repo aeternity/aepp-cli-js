@@ -43,6 +43,28 @@ async function version (options) {
   }
 }
 
+// ## Retrieve `ttl` version
+async function ttl (absoluteTtl, options) {
+  const { json } = options
+  try {
+    // Initialize `Ae`
+    const client = await initChain(options)
+    // Call `topBlock` API and calculate relative `ttl`
+    await handleApiError(async () => {
+      const height = await client.height()
+      if (json) {
+        print({ absoluteTtl, relativeTtl: +height + absoluteTtl })
+        process.exit(1)
+      }
+      printUnderscored('Absolute TTL', absoluteTtl)
+      printUnderscored('Relative TTL', +height + absoluteTtl)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
 // ## Retrieve `TOP` block
 async function top (options) {
   const { json } = options
@@ -144,5 +166,6 @@ export const Chain = {
   mempool,
   top,
   version,
-  play
+  play,
+  ttl
 }

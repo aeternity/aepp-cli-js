@@ -57,15 +57,15 @@ program
   .description('Get node version')
   .action(async (...arguments) => await Chain.version(utils.cli.getCmdFromArguments(arguments)))
 
-// ## Initialize `mempool` command
+// ## Initialize `ttl` command
 //
-// You can use this command to retrieve list of `mempool` transaction from `node`
+// You can use this command to retrieve relative `ttl`
 //
-// Example: `aecli chain mempool`
+// Example: `aecli chain ttl <absolute_ttl>`
 program
-  .command('mempool')
-  .description('Get mempool of Chain')
-  .action(async (...arguments) => await Chain.mempool(utils.cli.getCmdFromArguments(arguments)))
+  .command('ttl <absoluteTtl>')
+  .description('Get relative ttl')
+  .action(async (absoluteTtl, ...arguments) => await Chain.ttl(absoluteTtl, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `play` command
 //
