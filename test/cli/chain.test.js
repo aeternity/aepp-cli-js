@@ -57,7 +57,8 @@ describe('CLI Chain Module', function () {
       wallet.height()
     ])
     const {relative_ttl} = parseBlock(res)
-    parseInt(height).should.equal(+relative_ttl - 10)
+    const isValid = [relative_ttl+1, relative_ttl, relative_ttl-1].includes(height + 10)
+    isValid.should.equal(true)
   })
   it('NETWORK ID', async () => {
     const nodeNetworkId = wallet.nodeNetworkId
