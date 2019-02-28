@@ -25,16 +25,14 @@ const program = require('commander')
 
 require = require('esm')(module/*, options*/) //use to handle es6 import/export
 const utils = require('./utils/index')
-const { Wallet } = require('./commands')
+const { Account } = require('./commands')
 
 // ## Initialize `options`
 program
   .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('--native', 'Build transaction natively')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-P, --password [password]', 'Wallet Password')
-  .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
@@ -52,9 +50,8 @@ program
   .option('--payload [payload]', 'Transaction payload.', '')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Spend transaction fee.')
-  .option('--payload [payload]', 'Transaction payload.')
-  .action(async (walletPath, receiver, amount, ...arguments) => await Wallet.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
+  .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .action(async (walletPath, receiver, amount, ...arguments) => await Account.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `sign` command
 //
@@ -64,7 +61,7 @@ program
 program
   .command('sign <wallet_path> <tx>')
   .description('Create a transaction to another wallet')
-  .action(async (walletPath, tx, ...arguments) => await Wallet.sign(walletPath, tx, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, tx, ...arguments) => await Account.sign(walletPath, tx, utils.cli.getCmdFromArguments(arguments)))
 
 
 // ## Initialize `balance` command
@@ -75,7 +72,7 @@ program
 program
   .command('balance <wallet_path>')
   .description('Get wallet balance')
-  .action(async (walletPath, ...arguments) => await Wallet.getBalance(walletPath, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, ...arguments) => await Account.getBalance(walletPath, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `address` command
 //
@@ -85,10 +82,11 @@ program
 //
 // Example: `aecli account address ./myWalletKeyFile --password testpassword --privateKey` --> show  public key and private key
 program
-  .command('address [wallet_path]')
-  .option('-K, --privateKey', 'Print private key')
+  .command('address <wallet_path>')
+  .option('--privateKey', 'Print private key')
+  .option('--forcePrompt', 'Force prompting')
   .description('Get wallet address')
-  .action(async (walletPath, ...arguments) => await Wallet.getAddress(walletPath, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, ...arguments) => await Account.getAddress(walletPath, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `create` command
 //
@@ -103,8 +101,9 @@ program
 program
   .command('create <name>')
   .option('-O, --output [output]', 'Output directory', '.')
+  .option('--overwrite', 'Overwrite if exist')
   .description('Create a secure wallet')
-  .action(async (name, ...arguments) => await Wallet.createSecureWallet(name, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (name, ...arguments) => await Account.createSecureWallet(name, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `save` command
 //
@@ -119,8 +118,22 @@ program
 program
   .command('save <name> <privkey>')
   .option('-O, --output [output]', 'Output directory', '.')
+  .option('--overwrite', 'Overwrite if exist')
   .description('Save a private keys string to a password protected file wallet')
-  .action(async (name, priv, ...arguments) => await Wallet.createSecureWalletByPrivKey(name, priv, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (name, priv, ...arguments) => await Account.createSecureWalletByPrivKey(name, priv, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `nonce` command
+//
+// You can use this command to get `account nonce`.
+//
+// You can use `--output ./keys` to set directory to save you key
+//
+// Example: `aecli account nonce myWalletName --password testpassword
+program
+  .command('nonce <wallet_path>')
+  .description('Get account nonce')
+  .action(async (walletPath, ...arguments) => await Account.getAccountNonce(walletPath, utils.cli.getCmdFromArguments(arguments)))
+
 
 // Handle unknown command's
 program.on('command:*', () => utils.errors.unknownCommandHandler(program)())

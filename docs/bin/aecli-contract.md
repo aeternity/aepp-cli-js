@@ -142,7 +142,7 @@ Example: `aecli contract call ./myWalletFile --password tstpass sumFunc int 1 2 
 ```js
 program
   .command('call <wallet_path> <fn> <return_type> [args...]')
-  .option('-P, --password [password]', 'Wallet Password')
+  .option('-P, --password [password]', 'Account Password')
   .option('-G --gas [gas]', 'Amount of gas to call the contract', utils.constant.GAS)
   .option('-d --descrPath [descrPath]', 'Path to contract descriptor file')
   .option('-s --callStatic', 'Call static', false)
@@ -181,7 +181,7 @@ Example: `aecli contract call ./myWalletFile --password tstpass sumFunc int 1 2 
 ```js
 program
   .command('callChecked <wallet_path> <fn> <return_type> <callContractPath>')
-  .option('-P, --password [password]', 'Wallet Password')
+  .option('-P, --password [password]', AAccount)
   .option('-G --gas [gas]', 'Amount of gas to call the contract', utils.constant.GAS)
   .option('-s --callStatic', 'Call static', false)
   .option('-d --descrPath [descrPath]', 'path to contract descriptor file')
@@ -214,7 +214,7 @@ Example: `aecli contract call ./myWalletFile --password tstpass ./contractDescri
 ```js
 program
   .command('deploy <wallet_path> <contract_path>')
-  .option('-P, --password [password]', 'Wallet Password')
+  .option('-P, --password [password]', 'Wallet PasAccount)
   .option('-I, --init [state]', 'Deploying contract arguments for constructor function')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
   .description('Deploy a contract on the chain')

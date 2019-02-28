@@ -20,11 +20,11 @@
  */
 
 import path from 'path'
-import { encodeBase58Check, salt } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { encodeBase58Check, salt, assertedType } from '@aeternity/aepp-sdk/es/utils/crypto'
 import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 import { initChain, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { print, printError, printTransaction, printUnderscored } from '../utils/print'
+import { print, printError, printUnderscored, printValidation } from '../utils/print'
 import { isAvailable, readFile, updateNameStatus, validateName } from '../utils/helpers'
 import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE, BUILD_ORACLE_TTL } from '../utils/constant'
 
@@ -482,49 +482,28 @@ async function oracleRespond (callerId, oracleId, queryId, response, options) {
   }
 }
 
-// ## Send 'transaction' to the chain
-async function broadcast (signedTx, options) {
-  let { json, waitMined, verify } = options
+// ## Verify 'transaction'
+async function verify (txHash, options) {
+  let { json } = options
   try {
+    // Validate input
+    if (!assertedType(txHash, 'tx')) throw new Error('Invalid transaction, must be lik \'tx_23didf2+f3sd...\'')
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      try {
-        const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify })
-        waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx.hash)
-      } catch (e) {
-        printValidation(e.errorData)
+      const { validation, tx, signatures, txType: type } = await client.unpackAndVerify(txHash)
+      if (json) {
+        print({ validation, tx: tx, signatures, type })
+        process.exit(1)
       }
+      printValidation({ validation, tx: { ...tx, signatures: signatures.map(el => el.hash) }, txType: type })
+      if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')
     })
   } catch (e) {
     printError(e.message)
     process.exit(1)
   }
-}
-
-function printValidation ({ validation, tx, txType }) {
-  print('----------------------------- TX DATA -------------------------------')
-  Object.entries({ ...{ type: txType }, ...tx }).forEach(([key, value]) => printUnderscored(key, value))
-  validation
-    .reduce(
-      (acc, { msg, txKey, type }) => {
-        type === 'error' ? acc[0].push({ msg, txKey }) : acc[1].push({ msg, txKey })
-        return acc
-      },
-      [[], []]
-    )
-    .forEach((el, i) => {
-      if (el.length) {
-        i === 0
-          ? print('\n------------------------------ ERRORS ------------------------------\n')
-          : print('\n----------------------------- WARNINGS -----------------------------\n')
-        el
-          .forEach(({ msg, txKey }) => {
-            printUnderscored(txKey, msg)
-          })
-      }
-    })
 }
 
 export const Transaction = {
@@ -534,11 +513,11 @@ export const Transaction = {
   nameUpdate,
   nameRevoke,
   nameTransfer,
-  broadcast,
   contractDeploy,
   contractCall,
   oracleRegister,
   oraclePostQuery,
   oracleExtend,
-  oracleRespond
+  oracleRespond,
+  verify
 }

@@ -56,13 +56,13 @@ export async function ready (mocha) {
 
   if (!charged && planned > 0) {
     console.log(`Charging new wallet ${KEY_PAIR.publicKey} with ${'100000000000000000000000'}`)
-    await ae.spend('100000000000000000000000', KEY_PAIR.publicKey)
+    await ae.spend('100000000000000000000000', KEY_PAIR.publicKey).catch(async e => console.log(await e.verifyTx()))
     charged = true
   }
 
   const client = await BaseAe({ networkId })
   client.setKeypair(KEY_PAIR)
-  await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey])
+  await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
   return client
 }
 

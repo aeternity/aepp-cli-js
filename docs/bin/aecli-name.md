@@ -84,7 +84,7 @@ program
   .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--native', 'Build transaction natively')
-  .option('-P, --password [password]', 'Wallet Password')
+  .option('-P, --password [password]', 'Account Password')
   .option('-N, --nameTtl [nameTtl]', 'Name life Ttl', utils.constant.NAME_TTL)
   .option('-T, --ttl [ttl]', 'Life Ttl', utils.constant.AENS_TX_TTL)
   .option('-f --force', 'Ignore node version compatibility check')

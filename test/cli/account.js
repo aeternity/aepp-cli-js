@@ -25,7 +25,7 @@ const walletName = 'test.wallet'
 
 plan(1000000000)
 
-describe('CLI Wallet Module', function () {
+describe('CLI Account Module', function () {
   configure(this)
 
   let wallet
@@ -42,38 +42,38 @@ describe('CLI Wallet Module', function () {
 
   it('Create Wallet', async () => {
     // create wallet
-    await execute(['account', 'create', walletName, '--password', 'test'])
+    await execute(['account', 'create', walletName, '--password', 'test', '--overwrite'])
 
     // check for wallet files
     fs.existsSync(walletName).should.equal(true)
 
     // check if wallet files valid
-    parseBlock(await execute(['account', 'address', walletName, '--password', 'test']))['your_address_is'].should.be.a('string')
+    parseBlock(await execute(['account', 'address', walletName, '--password', 'test']))['address'].should.be.a('string')
   })
   it('Create Wallet From Private Key', async () => {
     // create wallet
-    await execute(['account', 'save', walletName, '--password', 'test', KEY_PAIR.secretKey])
+    await execute(['account', 'save', walletName, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
 
     // check for wallet files
     fs.existsSync(walletName).should.equal(true)
 
     // check if wallet valid
-    parseBlock(await execute(['account', 'address', walletName, '--password', 'test']))['your_address_is'].should.equal(KEY_PAIR.publicKey)
+    parseBlock(await execute(['account', 'address', walletName, '--password', 'test']))['address'].should.equal(KEY_PAIR.publicKey)
   })
   it('Check Wallet Address', async () => {
     // check if wallet valid
-    parseBlock(await execute(['account', 'address', WALLET_NAME, '--password', 'test']))['your_address_is'].should.equal(KEY_PAIR.publicKey)
+    parseBlock(await execute(['account', 'address', WALLET_NAME, '--password', 'test']))['address'].should.equal(KEY_PAIR.publicKey)
   })
   it('Check Wallet Address with Private Key', async () => {
     // check if wallet valid
-    const res = parseBlock(await execute(['account', 'address', WALLET_NAME, '--password', 'test', '--privateKey']))
+    const res = parseBlock(await execute(['account', 'address', WALLET_NAME, '--password', 'test', '--privateKey', '--forcePrompt']))
     const [_, priv] = Object.keys(res)
     res[priv].should.equal(KEY_PAIR.secretKey)
   })
   it('Check Wallet Balance', async () => {
     const balance = await wallet.balance(await wallet.address())
     const cliBalance = parseBlock(await execute(['account', 'balance', WALLET_NAME, '--password', 'test']))
-    cliBalance['your_balance_is'].should.equal(balance)
+    cliBalance['balance'].should.equal(balance)
   })
   it('Spend coins to another wallet', async () => {
     const amount = 100
@@ -85,5 +85,9 @@ describe('CLI Wallet Module', function () {
     await execute(['account', 'spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount])
     const receiverBalance = await receiver.balance(await receiver.address())
     await parseInt(receiverBalance).should.equal(amount)
+  })
+  it('Get account nonce', async () => {
+    const nonce = await wallet.getAccountNonce(await wallet.address())
+    parseBlock(await execute(['account', 'nonce', WALLET_NAME, '--password', 'test']))['nonce'].should.equal(`${nonce}`)
   })
 })

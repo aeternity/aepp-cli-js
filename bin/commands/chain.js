@@ -21,21 +21,75 @@
 
 import { initChain } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { printBlock, print, printBlockTransactions, printError, printUnderscored } from '../utils/print'
+import { printBlock, print, printError, printUnderscored, printTransaction, printValidation } from '../utils/print'
 import { getBlock } from '../utils/helpers'
 
 // ## Retrieve `node` version
 async function version (options) {
+  const { json } = options
   try {
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const { nodeVersion, nodeRevision, genesisKeyBlockHash, networkId } = await client.api.getStatus()
-      print(`Node version______________  ${nodeVersion}`)
-      print(`Node revision ____________  ${nodeRevision}`)
-      print(`Genesis hash______________  ${genesisKeyBlockHash}`)
-      print(`Network ID________________  ${networkId}`)
+      const status = await client.api.getStatus()
+      if (json) {
+        print(status)
+        process.exit(1)
+      }
+      printUnderscored(`Difficulty`, status.difficulty)
+      printUnderscored(`Node version`, status.nodeVersion)
+      printUnderscored(`Node revision`, status.nodeRevision)
+      printUnderscored(`Genesis hash`, status.genesisKeyBlockHash)
+      printUnderscored(`Network ID`, status.networkId)
+      printUnderscored(`Listening`, status.listening)
+      printUnderscored(`Peer count`, status.peerCount)
+      printUnderscored(`Pending transactions count`, status.pendingTransactionsCount)
+      printUnderscored(`Solutions`, status.solutions)
+      printUnderscored(`Syncing`, status.syncing)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
+// ## Retrieve `node` version
+async function getNetworkId (options) {
+  const { json } = options
+  try {
+    // Initialize `Ae`
+    const client = await initChain(options)
+    // Call `getStatus` API and print it
+    await handleApiError(async () => {
+      const { networkId } = await client.api.getStatus()
+      if (json) {
+        print({ networkId })
+        process.exit(1)
+      }
+      printUnderscored(`Network ID`, networkId)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
+// ## Retrieve `ttl` version
+async function ttl (absoluteTtl, options) {
+  const { json } = options
+  try {
+    // Initialize `Ae`
+    const client = await initChain(options)
+    // Call `topBlock` API and calculate relative `ttl`
+    await handleApiError(async () => {
+      const height = await client.height()
+      if (json) {
+        print({ absoluteTtl, relativeTtl: +height + +absoluteTtl })
+        process.exit(1)
+      }
+      printUnderscored('Absolute TTL', absoluteTtl)
+      printUnderscored('Relative TTL', +height + +absoluteTtl)
     })
   } catch (e) {
     printError(e.message)
@@ -53,30 +107,6 @@ async function top (options) {
     await handleApiError(
       async () => printBlock(await client.topBlock(), json)
     )
-  } catch (e) {
-    printError(e.message)
-    process.exit(1)
-  }
-}
-
-// ## Retrieve `mempool`
-async function mempool (options) {
-  const { json } = options
-  try {
-    // Initialize `Ae`
-    const client = await initChain(options)
-
-    await handleApiError(async () => {
-      // Get `mempool` from `API`
-      const { transactions } = await client.mempool()
-
-      printUnderscored('Mempool', '')
-      printUnderscored('Pending Transactions Count', transactions.length)
-      // If we have `transaction's` in `mempool` print them
-      if (transactions && transactions.length) {
-        printBlockTransactions(transactions, json)
-      }
-    })
   } catch (e) {
     printError(e.message)
     process.exit(1)
@@ -140,9 +170,33 @@ function playWithHeight (height, blockHash) {
   }
 }
 
+// ## Send 'transaction' to the chain
+async function broadcast (signedTx, options) {
+  let { json, waitMined, verify } = options
+  try {
+    // Initialize `Ae`
+    const client = await initChain(options)
+    // Call `getStatus` API and print it
+    await handleApiError(async () => {
+      try {
+        const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify })
+        waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx.hash)
+      } catch (e) {
+        if (!!verify && e.errorData) printValidation(e.errorData)
+        if (!verify) printValidation(await e.verifyTx())
+      }
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
 export const Chain = {
-  mempool,
   top,
   version,
-  play
+  play,
+  ttl,
+  getNetworkId,
+  broadcast
 }

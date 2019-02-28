@@ -6,13 +6,13 @@
     "aecli": "./bin/aecli.js"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "^2.3.0-next",
+    "@aeternity/aepp-sdk": "2.3.1",
     "child_process": "^1.0.2",
     "commander": "^2.19.0",
     "esm": "^3.0.84",
     "fs": "0.0.1-security",
     "path": "^0.12.7",
-    "prompt": "^1.0.0",
+    "prompts": "^2.0.3",
     "ramda": "^0.25.0"
   },
   "devDependencies": {

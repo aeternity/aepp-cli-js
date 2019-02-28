@@ -196,18 +196,15 @@ program
   .description('Build oracle extend transaction.')
   .action(async (callerId, oracleId, queryId, response, ...arguments) => await Transaction.oracleRespond(callerId, oracleId, queryId, response, utils.cli.getCmdFromArguments(arguments)))
 
-
-// ## Initialize `broadcast` command
+// ## Initialize `verify` command
 //
 // You can use this command to send `transaction` to the `chain`
 //
 // Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
 program
-  .command('broadcast <tx>')
-  .option('--waitMined', 'Transaction payload.')
-  .option('--verify', 'Verify Transaction before broadcast.')
-  .description('Send transaction to the chain')
-  .action(async (tx, ...arguments) => await Transaction.broadcast(tx, utils.cli.getCmdFromArguments(arguments)))
+  .command('verify <tx>')
+  .description('Verify transaction')
+  .action(async (tx, ...arguments) => await Transaction.verify(tx, utils.cli.getCmdFromArguments(arguments)))
 
 
 // Handle unknown command's

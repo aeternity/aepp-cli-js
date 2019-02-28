@@ -322,7 +322,7 @@ async function createSecureWalletByPrivKey (walletPath, priv, { output, password
   }
 }
 
-export const Wallet = {
+export const Account = {
   spend,
   getBalance,
   getAddress,
