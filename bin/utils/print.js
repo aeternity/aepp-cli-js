@@ -108,6 +108,31 @@ export function printBlockTransactions (ts, json, tabs = 0) {
 }
 
 // ## TX
+
+export function printValidation ({ validation, tx, txType }) {
+  print('---------------------------------------- TX DATA ↓↓↓ \n')
+  Object.entries({ ...{ type: txType }, ...tx }).forEach(([key, value]) => printUnderscored(key, value))
+  validation
+    .reduce(
+      (acc, { msg, txKey, type }) => {
+        type === 'error' ? acc[0].push({ msg, txKey }) : acc[1].push({ msg, txKey })
+        return acc
+      },
+      [[], []]
+    )
+    .forEach((el, i) => {
+      if (el.length) {
+        i === 0
+          ? print('\n---------------------------------------- ERRORS ↓↓↓ \n')
+          : print('\n---------------------------------------- WARNINGS ↓↓↓ \n')
+        el
+          .forEach(({ msg, txKey }) => {
+            printUnderscored(txKey, msg)
+          })
+      }
+    })
+}
+
 //
 // Print base `tx` info
 function printTxBase (tx = {}, tabs = '') {

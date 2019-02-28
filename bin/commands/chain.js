@@ -21,7 +21,7 @@
 
 import { initChain } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { printBlock, print, printError, printUnderscored } from '../utils/print'
+import { printBlock, print, printError, printUnderscored, printTransaction, printValidation } from '../utils/print'
 import { getBlock } from '../utils/helpers'
 
 // ## Retrieve `node` version
@@ -170,10 +170,33 @@ function playWithHeight (height, blockHash) {
   }
 }
 
+// ## Send 'transaction' to the chain
+async function broadcast (signedTx, options) {
+  let { json, waitMined, verify } = options
+  try {
+    // Initialize `Ae`
+    const client = await initChain(options)
+    // Call `getStatus` API and print it
+    await handleApiError(async () => {
+      try {
+        const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify })
+        waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx.hash)
+      } catch (e) {
+        if (!!verify && e.errorData) printValidation(e.errorData)
+        if (!verify) printValidation(await e.verifyTx())
+      }
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
 export const Chain = {
   top,
   version,
   play,
   ttl,
-  getNetworkId
+  getNetworkId,
+  broadcast
 }

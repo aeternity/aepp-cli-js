@@ -24,7 +24,7 @@ import { encodeBase58Check, salt, assertedType } from '@aeternity/aepp-sdk/es/ut
 import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 import { initChain, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { print, printError, printTransaction, printUnderscored } from '../utils/print'
+import { print, printError, printUnderscored, printValidation } from '../utils/print'
 import { isAvailable, readFile, updateNameStatus, validateName } from '../utils/helpers'
 import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE, BUILD_ORACLE_TTL } from '../utils/constant'
 
@@ -482,28 +482,6 @@ async function oracleRespond (callerId, oracleId, queryId, response, options) {
   }
 }
 
-// ## Send 'transaction' to the chain
-async function broadcast (signedTx, options) {
-  let { json, waitMined, verify } = options
-  try {
-    // Initialize `Ae`
-    const client = await initChain(options)
-    // Call `getStatus` API and print it
-    await handleApiError(async () => {
-      try {
-        const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify })
-        waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx.hash)
-      } catch (e) {
-        if (!!verify && e.errorData) printValidation(e.errorData)
-        if (!verify) printValidation(await e.verifyTx())
-      }
-    })
-  } catch (e) {
-    printError(e.message)
-    process.exit(1)
-  }
-}
-
 // ## Verify 'transaction'
 async function verify (txHash, options) {
   let { json } = options
@@ -528,30 +506,6 @@ async function verify (txHash, options) {
   }
 }
 
-function printValidation ({ validation, tx, txType }) {
-  print('---------------------------------------- TX DATA ↓↓↓ \n')
-  Object.entries({ ...{ type: txType }, ...tx }).forEach(([key, value]) => printUnderscored(key, value))
-  validation
-    .reduce(
-      (acc, { msg, txKey, type }) => {
-        type === 'error' ? acc[0].push({ msg, txKey }) : acc[1].push({ msg, txKey })
-        return acc
-      },
-      [[], []]
-    )
-    .forEach((el, i) => {
-      if (el.length) {
-        i === 0
-          ? print('\n---------------------------------------- ERRORS ↓↓↓ \n')
-          : print('\n---------------------------------------- WARNINGS ↓↓↓ \n')
-        el
-          .forEach(({ msg, txKey }) => {
-            printUnderscored(txKey, msg)
-          })
-      }
-    })
-}
-
 export const Transaction = {
   spend,
   namePreClaim,
@@ -559,7 +513,6 @@ export const Transaction = {
   nameUpdate,
   nameRevoke,
   nameTransfer,
-  broadcast,
   contractDeploy,
   contractCall,
   oracleRegister,
