@@ -31,8 +31,8 @@ export const HASH_TYPES = {
 }
 
 // ## CONNECTION
-export const EPOCH_URL = 'https://sdk-testnet.aepps.com'
-export const EPOCH_INTERNAL_URL = 'https://sdk-testnet.aepps.com'
+export const EPOCH_URL = 'https://sdk-mainnet.aepps.com'
+export const EPOCH_INTERNAL_URL = 'https://sdk-mainnet.aepps.com'
 export const EPOCH_WEBSOCKET_URL = 'https://sdk-testnet.aepps.com'
 
 // ## CHAIN
@@ -43,7 +43,7 @@ export const PLAY_INTERVAL = 1000
 export const GAS = 1600000 - 21000 // MAX GAS
 export const DEPOSIT = 0
 export const VM_VERSION = 1
-export const GAS_PRICE = 1000000
+export const GAS_PRICE = 1000000000
 export const AMOUNT = 0
 
 // ## AENS
