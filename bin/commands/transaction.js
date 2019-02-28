@@ -494,7 +494,8 @@ async function broadcast (signedTx, options) {
         const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify })
         waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx.hash)
       } catch (e) {
-        printValidation(e.errorData)
+        if (!!verify && e.errorData) printValidation(e.errorData)
+        if (!verify) printValidation(await e.verifyTx())
       }
     })
   } catch (e) {

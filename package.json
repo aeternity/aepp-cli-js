@@ -6,7 +6,7 @@
     "aecli": "./bin/aecli.js"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "https://github.com/aeternity/aepp-sdk-js#feature/add-helpers",
+    "@aeternity/aepp-sdk": "2.3.1",
     "child_process": "^1.0.2",
     "commander": "^2.19.0",
     "esm": "^3.0.84",

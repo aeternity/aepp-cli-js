@@ -52,12 +52,13 @@ describe('CLI Chain Module', function () {
     parsed[2].previous_block_hash.should.equal(parsed[3].block_hash)
   })
   it('TTL', async () => {
-    const [res, height] = await Promise.all([
-      execute(['chain', 'ttl', 10]),
-      wallet.height()
+    const [res] = await Promise.all([
+      execute(['chain', 'ttl', 10])
     ])
-    const {relative_ttl} = parseBlock(res)
-    const isValid = [relative_ttl+1, relative_ttl, relative_ttl-1].includes(height + 10)
+    const height = await wallet.height()
+    const parsed = parseBlock(res)
+    const relative_ttl = parseInt(parsed.relative_ttl)
+    const isValid = [relative_ttl +1, relative_ttl, relative_ttl-1].includes(height + 10)
     isValid.should.equal(true)
   })
   it('NETWORK ID', async () => {

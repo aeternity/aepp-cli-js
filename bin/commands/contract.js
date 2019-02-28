@@ -26,6 +26,7 @@ import { grabDesc, readFile, writeFile } from '../utils/helpers'
 import { initChain, initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
+import { GAS_PRICE } from '../utils/constant'
 
 // ## Function which compile your `source` code
 export async function compile (file, options) {
@@ -76,7 +77,7 @@ async function deploy (walletPath, contractPath, options) {
         // even when the contract's `state` is `unit` (`()`). The arguments to
         // `init` have to be provided at deployment time and will be written to the
         // block as well, together with the contract's bytecode.
-        const deployDescriptor = await contract.deploy({ initState: init, options: { ttl, gas, nonce } })
+        const deployDescriptor = await contract.deploy({ initState: init, options: { ttl, gas, nonce, gasPrice: GAS_PRICE } })
 
         // Write contractDescriptor to file
         const descPath = `${R.last(contractPath.split('/'))}.deploy.${deployDescriptor.owner.slice(3)}.json`
@@ -115,7 +116,7 @@ const prepareCallParams = async (name, { descrPath, contractAddress, gas, ttl, n
       address: contractAddress,
       abi: 'sophia-address',
       name,
-      options: { options: { ttl, gas, nonce } }
+      options: { options: { ttl, gas, nonce, gasPrice: GAS_PRICE } }
     }
   }
 
@@ -127,7 +128,7 @@ const prepareCallParams = async (name, { descrPath, contractAddress, gas, ttl, n
     abi: descr.abi,
     name: name,
     address: descr.address,
-    options: { options: { ttl, nonce, gas } }
+    options: { options: { ttl, nonce, gas, gasPrice: GAS_PRICE } }
   }
 }
 
