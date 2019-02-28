@@ -25,7 +25,7 @@ const walletName = 'test.wallet'
 
 plan(1000000000)
 
-describe('CLI Wallet Module', function () {
+describe('CLI Account Module', function () {
   configure(this)
 
   let wallet

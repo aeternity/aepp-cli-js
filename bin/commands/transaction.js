@@ -20,7 +20,7 @@
  */
 
 import path from 'path'
-import { encodeBase58Check, salt } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { encodeBase58Check, salt, assertedType } from '@aeternity/aepp-sdk/es/utils/crypto'
 import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 import { initChain, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
@@ -504,8 +504,32 @@ async function broadcast (signedTx, options) {
   }
 }
 
+// ## Verify 'transaction'
+async function verify (txHash, options) {
+  let { json } = options
+  try {
+    // Validate input
+    if (!assertedType(txHash, 'tx')) throw new Error('Invalid transaction, must be lik \'tx_23didf2+f3sd...\'')
+    // Initialize `Ae`
+    const client = await initChain(options)
+    // Call `getStatus` API and print it
+    await handleApiError(async () => {
+      const { validation, tx, signatures, txType: type } = await client.unpackAndVerify(txHash)
+      if (json) {
+        print({ validation, tx: tx, signatures, type })
+        process.exit(1)
+      }
+      printValidation({ validation, tx: { ...tx, signatures: signatures.map(el => el.hash) }, txType: type })
+      if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
 function printValidation ({ validation, tx, txType }) {
-  print('----------------------------- TX DATA -------------------------------')
+  print('---------------------------------------- TX DATA ↓↓↓ \n')
   Object.entries({ ...{ type: txType }, ...tx }).forEach(([key, value]) => printUnderscored(key, value))
   validation
     .reduce(
@@ -518,8 +542,8 @@ function printValidation ({ validation, tx, txType }) {
     .forEach((el, i) => {
       if (el.length) {
         i === 0
-          ? print('\n------------------------------ ERRORS ------------------------------\n')
-          : print('\n----------------------------- WARNINGS -----------------------------\n')
+          ? print('\n---------------------------------------- ERRORS ↓↓↓ \n')
+          : print('\n---------------------------------------- WARNINGS ↓↓↓ \n')
         el
           .forEach(({ msg, txKey }) => {
             printUnderscored(txKey, msg)
@@ -541,5 +565,6 @@ export const Transaction = {
   oracleRegister,
   oraclePostQuery,
   oracleExtend,
-  oracleRespond
+  oracleRespond,
+  verify
 }

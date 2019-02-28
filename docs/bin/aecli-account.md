@@ -84,7 +84,7 @@ program
   .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
   .option('--native', 'Build transaction natively')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
-  .option('-P, --password [password]', 'Wallet Password')
+  .option('-P, --password [password]', Account)
   .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json ', 'Print result in json format')

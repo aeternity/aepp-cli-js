@@ -82,7 +82,7 @@ const { Transaction } = require('./commands')
 program
   .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('-P, --password [password]', 'Wallet Password')
+  .option('-P, --password [password]', Account)
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-f --force', 'Ignore node version compatibility check')

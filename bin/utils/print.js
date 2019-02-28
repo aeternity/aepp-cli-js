@@ -277,16 +277,24 @@ function printOracleResponseTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'TTL', R.defaultTo('N/A', R.path(['tx', 'ttl'], tx)))
 }
 
+function replaceAt (str, index, replacement) {
+  return str.substr(0, index) + replacement + str.substr(index + replacement.length)
+}
+
+function printTxInfo (tx, tabs) {
+  let type = R.path(['tx', 'type'], tx)
+  TX_TYPE_PRINT_MAP[replaceAt(type, 0, type[0].toUpperCase())](tx, tabs)
+}
 // Function which print `tx`
 // Get type of `tx` to now which `print` method to use
-export function printTransaction (tx, json, tabs = 0) {
+export function printTransaction (tx, json, tabs = 0, skipBase = false) {
   if (json) {
     print(tx)
     return
   }
   const tabsString = getTabs(tabs)
-  printTxBase(tx, tabsString)
-  TX_TYPE_PRINT_MAP[R.path(['tx', 'type'], tx)](tx, tabsString)
+  if (!skipBase) printTxBase(tx, tabsString)
+  printTxInfo(tx, tabsString)
 }
 
 // ##OTHER
