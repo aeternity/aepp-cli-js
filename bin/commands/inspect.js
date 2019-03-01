@@ -35,7 +35,7 @@ import {
   printTransaction,
   printUnderscored
 } from '../utils/print'
-import { checkPref, getBlock, readJSONFile } from '../utils/helpers'
+import { checkPref, getBlock, readJSONFile, updateNameStatus, validateName } from '../utils/helpers'
 
 // ## Inspect function
 // That function get the param(`hash`, `height` or `name`) and show you info about it
@@ -148,10 +148,13 @@ async function getBlockByHeight (height, options) {
 async function getName (name, options) {
   const { json } = options
   try {
-    if (R.last(name.split('.')) !== 'test') throw new Error('AENS TLDs must end in .test')
+    validateName(name)
     const client = await initChain(options)
-    const nameStatus = await client.api.getNameEntryByName(name)
-    printName(Object.assign(nameStatus, { status: 'CLAIMED' }), json)
+
+    printName(
+      await updateNameStatus(name)(client),
+      json
+    )
   } catch (e) {
     if (e.response && e.response.status === 404) {
       printName({ status: 'AVAILABLE' }, json)
