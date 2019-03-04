@@ -31,9 +31,10 @@ const { Transaction } = require('./commands')
 program
   .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('-P, --password [password]', 'Wallet Password')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
-  .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
+  .option('--ttl [fee]', 'Override the ttl that the transaction is going to be sent with', utils.constant.TX_TTL)
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
@@ -43,12 +44,10 @@ program
 //
 // Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
 program
-  .command('spend <senderId> <recieverId> <amount>')
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Spend transaction fee.')
+  .command('spend <senderId> <recieverId> <amount> <nonce>')
   .option('--payload [payload]', 'Transaction payload.', '')
   .description('Build Spend Transaction')
-  .action(async (senderId, receiverId, amount, ...arguments) => await Transaction.spend(senderId, receiverId, amount, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (senderId, receiverId, amount, nonce, ...arguments) => await Transaction.spend(senderId, receiverId, amount, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `name-preclaim` command
 //

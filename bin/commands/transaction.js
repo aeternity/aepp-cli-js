@@ -22,31 +22,52 @@
 import path from 'path'
 import { encodeBase58Check, salt, assertedType } from '@aeternity/aepp-sdk/es/utils/crypto'
 import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
-import { initChain, initTxBuilder } from '../utils/cli'
+import { initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printUnderscored, printValidation } from '../utils/print'
 import { isAvailable, readFile, updateNameStatus, validateName } from '../utils/helpers'
 import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE, BUILD_ORACLE_TTL } from '../utils/constant'
+import { TX_TYPE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 
 // Default transaction build param's
 const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE }
 
+const printBuilderTransaction = ({ tx, txObject }, type) => {
+  printUnderscored('Transaction type', type)
+  print('Summary')
+  Object
+    .entries(txObject)
+    .forEach(([key, value]) => printUnderscored(`    ${key.toUpperCase()}`, value))
+  print('Output')
+  printUnderscored('    Encoded', tx)
+  print('This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.')
+}
+
 // ## Build `spend` transaction
-async function spend (senderId, recipientId, amount, options) {
-  let { ttl, json, nonce, fee, payload } = options
+async function spend (senderId, recipientId, amount, nonce, options) {
+  let { ttl, json, fee, payload } = options
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
   try {
     // Initialize `Ae`
-    const client = await initTxBuilder(options)
+    const txBuilder = initOfflineTxBuilder()
+    // Build params
+    const params = {
+      senderId,
+      recipientId,
+      amount,
+      ttl,
+      nonce,
+      fee,
+      payload
+    }
+    // calculate fee
+    fee = txBuilder.calculateFee(fee, TX_TYPE.spend, { params })
     // Build `spend` transaction
-    await handleApiError(async () => {
-      const tx = await client.spendTx({ senderId, recipientId, amount, ttl, nonce, fee, payload })
-      if (json)
-        print({ tx })
-      else
-        printUnderscored('Unsigned Spend TX', tx)
-    })
+    const tx = txBuilder.buildTx({ ...params, fee }, TX_TYPE.spend)
+    // Print Result
+    if (json) print({ tx: tx.tx, params: tx.txObject })
+    else printBuilderTransaction(tx, TX_TYPE.spend)
   } catch (e) {
     printError(e.message)
     process.exit(1)
