@@ -75,40 +75,34 @@ async function spend (senderId, recipientId, amount, nonce, options) {
 }
 
 // ## Build `namePreClaim` transaction
-async function namePreClaim (accountId, domain, options) {
-  let { ttl, json, nonce, fee } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
+async function namePreClaim (accountId, domain, nonce, options) {
+  let { ttl, json, fee } = options
 
   try {
     // Validate `name`(check if `name` end on `.test`)
     validateName(domain)
     // Initialize `Ae`
-    const client = await initTxBuilder(options)
-    // Build `claim` transaction's
-    await handleApiError(async () => {
-      // Check if that `name' available
-      const name = await updateNameStatus(domain)(client)
-      if (!isAvailable(name)) {
-        print('Domain not available')
-        process.exit(1)
-      }
+    const txBuilder = initOfflineTxBuilder()
 
-      // Generate `salt` and `commitmentId` and build `name` hash
-      const _salt = salt()
-      const commitmentId = await commitmentHash(domain, _salt)
+    // Generate `salt` and `commitmentId` and build `name` hash
+    const _salt = salt()
+    const commitmentId = await commitmentHash(domain, _salt)
 
-      // Create `preclaim` transaction
-      const preclaimTx = await client.namePreclaimTx({ accountId, nonce, commitmentId, ttl, fee })
+    const params = {
+      accountId,
+      commitmentId,
+      ttl,
+      nonce
+    }
+    fee = txBuilder.calculateFee(fee, { params })
+    // Create `preclaim` transaction
+    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.namePreClaim)
 
-      if (json) {
-        print({ tx: preclaimTx, salt: _salt, commitmentId })
-      } else {
-        printUnderscored('Unsigned Preclaim TX', preclaimTx)
-        printUnderscored('Salt', _salt)
-        printUnderscored('Commitment ID', commitmentId)
-      }
-    })
+    if (json) {
+      print({ tx, txObject, salt: _salt })
+    } else {
+      printBuilderTransaction({ tx, txObject: { ...txObject, salt: _salt } }, TX_TYPE.spend)
+    }
   } catch (e) {
     printError(e.message)
     process.exit(1)
