@@ -513,7 +513,7 @@ async function verify (txHash, options) {
     const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const { validation, tx, signatures, txType: type } = await client.unpackAndVerify(txHash)
+      const { validation, tx, signatures = [], txType: type } = await client.unpackAndVerify(txHash)
       if (json) {
         print({ validation, tx: tx, signatures, type })
         process.exit(1)

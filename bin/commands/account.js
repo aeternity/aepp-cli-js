@@ -133,7 +133,8 @@ async function getAccountNonce (walletPath, options) {
       async () => {
         const nonce = await client.getAccountNonce(keypair.publicKey)
         printUnderscored('ID', keypair.publicKey)
-        printUnderscored('Nonce', nonce)
+        printUnderscored('Nonce', nonce - 1)
+        printUnderscored('Next Nonce', nonce)
       }
     )
   } catch (e) {
