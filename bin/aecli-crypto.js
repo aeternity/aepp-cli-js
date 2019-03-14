@@ -15,7 +15,6 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
-import { prompt, PROMPT_TYPE } from './utils/prompt'
 
 const program = require('commander')
 const fs = require('fs')
@@ -23,6 +22,7 @@ const path = require('path')
 
 
 require = require('esm')(module/*, options */) // use to handle es6 import/export
+const { prompt, PROMPT_TYPE }  = require('./utils/prompt')
 const { Crypto } = require('@aeternity/aepp-sdk')
 const utils = require('./utils/index')
 
@@ -119,14 +119,14 @@ program
   .command('decrypt <directory>')
   .description('Decrypts public and private key to readable formats for testing purposes')
   .option('-i, --input [directory]', 'Directory where to look for keys', '.')
-  .action(async (dir, ...arguments) => await extractReadableKeys(dir, arguments))
+  .action(async (dir, ...arguments) => await extractReadableKeys(dir, utils.cli.getCmdFromArguments(arguments)))
 
 program
   .command('genkey <keyname>')
   .description('Generate keypair')
   .option('-o, --output [directory]', 'Output directory for the keys', '.')
   .option('-p, --password [directory]', 'Password for keypair', '.')
-  .action(async (keyname, ...arguments) => await generateKeyPair(keyname, arguments))
+  .action(async (keyname, ...arguments) => await generateKeyPair(keyname, utils.cli.getCmdFromArguments(arguments)))
 
 program
   .command('sign <tx> [privkey]')
