@@ -25,7 +25,7 @@ import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 import { initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printUnderscored, printValidation } from '../utils/print'
-import { isAvailable, readFile, updateNameStatus, validateName } from '../utils/helpers'
+import { readFile, validateName } from '../utils/helpers'
 import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE, BUILD_ORACLE_TTL } from '../utils/constant'
 import { TX_TYPE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 
@@ -94,14 +94,14 @@ async function namePreClaim (accountId, domain, nonce, options) {
       ttl,
       nonce
     }
-    fee = txBuilder.calculateFee(fee, { params })
+    fee = txBuilder.calculateFee(fee, TX_TYPE.namePreClaim, { params })
     // Create `preclaim` transaction
     const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.namePreClaim)
 
     if (json) {
       print({ tx, txObject, salt: _salt })
     } else {
-      printBuilderTransaction({ tx, txObject: { ...txObject, salt: _salt } }, TX_TYPE.spend)
+      printBuilderTransaction({ tx, txObject: { ...txObject, salt: _salt } }, TX_TYPE.namePreClaim)
     }
   } catch (e) {
     printError(e.message)
@@ -110,37 +110,31 @@ async function namePreClaim (accountId, domain, nonce, options) {
 }
 
 // ## Build `nameClaim` transaction
-async function nameClaim (accountId, nameSalt, domain, options) {
-  let { ttl, json, nonce, fee } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  nameSalt = parseInt(nameSalt)
+async function nameClaim (accountId, nameSalt, domain, nonce, options) {
+  let { ttl, json, fee } = options
+  const nameHash = `nm_${encodeBase58Check(Buffer.from(domain))}`
 
   try {
     // Validate `name`(check if `name` end on `.test`)
     validateName(domain)
     // Initialize `Ae`
-    const client = await initTxBuilder(options)
+    const txBuilder = initOfflineTxBuilder()
+    const params = {
+      accountId,
+      nameSalt,
+      name: nameHash,
+      ttl,
+      nonce
+    }
+    fee = txBuilder.calculateFee(fee, TX_TYPE.nameClaim, { params })
     // Build `claim` transaction's
-    await handleApiError(async () => {
-      // Check if that `name' available
-      const name = await updateNameStatus(domain)(client)
-      if (!isAvailable(name)) {
-        print('Domain not available')
-        process.exit(1)
-      }
+    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameClaim)
 
-      // Build `name` hash
-      const nameHash = `nm_${encodeBase58Check(Buffer.from(domain))}`
-
-      // Create `preclaim` transaction
-      const claimTx = await client.nameClaimTx({ accountId, nameSalt, nonce, name: nameHash, ttl, fee })
-
-      if (json)
-        print({ tx: claimTx })
-      else
-        printUnderscored('Unsigned Claim TX', claimTx)
-    })
+    if (json) {
+      print({ tx, txObject })
+    } else {
+      printBuilderTransaction({ tx, txObject }, TX_TYPE.nameClaim)
+    }
   } catch (e) {
     printError(e.message)
     process.exit(1)
@@ -167,44 +161,31 @@ function classify (s) {
 }
 
 // ## Build `nameUpdate` transaction
-async function nameUpdate (accountId, domain, pointers, options) {
-  let { ttl, json, nonce, fee, nameTtl, clientTtl } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  nameTtl = parseInt(nameTtl)
-  clientTtl = parseInt(clientTtl)
+async function nameUpdate (accountId, nameId, nonce, pointers, options) {
+  let { ttl, json, fee, nameTtl, clientTtl } = options
   try {
-    // Validate `name`(check if `name` end on `.test`)
-    validateName(domain)
     // Initialize `Ae`
-    const client = await initTxBuilder(options)
+    const txBuilder = initOfflineTxBuilder()
+    // Create `update` transaction
+    pointers = pointers.map(id => Object.assign({}, { id, key: classify(id) }))
+    const params = {
+      nameId,
+      accountId,
+      nameTtl,
+      pointers,
+      clientTtl,
+      ttl,
+      nonce
+    }
+    fee = txBuilder.calculateFee(fee, TX_TYPE.nameUpdate, { params })
     // Build `claim` transaction's
-    await handleApiError(async () => {
-      // Check if that `name' available
-      const name = await updateNameStatus(domain)(client)
-      if (isAvailable(name)) {
-        print('Domain is available. You need to claim it before update')
-        process.exit(1)
-      }
+    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameUpdate)
 
-      pointers = pointers.map(id => Object.assign({}, { id, key: classify(id) }))
-      // Create `update` transaction
-      const updateTx = await client.nameUpdateTx({
-        accountId,
-        nonce,
-        nameId: name.id,
-        nameTtl,
-        pointers,
-        clientTtl,
-        fee,
-        ttl
-      })
-
-      if (json)
-        print({ tx: updateTx })
-      else
-        printUnderscored('Unsigned Update TX', updateTx)
-    })
+    if (json) {
+      print({ tx, txObject })
+    } else {
+      printBuilderTransaction({ tx, txObject }, TX_TYPE.nameUpdate)
+    }
   } catch (e) {
     printError(e.message)
     process.exit(1)
@@ -212,32 +193,28 @@ async function nameUpdate (accountId, domain, pointers, options) {
 }
 
 // ## Build `nameTransfer` transaction
-async function nameTransfer (accountId, recipientId, domain, options) {
-  let { ttl, json, nonce, fee } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
+async function nameTransfer (accountId, recipientId, nameId, nonce, options) {
+  let { ttl, json, fee } = options
   try {
-    // Validate `name`(check if `name` end on `.test`)
-    validateName(domain)
     // Initialize `Ae`
-    const client = await initTxBuilder(options)
+    const txBuilder = initOfflineTxBuilder()
+    // Create `transfer` transaction
+    const params = {
+      accountId,
+      recipientId,
+      nameId,
+      ttl,
+      nonce
+    }
+    fee = txBuilder.calculateFee(fee, TX_TYPE.nameTransfer, { params })
     // Build `claim` transaction's
-    await handleApiError(async () => {
-      // Check if that `name' available
-      const name = await updateNameStatus(domain)(client)
-      if (isAvailable(name)) {
-        print('Domain is available. You need to claim it before transfer')
-        process.exit(1)
-      }
+    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameTransfer)
 
-      // Create `transfer` transaction
-      const transferTx = await client.nameTransferTx({ accountId, nonce, nameId: name.id, recipientId, fee, ttl })
-
-      if (json)
-        print({ tx: transferTx })
-      else
-        printUnderscored('Unsigned Transfer TX', transferTx)
-    })
+    if (json) {
+      print({ tx, txObject })
+    } else {
+      printBuilderTransaction({ tx, txObject }, TX_TYPE.nameTransfer)
+    }
   } catch (e) {
     printError(e.message)
     process.exit(1)
@@ -245,32 +222,27 @@ async function nameTransfer (accountId, recipientId, domain, options) {
 }
 
 // ## Build `nameRevoke` transaction
-async function nameRevoke (accountId, domain, options) {
-  let { ttl, json, nonce, fee } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
+async function nameRevoke (accountId, nameId, nonce, options) {
+  let { ttl, json, fee } = options
   try {
-    // Validate `name`(check if `name` end on `.test`)
-    validateName(domain)
     // Initialize `Ae`
-    const client = await initTxBuilder(options)
+    const txBuilder = initOfflineTxBuilder()
+    // Create `transfer` transaction
+    const params = {
+      accountId,
+      nameId,
+      ttl,
+      nonce
+    }
+    fee = txBuilder.calculateFee(fee, TX_TYPE.nameRevoke, { params })
     // Build `claim` transaction's
-    await handleApiError(async () => {
-      // Check if that `name' available
-      const name = await updateNameStatus(domain)(client)
-      if (isAvailable(name)) {
-        print('Domain is available. Nothing to revoke')
-        process.exit(1)
-      }
+    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameRevoke)
 
-      // Create `revoke` transaction
-      const revokeTx = await client.nameRevokeTx({ accountId, nonce, nameId: name.id, fee, ttl })
-
-      if (json)
-        print({ tx: revokeTx })
-      else
-        printUnderscored('Unsigned Revoke TX', revokeTx)
-    })
+    if (json) {
+      print({ tx, txObject })
+    } else {
+      printBuilderTransaction({ tx, txObject }, TX_TYPE.nameRevoke)
+    }
   } catch (e) {
     printError(e.message)
     process.exit(1)
