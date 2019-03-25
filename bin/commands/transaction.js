@@ -26,7 +26,7 @@ import { initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printUnderscored, printValidation } from '../utils/print'
 import { readFile, validateName } from '../utils/helpers'
-import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE, BUILD_ORACLE_TTL } from '../utils/constant'
+import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE, BUILD_ORACLE_TTL, ORACLE_VM_VERSION } from '../utils/constant'
 import { TX_TYPE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 
 // Default transaction build param's
@@ -69,7 +69,7 @@ async function spend (senderId, recipientId, amount, nonce, options) {
     if (json) print({ tx: tx.tx, params: tx.txObject })
     else printBuilderTransaction(tx, TX_TYPE.spend)
   } catch (e) {
-    printError(e.message)
+    printError(e)
     process.exit(1)
   }
 }
@@ -104,7 +104,7 @@ async function namePreClaim (accountId, domain, nonce, options) {
       printBuilderTransaction({ tx, txObject: { ...txObject, salt: _salt } }, TX_TYPE.namePreClaim)
     }
   } catch (e) {
-    printError(e.message)
+    printError(e)
     process.exit(1)
   }
 }
@@ -136,7 +136,7 @@ async function nameClaim (accountId, nameSalt, domain, nonce, options) {
       printBuilderTransaction({ tx, txObject }, TX_TYPE.nameClaim)
     }
   } catch (e) {
-    printError(e.message)
+    printError(e)
     process.exit(1)
   }
 }
@@ -168,6 +168,7 @@ async function nameUpdate (accountId, nameId, nonce, pointers, options) {
     const txBuilder = initOfflineTxBuilder()
     // Create `update` transaction
     pointers = pointers.map(id => Object.assign({}, { id, key: classify(id) }))
+    console.log(pointers)
     const params = {
       nameId,
       accountId,
@@ -187,7 +188,7 @@ async function nameUpdate (accountId, nameId, nonce, pointers, options) {
       printBuilderTransaction({ tx, txObject }, TX_TYPE.nameUpdate)
     }
   } catch (e) {
-    printError(e.message)
+    printError(e)
     process.exit(1)
   }
 }
@@ -216,7 +217,7 @@ async function nameTransfer (accountId, recipientId, nameId, nonce, options) {
       printBuilderTransaction({ tx, txObject }, TX_TYPE.nameTransfer)
     }
   } catch (e) {
-    printError(e.message)
+    printError(e)
     process.exit(1)
   }
 }
@@ -332,103 +333,100 @@ async function contractCall (callerId, contractId, fn, returnType, args, options
 }
 
 // ## Build `oracleRegister` transaction
-async function oracleRegister (accountId, queryFormat, responseFormat, options) {
-  let { ttl, json, nonce, fee, queryFee, oracleTtl } = options
+async function oracleRegister (accountId, queryFormat, responseFormat, nonce, options) {
+  let { ttl, json, fee, queryFee, oracleTtl } = options
   queryFee = parseInt(queryFee)
   oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl))
   nonce = parseInt(nonce)
 
   try {
-    // Initialize `TxBuilder`
-    const client = await initTxBuilder(options)
+    const txBuilder = initOfflineTxBuilder()
+    // Create `transfer` transaction
+    const params = {
+      accountId,
+      ttl,
+      fee,
+      nonce,
+      oracleTtl,
+      queryFee,
+      queryFormat,
+      responseFormat,
+      vmVersion: ORACLE_VM_VERSION
+    }
+    fee = txBuilder.calculateFee(fee, TX_TYPE.oracleRegister, { params })
     // Build `claim` transaction's
-    await handleApiError(async () => {
-      // Create `oracleRegister` transaction
-      const oracleRegisterTx = await client.oracleRegisterTx({
-        accountId,
-        nonce,
-        queryFormat,
-        responseFormat,
-        queryFee,
-        oracleTtl,
-        fee,
-        ttl
-      })
-      if (json)
-        print({ tx: oracleRegisterTx })
-      else
-        printUnderscored('Unsigned OracleRegister TX', oracleRegisterTx)
-    })
+    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleRegister)
+    if (json)
+      print({ tx, txObject })
+    else
+      printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleRegister)
   } catch (e) {
-    printError(e.message)
+    printError(e)
     process.exit(1)
   }
 }
 
 // ## Build `oraclePostQuery` transaction
-async function oraclePostQuery (senderId, oracleId, query, options) {
-  let { ttl, json, nonce, fee, queryFee, queryTtl, responseTtl } = options
+async function oraclePostQuery (senderId, oracleId, query, nonce, options) {
+  let { ttl, json, fee, queryFee, queryTtl, responseTtl } = options
   queryFee = parseInt(queryFee)
   queryTtl = BUILD_ORACLE_TTL(parseInt(queryTtl))
   responseTtl = BUILD_ORACLE_TTL(parseInt(responseTtl))
   nonce = parseInt(nonce)
 
   try {
-    // Initialize `TxBuilder`
-    const client = await initTxBuilder(options)
+    const txBuilder = initOfflineTxBuilder()
+    // Create `transfer` transaction
+    const params = {
+      senderId,
+      ttl,
+      fee,
+      nonce,
+      oracleId,
+      query,
+      queryFee,
+      queryTtl,
+      responseTtl
+    }
+    fee = txBuilder.calculateFee(fee, TX_TYPE.oracleQuery, { params })
     // Build `claim` transaction's
-    await handleApiError(async () => {
-      // Create `oracleRegister` transaction
-      const oraclePostQueryTx = await client.oraclePostQueryTx({
-        oracleId,
-        responseTtl,
-        query,
-        queryTtl,
-        queryFee,
-        senderId,
-        nonce,
-        fee,
-        ttl
-      })
-      if (json) {
-        print(oraclePostQueryTx)
-      } else {
-        printUnderscored('Unsigned OraclePostQuery TX', oraclePostQueryTx.tx)
-        printUnderscored('Query ID', oraclePostQueryTx.queryId)
-      }
-    })
+    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleQuery)
+
+    if (json)
+      print({ tx, txObject })
+    else
+      printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleQuery)
   } catch (e) {
-    printError(e.message)
+    printError(e)
     process.exit(1)
   }
 }
 
 // ## Build `oracleExtend` transaction
-async function oracleExtend (callerId, oracleId, oracleTtl, options) {
-  let { ttl, json, nonce, fee } = options
+async function oracleExtend (callerId, oracleId, oracleTtl, nonce, options) {
+  let { ttl, json, fee } = options
   oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl))
   nonce = parseInt(nonce)
 
   try {
-    // Initialize `TxBuilder`
-    const client = await initTxBuilder(options)
+    const txBuilder = initOfflineTxBuilder()
+    // Create `transfer` transaction
+    const params = {
+      callerId,
+      oracleId,
+      oracleTtl,
+      fee,
+      nonce,
+      ttl
+    }
+    fee = txBuilder.calculateFee(fee, TX_TYPE.oracleExtend, { params })
     // Build `claim` transaction's
-    await handleApiError(async () => {
-      // Create `oracleRegister` transaction
-      const oracleExtendTx = await client.oracleExtendTx({
-        oracleId,
-        oracleTtl,
-        callerId,
-        nonce,
-        fee,
-        ttl
-      })
-      if (json) {
-        print(oracleExtendTx)
-      } else {
-        printUnderscored('Unsigned OracleExtend TX', oracleExtendTx)
-      }
-    })
+    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleExtend)
+
+    if (json)
+      print({ tx, txObject })
+    else
+      printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleExtend)
   } catch (e) {
     printError(e.message)
     process.exit(1)
@@ -436,33 +434,32 @@ async function oracleExtend (callerId, oracleId, oracleTtl, options) {
 }
 
 // ## Build `oracleRespond` transaction
-async function oracleRespond (callerId, oracleId, queryId, response, options) {
-  let { ttl, json, nonce, fee, responseTtl } = options
+async function oracleRespond (callerId, oracleId, queryId, response, nonce, options) {
+  let { ttl, json, fee, responseTtl } = options
   responseTtl = BUILD_ORACLE_TTL(parseInt(responseTtl))
   nonce = parseInt(nonce)
 
   try {
-    // Initialize `TxBuilder`
-    const client = await initTxBuilder(options)
+    const txBuilder = initOfflineTxBuilder()
+    // Create `transfer` transaction
+    const params = {
+      oracleId,
+      responseTtl,
+      callerId,
+      queryId,
+      response,
+      nonce,
+      fee,
+      ttl
+    }
+    fee = txBuilder.calculateFee(fee, TX_TYPE.oracleResponse, { params })
     // Build `claim` transaction's
-    await handleApiError(async () => {
-      // Create `oracleRegister` transaction
-      const oracleRespondTx = await client.oracleRespondTx({
-        oracleId,
-        responseTtl,
-        callerId,
-        queryId,
-        response,
-        nonce,
-        fee,
-        ttl
-      })
-      if (json) {
-        print(oracleRespondTx)
-      } else {
-        printUnderscored('Unsigned OracleRespond TX', oracleRespondTx)
-      }
-    })
+    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleResponse)
+
+    if (json)
+      print({ tx, txObject })
+    else
+      printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleResponse)
   } catch (e) {
     printError(e.message)
     process.exit(1)

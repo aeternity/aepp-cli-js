@@ -46,13 +46,19 @@ describe('CLI Transaction Module', function () {
   let queryId
   let contractId
   let name = randomName()
+  let nonce
+  let nameId
 
   before(async function () {
     wallet = await ready(this)
+    nonce = (await wallet.getAccountNonce()) - 1
     fs.writeFileSync('contractTest', testContract)
   })
   after(async function () {
     if (fs.existsSync('contractTest')) { fs.unlinkSync('contractTest') }
+  })
+  beforeEach(function () {
+    nonce += 1
   })
 
   it('Build spend tx offline and send the chain', async () => {
@@ -61,41 +67,44 @@ describe('CLI Transaction Module', function () {
     const receiver = await BaseAe()
     receiver.setKeypair(receiverKeys)
 
-    const { unsigned_spend_tx } = parseBlock(await execute(['tx', 'spend', KEY_PAIR.publicKey, KEY_PAIR.publicKey, amount]))
+    const unsigned_spend_tx = parseBlock(await execute(['tx', 'spend', KEY_PAIR.publicKey, KEY_PAIR.publicKey, amount, nonce]))['___ encoded']
     await signAndPost(unsigned_spend_tx, true)
   })
 
   it('Build preclaim tx offline and send the chain', async () => {
-    const { unsigned_preclaim_tx, salt: _salt } = parseBlock(await execute(['tx', 'name-preclaim', KEY_PAIR.publicKey, name]))
-    salt = _salt
+    const resObj = parseBlock(await execute(['tx', 'name-preclaim', KEY_PAIR.publicKey, name, nonce]))
+    const unsigned_preclaim_tx = resObj['___ encoded']
+    salt = resObj['___ salt']
     const res = (parseBlock(await signAndPost(unsigned_preclaim_tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
   })
 
   it('Build claim tx offline and send the chain', async () => {
-    const { unsigned_claim_tx } = parseBlock(await execute(['tx', 'name-claim', KEY_PAIR.publicKey, salt, name]))
+    const unsigned_claim_tx = parseBlock(await execute(['tx', 'name-claim', KEY_PAIR.publicKey, salt, name, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_claim_tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
+    const { id } = await wallet.aensQuery(name)
+    nameId = id
   })
 
   it('Build update tx offline and send the chain', async () => {
-    const { unsigned_update_tx } = parseBlock(await execute(['tx', 'name-update', KEY_PAIR.publicKey, name, KEY_PAIR.publicKey]))
+    const unsigned_update_tx = parseBlock(await execute(['tx', 'name-update', KEY_PAIR.publicKey, nameId, nonce, KEY_PAIR.publicKey]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_update_tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
   })
 
   it('Build transfer tx offline and send the chain', async () => {
-    const { unsigned_transfer_tx } = parseBlock(await execute(['tx', 'name-transfer', KEY_PAIR.publicKey, KEY_PAIR.publicKey, name]))
+    const unsigned_transfer_tx = parseBlock(await execute(['tx', 'name-transfer', KEY_PAIR.publicKey, KEY_PAIR.publicKey, nameId, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_transfer_tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
   })
 
   it('Build revoke tx offline and send the chain', async () => {
-    const { unsigned_revoke_tx } = parseBlock(await execute(['tx', 'name-revoke', KEY_PAIR.publicKey, name]))
+    const unsigned_revoke_tx = parseBlock(await execute(['tx', 'name-revoke', KEY_PAIR.publicKey, nameId, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_revoke_tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
@@ -117,14 +126,14 @@ describe('CLI Transaction Module', function () {
   })
 
   it('Build oracle register tx offline and send the chain', async () => {
-    const { unsigned_oracleregister_tx } = parseBlock(await execute(['tx', 'oracle-register', KEY_PAIR.publicKey, '{city: "str"}', '{tmp:""num}'], true))
+    const unsigned_oracleregister_tx = (parseBlock(await execute(['tx', 'oracle-register', KEY_PAIR.publicKey, '{city: "str"}', '{tmp:""num}', nonce], true)))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_oracleregister_tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
   })
   it('Build oracle extend  tx offline and send the chain', async () => {
     const oracleCurrentTtl = await wallet.getOracle(oracleId)
-    const { unsigned_oracleextend_tx } = parseBlock(await execute(['tx', 'oracle-extend', KEY_PAIR.publicKey, oracleId, 100], true))
+    const unsigned_oracleextend_tx = parseBlock(await execute(['tx', 'oracle-extend', KEY_PAIR.publicKey, oracleId, 100, nonce], true))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_oracleextend_tx)))
     const oracleTtl = await wallet.getOracle(oracleId)
     const isExtended = +oracleTtl.ttl === +oracleCurrentTtl.ttl + 100
@@ -133,7 +142,7 @@ describe('CLI Transaction Module', function () {
     isMined.should.be.equal(true)
   })
   it('Build oracle post query tx offline and send the chain', async () => {
-    const { unsigned_oraclepostquery_tx } = parseBlock(await execute(['tx', 'oracle-post-query', KEY_PAIR.publicKey, oracleId, '{city: "Berlin"}'], true))
+    const unsigned_oraclepostquery_tx = parseBlock(await execute(['tx', 'oracle-post-query', KEY_PAIR.publicKey, oracleId, '{city: "Berlin"}', nonce], true))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_oraclepostquery_tx)))
     const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
     queryId = queries[0].id
@@ -144,7 +153,7 @@ describe('CLI Transaction Module', function () {
   })
   it('Build oracle respond tx offline and send the chain', async () => {
     const response = '{tmp: 10}'
-    const { unsigned_oraclerespond_tx } = parseBlock(await execute(['tx', 'oracle-respond', KEY_PAIR.publicKey, oracleId, queryId, response], true))
+    const unsigned_oraclerespond_tx = parseBlock(await execute(['tx', 'oracle-respond', KEY_PAIR.publicKey, oracleId, queryId, response, nonce], true))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_oraclerespond_tx)))
     const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
     const responseQuery = decodeBase64Check(queries[0].response.slice(3)).toString()
