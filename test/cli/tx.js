@@ -39,10 +39,10 @@ async function signAndPost (tx, assert) {
     : execute(['chain', 'broadcast', signed, '--waitMined'])
 }
 
-describe.only('CLI Transaction Module', function () {
+describe('CLI Transaction Module', function () {
   configure(this)
-  const oracleId = 'ok_' + KEY_PAIR.publicKey.slice(3)
   const TX_KEYS = generateKeyPair()
+  const oracleId = 'ok_' + TX_KEYS.publicKey.slice(3)
   let wallet
   let salt
   let queryId
