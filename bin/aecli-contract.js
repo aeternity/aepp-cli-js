@@ -30,6 +30,7 @@ const { Contract } = require('./commands')
 program
   .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
+  .option('--compilerUrl [compilerUrl]', 'Compiler URL', '')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--native', 'Build transaction natively')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
@@ -108,12 +109,11 @@ program
 //
 // Example: `aecli contract call ./myWalletFile --password tstpass ./contractDescriptorFile.json sumFunc int 1 2 --gas 2222222 --init state`
 program
-  .command('deploy <wallet_path> <contract_path>')
+  .command('deploy <wallet_path> <contract_path> [init...]')
   .option('-P, --password [password]', 'Wallet Password')
-  .option('-I, --init [state]', 'Deploying contract arguments for constructor function')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
   .description('Deploy a contract on the chain')
-  .action(async (walletPath, path, ...arguments) => await Contract.deploy(walletPath, path, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, path, init, ...arguments) => await Contract.deploy(walletPath, path, init, utils.cli.getCmdFromArguments(arguments)))
 
 // Handle unknown command's
 program.on('command:*', () => utils.errors.unknownCommandHandler(program)())
