@@ -88,6 +88,6 @@ describe('CLI Account Module', function () {
   })
   it('Get account nonce', async () => {
     const nonce = await wallet.getAccountNonce(await wallet.address())
-    parseBlock(await execute(['account', 'nonce', WALLET_NAME, '--password', 'test']))['nonce'].should.equal(`${nonce}`)
+    parseBlock(await execute(['account', 'nonce', WALLET_NAME, '--password', 'test']))['next_nonce'].should.equal(`${nonce}`)
   })
 })

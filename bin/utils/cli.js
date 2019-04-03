@@ -20,6 +20,7 @@ import * as R from 'ramda'
 
 import Ae from '@aeternity/aepp-sdk/es/ae/universal'
 import Tx from '@aeternity/aepp-sdk/es/tx/tx'
+import TxBuilder from '@aeternity/aepp-sdk/es/tx/builder'
 import Chain from '@aeternity/aepp-sdk/es/chain/node'
 import Account from '@aeternity/aepp-sdk/es/account/memory'
 import { getWalletByPathAndDecrypt } from './account'
@@ -39,6 +40,10 @@ export async function initClient ({ url, keypair, internalUrl, force: forceCompa
 // Create `TxBuilder` client
 export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true, showWarning = true }) {
   return Tx({ url, internalUrl, forceCompatibility, nativeMode, showWarning })
+}
+// Create `OfflineTxBuilder` client
+export function initOfflineTxBuilder () {
+  return TxBuilder
 }
 // Create `Chain` client
 export async function initChain ({ url, internalUrl, force: forceCompatibility }) {

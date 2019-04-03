@@ -105,7 +105,7 @@ async function getAddress (walletPath, options) {
   const { privateKey, forcePrompt = false } = options
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
+    const { client, keypair } = await initClientByWalletFile(walletPath, { ...options, accountOnly: true }, true)
 
     await handleApiError(
       async () => {
@@ -133,7 +133,8 @@ async function getAccountNonce (walletPath, options) {
       async () => {
         const nonce = await client.getAccountNonce(keypair.publicKey)
         printUnderscored('ID', keypair.publicKey)
-        printUnderscored('Nonce', nonce)
+        printUnderscored('Nonce', nonce - 1)
+        printUnderscored('Next Nonce', nonce)
       }
     )
   } catch (e) {

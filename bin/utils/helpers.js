@@ -125,7 +125,7 @@ export function isFileExist (path) {
 export function updateNameStatus (name) {
   return async (client) => {
     try {
-      return await client.api.getNameEntryByName(name)
+      return { ...(await client.api.getNameEntryByName(name)), status: 'CLAIMED' }
     } catch (e) {
       if (e.response && e.response.status === 404) {
         return { name, status: 'AVAILABLE' }

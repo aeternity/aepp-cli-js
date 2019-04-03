@@ -31,9 +31,10 @@ const { Transaction } = require('./commands')
 program
   .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('-P, --password [password]', 'Wallet Password')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
-  .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  // .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
+  .option('--ttl [fee]', 'Override the ttl that the transaction is going to be sent with', utils.constant.TX_TTL)
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
@@ -43,12 +44,10 @@ program
 //
 // Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
 program
-  .command('spend <senderId> <recieverId> <amount>')
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Spend transaction fee.')
+  .command('spend <senderId> <recieverId> <amount> <nonce>')
   .option('--payload [payload]', 'Transaction payload.', '')
   .description('Build Spend Transaction')
-  .action(async (senderId, receiverId, amount, ...arguments) => await Transaction.spend(senderId, receiverId, amount, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (senderId, receiverId, amount, nonce, ...arguments) => await Transaction.spend(senderId, receiverId, amount, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `name-preclaim` command
 //
@@ -56,11 +55,9 @@ program
 //
 // Example: `aecli tx name-preclaim ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.test`
 program
-  .command('name-preclaim <accountId> <domain>')
-  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
-  .option('-F, --fee [fee]', 'Transaction fee.')
+  .command('name-preclaim <accountId> <domain> <nonce>')
   .description('Build name preclaim transaction.')
-  .action(async (accountId, domain, ...arguments) => await Transaction.namePreClaim(accountId, domain, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, domain, nonce, ...arguments) => await Transaction.namePreClaim(accountId, domain, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `name-update` command
 //
@@ -68,13 +65,13 @@ program
 //
 // Example: `aecli tx name-update ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.test`
 program
-  .command('name-update <accountId> <domain> [pointers...]')
+  .command('name-update <accountId> <nameId> <nonce> [pointers...]')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--nameTtl [nameTtl]', 'Validity of name.', utils.constant.NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
   .description('Build name update transaction.')
-  .action(async (accountId, domain, pointers, ...arguments) => await Transaction.nameUpdate(accountId, domain, pointers, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, domain, nonce, pointers, ...arguments) => await Transaction.nameUpdate(accountId, domain, nonce, pointers, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `name-claim` command
 //
@@ -82,11 +79,11 @@ program
 //
 // Example: `aecli tx name-claim ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi 12327389123 testname.test`
 program
-  .command('name-claim <accountId> <salt> <domain>')
+  .command('name-claim <accountId> <salt> <domain> <nonce>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build name claim transaction.')
-  .action(async (accountId, salt, domain, ...arguments) => await Transaction.nameClaim(accountId, salt, domain, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, salt, domain, nonce, ...arguments) => await Transaction.nameClaim(accountId, salt, domain, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `name-transfer` command
 //
@@ -94,11 +91,11 @@ program
 //
 // Example: `aecli tx name-transfer ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.test`
 program
-  .command('name-transfer <accountId> <recipientId> <domain>')
+  .command('name-transfer <accountId> <recipientId> <domain> <nonce>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build name tansfer transaction.')
-  .action(async (accountId, transferId, domain, ...arguments) => await Transaction.nameTransfer(accountId, transferId, domain, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, transferId, domain, nonce, ...arguments) => await Transaction.nameTransfer(accountId, transferId, domain, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `name-revoke` command
 //
@@ -106,11 +103,11 @@ program
 //
 // Example: `aecli tx name-revoke ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.test`
 program
-  .command('name-revoke <accountId> <domain>')
+  .command('name-revoke <accountId> <domain> <nonce>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build name revoke transaction.')
-  .action(async (accountId, domain, ...arguments) => await Transaction.nameRevoke(accountId, domain, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, domain, nonce, ...arguments) => await Transaction.nameRevoke(accountId, domain, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 
 // ## Initialize `contract-deploy` command
@@ -147,13 +144,13 @@ program
 //
 // Example: `aecli tx oracle-register ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  "{city: 'string'}" "{tmp: 'num'}"``
 program
-  .command('oracle-register <accountId> <queryFormat> <responseFormat>')
+  .command('oracle-register <accountId> <queryFormat> <responseFormat> <nonce>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--queryFee [queryFee]', 'Oracle Query fee.', utils.constant.QUERY_FEE)
   .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.ORACLE_TTL)
   .description('Build oracle register transaction.')
-  .action(async (accountId, queryFormat, responseFormat, ...arguments) => await Transaction.oracleRegister(accountId, queryFormat, responseFormat, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, queryFormat, responseFormat, nonce, ...arguments) => await Transaction.oracleRegister(accountId, queryFormat, responseFormat, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 
 // ## Initialize `oracle-post-query` command
@@ -162,14 +159,14 @@ program
 //
 // Example: `aecli tx oracle-post-query ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad {city: 'Berlin'}`
 program
-  .command('oracle-post-query <accountId> <oracleId> <query>')
+  .command('oracle-post-query <accountId> <oracleId> <query> <nonce>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--queryFee [queryFee]', 'Oracle Query fee.', utils.constant.QUERY_FEE)
   .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.QUERY_TTL)
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.RESPONSE_TTL)
   .description('Build oracle post query transaction.')
-  .action(async (accountId, oracleId, query, ...arguments) => await Transaction.oraclePostQuery(accountId, oracleId, query, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, oracleId, query, nonce, ...arguments) => await Transaction.oraclePostQuery(accountId, oracleId, query, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `oracle-extend` command
 //
@@ -177,11 +174,11 @@ program
 //
 // Example: `aecli tx oracle-extend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad 100
 program
-  .command('oracle-extend <callerId> <oracleId> <oracleTtl>')
+  .command('oracle-extend <callerId> <oracleId> <oracleTtl> <nonce>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build oracle extend transaction.')
-  .action(async (callerId, oracleId, oracleTtl, ...arguments) => await Transaction.oracleExtend(callerId, oracleId, oracleTtl, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (callerId, oracleId, oracleTtl, nonce, ...arguments) => await Transaction.oracleExtend(callerId, oracleId, oracleTtl, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `oracle-respond` command
 //
@@ -189,12 +186,12 @@ program
 //
 // Example: `aecli tx oracle-respond ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad oq_asdjn23ifsdiuhfk2h3fuksadh {tmp: 1}`
 program
-  .command('oracle-respond <callerId> <oracleId> <queryId> <response>')
+  .command('oracle-respond <callerId> <oracleId> <queryId> <response> <nonce>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.RESPONSE_TTL)
   .description('Build oracle extend transaction.')
-  .action(async (callerId, oracleId, queryId, response, ...arguments) => await Transaction.oracleRespond(callerId, oracleId, queryId, response, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (callerId, oracleId, queryId, response, nonce, ...arguments) => await Transaction.oracleRespond(callerId, oracleId, queryId, response, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `verify` command
 //

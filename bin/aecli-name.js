@@ -84,6 +84,16 @@ program
   .description('Update a name pointer')
   .action(async (walletPath, name, address, ...arguments) => await AENS.updateName(walletPath, name, address, utils.cli.getCmdFromArguments(arguments)))
 
+// ## Initialize `lookup` command
+//
+// You can use this command to `update` pointer of AENS name.
+//
+// Example: `aecli lookup name.test`
+program
+  .command('lookup <name>')
+  .description('Look up name')
+  .action(async (name, ...arguments) => await AENS.lookUp(name, utils.cli.getCmdFromArguments(arguments)))
+
 // Handle unknown command's
 program.on('command:*', () => utils.errors.unknownCommandHandler(program)())
 
