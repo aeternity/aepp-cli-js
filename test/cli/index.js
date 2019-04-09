@@ -21,6 +21,7 @@ import * as R from 'ramda'
 require = require('esm')(module/*, options */) // use to handle es6 import/export
 const Ae = require('@aeternity/aepp-sdk/es/ae/universal').default
 const { generateKeyPair } = require('@aeternity/aepp-sdk/es/utils/crypto')
+const compilerUrl = 'https://compiler.aepps.com'
 
 const cliCommand = './bin/aecli.js'
 
@@ -51,7 +52,7 @@ export function plan (amount) {
 export async function ready (mocha) {
   configure(mocha)
 
-  const ae = await BaseAe({ networkId })
+  const ae = await BaseAe({ networkId, compilerUrl })
   await ae.awaitHeight(3)
 
   if (!charged && planned > 0) {
@@ -60,7 +61,7 @@ export async function ready (mocha) {
     charged = true
   }
 
-  const client = await BaseAe({ networkId })
+  const client = await BaseAe({ networkId, compilerUrl })
   client.setKeypair(KEY_PAIR)
   await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
   return client
@@ -69,18 +70,18 @@ export async function ready (mocha) {
 export async function execute (args, withOutReject = false) {
   return new Promise((resolve, reject) => {
     let result = ''
-    const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, '--networkId', networkId])
+    const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, '--networkId', networkId, ...(args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [])])
     child.stdin.setEncoding('utf-8')
     child.stdout.on('data', (data) => {
       result += (data.toString())
     })
 
     child.stderr.on('data', (data) => {
-      if (!withOutReject) reject(data)
+      if (!withOutReject) reject(data.toString())
     })
 
     child.on('close', (code) => {
-      resolve(result)
+      resolve(result.toString())
     })
   })
 }

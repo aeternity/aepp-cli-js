@@ -23,7 +23,7 @@ import * as R from 'ramda'
 import path from 'path'
 
 import { grabDesc, readFile, writeFile } from '../utils/helpers'
-import { initChain, initClientByWalletFile } from '../utils/cli'
+import { initClientByWalletFile, initCompiler } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
 import { GAS_PRICE } from '../utils/constant'
@@ -34,13 +34,13 @@ export async function compile (file, options) {
     const code = readFile(path.resolve(process.cwd(), file), 'utf-8')
     if (!code) throw new Error('Contract file not found')
 
-    const client = await initChain(options)
+    const client = await initCompiler(options)
 
     await handleApiError(async () => {
       // Call `node` API which return `compiled code`
-      const contract = await client.compileNodeContract(code)
+      const contract = await client.compileContractAPI(code)
       print(`Contract bytecode:
-      ${contract.bytecode}`)
+      ${contract}`)
     })
   } catch (e) {
     printError(e.message)
@@ -48,8 +48,8 @@ export async function compile (file, options) {
 }
 
 // ## Function which `deploy ` contract
-async function deploy (walletPath, contractPath, options) {
-  const { init, json, gas } = options
+async function deploy (walletPath, contractPath, init = [], options) {
+  const { json, gas } = options
   const ttl = parseInt(options.ttl)
   const nonce = parseInt(options.nonce)
 
@@ -70,23 +70,22 @@ async function deploy (walletPath, contractPath, options) {
         // off to the node for bytecode compilation. This might in the future be done
         // without talking to the node, but requires a bytecode compiler
         // implementation directly in the SDK.
-        const contract = await client.contractCompile(contractFile, { gas })
+        const contract = await client.getContractInstance(contractFile)
         // Invoking `deploy` on the bytecode object will result in the contract
         // being written to the chain, once the block has been mined.
         // Sophia contracts always have an `init` method which needs to be invoked,
         // even when the contract's `state` is `unit` (`()`). The arguments to
         // `init` have to be provided at deployment time and will be written to the
         // block as well, together with the contract's bytecode.
-        const deployDescriptor = await contract.deploy({ initState: init, options: { ttl, gas, nonce, gasPrice: GAS_PRICE } })
-
+        const deployDescriptor = await contract.deploy([...init], { ttl, gas, nonce, gasPrice: GAS_PRICE })
         // Write contractDescriptor to file
-        const descPath = `${R.last(contractPath.split('/'))}.deploy.${deployDescriptor.owner.slice(3)}.json`
+        const descPath = `${R.last(contractPath.split('/'))}.deploy.${deployDescriptor.deployInfo.owner.slice(3)}.json`
         const contractDescriptor = R.merge({
           descPath,
           source: contractFile,
-          bytecode: contract.bytecode,
+          bytecode: contract.compiled,
           abi: 'sophia'
-        }, deployDescriptor)
+        }, deployDescriptor.deployInfo)
 
         writeFile(
           descPath,

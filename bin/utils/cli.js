@@ -24,6 +24,7 @@ import TxBuilder from '@aeternity/aepp-sdk/es/tx/builder'
 import Chain from '@aeternity/aepp-sdk/es/chain/node'
 import Account from '@aeternity/aepp-sdk/es/account/memory'
 import { getWalletByPathAndDecrypt } from './account'
+import ContractCompilerAPI from '@aeternity/aepp-sdk/es/contract/compiler'
 
 // ## Merge options with parent options.
 export function getCmdFromArguments (args) {
@@ -34,8 +35,8 @@ export function getCmdFromArguments (args) {
 }
 
 // Create `Ae` client
-export async function initClient ({ url, keypair, internalUrl, force: forceCompatibility, native: nativeMode = true, networkId }) {
-  return Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode, networkId })
+export async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId }) {
+  return Ae({ url, process, keypair, internalUrl, compilerUrl, forceCompatibility, nativeMode, networkId })
 }
 // Create `TxBuilder` client
 export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true, showWarning = true }) {
@@ -46,8 +47,13 @@ export function initOfflineTxBuilder () {
   return TxBuilder
 }
 // Create `Chain` client
-export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
-  return Chain({ url, internalUrl, forceCompatibility })
+export async function initChain ({ url, internalUrl, compilerUrl, force: forceCompatibility }) {
+  return Chain({ url, internalUrl, compilerUrl, forceCompatibility })
+}
+
+// Create `Chain` client
+export async function initCompiler ({ url, internalUrl, compilerUrl, force: forceCompatibility }) {
+  return ContractCompilerAPI({ compilerUrl })
 }
 
 // ## Get account files and decrypt it using password

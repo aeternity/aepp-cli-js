@@ -31,7 +31,7 @@ const contractCall = `contract StateContract =
 
 plan(1000000000)
 
-describe('CLI Contract Module', function () {
+describe.only('CLI Contract Module', function () {
   configure(this)
   const contractFile = 'testContract'
   let cAddress
@@ -65,7 +65,7 @@ describe('CLI Contract Module', function () {
 
     bytecodeCLI.should.equal(compiled.bytecode)
   })
-  it('Deploy Contract', async () => {
+  it.only('Deploy Contract', async () => {
     // Create contract file
     fs.writeFileSync(contractFile, testContract)
 
@@ -82,7 +82,7 @@ describe('CLI Contract Module', function () {
     address.should.equal(KEY_PAIR.publicKey.split('_')[1])
   })
 
-  it('Call Contract by descriptor', async () => {
+  it.only('Call Contract by descriptor', async () => {
     // Call contract
     const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--descrPath', deployDescriptor, 'main', 'int', '1', '2'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
