@@ -31,7 +31,7 @@ const contractCall = `contract StateContract =
 
 plan(1000000000)
 
-describe.only('CLI Contract Module', function () {
+describe('CLI Contract Module', function () {
   configure(this)
   const contractFile = 'testContract'
   let cAddress
@@ -65,7 +65,7 @@ describe.only('CLI Contract Module', function () {
 
     bytecodeCLI.should.equal(compiled.bytecode)
   })
-  it.only('Deploy Contract', async () => {
+  it('Deploy Contract', async () => {
     // Create contract file
     fs.writeFileSync(contractFile, testContract)
 
@@ -82,13 +82,12 @@ describe.only('CLI Contract Module', function () {
     address.should.equal(KEY_PAIR.publicKey.split('_')[1])
   })
 
-  it.only('Call Contract by descriptor', async () => {
+  it('Call Contract by descriptor', async () => {
     // Call contract
     const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--descrPath', deployDescriptor, 'main', 'int', '1', '2'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
     isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
-    callResponse.return_remote_type.should.equal('word')
   })
   it('Call Contract static by descriptor', async () => {
     // Call contract
@@ -96,46 +95,44 @@ describe.only('CLI Contract Module', function () {
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
     isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
-    callResponse.return_remote_type.should.equal('word')
   })
   it('Call Contract by contract address', async () => {
-    const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, 'main', 'int', '1', '2'])))
+    const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, '--contractSource', testContract, 'main', 'int', '1', '2'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
     isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
-    callResponse.return_remote_type.should.equal('word')
   })
   it('Call Contract static by contract address', async () => {
-    const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, 'main', 'int', '1', '2', '--callStatic'])))
+    const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, '--contractSource', testContract, 'main', 'int', '1', '2', '--callStatic'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
 
     isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
-    callResponse['return_remote_type'].should.equal('word')
   })
 
-  it('Type-checked Call Contract  using descriptor', async () => {
+  // DEPRECATED
+  it.skip('Type-checked Call Contract  using descriptor', async () => {
     const callResponse = (parseBlock(await execute(['contract', 'callChecked', WALLET_NAME, '--password', 'test', '--descrPath', deployDescriptor, 'main', 'int', 'callC'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
     isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
     callResponse.return_remote_type.should.equal('word')
   })
-  it('Type-checked Call Contract static  using descriptor', async () => {
+  it.skip('Type-checked Call Contract static  using descriptor', async () => {
     const callResponse = (parseBlock(await execute(['contract', 'callChecked', WALLET_NAME, '--password', 'test', '--descrPath', deployDescriptor, 'main', 'int', 'callC', '--callStatic'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
     isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
     callResponse.return_remote_type.should.equal('word')
   })
-  it('Type-checked Call Contract  using address', async () => {
+  it.skip('Type-checked Call Contract  using address', async () => {
     const callResponse = (parseBlock(await execute(['contract', 'callChecked', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, 'main', 'int', 'callC'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
     isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
     callResponse.return_remote_type.should.equal('word')
   })
-  it('Type-checked Call Contract static  using address', async () => {
+  it.skip('Type-checked Call Contract static  using address', async () => {
     const callResponse = (parseBlock(await execute(['contract', 'callChecked', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, 'main', 'int', 'callC', '--callStatic'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
     isValid.should.be.equal(true)

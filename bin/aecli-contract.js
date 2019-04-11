@@ -70,34 +70,10 @@ program
   .option('-s --callStatic', 'Call static', false)
   .option('-t --topHash', 'Hash of block to make call')
   .option('--contractAddress [contractAddress]', 'Contract address to call')
+  .option('--contractSource [contractSource]', 'Contract source code')
   .description('Execute a function of the contract')
   .action(async (walletPath, fn, returnType, args, ...arguments) => await Contract.call(walletPath, fn, returnType, args, utils.cli.getCmdFromArguments(arguments)))
 
-// ## Initialize `callChecked` command
-//
-// You can use this command to execute a function's of contract using `pseudo contract` which calling `contract` with `params`
-// This `pseudo contract` can be used for check custom type's
-//
-// Example:
-//    `aecli contract call ./myWalletFile --password testpass sumFunc int ./pseudoContractCall --descrPath ./contractDescriptorFile.json ` --> Using descriptor file
-//    `aecli contract call ./myWalletFile --password testpass sumFunc int ./pseudoContractCall --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 ` --> Using contract address
-//
-// Also you have ability to make `static` call using `--callStatic` flag
-// Example:
-//    `aecli contract call ./myWalletFile --password testpass sumFunc int ./pseudoContractCall --descrPath ./contractDescriptorFile.json --callStatic` --> Static call
-//
-// You can preset gas, nonce and ttl for that call. If not set use default.
-// Example: `aecli contract call ./myWalletFile --password tstpass sumFunc int 1 2 --descrPath ./contractDescriptorFile.json  --gas 2222222 --nonce 4 --ttl 1243`
-program
-  .command('callChecked <wallet_path> <fn> <return_type> <callContractPath>')
-  .option('-P, --password [password]', 'Wallet Password')
-  .option('-G --gas [gas]', 'Amount of gas to call the contract', utils.constant.GAS)
-  .option('-s --callStatic', 'Call static', false)
-  .option('-t --topHash', 'Hash of block to make call')
-  .option('-d --descrPath [descrPath]', 'path to contract descriptor file')
-  .option('--contractAddress [contracAddress]', 'Contract address)')
-  .description('Execute a function of the contract using type-checked call')
-  .action(async (walletPath, fn, returnType, callContractPath, ...arguments) => await Contract.callTypeChecked(walletPath, fn, returnType, callContractPath, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `deploy` command
 //
