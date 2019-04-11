@@ -117,7 +117,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build contract create tx offline and send the chain', async () => {
+  it.skip('Build contract create tx offline and send the chain', async () => {
     const { unsigned_contract_deploy_tx, contract_id } = parseBlock(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, 'contractTest']))
     contractId = contract_id
     const res = (parseBlock(await signAndPost(unsigned_contract_deploy_tx)))
@@ -126,7 +126,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build contract call tx offline and send the chain', async () => {
+  it.skip('Build contract call tx offline and send the chain', async () => {
     const { unsigned_contract_call_tx } = parseBlock(await execute(['tx', 'contract-call', TX_KEYS.publicKey, contractId, 'main', 'int', 2, 3]))
     const res = (parseBlock(await signAndPost(unsigned_contract_call_tx)))
     const isMined = !isNaN(res['block_height'])

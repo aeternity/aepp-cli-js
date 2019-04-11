@@ -102,20 +102,19 @@ async function deploy (walletPath, contractPath, init = [], options) {
   }
 }
 
-const prepareCallParams = async (name, { descrPath, contractAddress, gas, ttl, nonce }) => {
+const prepareCallParams = async (name, { descrPath, contractAddress, contractSource, gas, ttl, nonce }) => {
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
   gas = parseInt(gas)
 
-  if (!descrPath && !contractAddress) throw new Error('contract-descriptor or contract-address requires')
+  if (!descrPath && (!contractAddress || !contractSource)) throw new Error('--descrPath or --contractAddress and --contractSource requires')
 
-  if (contractAddress) {
+  if (contractAddress && contractSource) {
     return {
-      code: contractAddress,
+      source: contractSource,
       address: contractAddress,
-      abi: 'sophia-address',
       name,
-      options: { options: { ttl, gas, nonce, gasPrice: GAS_PRICE } }
+      options: { ttl, gas, nonce, gasPrice: GAS_PRICE }
     }
   }
 
@@ -123,11 +122,10 @@ const prepareCallParams = async (name, { descrPath, contractAddress, gas, ttl, n
   if (!descr) throw new Error('Descriptor file not found')
 
   return {
-    code: descr.bytecode,
-    abi: descr.abi,
+    source: descr.source,
     name: name,
     address: descr.address,
-    options: { options: { ttl, nonce, gas, gasPrice: GAS_PRICE } }
+    options: { ttl, nonce, gas, gasPrice: GAS_PRICE }
   }
 }
 
@@ -143,16 +141,11 @@ async function call (walletPath, fn, returnType, args, options) {
     const client = await initClientByWalletFile(walletPath, options)
     const params = await prepareCallParams(fn, options)
 
-    // Prepare args
-    args = args.filter(arg => arg !== '[object Object]')
-    args = args.length ? `(${args.join(',')})` : '()'
-
     await handleApiError(
       async () => {
         // Call static or call
-        const callResult = callStatic
-          ? await client.contractCallStatic(params.address, 'sophia-address', params.name, { top, ...params.options, args })
-          : await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, args })
+        const contract = await client.getContractInstance(params.source, { contractAddress: params.address })
+        const callResult = await contract.call(fn, args, { ...params.options, callStatic, top })
         // The execution result, if successful, will be an AEVM-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
         // not be a hexadecimal string, anymore.
@@ -163,9 +156,8 @@ async function call (walletPath, fn, returnType, args, options) {
         printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
         printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
         // Decode result
-        const { type, value } = await callResult.decode(returnType)
-        printUnderscored('Return value (decoded)', value)
-        printUnderscored('Return remote type', type)
+        const decoded = await callResult.decode()
+        printUnderscored('Return value (decoded)', decoded)
       }
     )
   } catch (e) {

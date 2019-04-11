@@ -164,17 +164,17 @@ function printContractCreateTransaction (tx = {}, tabs = '') {
 function printContractCallTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'Caller Account', R.defaultTo('N/A', R.path(['tx', 'callerId'], tx)))
   printUnderscored(tabs + 'Contract Hash', R.defaultTo('N/A', R.path(['tx', 'contractId'], tx)))
-  printUnderscored(tabs + 'Amount', R.defaultTo('N/A', R.path(['tx', 'amount'], tx)))
-  printUnderscored(tabs + 'Deposit', R.defaultTo('N/A', R.path(['tx', 'deposit'], tx)))
-  printUnderscored(tabs + 'Gas', R.defaultTo('N/A', R.path(['tx', 'gas'], tx)))
-  printUnderscored(tabs + 'Gas Price', R.defaultTo('N/A', R.path(['tx', 'gasPrice'], tx)))
+  printUnderscored(tabs + 'Amount', R.defaultTo(0, R.path(['tx', 'amount'], tx)))
+  printUnderscored(tabs + 'Deposit', R.defaultTo(0, R.path(['tx', 'deposit'], tx)))
+  printUnderscored(tabs + 'Gas', R.defaultTo(0, R.path(['tx', 'gas'], tx)))
+  printUnderscored(tabs + 'Gas Price', R.defaultTo(0, R.path(['tx', 'gasPrice'], tx)))
   printUnderscored(tabs + 'Payload', R.defaultTo('N/A', R.path(['tx', 'payload'], tx)))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
   printUnderscored(tabs + 'Nonce', R.defaultTo('N/A', R.path(['tx', 'nonce'], tx)))
-  printUnderscored(tabs + 'TTL', R.defaultTo('N/A', R.path(['tx', 'ttl'], tx)))
-  printUnderscored(tabs + 'Version', R.defaultTo('N/A', R.path(['tx', 'version'], tx)))
-  printUnderscored(tabs + 'VM Version', R.defaultTo('N/A', R.path(['tx', 'vmVersion'], tx)))
+  printUnderscored(tabs + 'TTL', R.defaultTo(0, R.path(['tx', 'ttl'], tx)))
+  printUnderscored(tabs + 'Version', R.defaultTo(0, R.path(['tx', 'version'], tx)))
+  printUnderscored(tabs + 'VM Version', R.defaultTo(0, R.path(['tx', 'vmVersion'], tx)))
 }
 
 // Print `spend_tx` info
