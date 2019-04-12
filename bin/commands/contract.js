@@ -110,8 +110,9 @@ const prepareCallParams = async (name, { descrPath, contractAddress, contractSou
   if (!descrPath && (!contractAddress || !contractSource)) throw new Error('--descrPath or --contractAddress and --contractSource requires')
 
   if (contractAddress && contractSource) {
+    const contractFile = readFile(path.resolve(process.cwd(), contractSource), 'utf-8')
     return {
-      source: contractSource,
+      source: contractFile,
       address: contractAddress,
       name,
       options: { ttl, gas, nonce, gasPrice: GAS_PRICE }
