@@ -59,7 +59,7 @@ export async function encodeData (source, fn, args = [], options) {
       // Call `node` API which return `compiled code`
       const callData = await client.contractEncodeCallDataAPI(sourceCode, fn, args, options)
       if (options.json) {
-        print({ callData })
+        print(JSON.stringify({ callData }))
       } else {
         print(`Contract encoded call data: ${callData}`)
       }
@@ -78,7 +78,7 @@ export async function decodeData (data, type, options) {
       // Call `node` API which return `compiled code`
       const decodedData = await client.contractDecodeDataAPI(type, data)
       if (options.json) {
-        print({ decodedData })
+        print(JSON.stringify({ decodedData }))
       } else {
         print(`Contract bytecode:`)
         print(decodedData)

@@ -29,6 +29,9 @@ const contractCall = `contract StateContract =
   function main : (int, int) => int
   function __call() = main(1,2)`
 
+const encodedNumber3 = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPJ9AW0'
+const CALL_DATA = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACD2yeBkazjNGxosFNO2BCRHh7eGNLVLUkTmDvM0oh3VAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAu/rRss='
+
 plan(1000000000)
 
 describe('CLI Contract Module', function () {
@@ -65,6 +68,17 @@ describe('CLI Contract Module', function () {
 
     bytecodeCLI.should.equal(compiled.bytecode)
   })
+
+  it('Encode callData', async () => {
+    const { callData } = JSON.parse(await execute(['contract', 'encodeData', contractFile, 'main', 1, 2, '--json']))
+    callData.should.be.equal(CALL_DATA)
+  })
+
+  it('Decode Data', async () => {
+    const { decodedData } = JSON.parse(await execute(['contract', 'decodeData', encodedNumber3, 'int', '--json']))
+    decodedData.value.should.be.equal(3)
+  })
+
   it('Deploy Contract', async () => {
     // Create contract file
     fs.writeFileSync(contractFile, testContract)
