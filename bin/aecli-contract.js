@@ -30,7 +30,7 @@ const { Contract } = require('./commands')
 program
   .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('--compilerUrl [compilerUrl]', 'Compiler URL', '')
+  .option('--compilerUrl [compilerUrl]', 'Compiler URL', utils.constant.COMPILER_URL)
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--native', 'Build transaction natively')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
@@ -47,6 +47,28 @@ program
   .command('compile <file>')
   .description('Compile a contract')
   .action(async (file, ...arguments) => await Contract.compile(file, utils.cli.getCmdFromArguments(arguments)))
+
+
+// ## Initialize `encode callData` command
+//
+// You can use this command to prepare `callData`
+//
+// Example: `aecli contract encodeData ./mycontract.contract testFn 1 2`
+program
+  .command('encodeData <source> <fn> [args...]')
+  .description('Encode contract call data')
+  .action(async (source, fn, args, ...arguments) => await Contract.encodeData(source, fn, args, utils.cli.getCmdFromArguments(arguments)))
+
+
+// ## Initialize `decode data` command
+//
+// You can use this command to compile your `contract` to `bytecode`
+//
+// Example: `aecli decodeData compile cb_asdasdasdasdasdas int`
+program
+  .command('decodeData <data> <returnType>')
+  .description('Encode contract call data')
+  .action(async (data, returnType, ...arguments) => await Contract.decodeData(data, returnType, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `call` command
 //
