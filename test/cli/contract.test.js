@@ -123,34 +123,4 @@ describe('CLI Contract Module', function () {
     isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
   })
-
-  // DEPRECATED
-  it.skip('Type-checked Call Contract  using descriptor', async () => {
-    const callResponse = (parseBlock(await execute(['contract', 'callChecked', WALLET_NAME, '--password', 'test', '--descrPath', deployDescriptor, 'main', 'int', 'callC'])))
-    const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
-    callResponse['return_value_(decoded)'].should.equal('3')
-    callResponse.return_remote_type.should.equal('word')
-  })
-  it.skip('Type-checked Call Contract static  using descriptor', async () => {
-    const callResponse = (parseBlock(await execute(['contract', 'callChecked', WALLET_NAME, '--password', 'test', '--descrPath', deployDescriptor, 'main', 'int', 'callC', '--callStatic'])))
-    const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
-    callResponse['return_value_(decoded)'].should.equal('3')
-    callResponse.return_remote_type.should.equal('word')
-  })
-  it.skip('Type-checked Call Contract  using address', async () => {
-    const callResponse = (parseBlock(await execute(['contract', 'callChecked', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, 'main', 'int', 'callC'])))
-    const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
-    callResponse['return_value_(decoded)'].should.equal('3')
-    callResponse.return_remote_type.should.equal('word')
-  })
-  it.skip('Type-checked Call Contract static  using address', async () => {
-    const callResponse = (parseBlock(await execute(['contract', 'callChecked', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, 'main', 'int', 'callC', '--callStatic'])))
-    const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
-    callResponse['return_value_(decoded)'].should.equal('3')
-    callResponse.return_remote_type.should.equal('word')
-  })
 })
