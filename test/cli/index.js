@@ -21,7 +21,7 @@ import * as R from 'ramda'
 require = require('esm')(module/*, options */) // use to handle es6 import/export
 const Ae = require('@aeternity/aepp-sdk/es/ae/universal').default
 const { generateKeyPair } = require('@aeternity/aepp-sdk/es/utils/crypto')
-const compilerUrl = 'https://compiler.aepps.com'
+const compilerUrl = 'http://localhost:3080'
 
 const cliCommand = './bin/aecli.js'
 

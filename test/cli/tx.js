@@ -17,7 +17,7 @@
 
 import { describe, it } from 'mocha'
 
-import { configure, BaseAe, execute, parseBlock, KEY_PAIR, networkId } from './index'
+import { configure, BaseAe, execute, parseBlock, ready } from './index'
 import { decodeBase64Check, generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 import fs from 'fs'
 
@@ -50,8 +50,10 @@ describe('CLI Transaction Module', function () {
   let name = randomName()
   let nonce
   let nameId
+  let compilerCLI
 
   before(async function () {
+    compilerCLI = await ready(this)
     const GENESIS = await BaseAe()
     await GENESIS.spend('100000000000000000000000', TX_KEYS.publicKey)
     await execute(['account', 'save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite'])
@@ -117,18 +119,23 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it.skip('Build contract create tx offline and send the chain', async () => {
-    const { unsigned_contract_deploy_tx, contract_id } = parseBlock(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, 'contractTest']))
-    contractId = contract_id
-    const res = (parseBlock(await signAndPost(unsigned_contract_deploy_tx)))
+  it('Build contract create tx offline and send the chain', async () => {
+    // const { unsigned_contract_deploy_tx, contract_id } = parseBlock(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, 'contractTest']))
+    const { bytecode } = await compilerCLI.contractCompile(testContract)
+    const callData = await compilerCLI.contractEncodeCall(testContract, 'init', [])
+    const { tx, contractId: cId } = JSON.parse(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, bytecode, callData, nonce, '--json']))
+    contractId = cId
+    const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
     nonce += 1
   })
 
-  it.skip('Build contract call tx offline and send the chain', async () => {
-    const { unsigned_contract_call_tx } = parseBlock(await execute(['tx', 'contract-call', TX_KEYS.publicKey, contractId, 'main', 'int', 2, 3]))
-    const res = (parseBlock(await signAndPost(unsigned_contract_call_tx)))
+  it('Build contract call tx offline and send the chain', async () => {
+    const callData = await compilerCLI.contractEncodeCall(testContract, 'main', ['1', '2'])
+
+    const { tx } = JSON.parse(await execute(['tx', 'contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']))
+    const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res['block_height'])
     isMined.should.be.equal(true)
     nonce += 1

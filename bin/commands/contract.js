@@ -47,6 +47,83 @@ export async function compile (file, options) {
   }
 }
 
+// ## Function which compile your `source` code
+export async function encodeData (source, fn, args = [], options) {
+  try {
+    const sourceCode = readFile(path.resolve(process.cwd(), source), 'utf-8')
+    if (!sourceCode) throw new Error('Contract file not found')
+
+    const client = await initCompiler(options)
+
+    await handleApiError(async () => {
+      // Call `node` API which return `compiled code`
+      const callData = await client.contractEncodeCallDataAPI(sourceCode, fn, args, options)
+      if (options.json) {
+        print(JSON.stringify({ callData }))
+      } else {
+        print(`Contract encoded call data: ${callData}`)
+      }
+    })
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
+// ## Function which compile your `source` code
+export async function decodeData (data, type, options) {
+  try {
+    const client = await initCompiler(options)
+
+    await handleApiError(async () => {
+      // Call `node` API which return `compiled code`
+      const decodedData = await client.contractDecodeDataAPI(type, data)
+      if (options.json) {
+        print(JSON.stringify({ decodedData }))
+      } else {
+        print(`Contract bytecode:`)
+        print(decodedData)
+      }
+    })
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
+// ## Function which compile your `source` code
+export async function decodeCallData (data, options) {
+  const { sourcePath, code, fn } = options
+  let sourceCode
+
+  if (!sourcePath && !code) throw new Error('Contract source(--sourcePath) or contract code(--code) required!')
+  if (sourcePath) {
+    if (!fn) throw new Error('Function name required in decoding by source!')
+    sourceCode = readFile(path.resolve(process.cwd(), sourcePath), 'utf-8')
+    if (!sourceCode) throw new Error('Contract file not found')
+  } else {
+    if (code.slice(0, 2) !== 'cb') throw new Error('Code must be like "cb_23dasdafgasffg...." ')
+  }
+
+  try {
+    const client = await initCompiler(options)
+
+    await handleApiError(async () => {
+      // Call `node` API which return `compiled code`
+      const decoded = code
+        ? await client.contractDecodeCallDataByCodeAPI(code, data)
+        : await client.contractDecodeCallDataBySourceAPI(sourceCode, fn, data)
+
+      if (options.json) {
+        print(JSON.stringify({ decoded }))
+      } else {
+        print(`Decoded Call Data:`)
+        print(decoded)
+      }
+    })
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
 // ## Function which `deploy ` contract
 async function deploy (walletPath, contractPath, init = [], options) {
   const { json, gas } = options
@@ -157,48 +234,9 @@ async function call (walletPath, fn, returnType, args, options) {
         printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
         printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
         // Decode result
+        console.log(callResult)
         const decoded = await callResult.decode()
         printUnderscored('Return value (decoded)', decoded)
-      }
-    )
-  } catch (e) {
-    printError(e.message)
-    process.exit(1)
-  }
-}
-
-// ## Function which `call` contract
-async function callTypeChecked (walletPath, fn, returnType, callContract, options) {
-  const { callStatic, json, top } = options
-  if (!fn || !returnType) {
-    program.outputHelp()
-    process.exit(1)
-  }
-  try {
-    // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const client = await initClientByWalletFile(walletPath, options)
-    const params = await prepareCallParams(fn, R.merge(options, { callContract }))
-    const call = readFile(path.resolve(process.cwd(), callContract), 'utf-8')
-
-    await handleApiError(
-      async () => {
-        // Call static or call
-        const callResult = callStatic
-          ? await client.contractCallStatic(params.address, 'sophia-address', params.name, { top, ...params.options, call })
-          : await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, call })
-        // The execution result, if successful, will be an AEVM-encoded result
-        // value. Once type decoding will be implemented in the SDK, this value will
-        // not be a hexadecimal string, anymore.
-        if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json)
-        print('----------------------Transaction info-----------------------')
-        printUnderscored('Contract address', params.address)
-        printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
-        printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
-        printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
-        // Decode result
-        const { type, value } = await callResult.decode(returnType)
-        printUnderscored('Return value (decoded)', value)
-        printUnderscored('Return remote type', type)
       }
     )
   } catch (e) {
@@ -211,5 +249,7 @@ export const Contract = {
   compile,
   deploy,
   call,
-  callTypeChecked
+  encodeData,
+  decodeData,
+  decodeCallData
 }

@@ -251,37 +251,31 @@ async function nameRevoke (accountId, nameId, nonce, options) {
 }
 
 // ## Build `contractDeploy` transaction
-async function contractDeploy (ownerId, contractPath, options) {
-  let { ttl, json, nonce, fee, init = '()', gas } = options
+async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, options) {
+  let { ttl, json, fee, gas, deposit = 0, amount = 0 } = options
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
   try {
-    // Get contract file
-    const contractFile = readFile(path.resolve(process.cwd(), contractPath), 'utf-8')
-
     // Initialize `Ae`
     const txBuilder = await initTxBuilder(options)
-    const chain = await initChain(options)
     // Build `deploy` transaction's
     await handleApiError(async () => {
-      // Compile contract using `debug API`
-      const { bytecode: code } = await chain.compileNodeContract(contractFile, { gas })
-      // Prepare `callData`
-      const callData = await chain.contractNodeEncodeCallData(code, 'sophia', 'init', init)
       // Create `contract-deploy` transaction
       const { tx, contractId } = await txBuilder.contractCreateTx({
         ...DEFAULT_CONTRACT_PARAMS,
-        code,
+        code: contractByteCode,
         nonce,
         fee,
         ttl,
         gas,
         ownerId,
-        callData
+        callData: initCallData,
+        amount,
+        deposit
       })
 
       if (json) {
-        print({ tx, contractId })
+        print(JSON.stringify({ tx, contractId }))
       } else {
         printUnderscored('Unsigned Contract Deploy TX', tx)
         printUnderscored('Contract ID', contractId)
@@ -294,21 +288,14 @@ async function contractDeploy (ownerId, contractPath, options) {
 }
 
 // ## Build `contractCall` transaction
-async function contractCall (callerId, contractId, fn, returnType, args, options) {
-  let { ttl, json, nonce, fee, gas } = options
+async function contractCall (callerId, contractId, callData, nonce, options) {
+  let { ttl, json, fee, gas } = options
   nonce = parseInt(nonce)
   try {
-    // Prepare args
-    args = args.filter(arg => arg !== '[object Object]')
-    args = args.length ? `(${args.join(',')})` : '()'
-
     // Build `call` transaction's
     await handleApiError(async () => {
       // Initialize `Ae`
       const txBuilder = await initTxBuilder(options)
-      const chain = await initChain(options)
-      // Prepare `callData`
-      const callData = await chain.contractNodeEncodeCallData(contractId, 'sophia-address', fn, args)
       // Create `contract-call` transaction
       const tx = await txBuilder.contractCallTx({
         ...DEFAULT_CONTRACT_PARAMS,
@@ -322,7 +309,7 @@ async function contractCall (callerId, contractId, fn, returnType, args, options
       })
 
       if (json)
-        print({ tx })
+        print(JSON.stringify({ tx }))
       else
         printUnderscored('Unsigned Contract Call TX', tx)
     })
