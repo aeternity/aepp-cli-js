@@ -89,6 +89,41 @@ export async function decodeData (data, type, options) {
   }
 }
 
+// ## Function which compile your `source` code
+export async function decodeCallData (data, options) {
+  const { sourcePath, code, fn } = options
+  let sourceCode
+
+  if (!sourcePath && !code) throw new Error('Contract source(--sourcePath) or contract code(--code) required!')
+  if (sourcePath) {
+    if (!fn) throw new Error('Function name required in decoding by source!')
+    sourceCode = readFile(path.resolve(process.cwd(), sourcePath), 'utf-8')
+    if (!sourceCode) throw new Error('Contract file not found')
+  } else {
+    if (code.slice(0, 2) !== 'cb') throw new Error('Code must be like "cb_23dasdafgasffg...." ')
+  }
+
+  try {
+    const client = await initCompiler(options)
+
+    await handleApiError(async () => {
+      // Call `node` API which return `compiled code`
+      const decoded = code
+        ? await client.contractDecodeCallDataByCodeAPI(code, data)
+        : await client.contractDecodeCallDataBySourceAPI(sourceCode, fn, data)
+
+      if (options.json) {
+        print(JSON.stringify({ decoded }))
+      } else {
+        print(`Decoded Call Data:`)
+        print(decoded)
+      }
+    })
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
 // ## Function which `deploy ` contract
 async function deploy (walletPath, contractPath, init = [], options) {
   const { json, gas } = options
@@ -215,5 +250,6 @@ export const Contract = {
   deploy,
   call,
   encodeData,
-  decodeData
+  decodeData,
+  decodeCallData
 }

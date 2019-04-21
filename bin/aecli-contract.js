@@ -62,13 +62,28 @@ program
 
 // ## Initialize `decode data` command
 //
-// You can use this command to compile your `contract` to `bytecode`
+// You can use this command to decode contract return data
 //
-// Example: `aecli decodeData compile cb_asdasdasdasdasdas int`
+// Example: `aecli contract decodeData cb_asdasdasdasdasdas int`
 program
   .command('decodeData <data> <returnType>')
-  .description('Encode contract call data')
+  .description('Decode contract data')
   .action(async (data, returnType, ...arguments) => await Contract.decodeData(data, returnType, utils.cli.getCmdFromArguments(arguments)))
+
+
+// ## Initialize `decode call data` command
+//
+// You can use this command to decode contract call data using source or bytecode
+//
+// Example: `aecli contract decodeCallData
+program
+  .command('decodeCallData <data>')
+  .option('--sourcePath [sourcePath]', 'Path to contract source')
+  .option('--code [code]', 'Compiler contract code')
+  .option('--fn [fn]', 'Function name')
+  .description('Decode contract call data')
+  .action(async (data, ...arguments) => await Contract.decodeCallData(data, utils.cli.getCmdFromArguments(arguments)))
+
 
 // ## Initialize `call` command
 //
