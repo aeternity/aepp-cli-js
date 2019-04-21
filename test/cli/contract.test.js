@@ -119,13 +119,14 @@ describe('CLI Contract Module', function () {
     callResponse['return_value_(decoded)'].should.equal('3')
   })
   it('Call Contract by contract address', async () => {
-    const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, '--contractSource', testContract, 'main', 'int', '1', '2'])))
+    const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, '--contractSource', contractFile, 'main', 'int', '1', '2'])))
+    console.log(callResponse)
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
     isValid.should.be.equal(true)
     callResponse['return_value_(decoded)'].should.equal('3')
   })
   it('Call Contract static by contract address', async () => {
-    const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, '--contractSource', testContract, 'main', 'int', '1', '2', '--callStatic'])))
+    const callResponse = (parseBlock(await execute(['contract', 'call', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, '--contractSource', contractFile, 'main', 'int', '1', '2', '--callStatic'])))
     const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
 
     isValid.should.be.equal(true)
