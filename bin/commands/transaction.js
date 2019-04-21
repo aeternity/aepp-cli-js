@@ -251,8 +251,8 @@ async function nameRevoke (accountId, nameId, nonce, options) {
 }
 
 // ## Build `contractDeploy` transaction
-async function contractDeploy (ownerId, contractByteCode, initCallData, options) {
-  let { ttl, json, nonce, fee, gas, deposit = 0, amount = 0 } = options
+async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, options) {
+  let { ttl, json, fee, gas, deposit = 0, amount = 0 } = options
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
   try {
@@ -288,8 +288,8 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, options)
 }
 
 // ## Build `contractCall` transaction
-async function contractCall (callerId, contractId, callData, options) {
-  let { ttl, json, nonce, fee, gas } = options
+async function contractCall (callerId, contractId, callData, nonce, options) {
+  let { ttl, json, fee, gas } = options
   nonce = parseInt(nonce)
   try {
     // Build `call` transaction's

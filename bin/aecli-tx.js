@@ -116,14 +116,14 @@ program
 //
 // Example: `aecli tx contract-deploy ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi test.contract`
 program
-  .command('contract-deploy <ownerId> <contractBytecode> <initCallData>')
+  .command('contract-deploy <ownerId> <contractBytecode> <initCallData> <nonce>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--amount [amount]', 'Amount', 0)
   .option('--deposit [deposit]', 'Deposit', 0)
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
   .description('Build contract create transaction.')
-  .action(async (ownerId, contractBytecode, initCallData, ...arguments) => await Transaction.contractDeploy(ownerId, contractBytecode, initCallData, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (ownerId, contractBytecode, initCallData, nonce, ...arguments) => await Transaction.contractDeploy(ownerId, contractBytecode, initCallData, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `contract-call` command
 //
@@ -131,12 +131,12 @@ program
 //
 // Example: `aecli tx contract-call ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ct_2134235423dsfsdfsdf sum int 1 2`
 program
-  .command('contract-call <callerId> <contractId> <callData>')
+  .command('contract-call <callerId> <contractId> <callData> <nonce>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
   .description('Build contract create transaction.')
-  .action(async (callerId, contractId, callData, ...arguments) => await Transaction.contractCall(callerId, contractId, callData, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (callerId, contractId, callData, nonce, ...arguments) => await Transaction.contractCall(callerId, contractId, callData, nonce, utils.cli.getCmdFromArguments(arguments)))
 
 
 // ## Initialize `oracle-register` command
