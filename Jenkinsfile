@@ -23,6 +23,7 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'genesis-wallet',
                                           usernameVariable: 'WALLET_PUB',
                                           passwordVariable: 'WALLET_PRIV')]) {
+          sh 'docker-compose -H localhost:2376 pull node'
           sh 'docker-compose -H localhost:2376 build'
           sh 'docker-compose -H localhost:2376 run sdk pnpm run test-jenkins'
         }
@@ -34,7 +35,7 @@ pipeline {
     always {
       junit 'test-results.xml'
       archive 'dist/*'
-      sh 'docker-compose -H localhost:2376 down -v ||:'
+      sh 'docker-compose -H localhost:2376 down -v --rmi local ||:'
     }
   }
 }
