@@ -19,18 +19,14 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import path from 'path'
 import { encodeBase58Check, salt, assertedType } from '@aeternity/aepp-sdk/es/utils/crypto'
 import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 import { initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printUnderscored, printValidation } from '../utils/print'
-import { readFile, validateName } from '../utils/helpers'
-import { VM_VERSION, AMOUNT, DEPOSIT, GAS_PRICE, BUILD_ORACLE_TTL, ORACLE_VM_VERSION } from '../utils/constant'
+import { validateName } from '../utils/helpers'
+import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION, DEFAULT_CONTRACT_PARAMS } from '../utils/constant'
 import { TX_TYPE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
-
-// Default transaction build param's
-const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE }
 
 const printBuilderTransaction = ({ tx, txObject }, type) => {
   printUnderscored('Transaction type', type)

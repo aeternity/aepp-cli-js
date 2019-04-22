@@ -75,7 +75,8 @@ program
 //
 // You can use this command to decode contract call data using source or bytecode
 //
-// Example: `aecli contract decodeCallData
+// Example bytecode: `aecli contract decodeCallData cb_asdasdasd... --code cb_asdasdasdasd....`
+// Example source cdoe: `aecli contract decodeCallData cb_asdasdasd... --sourcePath ./contractSource --fn someFunction`
 program
   .command('decodeCallData <data>')
   .option('--sourcePath [sourcePath]', 'Path to contract source')
@@ -95,8 +96,8 @@ program
 //
 // Also you have ability to make `static` call using `--callStatic` flag
 // Example:
-//    `aecli contract call ./myWalletFile --password testpass sumFunc int ./pseudoContractCall --descrPath ./contractDescriptorFile.json --callStatic` --> Static call
-//
+//    `aecli contract call ./myWalletFile --password testpass sumFunc int 1 2 --descrPath ./contractDescriptorFile.json --callStatic` --> Static call using descriptor
+//    `aecli contract call ./myWalletFile --password testpass sumFunc int 1 2 --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 --callStatic` --> Static call using contract address
 // You can preset gas, nonce and ttl for that call. If not set use default.
 // Example: `aecli contract call ./myWalletFile --password tstpass sumFunc int 1 2 --descrPath ./contractDescriptorFile.json  --gas 2222222 --nonce 4 --ttl 1243`
 program
@@ -116,11 +117,11 @@ program
 //
 // You can use this command to deploy contract on the chain
 //
-// Example: `aecli contract deploy ./myWalletFile --password testpass ./contractSourceCodeFile`
+// Example: `aecli contract deploy ./myWalletFile --password testpass ./contractSourceCodeFile 1 2` -> "1 2" -> Init state params
 //
 // You can preset gas and initState for deploy
 //
-// Example: `aecli contract call ./myWalletFile --password tstpass ./contractDescriptorFile.json sumFunc int 1 2 --gas 2222222 --init state`
+// Example: `aecli contract deploy ./myWalletFile --password tstpass ./contractSourceCodeFile --gas 2222222`
 program
   .command('deploy <wallet_path> <contract_path> [init...]')
   .option('-P, --password [password]', 'Wallet Password')
