@@ -31,9 +31,7 @@ const { Chain } = require('./commands')
 program
   .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-L --limit [playlimit]', 'Limit for play command', utils.constant.PLAY_LIMIT)
-  .option('-P --height [playToHeight]', 'Play to selected height')
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
@@ -86,6 +84,7 @@ program
 // Example: `aecli chain play --height` --> print blocks until reach some height starting from top
 program
   .command('play')
+  .option('-P --height [playToHeight]', 'Play to selected height')
   .description('Real-time block monitoring')
   .action(async (...arguments) => await Chain.play(utils.cli.getCmdFromArguments(arguments)))
 

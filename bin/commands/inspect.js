@@ -19,7 +19,6 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import * as R from 'ramda'
 import path from 'path'
 
 import { HASH_TYPES } from '../utils/constant'
