@@ -23,7 +23,6 @@ const Ae = require('@aeternity/aepp-sdk/es/ae/universal').default
 const { generateKeyPair } = require('@aeternity/aepp-sdk/es/utils/crypto')
 
 const cliCommand = './bin/aecli.js'
-
 const url = process.env.TEST_URL || 'http://localhost:3013'
 const compilerUrl = 'http://localhost:3080'
 const internalUrl = process.env.TEST_INTERNAL_URL || 'http://localhost:3113'
