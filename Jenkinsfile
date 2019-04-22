@@ -24,6 +24,7 @@ pipeline {
                                           usernameVariable: 'WALLET_PUB',
                                           passwordVariable: 'WALLET_PRIV')]) {
           sh 'docker-compose -H localhost:2376 pull node'
+          sh 'docker-compose -H localhost:2376 build'
           sh 'docker-compose -H localhost:2376 run sdk pnpm run test-jenkins'
         }
       }
