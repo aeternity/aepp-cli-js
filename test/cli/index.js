@@ -29,7 +29,6 @@ const internalUrl = process.env.TEST_INTERNAL_URL || 'http://localhost:3113'
 export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
 const TIMEOUT = 18000000
 
-
 export const KEY_PAIR = generateKeyPair()
 export const WALLET_NAME = 'mywallet'
 
