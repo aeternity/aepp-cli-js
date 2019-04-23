@@ -11,6 +11,13 @@ pipeline {
   }
 
   stages {
+    stage('Build') {
+      steps {
+        sh 'npm install'
+        sh 'ln -sf /node_modules ./'
+      }
+    }
+
     stage('Test') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'genesis-wallet',
