@@ -27,15 +27,10 @@ pipeline {
                                           passwordVariable: 'WALLET_PRIV')]) {
           sh 'docker-compose -H localhost:2376 pull node'
           sh 'docker-compose -H localhost:2376 build'
-          sh 'docker-compose -H localhost:2376 run sdk'
+          sh 'docker-compose -H localhost:2376 run sdk npm run test-jenkins'
         }
       }
     }
-    stage('Test') {
-          steps {
-            sh 'npm run test'
-          }
-        }
   }
 
   post {
