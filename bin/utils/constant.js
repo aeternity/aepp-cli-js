@@ -61,3 +61,6 @@ export const BUILD_ORACLE_TTL = (ttl) => { return { type: 'delta', value: ttl } 
 export const ORACLE_TTL = 500
 export const QUERY_TTL = 10
 export const RESPONSE_TTL = 10
+
+// ## Default transaction build param's
+export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE }
