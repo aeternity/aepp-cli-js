@@ -11,7 +11,12 @@ pipeline {
   }
 
   stages {
-    stage('Test') {
+    stage('Build') {
+      steps {
+        sh 'npm install'
+      }
+    }
+    stage('Run') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'genesis-wallet',
                                           usernameVariable: 'WALLET_PUB',
@@ -19,10 +24,14 @@ pipeline {
           sh 'docker-compose -H localhost:2376 pull node'
           sh 'docker-compose -H localhost:2376 build'
           sh 'docker-compose -H localhost:2376 run sdk'
-          sh './node_modules/.bin/mocha --recursive --require @babel/register --reporter mocha-junit-reporter'
         }
       }
     }
+    stage('Test') {
+          steps {
+            sh 'npm run test'
+          }
+        }
   }
 
   post {
