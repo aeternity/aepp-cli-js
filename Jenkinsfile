@@ -11,11 +11,6 @@ pipeline {
   }
 
   stages {
-    stage('Build') {
-      steps {
-
-      }
-    }
     stage('Test') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'genesis-wallet',
