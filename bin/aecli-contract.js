@@ -31,7 +31,6 @@ program
   .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
   .option('--compilerUrl [compilerUrl]', 'Compiler URL', utils.constant.COMPILER_URL)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--native', 'Build transaction natively')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
@@ -102,6 +101,7 @@ program
 // Example: `aecli contract call ./myWalletFile --password tstpass sumFunc int 1 2 --descrPath ./contractDescriptorFile.json  --gas 2222222 --nonce 4 --ttl 1243`
 program
   .command('call <wallet_path> <fn> <return_type> [args...]')
+  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-P, --password [password]', 'Wallet Password')
   .option('-G --gas [gas]', 'Amount of gas to call the contract', utils.constant.GAS)
   .option('-d --descrPath [descrPath]', 'Path to contract descriptor file')
@@ -124,6 +124,7 @@ program
 // Example: `aecli contract deploy ./myWalletFile --password tstpass ./contractSourceCodeFile --gas 2222222`
 program
   .command('deploy <wallet_path> <contract_path> [init...]')
+  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-P, --password [password]', 'Wallet Password')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
   .description('Deploy a contract on the chain')

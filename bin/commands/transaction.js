@@ -441,7 +441,7 @@ async function oracleRespond (callerId, oracleId, queryId, response, nonce, opti
 
 // ## Verify 'transaction'
 async function verify (txHash, options) {
-  let { json } = options
+  let { json, networkId } = options
   try {
     // Validate input
     if (!assertedType(txHash, 'tx')) throw new Error('Invalid transaction, must be lik \'tx_23didf2+f3sd...\'')
@@ -449,7 +449,7 @@ async function verify (txHash, options) {
     const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const { validation, tx, signatures = [], txType: type } = await client.unpackAndVerify(txHash)
+      const { validation, tx, signatures = [], txType: type } = await client.unpackAndVerify(txHash, { networkId })
       if (json) {
         print({ validation, tx: tx, signatures, type })
         process.exit(1)

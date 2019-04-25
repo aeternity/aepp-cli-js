@@ -84,13 +84,14 @@ async function spend (walletPath, receiver, amount, options) {
 // ## Get `balance` function
 // This function allow you retrieve account `balance`
 async function getBalance (walletPath, options) {
+  const { height, hash } = options
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
     await handleApiError(
       async () => {
         const nonce = await client.getAccountNonce(keypair.publicKey)
-        printUnderscored('Balance', await client.balance(keypair.publicKey))
+        printUnderscored('Balance', await client.balance(keypair.publicKey, { height: +height, hash }))
         printUnderscored('ID', await client.address())
         printUnderscored('Nonce', nonce)
       }
