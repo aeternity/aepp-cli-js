@@ -73,7 +73,7 @@ describe('CLI Account Module', function () {
   it('Check Wallet Balance', async () => {
     try {
       const balance = await wallet.balance(await wallet.address())
-      const cliBalance = parseBlock(await execute(['account', 'balance', WALLET_NAME, '--password', 'test'], true))
+      const cliBalance = parseBlock(await execute(['account', 'balance', WALLET_NAME, '--password', 'test'], { withOutReject: true }))
       cliBalance['balance'].should.equal(balance)
     } catch (e) {
       console.log(e)
@@ -86,12 +86,12 @@ describe('CLI Account Module', function () {
     receiver.setKeypair(receiverKeys)
 
     // send coins
-    await execute(['account', 'spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount], true)
+    await execute(['account', 'spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount], { withOutReject: true, withNetworkId: true })
     const receiverBalance = await receiver.balance(await receiver.address())
     await parseInt(receiverBalance).should.equal(amount)
   })
   it('Get account nonce', async () => {
     const nonce = await wallet.getAccountNonce(await wallet.address())
-    parseBlock(await execute(['account', 'nonce', WALLET_NAME, '--password', 'test'], true))['next_nonce'].should.equal(`${nonce}`)
+    parseBlock(await execute(['account', 'nonce', WALLET_NAME, '--password', 'test'], { withOutReject: true }))['next_nonce'].should.equal(`${nonce}`)
   })
 })

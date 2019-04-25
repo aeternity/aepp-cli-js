@@ -18,7 +18,7 @@
 import fs from 'fs'
 import { before, describe, it } from 'mocha'
 
-import { configure, plan, ready, execute, parseBlock, KEY_PAIR, WALLET_NAME } from './index'
+import { configure, plan, ready, parseBlock, KEY_PAIR, WALLET_NAME, execute as exec } from './index'
 
 // CONTRACT DESCRIPTOR
 const testContract = `contract Identity =
@@ -34,6 +34,7 @@ const CALL_DATA = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACD2yeBkazjNGxosFN
 const DECODED_CALL_DATA = { arguments: [ { type: 'word', value: 1 }, { type: 'word', value: 2 } ], function: 'main' }
 
 plan(1000000000)
+const execute = (arg) => exec(arg, { withNetworkId: true })
 
 describe('CLI Contract Module', function () {
   configure(this)
@@ -65,7 +66,7 @@ describe('CLI Contract Module', function () {
 
     // Compile contract
     const compiled = await wallet.contractCompile(testContract)
-    const compiledCLI = (await execute(['contract', 'compile', contractFile]))
+    const compiledCLI = (await exec(['contract', 'compile', contractFile]))
     const bytecodeCLI = compiledCLI.split(':')[1].trim()
     bytecode = compiled.bytecode
 
@@ -73,17 +74,17 @@ describe('CLI Contract Module', function () {
   })
 
   it('Encode callData', async () => {
-    const { callData } = JSON.parse(await execute(['contract', 'encodeData', contractFile, 'main', 1, 2, '--json']))
+    const { callData } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'main', 1, 2, '--json']))
     callData.should.be.equal(CALL_DATA)
   })
 
   it('Decode callData', async () => {
-    const { decoded } = JSON.parse(await execute(['contract', 'decodeCallData', CALL_DATA, '--code', bytecode, '--json']))
+    const { decoded } = JSON.parse(await exec(['contract', 'decodeCallData', CALL_DATA, '--code', bytecode, '--json']))
     return Promise.resolve(decoded).should.eventually.become(DECODED_CALL_DATA)
   })
 
   it('Decode Data', async () => {
-    const { decodedData } = JSON.parse(await execute(['contract', 'decodeData', encodedNumber3, 'int', '--json']))
+    const { decodedData } = JSON.parse(await exec(['contract', 'decodeData', encodedNumber3, 'int', '--json']))
     decodedData.value.should.be.equal(3)
   })
 
