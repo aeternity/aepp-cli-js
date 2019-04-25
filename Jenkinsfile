@@ -9,10 +9,12 @@ pipeline {
            '--network=host'
     }
   }
-  stages {
-    environment {
+
+  environment {
           HOME = '.'
-    }
+  }
+
+  stages {
     stage('Build') {
       steps {
         sh 'npm install'
