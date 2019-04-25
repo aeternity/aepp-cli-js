@@ -47,17 +47,17 @@ export function initOfflineTxBuilder () {
   return TxBuilder
 }
 // Create `Chain` client
-export async function initChain ({ url, internalUrl, compilerUrl, force: forceCompatibility }) {
-  return Chain({ url, internalUrl, compilerUrl, forceCompatibility })
+export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
+  return Chain({ url, internalUrl, forceCompatibility })
 }
 
 // Create `Chain` client
-export async function initCompiler ({ url, internalUrl, compilerUrl, force: forceCompatibility }) {
+export async function initCompiler ({ url, internalUrl, compilerUrl }) {
   return ContractCompilerAPI({ compilerUrl })
 }
 
 // ## Get account files and decrypt it using password
-// After that create`Ae` client using this `keyPair`
+// After that create `Ae` client using this `keyPair`
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
@@ -67,7 +67,6 @@ export async function initClientByWalletFile (walletPath, options, returnKeyPair
   const client = accountOnly
     ? await Account(R.merge(options, { keypair, networkId }))
     : await initClient(R.merge(options, { keypair }))
-  // const client = accountOnly ? await Account({ keypair, networkId }) : await initClient(R.merge(options, { keypair }))
   if (returnKeyPair)
     return { client, keypair }
   return client
