@@ -13,7 +13,6 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'npm i'
         sh 'ln -sf /node_modules ./'
       }
     }
