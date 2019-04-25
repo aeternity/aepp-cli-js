@@ -6,14 +6,13 @@ pipeline {
            '-v /etc/passwd:/etc/passwd:ro ' +
            '-v /var/lib/jenkins:/var/lib/jenkins ' +
            '-v /usr/bin/docker:/usr/bin/docker:ro ' +
-           '--network=host' +
-           'npm_config_cache=npm-cache'
+           '--network=host'
     }
   }
-  environment {
-        HOME = '.'
-  }
   stages {
+    environment {
+          HOME = '.'
+    }
     stage('Build') {
       steps {
         sh 'npm install'
