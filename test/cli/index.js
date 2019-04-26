@@ -34,6 +34,7 @@ const TIMEOUT = 18000000
 export const KEY_PAIR = generateKeyPair()
 export const WALLET_NAME = 'mywallet'
 
+
 export const BaseAe = Ae.compose({
   deepProps: { Swagger: { defaults: { debug: !!process.env['DEBUG'] } } },
   props: { url, internalUrl, process }
