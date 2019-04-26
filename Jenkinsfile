@@ -39,7 +39,8 @@ pipeline {
       junit 'test-results.xml'
       archive 'dist/*'
       sh 'docker-compose -H localhost:2376 down -v --rmi local ||:'
-      sh 'sudo rm -rf ./*'
+      sh 'git reset -fdx'
+      sh 'rm -rf node_modules/'
     }
   }
 }
