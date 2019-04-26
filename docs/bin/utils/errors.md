@@ -58,7 +58,7 @@ import { isExecCommand } from './cli'
   
 
 ```js
-export function logApiError (error) { printError(`API ERROR: ${error}`) }
+export function logApiError (error) { printError(`API ERROR: `, error) }
 
 
 ```

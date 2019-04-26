@@ -82,7 +82,6 @@ const { Inspect } = require('./commands')
 program
   .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
