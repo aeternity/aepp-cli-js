@@ -40,7 +40,6 @@ pipeline {
       archive 'dist/*'
       sh 'docker-compose -H localhost:2376 down -v --rmi local ||:'
       sh 'git reset -fdx'
-      sh 'rm -rf node_modules/'
     }
   }
 }
