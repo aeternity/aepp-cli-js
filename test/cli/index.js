@@ -23,10 +23,12 @@ const Ae = require('@aeternity/aepp-sdk/es/ae/universal').default
 const { generateKeyPair } = require('@aeternity/aepp-sdk/es/utils/crypto')
 
 const cliCommand = './bin/aecli.js'
+
 const url = process.env.TEST_URL || 'http://localhost:3013'
-const compilerUrl = 'http://localhost:3080'
+const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
 const internalUrl = process.env.TEST_INTERNAL_URL || 'http://localhost:3113'
 export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
+
 const TIMEOUT = 18000000
 
 export const KEY_PAIR = generateKeyPair()
