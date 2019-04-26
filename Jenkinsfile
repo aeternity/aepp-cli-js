@@ -39,7 +39,7 @@ pipeline {
       junit 'test-results.xml'
       archive 'dist/*'
       sh 'docker-compose -H localhost:2376 down -v --rmi local ||:'
-      sh 'rm -rf ./*'
+      sh 'sudo rm -rf ./*'
     }
   }
 }
