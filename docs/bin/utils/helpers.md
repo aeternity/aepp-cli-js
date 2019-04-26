@@ -43,8 +43,52 @@ That script contains base helper function
 import * as R from 'ramda'
 import fs from 'fs'
 
-import { HASH_TYPES } from './constant'
+import { GAS_PRICE, HASH_TYPES } from './constant'
 import { printError } from './print'
+import path from 'path'
+
+
+```
+
+
+
+
+
+
+
+## Method which build arguments for call call/deploy contracts
+
+
+  
+
+```js
+export async function prepareCallParams (name, { descrPath, contractAddress, contractSource, gas, ttl, nonce }) {
+  ttl = parseInt(ttl)
+  nonce = parseInt(nonce)
+  gas = parseInt(gas)
+
+  if (!descrPath && (!contractAddress || !contractSource)) throw new Error('--descrPath or --contractAddress and --contractSource requires')
+
+  if (contractAddress && contractSource) {
+    const contractFile = readFile(path.resolve(process.cwd(), contractSource), 'utf-8')
+    return {
+      source: contractFile,
+      address: contractAddress,
+      name,
+      options: { ttl, gas, nonce, gasPrice: GAS_PRICE }
+    }
+  }
+
+  const descr = await grabDesc(descrPath)
+  if (!descr) throw new Error('Descriptor file not found')
+
+  return {
+    source: descr.source,
+    name: name,
+    address: descr.address,
+    options: { ttl, nonce, gas, gasPrice: GAS_PRICE }
+  }
+}
 
 
 ```
@@ -64,10 +108,10 @@ if it's `BLOCK` call `getKeyBlockByHash`
   
 
 ```js
-export function getBlock(hash) {
+export function getBlock (hash) {
   return async (client) => {
     if (hash.indexOf(HASH_TYPES.block + '_') !== -1) {
-      return await client.api.getKeyBlockByHash(hash)
+      return client.api.getKeyBlockByHash(hash)
     }
     if (hash.indexOf(HASH_TYPES.micro_block + '_') !== -1) {
       return R.merge(
@@ -94,8 +138,9 @@ export function getBlock(hash) {
 
 ```js
 export function checkPref (hash, hashType) {
-  if (hash.length < 3 || hash.indexOf('_') === -1)
+  if (hash.length < 3 || hash.indexOf('_') === -1) {
     throw new Error(`Invalid input, likely you forgot to escape the $ sign (use \\_)`)
+  }
 
   /* block and micro block check */
   if (Array.isArray(hashType)) {
@@ -206,11 +251,29 @@ export function readFile (path, encoding = null, errTitle = 'READ FILE ERR') {
     switch (e.code) {
       case 'ENOENT':
         throw new Error('File not found')
-        break
       default:
         throw e
     }
   }
+}
+
+
+```
+
+
+
+
+
+
+
+Is file exist
+
+
+  
+
+```js
+export function isFileExist (path) {
+  return fs.existsSync(path)
 }
 
 
@@ -238,16 +301,16 @@ Get `name` status
 
 ```js
 export function updateNameStatus (name) {
- return async (client) => {
-   try {
-     return await client.api.getNameEntryByName(name)
-   } catch (e) {
-     if (e.response && e.response.status === 404) {
-       return {name, status: 'AVAILABLE'}
-     }
-     throw e
-   }
- }
+  return async (client) => {
+    try {
+      return { ...(await client.api.getNameEntryByName(name)), status: 'CLAIMED' }
+    } catch (e) {
+      if (e.response && e.response.status === 404) {
+        return { name, status: 'AVAILABLE' }
+      }
+      throw e
+    }
+  }
 }
 
 
@@ -285,6 +348,23 @@ Validate `name`
 export function validateName (name) {
   if (R.last(name.split('.')) !== 'test') { throw new Error('AENS TLDs must end in .test') }
 }
+
+
+```
+
+
+
+
+
+
+
+Grab contract descriptor by path
+
+
+  
+
+```js
+export const grabDesc = async descrPath => descrPath && readJSONFile(path.resolve(process.cwd(), descrPath))
 
 
 ```
