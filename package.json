@@ -1,6 +1,6 @@
 {
   "name": "@aeternity/aecli",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Aeternity command line interface",
   "bin": {
     "aecli": "./bin/aecli.js"
@@ -53,6 +53,7 @@
     "test": "mocha --recursive --require @babel/register",
     "test:watch": "mocha --recursive --require @babel/register --watch",
     "test-jenkins": "mocha --recursive --require @babel/register --reporter mocha-junit-reporter && rm -rf node_modules/",
+    "genChangelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "prepublishOnly": "npm run docs"
   },
   "keywords": [
