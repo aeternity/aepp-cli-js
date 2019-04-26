@@ -19,7 +19,6 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import * as R from 'ramda'
 import path from 'path'
 
 import { HASH_TYPES } from '../utils/constant'
@@ -35,7 +34,7 @@ import {
   printTransaction,
   printUnderscored
 } from '../utils/print'
-import { checkPref, getBlock, readJSONFile } from '../utils/helpers'
+import { checkPref, getBlock, readJSONFile, updateNameStatus, validateName } from '../utils/helpers'
 
 // ## Inspect function
 // That function get the param(`hash`, `height` or `name`) and show you info about it
@@ -117,9 +116,9 @@ async function getAccountByHash (hash, options) {
     const client = await initChain(options)
     await handleApiError(
       async () => {
-        const { id, nonce } = await client.api.getAccountByPubkey(hash)
-        const balance = await client.balance(hash, { format: false })
-        printUnderscored('Account ID', id)
+        const { nonce } = await client.api.getAccountByPubkey(hash)
+        const balance = await client.balance(hash)
+        printUnderscored('Account ID', hash)
         printUnderscored('Account balance', balance)
         printUnderscored('Account nonce', nonce)
         print('Account Transactions: ')
@@ -148,10 +147,13 @@ async function getBlockByHeight (height, options) {
 async function getName (name, options) {
   const { json } = options
   try {
-    if (R.last(name.split('.')) !== 'test') throw new Error('AENS TLDs must end in .test')
+    validateName(name)
     const client = await initChain(options)
-    const nameStatus = await client.api.getNameEntryByName(name)
-    printName(Object.assign(nameStatus, { status: 'CLAIMED' }), json)
+
+    printName(
+      await updateNameStatus(name)(client),
+      json
+    )
   } catch (e) {
     if (e.response && e.response.status === 404) {
       printName({ status: 'AVAILABLE' }, json)
@@ -187,23 +189,6 @@ async function getOracle (oracleId, options) {
         printOracle(await client.getOracle(oracleId), json)
         const { oracleQueries: queries } = await client.getOracleQueries(oracleId)
         if (queries) printQueries(queries, json)
-      }
-    )
-  } catch (e) {
-    printError(e.message)
-  }
-}
-
-async function getContractByDescr (descrPath, options) {
-  const { json } = options
-  try {
-    const descriptor = await readJSONFile(path.resolve(process.cwd(), descrPath))
-    const client = await initChain(options)
-
-    await handleApiError(
-      async () => {
-        printContractDescr(descriptor, json)
-        printTransaction(await client.tx(descriptor.transaction), json)
       }
     )
   } catch (e) {

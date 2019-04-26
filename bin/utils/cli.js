@@ -19,12 +19,12 @@
 import * as R from 'ramda'
 
 import Ae from '@aeternity/aepp-sdk/es/ae/universal'
-import Account from '@aeternity/aepp-sdk/es/account/memory'
 import Tx from '@aeternity/aepp-sdk/es/tx/tx'
-import Chain from '@aeternity/aepp-sdk/es/chain/epoch'
-import EpochContract from '@aeternity/aepp-sdk/es/contract/epoch'
-import EpochOracle  from '@aeternity/aepp-sdk/es/oracle/epoch'
+import TxBuilder from '@aeternity/aepp-sdk/es/tx/builder'
+import Chain from '@aeternity/aepp-sdk/es/chain/node'
+import Account from '@aeternity/aepp-sdk/es/account/memory'
 import { getWalletByPathAndDecrypt } from './account'
+import ContractCompilerAPI from '@aeternity/aepp-sdk/es/contract/compiler'
 
 // ## Merge options with parent options.
 export function getCmdFromArguments (args) {
@@ -35,27 +35,38 @@ export function getCmdFromArguments (args) {
 }
 
 // Create `Ae` client
-export async function initClient ({ url, keypair, internalUrl, force: forceCompatibility, native: nativeMode = true, networkId }) {
-  return await Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode, networkId })
+export async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId }) {
+  return Ae({ url, process, keypair, internalUrl, compilerUrl, forceCompatibility, nativeMode, networkId })
 }
 // Create `TxBuilder` client
-export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true }) {
-  return await Tx({ url, internalUrl, forceCompatibility, nativeMode })
+export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true, showWarning = true }) {
+  return Tx({ url, internalUrl, forceCompatibility, nativeMode, showWarning })
+}
+// Create `OfflineTxBuilder` client
+export function initOfflineTxBuilder () {
+  return TxBuilder
 }
 // Create `Chain` client
 export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
-  return await Chain.compose(EpochContract, EpochOracle)({ url, internalUrl, forceCompatibility })
+  return Chain({ url, internalUrl, forceCompatibility })
+}
+
+// Create `Chain` client
+export async function initCompiler ({ url, internalUrl, compilerUrl }) {
+  return ContractCompilerAPI({ compilerUrl })
 }
 
 // ## Get account files and decrypt it using password
-// After that create`Ae` client using this `keyPair`
+// After that create `Ae` client using this `keyPair`
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
-  const { password, privateKey, accountOnly, networkId } = options
+  const { password, privateKey, accountOnly = false, networkId } = options
   const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
 
-  const client = accountOnly ? await Account({ keypair, networkId }) : await initClient(R.merge(options, { keypair }))
+  const client = accountOnly
+    ? await Account(R.merge(options, { keypair, networkId }))
+    : await initClient(R.merge(options, { keypair }))
   if (returnKeyPair)
     return { client, keypair }
   return client

@@ -48,7 +48,13 @@ function getTabs (tabs) {
 
 // Print helper
 export function print (msg, obj) {
-  if (obj) { console.log(msg, obj) } else { console.log(msg) }
+  if (typeof msg === 'object') console.log(JSON.stringify(msg))
+  if (obj) {
+    console.log(msg)
+    console.log(JSON.stringify(obj))
+  } else {
+    console.log(msg)
+  }
 }
 
 // Print error helper
@@ -108,6 +114,31 @@ export function printBlockTransactions (ts, json, tabs = 0) {
 }
 
 // ## TX
+
+export function printValidation ({ validation, tx, txType }) {
+  print('---------------------------------------- TX DATA ↓↓↓ \n')
+  Object.entries({ ...{ type: txType }, ...tx }).forEach(([key, value]) => printUnderscored(key, value))
+  validation
+    .reduce(
+      (acc, { msg, txKey, type }) => {
+        type === 'error' ? acc[0].push({ msg, txKey }) : acc[1].push({ msg, txKey })
+        return acc
+      },
+      [[], []]
+    )
+    .forEach((el, i) => {
+      if (el.length) {
+        i === 0
+          ? print('\n---------------------------------------- ERRORS ↓↓↓ \n')
+          : print('\n---------------------------------------- WARNINGS ↓↓↓ \n')
+        el
+          .forEach(({ msg, txKey }) => {
+            printUnderscored(txKey, msg)
+          })
+      }
+    })
+}
+
 //
 // Print base `tx` info
 function printTxBase (tx = {}, tabs = '') {
@@ -139,17 +170,17 @@ function printContractCreateTransaction (tx = {}, tabs = '') {
 function printContractCallTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'Caller Account', R.defaultTo('N/A', R.path(['tx', 'callerId'], tx)))
   printUnderscored(tabs + 'Contract Hash', R.defaultTo('N/A', R.path(['tx', 'contractId'], tx)))
-  printUnderscored(tabs + 'Amount', R.defaultTo('N/A', R.path(['tx', 'amount'], tx)))
-  printUnderscored(tabs + 'Deposit', R.defaultTo('N/A', R.path(['tx', 'deposit'], tx)))
-  printUnderscored(tabs + 'Gas', R.defaultTo('N/A', R.path(['tx', 'gas'], tx)))
-  printUnderscored(tabs + 'Gas Price', R.defaultTo('N/A', R.path(['tx', 'gasPrice'], tx)))
+  printUnderscored(tabs + 'Amount', R.defaultTo(0, R.path(['tx', 'amount'], tx)))
+  printUnderscored(tabs + 'Deposit', R.defaultTo(0, R.path(['tx', 'deposit'], tx)))
+  printUnderscored(tabs + 'Gas', R.defaultTo(0, R.path(['tx', 'gas'], tx)))
+  printUnderscored(tabs + 'Gas Price', R.defaultTo(0, R.path(['tx', 'gasPrice'], tx)))
   printUnderscored(tabs + 'Payload', R.defaultTo('N/A', R.path(['tx', 'payload'], tx)))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
   printUnderscored(tabs + 'Nonce', R.defaultTo('N/A', R.path(['tx', 'nonce'], tx)))
-  printUnderscored(tabs + 'TTL', R.defaultTo('N/A', R.path(['tx', 'ttl'], tx)))
-  printUnderscored(tabs + 'Version', R.defaultTo('N/A', R.path(['tx', 'version'], tx)))
-  printUnderscored(tabs + 'VM Version', R.defaultTo('N/A', R.path(['tx', 'vmVersion'], tx)))
+  printUnderscored(tabs + 'TTL', R.defaultTo(0, R.path(['tx', 'ttl'], tx)))
+  printUnderscored(tabs + 'Version', R.defaultTo(0, R.path(['tx', 'version'], tx)))
+  printUnderscored(tabs + 'VM Version', R.defaultTo(0, R.path(['tx', 'vmVersion'], tx)))
 }
 
 // Print `spend_tx` info
@@ -277,17 +308,24 @@ function printOracleResponseTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'TTL', R.defaultTo('N/A', R.path(['tx', 'ttl'], tx)))
 }
 
+function replaceAt (str, index, replacement) {
+  return str.substr(0, index) + replacement + str.substr(index + replacement.length)
+}
+
+function printTxInfo (tx, tabs) {
+  let type = R.path(['tx', 'type'], tx)
+  TX_TYPE_PRINT_MAP[replaceAt(type, 0, type[0].toUpperCase())](tx, tabs)
+}
 // Function which print `tx`
 // Get type of `tx` to now which `print` method to use
-export function printTransaction (tx, json, tabs = 0) {
+export function printTransaction (tx, json, tabs = 0, skipBase = false) {
   if (json) {
     print(tx)
     return
   }
   const tabsString = getTabs(tabs)
-  printTxBase(tx, tabsString)
-  TX_TYPE_PRINT_MAP[R.path(['tx', 'type'], tx)](tx, tabsString)
-
+  if (!skipBase) printTxBase(tx, tabsString)
+  printTxInfo(tx, tabsString)
 }
 
 // ##OTHER
@@ -369,4 +407,16 @@ export function logContractDescriptor (desc, title = '', json) {
 export function printConfig ({ host }) {
   print('WALLET_PUB' + process.env['WALLET_PUB'])
   print('EPOCH_URL' + host)
+}
+
+// Print `Buider Transaction`
+export function printBuilderTransaction ({ tx, txObject }, type) {
+  printUnderscored('Transaction type', type)
+  print('Summary')
+  Object
+    .entries(txObject)
+    .forEach(([key, value]) => printUnderscored(`    ${key.toUpperCase()}`, value))
+  print('Output')
+  printUnderscored('    Encoded', tx)
+  print('This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.')
 }

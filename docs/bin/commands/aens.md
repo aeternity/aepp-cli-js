@@ -42,8 +42,8 @@ This script initialize all `AENS` function
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { initClientByWalletFile } from '../utils/cli'
-import { printError, print, printUnderscored } from '../utils/print'
+import { initChain, initClientByWalletFile } from '../utils/cli'
+import { printError, print, printUnderscored, printName } from '../utils/print'
 import { handleApiError } from '../utils/errors'
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
 
@@ -170,7 +170,7 @@ Wait for next block and create `claimName` transaction
   
 
 ```js
-      await client.aensClaim(domain, salt, (height + 1), { nameTtl, ttl })
+      await client.aensClaim(domain, salt, (height + 1), { nameTtl, ttl }).catch(async e => console.log(await e.verifyTx()))
       print('Claimed')
 
 
@@ -509,11 +509,60 @@ Create `revokeName` transaction
   }
 }
 
+async function lookUp (domain, options) {
+  const { json } = options
+  try {
+    validateName(domain)
+
+```
+
+
+
+
+
+
+
+Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+
+
+  
+
+```js
+    const client = await initChain(options)
+
+    await handleApiError(async () => {
+
+```
+
+
+
+
+
+
+
+Check if `name` is unavailable and we can revoke it
+
+
+  
+
+```js
+      printName(
+        await updateNameStatus(domain)(client),
+        json
+      )
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
 export const AENS = {
   revokeName,
   updateName,
   claim,
-  transferName
+  transferName,
+  lookUp
 }
 
 

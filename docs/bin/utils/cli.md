@@ -28,9 +28,12 @@ That script contains helper function's for work with `cli`
 import * as R from 'ramda'
 
 import Ae from '@aeternity/aepp-sdk/es/ae/universal'
-import Account from '@aeternity/aepp-sdk/es/account/memory'
 import Tx from '@aeternity/aepp-sdk/es/tx/tx'
+import TxBuilder from '@aeternity/aepp-sdk/es/tx/builder'
+import Chain from '@aeternity/aepp-sdk/es/chain/node'
+import Account from '@aeternity/aepp-sdk/es/account/memory'
 import { getWalletByPathAndDecrypt } from './account'
+import ContractCompilerAPI from '@aeternity/aepp-sdk/es/contract/compiler'
 
 
 ```
@@ -69,12 +72,81 @@ Create `Ae` client
   
 
 ```js
-export async function initClient ({ url, keypair, internalUrl, force: forceCompatibility, native: nativeMode = false, networkId }) {
-  return await Ae({ url, process, keypair, internalUrl, forceCompatibility, nativeMode, networkId })
+export async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId }) {
+  return Ae({ url, process, keypair, internalUrl, compilerUrl, forceCompatibility, nativeMode, networkId })
 }
 
-export async function initTxBuilder({ url, internalUrl, force: forceCompatibility, native: nativeMode = true }) {
-  return await Tx({ url, internalUrl, forceCompatibility, nativeMode })
+```
+
+
+
+
+
+
+
+Create `TxBuilder` client
+
+
+  
+
+```js
+export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true, showWarning = true }) {
+  return Tx({ url, internalUrl, forceCompatibility, nativeMode, showWarning })
+}
+
+```
+
+
+
+
+
+
+
+Create `OfflineTxBuilder` client
+
+
+  
+
+```js
+export function initOfflineTxBuilder () {
+  return TxBuilder
+}
+
+```
+
+
+
+
+
+
+
+Create `Chain` client
+
+
+  
+
+```js
+export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
+  return Chain({ url, internalUrl, forceCompatibility })
+}
+
+
+```
+
+
+
+
+
+
+
+Create `Chain` client
+
+
+  
+
+```js
+export async function initCompiler ({ url, internalUrl, compilerUrl }) {
+  return ContractCompilerAPI({ compilerUrl })
 }
 
 
@@ -87,7 +159,7 @@ export async function initTxBuilder({ url, internalUrl, force: forceCompatibilit
 
 
 ## Get account files and decrypt it using password
-After that create`Ae` client using this `keyPair`
+After that create `Ae` client using this `keyPair`
 
 We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 
@@ -96,10 +168,12 @@ We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from fi
 
 ```js
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
-  const { password, privateKey, accountOnly, networkId } = options
+  const { password, privateKey, accountOnly = false, networkId } = options
   const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
 
-  const client = accountOnly ? await Account({ keypair, networkId }) : await initClient(R.merge(options, { keypair }))
+  const client = accountOnly
+    ? await Account(R.merge(options, { keypair, networkId }))
+    : await initClient(R.merge(options, { keypair }))
   if (returnKeyPair)
     return { client, keypair }
   return client

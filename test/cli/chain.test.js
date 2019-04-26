@@ -16,7 +16,6 @@
  */
 
 import { before, describe, it } from 'mocha'
-import * as R from 'ramda'
 import { configure, BaseAe, execute, parseBlock, ready } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 
@@ -39,8 +38,9 @@ describe('CLI Chain Module', function () {
     wallet.setKeypair(generateKeyPair())
 
     const { nodeVersion } = await wallet.api.getStatus()
-    const res = await execute(['chain', 'status'])
-    R.last(res.split(/_/)).trim().should.equal(nodeVersion)
+    const res = parseBlock(await execute(['chain', 'status']))
+
+    res['node_version'].should.equal(nodeVersion)
   })
   it('PLAY', async () => {
     const res = await execute(['chain', 'play', '--limit', '4'])
@@ -51,8 +51,19 @@ describe('CLI Chain Module', function () {
     parsed[1].previous_block_hash.should.equal(parsed[2].block_hash)
     parsed[2].previous_block_hash.should.equal(parsed[3].block_hash)
   })
-  it('MEMPOOL', async () => {
-    const res = await execute(['chain', 'mempool'])
-    res.indexOf('Mempool______________').should.not.equal(-1)
+  it('TTL', async () => {
+    const [res] = await Promise.all([
+      execute(['chain', 'ttl', 10])
+    ])
+    const height = await wallet.height()
+    const parsed = parseBlock(res)
+    const relative_ttl = parseInt(parsed.relative_ttl)
+    const isValid = [relative_ttl +1, relative_ttl, relative_ttl-1].includes(height + 10)
+    isValid.should.equal(true)
+  })
+  it('NETWORK ID', async () => {
+    const nodeNetworkId = wallet.nodeNetworkId
+    const { network_id } = parseBlock(await execute(['chain', 'network_id']))
+    nodeNetworkId.should.equal(network_id)
   })
 })

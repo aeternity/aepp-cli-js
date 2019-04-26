@@ -15,37 +15,22 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
+
 const program = require('commander')
 const fs = require('fs')
-const prompt = require('prompt')
 const path = require('path')
 
 
 require = require('esm')(module/*, options */) // use to handle es6 import/export
+const { prompt, PROMPT_TYPE }  = require('./utils/prompt')
 const { Crypto } = require('@aeternity/aepp-sdk')
 const utils = require('./utils/index')
 
-// The `prompt` library provides concealed input of passwords.
-const promptSchema = {
-  properties: {
-    password: {
-      type: 'string',
-      description: 'Enter your password',
-      hidden: true,
-      required: true,
-      replace: '*',
-      conform: function () {
-        return true
-      }
-    }
-  }
-}
 
-// ## Key Extraction (from Epoch nodes)
-function extractReadableKeys (dir, options) {
+// ## Key Extraction (from node nodes)
+async function extractReadableKeys (dir, options) {
   const pwd = options.input
-  prompt.start()
-  prompt.get(promptSchema, (err, { password }) => {
+    const password = await prompt(PROMPT_TYPE.askPassword)
     try {
       const key = fs.readFileSync(path.join(pwd, dir, 'sign_key'))
       const pubKey = fs.readFileSync(path.join(pwd, dir, 'sign_key.pub'))
@@ -62,7 +47,6 @@ function extractReadableKeys (dir, options) {
       console.log(e.message)
       process.exit(1)
     }
-  })
 }
 
 // ## Key Pair Generation
@@ -135,14 +119,14 @@ program
   .command('decrypt <directory>')
   .description('Decrypts public and private key to readable formats for testing purposes')
   .option('-i, --input [directory]', 'Directory where to look for keys', '.')
-  .action(extractReadableKeys)
+  .action(async (dir, ...arguments) => await extractReadableKeys(dir, utils.cli.getCmdFromArguments(arguments)))
 
 program
   .command('genkey <keyname>')
   .description('Generate keypair')
   .option('-o, --output [directory]', 'Output directory for the keys', '.')
   .option('-p, --password [directory]', 'Password for keypair', '.')
-  .action(async (keyname, ...arguments) => await generateKeyPair(keyname, arguments))
+  .action(async (keyname, ...arguments) => await generateKeyPair(keyname, utils.cli.getCmdFromArguments(arguments)))
 
 program
   .command('sign <tx> [privkey]')

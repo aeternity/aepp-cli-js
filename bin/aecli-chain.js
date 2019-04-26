@@ -31,15 +31,13 @@ const { Chain } = require('./commands')
 program
   .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-L --limit [playlimit]', 'Limit for play command', utils.constant.PLAY_LIMIT)
-  .option('-P --height [playToHeight]', 'Play to selected height')
-  .option('-f --force', 'Ignore epoch version compatibility check')
+  .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
 // ## Initialize `top` command
 //
-// You can use this command to retrieve `top block` from `epoch`
+// You can use this command to retrieve `top block` from `node`
 //
 // Example: `aecli chain top`
 program
@@ -49,23 +47,33 @@ program
 
 // ## Initialize `status` command
 //
-// You can use this command to retrieve `epoch version`
+// You can use this command to retrieve `node version`
 //
 // Example: `aecli chain status`
 program
   .command('status')
-  .description('Get Epoch version')
+  .description('Get node version')
   .action(async (...arguments) => await Chain.version(utils.cli.getCmdFromArguments(arguments)))
 
-// ## Initialize `mempool` command
+// ## Initialize `ttl` command
 //
-// You can use this command to retrieve list of `mempool` transaction from `epoch`
+// You can use this command to retrieve relative `ttl`
 //
-// Example: `aecli chain mempool`
+// Example: `aecli chain ttl <absolute_ttl>`
 program
-  .command('mempool')
-  .description('Get mempool of Chain')
-  .action(async (...arguments) => await Chain.mempool(utils.cli.getCmdFromArguments(arguments)))
+  .command('ttl <absoluteTtl>')
+  .description('Get relative ttl')
+  .action(async (absoluteTtl, ...arguments) => await Chain.ttl(absoluteTtl, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `ttl` command
+//
+// You can use this command to retrieve relative `ttl`
+//
+// Example: `aecli chain ttl <absolute_ttl>`
+program
+  .command('network_id')
+  .description('Get network ID')
+  .action(async (...arguments) => await Chain.getNetworkId(utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `play` command
 //
@@ -76,8 +84,22 @@ program
 // Example: `aecli chain play --height` --> print blocks until reach some height starting from top
 program
   .command('play')
+  .option('-P --height [playToHeight]', 'Play to selected height')
   .description('Real-time block monitoring')
   .action(async (...arguments) => await Chain.play(utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `broadcast` command
+//
+// You can use this command to send `transaction` to the `chain`
+//
+// Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
+program
+  .command('broadcast <tx>')
+  .option('--waitMined', 'Transaction payload.')
+  .option('--verify', 'Verify Transaction before broadcast.')
+  .description('Send transaction to the chain')
+  .action(async (tx, ...arguments) => await Chain.broadcast(tx, utils.cli.getCmdFromArguments(arguments)))
+
 
 // Handle unknown command's
 program.on('command:*', () => utils.errors.unknownCommandHandler(program)())

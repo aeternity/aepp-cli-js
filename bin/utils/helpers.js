@@ -20,9 +20,38 @@
 import * as R from 'ramda'
 import fs from 'fs'
 
-import { HASH_TYPES } from './constant'
+import { GAS_PRICE, HASH_TYPES } from './constant'
 import { printError } from './print'
-import path from "path"
+import path from 'path'
+
+// ## Method which build arguments for call call/deploy contracts
+export async function prepareCallParams (name, { descrPath, contractAddress, contractSource, gas, ttl, nonce }) {
+  ttl = parseInt(ttl)
+  nonce = parseInt(nonce)
+  gas = parseInt(gas)
+
+  if (!descrPath && (!contractAddress || !contractSource)) throw new Error('--descrPath or --contractAddress and --contractSource requires')
+
+  if (contractAddress && contractSource) {
+    const contractFile = readFile(path.resolve(process.cwd(), contractSource), 'utf-8')
+    return {
+      source: contractFile,
+      address: contractAddress,
+      name,
+      options: { ttl, gas, nonce, gasPrice: GAS_PRICE }
+    }
+  }
+
+  const descr = await grabDesc(descrPath)
+  if (!descr) throw new Error('Descriptor file not found')
+
+  return {
+    source: descr.source,
+    name: name,
+    address: descr.address,
+    options: { ttl, nonce, gas, gasPrice: GAS_PRICE }
+  }
+}
 
 // ## Method which retrieve block info by hash
 // if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`
@@ -31,7 +60,7 @@ import path from "path"
 export function getBlock (hash) {
   return async (client) => {
     if (hash.indexOf(HASH_TYPES.block + '_') !== -1) {
-      return await client.api.getKeyBlockByHash(hash)
+      return client.api.getKeyBlockByHash(hash)
     }
     if (hash.indexOf(HASH_TYPES.micro_block + '_') !== -1) {
       return R.merge(
@@ -44,8 +73,9 @@ export function getBlock (hash) {
 
 // ## Method which validate `hash`
 export function checkPref (hash, hashType) {
-  if (hash.length < 3 || hash.indexOf('_') === -1)
+  if (hash.length < 3 || hash.indexOf('_') === -1) {
     throw new Error(`Invalid input, likely you forgot to escape the $ sign (use \\_)`)
+  }
 
   /* block and micro block check */
   if (Array.isArray(hashType)) {
@@ -107,11 +137,15 @@ export function readFile (path, encoding = null, errTitle = 'READ FILE ERR') {
     switch (e.code) {
       case 'ENOENT':
         throw new Error('File not found')
-        break
       default:
         throw e
     }
   }
+}
+
+// Is file exist
+export function isFileExist (path) {
+  return fs.existsSync(path)
 }
 
 // ## AENS helpers methods
@@ -120,7 +154,7 @@ export function readFile (path, encoding = null, errTitle = 'READ FILE ERR') {
 export function updateNameStatus (name) {
   return async (client) => {
     try {
-      return await client.api.getNameEntryByName(name)
+      return { ...(await client.api.getNameEntryByName(name)), status: 'CLAIMED' }
     } catch (e) {
       if (e.response && e.response.status === 404) {
         return { name, status: 'AVAILABLE' }
@@ -139,5 +173,4 @@ export function validateName (name) {
 }
 
 // Grab contract descriptor by path
-export const grabDesc = async descrPath => descrPath && await readJSONFile(path.resolve(process.cwd(), descrPath))
-
+export const grabDesc = async descrPath => descrPath && readJSONFile(path.resolve(process.cwd(), descrPath))

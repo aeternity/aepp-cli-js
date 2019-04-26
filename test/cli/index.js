@@ -25,12 +25,15 @@ const { generateKeyPair } = require('@aeternity/aepp-sdk/es/utils/crypto')
 const cliCommand = './bin/aecli.js'
 
 const url = process.env.TEST_URL || 'http://localhost:3013'
+const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
 const internalUrl = process.env.TEST_INTERNAL_URL || 'http://localhost:3113'
-const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
+export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
+
 const TIMEOUT = 18000000
 
 export const KEY_PAIR = generateKeyPair()
 export const WALLET_NAME = 'mywallet'
+
 
 export const BaseAe = Ae.compose({
   deepProps: { Swagger: { defaults: { debug: !!process.env['DEBUG'] } } },
@@ -51,36 +54,36 @@ export function plan (amount) {
 export async function ready (mocha) {
   configure(mocha)
 
-  const ae = await BaseAe({ networkId })
+  const ae = await BaseAe({ networkId, compilerUrl })
   await ae.awaitHeight(3)
 
   if (!charged && planned > 0) {
-    console.log(`Charging new wallet ${KEY_PAIR.publicKey} with ${planned}`)
-    await ae.spend(planned, KEY_PAIR.publicKey)
+    console.log(`Charging new wallet ${KEY_PAIR.publicKey} with ${'100000000000000000000000'}`)
+    await ae.spend('100000000000000000000000', KEY_PAIR.publicKey).catch(async e => console.log(await e.verifyTx()))
     charged = true
   }
 
-  const client = await BaseAe({ networkId })
+  const client = await BaseAe({ networkId, compilerUrl })
   client.setKeypair(KEY_PAIR)
-  await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey])
+  await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
   return client
 }
 
-export async function execute (args) {
+export async function execute (args, { withOutReject = false, withNetworkId = false } = {}) {
   return new Promise((resolve, reject) => {
     let result = ''
-    const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, '--networkId', networkId])
+    const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, ...withNetworkId ? ['--networkId', networkId] : [], ...(args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [])])
     child.stdin.setEncoding('utf-8')
     child.stdout.on('data', (data) => {
       result += (data.toString())
     })
 
     child.stderr.on('data', (data) => {
-      reject(data)
+      if (!withOutReject) reject(data.toString())
     })
 
     child.on('close', (code) => {
-      resolve(result)
+      resolve(result.toString())
     })
   })
 }
@@ -94,7 +97,7 @@ export function parseBlock (res) {
       return Object.assign(
         acc,
         {
-          [R.head(v).replace(' ', '_').replace(' ', '_').toLowerCase()]: R.last(R.last(v).split(/_ /)).trim()
+          [R.head(v).replace(' ', '_').replace(' ', '_').replace(' ', '_').toLowerCase()]: R.last(R.last(v).split(/_ /)).trim()
         }
       )
     }, {})

@@ -22,10 +22,11 @@
 import * as R from 'ramda'
 import path from 'path'
 
-import { grabDesc, readFile, writeFile } from '../utils/helpers'
-import { initChain, initClientByWalletFile} from '../utils/cli'
+import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
+import { initClientByWalletFile, initCompiler } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
+import { GAS_PRICE } from '../utils/constant'
 
 // ## Function which compile your `source` code
 export async function compile (file, options) {
@@ -33,13 +34,90 @@ export async function compile (file, options) {
     const code = readFile(path.resolve(process.cwd(), file), 'utf-8')
     if (!code) throw new Error('Contract file not found')
 
-    const client = await initChain(options)
+    const client = await initCompiler(options)
 
     await handleApiError(async () => {
-      // Call `Epoch` API which return `compiled code`
-      const contract = await client.compileEpochContract(code)
+      // Call `node` API which return `compiled code`
+      const contract = await client.compileContractAPI(code)
       print(`Contract bytecode:
-      ${contract.bytecode}`)
+      ${contract}`)
+    })
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
+// ## Function which compile your `source` code
+export async function encodeData (source, fn, args = [], options) {
+  try {
+    const sourceCode = readFile(path.resolve(process.cwd(), source), 'utf-8')
+    if (!sourceCode) throw new Error('Contract file not found')
+
+    const client = await initCompiler(options)
+
+    await handleApiError(async () => {
+      // Call `node` API which return `compiled code`
+      const callData = await client.contractEncodeCallDataAPI(sourceCode, fn, args, options)
+      if (options.json) {
+        print(JSON.stringify({ callData }))
+      } else {
+        print(`Contract encoded call data: ${callData}`)
+      }
+    })
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
+// ## Function which compile your `source` code
+export async function decodeData (data, type, options) {
+  try {
+    const client = await initCompiler(options)
+
+    await handleApiError(async () => {
+      // Call `node` API which return `compiled code`
+      const decodedData = await client.contractDecodeDataAPI(type, data)
+      if (options.json) {
+        print(JSON.stringify({ decodedData }))
+      } else {
+        print(`Contract bytecode:`)
+        print(decodedData)
+      }
+    })
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
+// ## Function which compile your `source` code
+export async function decodeCallData (data, options) {
+  const { sourcePath, code, fn } = options
+  let sourceCode
+
+  if (!sourcePath && !code) throw new Error('Contract source(--sourcePath) or contract code(--code) required!')
+  if (sourcePath) {
+    if (!fn) throw new Error('Function name required in decoding by source!')
+    sourceCode = readFile(path.resolve(process.cwd(), sourcePath), 'utf-8')
+    if (!sourceCode) throw new Error('Contract file not found')
+  } else {
+    if (code.slice(0, 2) !== 'cb') throw new Error('Code must be like "cb_23dasdafgasffg...." ')
+  }
+
+  try {
+    const client = await initCompiler(options)
+
+    await handleApiError(async () => {
+      // Call `node` API which return `compiled code`
+      const decoded = code
+        ? await client.contractDecodeCallDataByCodeAPI(code, data)
+        : await client.contractDecodeCallDataBySourceAPI(sourceCode, fn, data)
+
+      if (options.json) {
+        print(JSON.stringify({ decoded }))
+      } else {
+        print(`Decoded Call Data:`)
+        print(decoded)
+      }
     })
   } catch (e) {
     printError(e.message)
@@ -47,8 +125,8 @@ export async function compile (file, options) {
 }
 
 // ## Function which `deploy ` contract
-async function deploy (walletPath, contractPath, options) {
-  const { init, json, gas } = options
+async function deploy (walletPath, contractPath, init = [], options) {
+  const { json, gas } = options
   const ttl = parseInt(options.ttl)
   const nonce = parseInt(options.nonce)
 
@@ -69,23 +147,22 @@ async function deploy (walletPath, contractPath, options) {
         // off to the node for bytecode compilation. This might in the future be done
         // without talking to the node, but requires a bytecode compiler
         // implementation directly in the SDK.
-        const contract = await client.contractCompile(contractFile, { gas })
+        const contract = await client.getContractInstance(contractFile)
         // Invoking `deploy` on the bytecode object will result in the contract
         // being written to the chain, once the block has been mined.
         // Sophia contracts always have an `init` method which needs to be invoked,
         // even when the contract's `state` is `unit` (`()`). The arguments to
         // `init` have to be provided at deployment time and will be written to the
         // block as well, together with the contract's bytecode.
-        const deployDescriptor = await contract.deploy({ initState: init, options: { ttl, gas, nonce } })
-
+        const deployDescriptor = await contract.deploy([...init], { ttl, gas, nonce, gasPrice: GAS_PRICE })
         // Write contractDescriptor to file
-        const descPath = `${R.last(contractPath.split('/'))}.deploy.${deployDescriptor.owner.slice(3)}.json`
+        const descPath = `${R.last(contractPath.split('/'))}.deploy.${deployDescriptor.deployInfo.owner.slice(3)}.json`
         const contractDescriptor = R.merge({
           descPath,
           source: contractFile,
-          bytecode: contract.bytecode,
+          bytecode: contract.compiled,
           abi: 'sophia'
-        }, deployDescriptor)
+        }, deployDescriptor.deployInfo)
 
         writeFile(
           descPath,
@@ -102,38 +179,9 @@ async function deploy (walletPath, contractPath, options) {
   }
 }
 
-const prepareCallParams = async (name, { descrPath,  contractAddress, gas, ttl, nonce }) => {
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  gas = parseInt(gas)
-
-  if (!descrPath && !contractAddress) throw new Error('contract-descriptor or contract-address requires')
-
-  if (contractAddress) {
-    return {
-      code: contractAddress,
-      address: contractAddress,
-      abi: 'sophia-address',
-      name,
-      options: { options: { ttl, gas, nonce }}
-    }
-  }
-
-  const descr = await grabDesc(descrPath)
-  if (!descr) throw new Error('Descriptor file not found')
-
-  return {
-    code: descr.bytecode,
-    abi: descr.abi,
-    name: name,
-    address: descr.address,
-    options: { options: { ttl, nonce, gas } }
-  }
-}
-
 // ## Function which `call` contract
 async function call (walletPath, fn, returnType, args, options) {
-  const { callStatic, json } = options
+  const { callStatic, json, top } = options
   if (!fn || !returnType) {
     program.outputHelp()
     process.exit(1)
@@ -143,16 +191,11 @@ async function call (walletPath, fn, returnType, args, options) {
     const client = await initClientByWalletFile(walletPath, options)
     const params = await prepareCallParams(fn, options)
 
-    // Prepare args
-    args = args.filter(arg => arg !== '[object Object]')
-    args = args.length ? `(${args.join(',')})` : '()'
-
     await handleApiError(
       async () => {
         // Call static or call
-        const callResult = callStatic ?
-          await client.contractCallStatic(params.address, 'sophia-address', params.name, { ...params.options, args }) :
-          await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, args })
+        const contract = await client.getContractInstance(params.source, { contractAddress: params.address })
+        const callResult = await contract.call(fn, args, { ...params.options, callStatic, top })
         // The execution result, if successful, will be an AEVM-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
         // not be a hexadecimal string, anymore.
@@ -163,49 +206,9 @@ async function call (walletPath, fn, returnType, args, options) {
         printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
         printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
         // Decode result
-        const { type, value } = await callResult.decode(returnType)
-        printUnderscored('Return value (decoded)', value)
-        printUnderscored('Return remote type', type)
-      }
-    )
-  } catch (e) {
-    printError(e.message)
-    process.exit(1)
-  }
-}
-
-// ## Function which `call` contract
-async function callTypeChecked (walletPath, fn, returnType, callContract, options) {
-  const { callStatic, json } = options
-  if (!fn || !returnType) {
-    program.outputHelp()
-    process.exit(1)
-  }
-  try {
-    // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const client = await initClientByWalletFile(walletPath, options)
-    const params = await prepareCallParams(fn, R.merge(options, { callContract }))
-    const call = readFile(path.resolve(process.cwd(), callContract), 'utf-8')
-
-    await handleApiError(
-      async () => {
-        // Call static or call
-        const callResult = callStatic ?
-          await client.contractCallStatic(params.address, 'sophia-address', params.name, { ...params.options, call }) :
-          await client.contractCall(params.code, params.abi, params.address, params.name, { ...params.options, call })
-        // The execution result, if successful, will be an AEVM-encoded result
-        // value. Once type decoding will be implemented in the SDK, this value will
-        // not be a hexadecimal string, anymore.
-        if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json)
-        print('----------------------Transaction info-----------------------')
-        printUnderscored('Contract address', params.address)
-        printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
-        printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
-        printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
-        // Decode result
-        const { type, value } = await callResult.decode(returnType)
-        printUnderscored('Return value (decoded)', value)
-        printUnderscored('Return remote type', type)
+        console.log(callResult)
+        const decoded = await callResult.decode()
+        printUnderscored('Return value (decoded)', decoded)
       }
     )
   } catch (e) {
@@ -218,5 +221,7 @@ export const Contract = {
   compile,
   deploy,
   call,
-  callTypeChecked
+  encodeData,
+  decodeData,
+  decodeCallData
 }

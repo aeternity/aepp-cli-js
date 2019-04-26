@@ -31,58 +31,62 @@ const { AENS } = require('./commands')
 program
   .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
-  .option('--native', 'Build transaction natively')
-  .option('-P, --password [password]', 'Wallet Password')
-  .option('-N, --nameTtl [nameTtl]', 'Name life Ttl', utils.constant.NAME_TTL)
-  .option('-T, --ttl [ttl]', 'Life Ttl', utils.constant.TX_TTL)
-  .option('-f --force', 'Ignore epoch version compatibility check')
-  .option('-n, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
-// ## Initialize `claim` command
+// // ## Initialize `claim` command
+// //
+// // You can use this command to `claim` AENS name. Name must end on `.test`.
+// //
+// // Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.test`
+// //
+// // This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
+// //
+// // You can use `--nameTtl` and `--ttl` to pre-set transaction and name `time to leave`
+// program
+//   .command('claim <wallet_path> <name>')
+//   .description('Claim a domain name')
+//   .action(async (walletPath, name, ...arguments) => await AENS.claim(walletPath, name, utils.cli.getCmdFromArguments(arguments)))
 //
-// You can use this command to `claim` AENS name. Name must end on `.test`.
+// // ## Initialize `revoke` command
+// //
+// // You can use this command to `destroy` AENS name.
+// //
+// // Example: `aecli name revoke ./myWalletKeyFile --password testpass testname.test`
+// program
+//   .command('revoke  <wallet_path> <name>')
+//   .description('Revoke a domain name')
+//   .action(async (walletPath, name, ...arguments) => await AENS.revokeName(walletPath, name, utils.cli.getCmdFromArguments(arguments)))
 //
-// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.test`
+// // ## Initialize `transfer` command
+// //
+// // You can use this command to `transfer` AENS name to another account.
+// //
+// // Example: `aecli name transfer ./myWalletKeyFile --password testpass testname.test ak_qqwemjgflewgkj349gjdslksd`
+// program
+//   .command('transfer <wallet_path> <name> <address>')
+//   .description('Transfer a name to another account')
+//   .action(async (walletPath, name, address, ...arguments) => await AENS.transferName(walletPath, name, address, utils.cli.getCmdFromArguments(arguments)))
 //
-// This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
-//
-// You can use `--nameTtl` and `--ttl` to pre-set transaction and name `time to leave`
-program
-  .command('claim <wallet_path> <name>')
-  .description('Claim a domain name')
-  .action(async (walletPath, name, ...arguments) => await AENS.claim(walletPath, name, utils.cli.getCmdFromArguments(arguments)))
+// // ## Initialize `claim` command
+// //
+// // You can use this command to `update` pointer of AENS name.
+// //
+// // Example: `aecli name update ./myWalletKeyFile --password testpass testname.test ak_qwe23dffasfgdesag323`
+// program
+//   .command('update <wallet_path> <name> <address>')
+//   .description('Update a name pointer')
+//   .action(async (walletPath, name, address, ...arguments) => await AENS.updateName(walletPath, name, address, utils.cli.getCmdFromArguments(arguments)))
 
-// ## Initialize `revoke` command
-//
-// You can use this command to `destroy` AENS name.
-//
-// Example: `aecli name revoke ./myWalletKeyFile --password testpass testname.test`
-program
-  .command('revoke  <wallet_path> <name>')
-  .description('Revoke a domain name')
-  .action(async (walletPath, name, ...arguments) => await AENS.revokeName(walletPath, name, utils.cli.getCmdFromArguments(arguments)))
-
-// ## Initialize `transfer` command
-//
-// You can use this command to `transfer` AENS name to another account.
-//
-// Example: `aecli name transfer ./myWalletKeyFile --password testpass testname.test ak_qqwemjgflewgkj349gjdslksd`
-program
-  .command('transfer <wallet_path> <name> <address>')
-  .description('Transfer a name to another account')
-  .action(async (walletPath, name, address, ...arguments) => await AENS.transferName(walletPath, name, address, utils.cli.getCmdFromArguments(arguments)))
-
-// ## Initialize `claim` command
+// ## Initialize `lookup` command
 //
 // You can use this command to `update` pointer of AENS name.
 //
-// Example: `aecli name update ./myWalletKeyFile --password testpass testname.test ak_qwe23dffasfgdesag323`
+// Example: `aecli lookup name.test`
 program
-  .command('update <wallet_path> <name> <address>')
-  .description('Update a name pointer')
-  .action(async (walletPath, name, address, ...arguments) => await AENS.updateName(walletPath, name, address, utils.cli.getCmdFromArguments(arguments)))
+  .command('lookup <name>')
+  .description('Look up name')
+  .action(async (name, ...arguments) => await AENS.lookUp(name, utils.cli.getCmdFromArguments(arguments)))
 
 // Handle unknown command's
 program.on('command:*', () => utils.errors.unknownCommandHandler(program)())

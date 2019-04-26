@@ -1,3 +1,7 @@
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![npm](https://img.shields.io/npm/v/@aeternity/aepp-sdk.svg)](https://www.npmjs.com/package/@aeternity/aepp-cli)
+[![npm](https://img.shields.io/npm/l/@aeternity/aepp-sdk.svg)](https://www.npmjs.com/package/@aeternity/aepp-cli)
+
 # ️⚠️ [WIP] ae-js-cli
 Command Line Interface for the æternity blockchain.
 
@@ -19,8 +23,16 @@ You can install this `CLI` using your preferred tool (`pnpm`, `yarn` or `npm`). 
 npm install --global @aeternity/aecli
 ```
 
+---
+### Local symlink to aecli
 Run `npm link` for linking `aecli` name to `aecli/bin/aecli.js`
 
+1. Clone or copy the `aepp-cli-js` git repository into any place you like
+2. Enter the folder and run `npm link`
+3. Enter a new `bash` session and try `aecli` command to see if everything is okay.
+4. If you have any issue, open an `issue` in github
+
+__If you have problems linking, try also `npm install` and then `npm link`__
 
 ## Usage Documentation
 
@@ -28,7 +40,7 @@ You can install, use and work on this `CLI` tool, by following these instruction
 
 1. Clone this repository
 2. With your terminal: enter in folder when the repo has been cloned
-3. Run `bin/aecli.js` to see the (following) available commands:
+3. Run `bin/aecli.js` to see the (following) available commands or run `npm link` and use `aecli` command 
 
 ```
 Usage: aecli [options] [command]
@@ -38,7 +50,6 @@ Options:
   -h, --help     output usage information
 
 Commands:
-  config         Print the client configuration
   chain          Interact with the blockchain
   inspect        Get information on transactions, blocks,...
   account        Handle wallet operations
