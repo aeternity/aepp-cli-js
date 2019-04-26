@@ -27,8 +27,7 @@ pipeline {
                                           passwordVariable: 'WALLET_PRIV')]) {
           sh 'docker-compose -H localhost:2376 pull node'
           sh 'docker-compose -H localhost:2376 build'
-          sh 'docker-compose -H localhost:2376 run sdk'
-          sh 'npm run test-jenkins'
+          sh 'docker-compose -H localhost:2376 run sdk npm run test-jenkins'
         }
       }
     }
@@ -39,7 +38,7 @@ pipeline {
       junit 'test-results.xml'
       archive 'dist/*'
       sh 'docker-compose -H localhost:2376 down -v --rmi local ||:'
-      sh 'git reset -fdx'
+      sh 'git clean -fdx'
     }
   }
 }
