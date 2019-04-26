@@ -22,7 +22,7 @@
 import * as R from 'ramda'
 import path from 'path'
 
-import { grabDesc, readFile, writeFile } from '../utils/helpers'
+import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
 import { initClientByWalletFile, initCompiler } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
@@ -176,34 +176,6 @@ async function deploy (walletPath, contractPath, init = [], options) {
   } catch (e) {
     printError(e.message)
     process.exit(1)
-  }
-}
-
-const prepareCallParams = async (name, { descrPath, contractAddress, contractSource, gas, ttl, nonce }) => {
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  gas = parseInt(gas)
-
-  if (!descrPath && (!contractAddress || !contractSource)) throw new Error('--descrPath or --contractAddress and --contractSource requires')
-
-  if (contractAddress && contractSource) {
-    const contractFile = readFile(path.resolve(process.cwd(), contractSource), 'utf-8')
-    return {
-      source: contractFile,
-      address: contractAddress,
-      name,
-      options: { ttl, gas, nonce, gasPrice: GAS_PRICE }
-    }
-  }
-
-  const descr = await grabDesc(descrPath)
-  if (!descr) throw new Error('Descriptor file not found')
-
-  return {
-    source: descr.source,
-    name: name,
-    address: descr.address,
-    options: { ttl, nonce, gas, gasPrice: GAS_PRICE }
   }
 }
 

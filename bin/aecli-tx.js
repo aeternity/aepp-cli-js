@@ -31,7 +31,6 @@ const { Transaction } = require('./commands')
 program
   .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   // .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
   .option('--ttl [fee]', 'Override the ttl that the transaction is going to be sent with', utils.constant.TX_TTL)
@@ -201,6 +200,7 @@ program
 // Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
 program
   .command('verify <tx>')
+  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .description('Verify transaction')
   .action(async (tx, ...arguments) => await Transaction.verify(tx, utils.cli.getCmdFromArguments(arguments)))
 

@@ -10,22 +10,30 @@ pipeline {
     }
   }
 
+  environment {
+          HOME = '.'
+  }
+
   stages {
     stage('Build') {
       steps {
-        sh 'ln -sf /node_modules ./'
-        sh 'pnpm run build'
+        sh 'npm install'
       }
     }
-
-    stage('Test') {
+    stage('Run') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'genesis-wallet',
                                           usernameVariable: 'WALLET_PUB',
                                           passwordVariable: 'WALLET_PRIV')]) {
+          sh 'docker-compose -H localhost:2376 pull node'
           sh 'docker-compose -H localhost:2376 build'
-          sh 'docker-compose -H localhost:2376 run sdk pnpm run test-jenkins'
+          sh 'docker-compose -H localhost:2376 run sdk npm run test-jenkins'
         }
+      }
+    }
+    stage('Clean') {
+      steps {
+        sh 'rm -rf node_modules/'
       }
     }
   }
@@ -34,7 +42,8 @@ pipeline {
     always {
       junit 'test-results.xml'
       archive 'dist/*'
-      sh 'docker-compose -H localhost:2376 down -v ||:'
+      sh 'docker-compose -H localhost:2376 down -v --rmi local ||:'
+      sh 'git clean -fdx'
     }
   }
 }

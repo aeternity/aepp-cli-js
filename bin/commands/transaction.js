@@ -21,23 +21,13 @@
 
 import { encodeBase58Check, salt, assertedType } from '@aeternity/aepp-sdk/es/utils/crypto'
 import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
-import { initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
-import { handleApiError } from '../utils/errors'
-import { print, printError, printUnderscored, printValidation } from '../utils/print'
-import { validateName } from '../utils/helpers'
-import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION, DEFAULT_CONTRACT_PARAMS } from '../utils/constant'
 import { TX_TYPE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 
-const printBuilderTransaction = ({ tx, txObject }, type) => {
-  printUnderscored('Transaction type', type)
-  print('Summary')
-  Object
-    .entries(txObject)
-    .forEach(([key, value]) => printUnderscored(`    ${key.toUpperCase()}`, value))
-  print('Output')
-  printUnderscored('    Encoded', tx)
-  print('This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.')
-}
+import { initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
+import { handleApiError } from '../utils/errors'
+import { print, printBuilderTransaction, printError, printUnderscored, printValidation } from '../utils/print'
+import { validateName } from '../utils/helpers'
+import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION, DEFAULT_CONTRACT_PARAMS } from '../utils/constant'
 
 // ## Build `spend` transaction
 async function spend (senderId, recipientId, amount, nonce, options) {
@@ -451,7 +441,7 @@ async function oracleRespond (callerId, oracleId, queryId, response, nonce, opti
 
 // ## Verify 'transaction'
 async function verify (txHash, options) {
-  let { json } = options
+  let { json, networkId } = options
   try {
     // Validate input
     if (!assertedType(txHash, 'tx')) throw new Error('Invalid transaction, must be lik \'tx_23didf2+f3sd...\'')
@@ -459,7 +449,7 @@ async function verify (txHash, options) {
     const client = await initChain(options)
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const { validation, tx, signatures = [], txType: type } = await client.unpackAndVerify(txHash)
+      const { validation, tx, signatures = [], txType: type } = await client.unpackAndVerify(txHash, { networkId })
       if (json) {
         print({ validation, tx: tx, signatures, type })
         process.exit(1)

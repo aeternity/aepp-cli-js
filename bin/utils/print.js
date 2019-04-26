@@ -48,7 +48,13 @@ function getTabs (tabs) {
 
 // Print helper
 export function print (msg, obj) {
-  if (obj) { console.log(msg, obj) } else { console.log(msg) }
+  if (typeof msg === 'object') console.log(JSON.stringify(msg))
+  if (obj) {
+    console.log(msg)
+    console.log(JSON.stringify(obj))
+  } else {
+    console.log(msg)
+  }
 }
 
 // Print error helper
@@ -401,4 +407,16 @@ export function logContractDescriptor (desc, title = '', json) {
 export function printConfig ({ host }) {
   print('WALLET_PUB' + process.env['WALLET_PUB'])
   print('EPOCH_URL' + host)
+}
+
+// Print `Buider Transaction`
+export function printBuilderTransaction ({ tx, txObject }, type) {
+  printUnderscored('Transaction type', type)
+  print('Summary')
+  Object
+    .entries(txObject)
+    .forEach(([key, value]) => printUnderscored(`    ${key.toUpperCase()}`, value))
+  print('Output')
+  printUnderscored('    Encoded', tx)
+  print('This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.')
 }
