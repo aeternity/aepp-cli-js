@@ -17,7 +17,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'npm install'
+          sh 'ln -sf /node_modules ./'
       }
     }
     stage('Run') {
