@@ -42,11 +42,10 @@ This script initialize all `inspect` function
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import * as R from 'ramda'
 import path from 'path'
 
 import { HASH_TYPES } from '../utils/constant'
-import { initClient } from '../utils/cli'
+import { initChain } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import {
   print,
@@ -54,11 +53,11 @@ import {
   printBlockTransactions,
   printContractDescr,
   printError,
-  printName,
+  printName, printOracle, printQueries,
   printTransaction,
   printUnderscored
 } from '../utils/print'
-import { checkPref, getBlock, readJSONFile } from '../utils/helpers'
+import { checkPref, getBlock, readJSONFile, updateNameStatus, validateName } from '../utils/helpers'
 
 
 ```
@@ -182,6 +181,27 @@ Get `transaction` by `hash`
 
 
 
+Get `contract` by `contractId`
+
+
+  
+
+```js
+    case HASH_TYPES.contract:
+      await getContract(hash, option)
+      break
+    case HASH_TYPES.oracle:
+      await getOracle(hash, option)
+      break
+
+```
+
+
+
+
+
+
+
 Get `name`
 
 
@@ -213,7 +233,7 @@ async function getBlockByHash (hash, options) {
   const { json } = options
   try {
     checkPref(hash, [HASH_TYPES.block, HASH_TYPES.micro_block])
-    const client = await initClient(options)
+    const client = await initChain(options)
     await handleApiError(
       async () => printBlock(
         await getBlock(hash)(client),
@@ -229,7 +249,7 @@ async function getTransactionByHash (hash, options) {
   const { json } = options
   try {
     checkPref(hash, HASH_TYPES.transaction)
-    const client = await initClient(options)
+    const client = await initChain(options)
     await handleApiError(
       async () => printTransaction(await client.tx(hash), json)
     )
@@ -242,12 +262,12 @@ async function getAccountByHash (hash, options) {
   const { json } = options
   try {
     checkPref(hash, HASH_TYPES.account)
-    const client = await initClient(options)
+    const client = await initChain(options)
     await handleApiError(
       async () => {
-        const {id, nonce} = await client.api.getAccountByPubkey(hash)
+        const { nonce } = await client.api.getAccountByPubkey(hash)
         const balance = await client.balance(hash)
-        printUnderscored('Account ID', id)
+        printUnderscored('Account ID', hash)
         printUnderscored('Account balance', balance)
         printUnderscored('Account nonce', nonce)
         print('Account Transactions: ')
@@ -263,7 +283,7 @@ async function getBlockByHeight (height, options) {
   const { json } = options
   height = parseInt(height)
   try {
-    const client = await initClient(options)
+    const client = await initChain(options)
 
     await handleApiError(
       async () => printBlock(await client.api.getKeyBlockByHeight(height), json)
@@ -276,10 +296,13 @@ async function getBlockByHeight (height, options) {
 async function getName (name, options) {
   const { json } = options
   try {
-    if (R.last(name.split('.')) !== 'test') throw new Error('AENS TLDs must end in .test')
-    const client = await initClient(options)
-    const nameStatus = await client.api.getNameEntryByName(name)
-    printName(Object.assign(nameStatus, { status: 'CLAIMED' }), json)
+    validateName(name)
+    const client = await initChain(options)
+
+    printName(
+      await updateNameStatus(name)(client),
+      json
+    )
   } catch (e) {
     if (e.response && e.response.status === 404) {
       printName({ status: 'AVAILABLE' }, json)
@@ -289,16 +312,46 @@ async function getName (name, options) {
   }
 }
 
-async function getContractByDescr (descrPath, options) {
+async function getContract (contractId, options) {
   const { json } = options
   try {
-    const descriptor = await readJSONFile(path.resolve(process.cwd(), descrPath))
-    const client = await initClient(options)
+    const client = await initChain(options)
 
     await handleApiError(
       async () => {
-        printContractDescr(descriptor, json)
-        printTransaction(await client.tx(descriptor.transaction), json)
+        printTransaction(await client.api.getContract(contractId), json)
+      }
+    )
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
+async function getOracle (oracleId, options) {
+  const { json } = options
+  try {
+    const client = await initChain(options)
+
+    await handleApiError(
+      async () => {
+
+```
+
+
+
+
+
+
+
+printTransaction(await client.api.getContract(contractId), json)
+
+
+  
+
+```js
+        printOracle(await client.getOracle(oracleId), json)
+        const { oracleQueries: queries } = await client.getOracleQueries(oracleId)
+        if (queries) printQueries(queries, json)
       }
     )
   } catch (e) {
