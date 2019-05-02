@@ -90,7 +90,7 @@ async function transferFunds (walletPath, receiver, percentage, options) {
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
   fee = parseInt(fee)
-  percentage = parseInt(fee)
+  percentage = parseFloat(percentage)
   try {
     checkPref(receiver, HASH_TYPES.account)
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
