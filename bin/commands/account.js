@@ -72,9 +72,43 @@ async function spend (walletPath, receiver, amount, options) {
       if (typeof tx !== 'object') {
         tx = await client.tx(tx)
       } else {
-        print('Transaction mined')
+        !json && print('Transaction mined')
       }
-      printTransaction(tx, json)
+      json
+        ? print({ tx })
+        : printTransaction(tx, json)
+    })
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
+// ## `Transfer` function
+// this function allow you to `send` % of balance to another `account`
+async function transferFunds (walletPath, receiver, percentage, options) {
+  let { ttl, json, nonce, fee, payload = '', excludeFee } = options
+  ttl = parseInt(ttl)
+  nonce = parseInt(nonce)
+  fee = parseInt(fee)
+  percentage = parseFloat(percentage)
+  try {
+    checkPref(receiver, HASH_TYPES.account)
+    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+    const client = await initClientByWalletFile(walletPath, options)
+
+    await handleApiError(async () => {
+      let tx = await client.transferFunds(percentage, receiver, { ttl, nonce, payload, fee, excludeFee })
+      // if waitMined false
+      if (typeof tx !== 'object') {
+        tx = await client.tx(tx)
+      } else {
+        !json && print('Transaction mined')
+      }
+      if (json) {
+        print({ tx })
+      } else {
+        printTransaction(tx, json)
+      }
     })
   } catch (e) {
     printError(e.message)
@@ -173,5 +207,6 @@ export const Account = {
   getAccountNonce,
   createSecureWallet,
   createSecureWalletByPrivKey,
-  sign
+  sign,
+  transferFunds
 }
