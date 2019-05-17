@@ -238,9 +238,10 @@ async function nameRevoke (accountId, nameId, nonce, options) {
 
 // ## Build `contractDeploy` transaction
 async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, options) {
-  let { ttl, json, fee, gas, deposit = 0, amount = 0 } = options
+  let { ttl, json, fee, gas, deposit = 0, amount = 0, vmVersion } = options
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
+  if (!vmVersion) vmVersion = DEFAULT_CONTRACT_PARAMS.vmVersion
   try {
     // Initialize `Ae`
     const txBuilder = await initTxBuilder(options)
@@ -248,7 +249,7 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
     await handleApiError(async () => {
       // Create `contract-deploy` transaction
       const { tx, contractId } = await txBuilder.contractCreateTx({
-        ...DEFAULT_CONTRACT_PARAMS,
+        ...Object.assign(DEFAULT_CONTRACT_PARAMS, { vmVersion }),
         code: contractByteCode,
         nonce,
         fee,
@@ -324,7 +325,7 @@ async function oracleRegister (accountId, queryFormat, responseFormat, nonce, op
       queryFee,
       queryFormat,
       responseFormat,
-      vmVersion: ORACLE_VM_VERSION
+      abiVersion: ORACLE_VM_VERSION
     }
     fee = txBuilder.calculateFee(fee, TX_TYPE.oracleRegister, { params })
     // Build `claim` transaction's
