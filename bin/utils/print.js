@@ -48,7 +48,7 @@ function getTabs (tabs) {
 
 // Print helper
 export function print (msg, obj) {
-  if (typeof msg === 'object') console.log(JSON.stringify(msg))
+  if (typeof msg === 'object') return console.log(JSON.stringify(msg))
   if (obj) {
     console.log(msg)
     console.log(JSON.stringify(obj))
