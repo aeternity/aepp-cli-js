@@ -1,3 +1,17 @@
+# 2.1.0 (2019-05-20)
+
+
+### Bug Fixes
+
+* **README:** Adjust readme ([#69](https://github.com/aeternity/aepp-cli-js/issues/69)) ([b1cdb2e](https://github.com/aeternity/aepp-cli-js/commit/b1cdb2e))
+
+
+### Features
+
+* **Commitizen:** Configurte commitizen ([#53](https://github.com/aeternity/aepp-cli-js/issues/53)) ([e7f2d0a](https://github.com/aeternity/aepp-cli-js/commit/e7f2d0a))
+* **Fortuna:** Add Fortune(3.0.0) compatibility
+
+
 # [2.0.0](https://github.com/aeternity/aepp-cli-js/compare/1.0.1...2.0.0) (2019-04-26)
 
 
