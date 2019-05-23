@@ -4,7 +4,7 @@
 
 
 
-
+  
 
 ```js
 /*
@@ -45,7 +45,7 @@ That script contains default configuration for `CLI`
 ## HAST TYPES
 
 
-
+  
 
 ```js
 export const HASH_TYPES = {
@@ -55,6 +55,8 @@ export const HASH_TYPES = {
   micro_block: 'mh',
   signature: 'sg',
   account: 'ak',
+  oracle: 'ok',
+  oracleQuery: 'oq',
   stateHash: 'bs'
 }
 
@@ -70,12 +72,13 @@ export const HASH_TYPES = {
 ## CONNECTION
 
 
-
+  
 
 ```js
 export const EPOCH_URL = 'https://sdk-mainnet.aepps.com'
 export const EPOCH_INTERNAL_URL = 'https://sdk-mainnet.aepps.com'
 export const EPOCH_WEBSOCKET_URL = 'https://sdk-testnet.aepps.com'
+export const COMPILER_URL = 'http://localhost:3080'
 
 
 ```
@@ -89,7 +92,7 @@ export const EPOCH_WEBSOCKET_URL = 'https://sdk-testnet.aepps.com'
 ## CHAIN
 
 
-
+  
 
 ```js
 export const PLAY_LIMIT = 10
@@ -107,11 +110,15 @@ export const PLAY_INTERVAL = 1000
 ## CONTRACT
 
 
-
+  
 
 ```js
-export const CONTRACT_TTL = 500
 export const GAS = 1600000 - 21000 // MAX GAS
+export const DEPOSIT = 0
+export const VM_VERSION = 1
+export const ORACLE_VM_VERSION = 0
+export const GAS_PRICE = 1000000000
+export const AMOUNT = 0
 
 
 ```
@@ -125,10 +132,9 @@ export const GAS = 1600000 - 21000 // MAX GAS
 ## AENS
 
 
-
+  
 
 ```js
-export const AENS_TX_TTL = 500
 export const NAME_TTL = 50000
 export const CLIENT_TTL = 1
 
@@ -144,11 +150,48 @@ export const CLIENT_TTL = 1
 ## ACCOUNT
 
 
-
+  
 
 ```js
-export const TX_TTL = 500
-export const TX_FEE = 16740
+export const TX_TTL = 0
+
+
+```
+
+
+
+
+
+
+
+## ORACLE
+
+
+  
+
+```js
+export const QUERY_FEE = 30000
+export const BUILD_ORACLE_TTL = (ttl) => { return { type: 'delta', value: ttl } }
+export const ORACLE_TTL = 500
+export const QUERY_TTL = 10
+export const RESPONSE_TTL = 10
+
+
+```
+
+
+
+
+
+
+
+## Default transaction build param's
+
+
+  
+
+```js
+export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE }
 
 
 ```

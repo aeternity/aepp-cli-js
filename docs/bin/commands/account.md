@@ -1,7 +1,30 @@
+
+
+
+
+
+
+  
+
+```js
 #!/usr/bin/env node
-// # æternity CLI `account` file
-//
-// This script initialize all `account` function
+
+```
+
+
+
+
+
+
+
+# æternity CLI `account` file
+
+This script initialize all `account` function
+
+
+  
+
+```js
 /*
  * ISC License (ISC)
  * Copyright (c) 2018 aeternity developers
@@ -27,15 +50,57 @@ import { print, printError, printTransaction, printUnderscored } from '../utils/
 import { checkPref } from '../utils/helpers'
 import { PROMPT_TYPE, prompt } from '../utils/prompt'
 
-// ## `Sign` function
-// this function allow you to `sign` transaction's
+
+```
+
+
+
+
+
+
+
+## `Sign` function
+this function allow you to `sign` transaction's
+
+
+  
+
+```js
 async function sign (walletPath, tx, options) {
   let { json } = options
   try {
-    // Validate `tx` hash
+
+```
+
+
+
+
+
+
+
+Validate `tx` hash
+
+
+  
+
+```js
     if (tx.slice(0, 2) !== 'tx') { throw new Error('Invalid transaction hash') }
 
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+
+```
+
+
+
+
+
+
+
+Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+
+
+  
+
+```js
     const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
 
     await handleApiError(async () => {
@@ -54,8 +119,22 @@ async function sign (walletPath, tx, options) {
   }
 }
 
-// ## `Spend` function
-// this function allow you to `send` token's to another `account`
+
+```
+
+
+
+
+
+
+
+## `Spend` function
+this function allow you to `send` token's to another `account`
+
+
+  
+
+```js
 async function spend (walletPath, receiver, amount, options) {
   let { ttl, json, nonce, fee, payload = '' } = options
   ttl = parseInt(ttl)
@@ -63,64 +142,86 @@ async function spend (walletPath, receiver, amount, options) {
   fee = parseInt(fee)
   try {
     checkPref(receiver, HASH_TYPES.account)
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+
+```
+
+
+
+
+
+
+
+Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+
+
+  
+
+```js
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
       let tx = await client.spend(amount, receiver, { ttl, nonce, payload, fee })
-      // if waitMined false
+
+```
+
+
+
+
+
+
+
+if waitMined false
+
+
+  
+
+```js
       if (typeof tx !== 'object') {
         tx = await client.tx(tx)
       } else {
-        !json && print('Transaction mined')
+        print('Transaction mined')
       }
-      json
-        ? print({ tx })
-        : printTransaction(tx, json)
+      printTransaction(tx, json)
     })
   } catch (e) {
     printError(e.message)
   }
 }
 
-// ## `Transfer` function
-// this function allow you to `send` % of balance to another `account`
-async function transferFunds (walletPath, receiver, percentage, options) {
-  let { ttl, json, nonce, fee, payload = '', excludeFee } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  fee = parseInt(fee)
-  percentage = parseFloat(percentage)
-  try {
-    checkPref(receiver, HASH_TYPES.account)
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const client = await initClientByWalletFile(walletPath, options)
 
-    await handleApiError(async () => {
-      let tx = await client.transferFunds(percentage, receiver, { ttl, nonce, payload, fee, excludeFee })
-      // if waitMined false
-      if (typeof tx !== 'object') {
-        tx = await client.tx(tx)
-      } else {
-        !json && print('Transaction mined')
-      }
-      if (json) {
-        print({ tx })
-      } else {
-        printTransaction(tx, json)
-      }
-    })
-  } catch (e) {
-    printError(e.message)
-  }
-}
+```
 
-// ## Get `balance` function
-// This function allow you retrieve account `balance`
+
+
+
+
+
+
+## Get `balance` function
+This function allow you retrieve account `balance`
+
+
+  
+
+```js
 async function getBalance (walletPath, options) {
   const { height, hash } = options
   try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+
+```
+
+
+
+
+
+
+
+Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+
+
+  
+
+```js
     const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
     await handleApiError(
       async () => {
@@ -135,12 +236,40 @@ async function getBalance (walletPath, options) {
   }
 }
 
-// ## Get `address` function
-// This function allow you retrieve account `public` and `private` keys
+
+```
+
+
+
+
+
+
+
+## Get `address` function
+This function allow you retrieve account `public` and `private` keys
+
+
+  
+
+```js
 async function getAddress (walletPath, options) {
   const { privateKey, forcePrompt = false } = options
   try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+
+```
+
+
+
+
+
+
+
+Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+
+
+  
+
+```js
     const { client, keypair } = await initClientByWalletFile(walletPath, { ...options, accountOnly: true }, true)
 
     await handleApiError(
@@ -158,11 +287,39 @@ async function getAddress (walletPath, options) {
   }
 }
 
-// ## Get `nonce` function
-// This function allow you retrieve account `nonce`
+
+```
+
+
+
+
+
+
+
+## Get `nonce` function
+This function allow you retrieve account `nonce`
+
+
+  
+
+```js
 async function getAccountNonce (walletPath, options) {
   try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+
+```
+
+
+
+
+
+
+
+Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+
+
+  
+
+```js
     const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
 
     await handleApiError(
@@ -178,8 +335,22 @@ async function getAccountNonce (walletPath, options) {
   }
 }
 
-// ## Create secure `wallet` file
-// This function allow you to generate `keypair` and write it to secure `ethereum` like key-file
+
+```
+
+
+
+
+
+
+
+## Create secure `wallet` file
+This function allow you to generate `keypair` and write it to secure `ethereum` like key-file
+
+
+  
+
+```js
 async function createSecureWallet (walletPath, { output, password, overwrite }) {
   try {
     await generateSecureWallet(walletPath, { output, password, overwrite })
@@ -189,8 +360,22 @@ async function createSecureWallet (walletPath, { output, password, overwrite }) 
   }
 }
 
-// ## Create secure `wallet` file from `private-key`
-// This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
+
+```
+
+
+
+
+
+
+
+## Create secure `wallet` file from `private-key`
+This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
+
+
+  
+
+```js
 async function createSecureWalletByPrivKey (walletPath, priv, { output, password, overwrite }) {
   try {
     await generateSecureWalletFromPrivKey(walletPath, priv, { output, password, overwrite })
@@ -207,6 +392,12 @@ export const Account = {
   getAccountNonce,
   createSecureWallet,
   createSecureWalletByPrivKey,
-  sign,
-  transferFunds
+  sign
 }
+
+
+```
+
+
+
+

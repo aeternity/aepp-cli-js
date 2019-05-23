@@ -21,17 +21,19 @@ import * as R from 'ramda'
 require = require('esm')(module/*, options */) // use to handle es6 import/export
 const Ae = require('@aeternity/aepp-sdk/es/ae/universal').default
 const { generateKeyPair } = require('@aeternity/aepp-sdk/es/utils/crypto')
-const compilerUrl = 'http://localhost:3080'
 
 const cliCommand = './bin/aecli.js'
 
 const url = process.env.TEST_URL || 'http://localhost:3013'
+const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
 const internalUrl = process.env.TEST_INTERNAL_URL || 'http://localhost:3113'
 export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
+
 const TIMEOUT = 18000000
 
 export const KEY_PAIR = generateKeyPair()
 export const WALLET_NAME = 'mywallet'
+
 
 export const BaseAe = Ae.compose({
   deepProps: { Swagger: { defaults: { debug: !!process.env['DEBUG'] } } },
@@ -67,10 +69,10 @@ export async function ready (mocha) {
   return client
 }
 
-export async function execute (args, withOutReject = false) {
+export async function execute (args, { withOutReject = false, withNetworkId = false } = {}) {
   return new Promise((resolve, reject) => {
     let result = ''
-    const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, '--networkId', networkId, ...(args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [])])
+    const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, ...withNetworkId ? ['--networkId', networkId] : [], ...(args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [])])
     child.stdin.setEncoding('utf-8')
     child.stdout.on('data', (data) => {
       result += (data.toString())

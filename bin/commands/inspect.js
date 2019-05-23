@@ -196,23 +196,6 @@ async function getOracle (oracleId, options) {
   }
 }
 
-async function getContractByDescr (descrPath, options) {
-  const { json } = options
-  try {
-    const descriptor = await readJSONFile(path.resolve(process.cwd(), descrPath))
-    const client = await initChain(options)
-
-    await handleApiError(
-      async () => {
-        printContractDescr(descriptor, json)
-        printTransaction(await client.tx(descriptor.transaction), json)
-      }
-    )
-  } catch (e) {
-    printError(e.message)
-  }
-}
-
 export const Inspect = {
   inspect
 }

@@ -31,7 +31,6 @@ const { Account } = require('./commands')
 program
   .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
   .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-P, --password [password]', 'Wallet Password')
   .option('-f --force', 'Ignore epoch version compatibility check')
   .option('--json', 'Print result in json format')
@@ -47,11 +46,33 @@ program
 // Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
 program
   .command('spend <wallet_path> <receiver> <amount>')
+  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--payload [payload]', 'Transaction payload.', '')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .action(async (walletPath, receiver, amount, ...arguments) => await Account.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
+
+
+// ## Initialize `transfer` command
+//
+// You can use this command to send % of balance to another account
+//
+// Example: `aecli account transfer ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 0.5 --password testpassword`
+//
+// You can set transaction `ttl(Time to leave)`. If not set use default.
+//
+// Example: `aecli account transfer ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 0.5 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
+program
+  .command('transfer <wallet_path> <receiver> <percentage>')
+  .option('--excludeFee', 'Exclude fee from amount')
+  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .option('--payload [payload]', 'Transaction payload.', '')
+  .option('-F, --fee [fee]', 'Spend transaction fee.')
+  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+  .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .action(async (walletPath, receiver, percentage, ...arguments) => await Account.transferFunds(walletPath, receiver, percentage, utils.cli.getCmdFromArguments(arguments)))
+
 
 // ## Initialize `sign` command
 //
@@ -60,6 +81,7 @@ program
 // Example: `aecli account sign ./myWalletKeyFile tx_1241rioefwj23f2wfdsfsdsdfsasdf --password testpassword`
 program
   .command('sign <wallet_path> <tx>')
+  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .description('Create a transaction to another wallet')
   .action(async (walletPath, tx, ...arguments) => await Account.sign(walletPath, tx, utils.cli.getCmdFromArguments(arguments)))
 
@@ -71,6 +93,8 @@ program
 // Example: `aecli account balance ./myWalletKeyFile --password testpassword`
 program
   .command('balance <wallet_path>')
+  .option('--height [height]', 'Specific block height')
+  .option('--hash [hash]', 'Specific block hash')
   .description('Get wallet balance')
   .action(async (walletPath, ...arguments) => await Account.getBalance(walletPath, utils.cli.getCmdFromArguments(arguments)))
 
