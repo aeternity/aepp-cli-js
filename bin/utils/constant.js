@@ -20,6 +20,7 @@
 // ## HAST TYPES
 export const HASH_TYPES = {
   transaction: 'th',
+  rawTransaction: 'tx',
   contract: 'ct',
   block: 'kh',
   micro_block: 'mh',

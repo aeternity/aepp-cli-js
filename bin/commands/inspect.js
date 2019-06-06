@@ -19,8 +19,6 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import path from 'path'
-
 import { HASH_TYPES } from '../utils/constant'
 import { initChain } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
@@ -28,13 +26,12 @@ import {
   print,
   printBlock,
   printBlockTransactions,
-  printContractDescr,
   printError,
   printName, printOracle, printQueries,
   printTransaction,
-  printUnderscored
+  printUnderscored, printValidation
 } from '../utils/print'
-import { checkPref, getBlock, readJSONFile, updateNameStatus, validateName } from '../utils/helpers'
+import { checkPref, getBlock, updateNameStatus, validateName } from '../utils/helpers'
 
 // ## Inspect function
 // That function get the param(`hash`, `height` or `name`) and show you info about it
@@ -64,6 +61,9 @@ async function inspect (hash, option) {
     // Get `transaction` by `hash`
     case HASH_TYPES.transaction:
       await getTransactionByHash(hash, option)
+      break
+    case HASH_TYPES.rawTransaction:
+      await unpackTx(hash, option)
       break
     // Get `contract` by `contractId`
     case HASH_TYPES.contract:
@@ -103,6 +103,27 @@ async function getTransactionByHash (hash, options) {
     const client = await initChain(options)
     await handleApiError(
       async () => printTransaction(await client.tx(hash), json)
+    )
+  } catch (e) {
+    printError(e.message)
+  }
+}
+
+async function unpackTx (hash, options = {}) {
+  const { json } = options
+  try {
+    checkPref(hash, HASH_TYPES.rawTransaction)
+    const client = await initChain(options)
+    await handleApiError(
+      async () => {
+        const { validation, tx, signatures = [], txType: type } = await client.unpackAndVerify(hash)
+        if (json) {
+          print({ validation, tx: tx, signatures, type })
+          process.exit(1)
+        }
+        printValidation({ validation, tx: { ...tx, signatures: signatures.map(el => el.hash) }, txType: type })
+        if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')
+      }
     )
   } catch (e) {
     printError(e.message)
