@@ -24,7 +24,7 @@ import fs from 'fs'
 const WALLET_NAME = 'txWallet'
 const testContract = `contract Identity =
   type state = ()
-  function main(x : int, y: int) = x + y
+  entrypoint main(x : int, y: int) = x + y
 `
 
 function randomName () {
