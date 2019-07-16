@@ -34,7 +34,7 @@ export async function askForOverwrite (name, output) {
 
 // Generate `keypair` encrypt it using password and write to `ethereum` keystore file
 export async function generateSecureWallet (name, { output = '', password, overwrite }) {
-  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(0)
+  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(1)
   password = password || await prompt(PROMPT_TYPE.askPassword)
   const { secretKey, publicKey } = Crypto.generateKeyPair(true)
 
@@ -46,7 +46,7 @@ export async function generateSecureWallet (name, { output = '', password, overw
 
 // Generate `keypair` from `PRIVATE KEY` encrypt it using password and to `ethereum` keystore file
 export async function generateSecureWalletFromPrivKey (name, priv, { output = '', password, overwrite }) {
-  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(0)
+  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(1)
   password = password || await prompt(PROMPT_TYPE.askPassword)
 
   const hexStr = Crypto.hexStringToByte(priv.trim())

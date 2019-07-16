@@ -35,7 +35,7 @@ async function version (options) {
       const status = await client.api.getStatus()
       if (json) {
         print(status)
-        process.exit(1)
+        process.exit(0)
       }
       printUnderscored(`Difficulty`, status.difficulty)
       printUnderscored(`Node version`, status.nodeVersion)
@@ -65,7 +65,7 @@ async function getNetworkId (options) {
       const { networkId } = await client.api.getStatus()
       if (json) {
         print({ networkId })
-        process.exit(1)
+        process.exit(0)
       }
       printUnderscored(`Network ID`, networkId)
     })
@@ -86,7 +86,7 @@ async function ttl (absoluteTtl, options) {
       const height = await client.height()
       if (json) {
         print({ absoluteTtl, relativeTtl: +height + +absoluteTtl })
-        process.exit(1)
+        process.exit(0)
       }
       printUnderscored('Absolute TTL', absoluteTtl)
       printUnderscored('Relative TTL', +height + +absoluteTtl)
