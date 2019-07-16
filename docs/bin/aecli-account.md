@@ -119,6 +119,41 @@ program
   .action(async (walletPath, receiver, amount, ...arguments) => await Account.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
 
 
+
+```
+
+
+
+
+
+
+
+## Initialize `transfer` command
+
+You can use this command to send % of balance to another account
+
+Example: `aecli account transfer ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 0.5 --password testpassword`
+
+You can set transaction `ttl(Time to leave)`. If not set use default.
+
+Example: `aecli account transfer ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 0.5 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
+
+
+  
+
+```js
+program
+  .command('transfer <wallet_path> <receiver> <percentage>')
+  .option('--excludeFee', 'Exclude fee from amount')
+  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .option('--payload [payload]', 'Transaction payload.', '')
+  .option('-F, --fee [fee]', 'Spend transaction fee.')
+  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+  .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .action(async (walletPath, receiver, percentage, ...arguments) => await Account.transferFunds(walletPath, receiver, percentage, utils.cli.getCmdFromArguments(arguments)))
+
+
+
 ```
 
 

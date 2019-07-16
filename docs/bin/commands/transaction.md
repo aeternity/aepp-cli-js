@@ -653,9 +653,10 @@ Build `claim` transaction's
 
 ```js
 async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, options) {
-  let { ttl, json, fee, gas, deposit = 0, amount = 0 } = options
+  let { ttl, json, fee, gas, deposit = 0, amount = 0, vmVersion } = options
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
+  if (!vmVersion) vmVersion = DEFAULT_CONTRACT_PARAMS.vmVersion
   try {
 
 ```
@@ -705,7 +706,7 @@ Create `contract-deploy` transaction
 
 ```js
       const { tx, contractId } = await txBuilder.contractCreateTx({
-        ...DEFAULT_CONTRACT_PARAMS,
+        ...Object.assign(DEFAULT_CONTRACT_PARAMS, { vmVersion }),
         code: contractByteCode,
         nonce,
         fee,
@@ -865,7 +866,7 @@ Create `transfer` transaction
       queryFee,
       queryFormat,
       responseFormat,
-      vmVersion: ORACLE_VM_VERSION
+      abiVersion: ORACLE_VM_VERSION
     }
     fee = txBuilder.calculateFee(fee, TX_TYPE.oracleRegister, { params })
 
@@ -1189,7 +1190,7 @@ Call `getStatus` API and print it
       const { validation, tx, signatures = [], txType: type } = await client.unpackAndVerify(txHash, { networkId })
       if (json) {
         print({ validation, tx: tx, signatures, type })
-        process.exit(1)
+        process.exit(0)
       }
       printValidation({ validation, tx: { ...tx, signatures: signatures.map(el => el.hash) }, txType: type })
       if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')
