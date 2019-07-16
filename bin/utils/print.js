@@ -181,6 +181,7 @@ function printContractCallTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'TTL', R.defaultTo(0, R.path(['tx', 'ttl'], tx)))
   printUnderscored(tabs + 'Version', R.defaultTo(0, R.path(['tx', 'version'], tx)))
   printUnderscored(tabs + 'ABI Version', R.defaultTo(0, R.path(['tx', 'abiVersion'], tx)))
+  printUnderscored(tabs + 'VM Version', R.defaultTo(0, R.path(['tx', 'vmVersion'], tx)))
 }
 
 // Print `spend_tx` info
