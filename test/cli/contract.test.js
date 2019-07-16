@@ -23,11 +23,11 @@ import { configure, plan, ready, parseBlock, KEY_PAIR, WALLET_NAME, execute as e
 // CONTRACT DESCRIPTOR
 const testContract = `contract Identity =
   type state = ()
-  function main(x : int, y: int) = x + y
+  entrypoint main(x : int, y: int) = x + y
 `
 const contractCall = `contract StateContract =
-  function main : (int, int) => int
-  function __call() = main(1,2)`
+  entrypoint main : (int, int) => int
+  entrypoint __call() = main(1,2)`
 
 const encodedNumber3 = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPJ9AW0'
 const CALL_DATA = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACD2yeBkazjNGxosFNO2BCRHh7eGNLVLUkTmDvM0oh3VAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAu/rRss='

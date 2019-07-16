@@ -453,7 +453,7 @@ async function verify (txHash, options) {
       const { validation, tx, signatures = [], txType: type } = await client.unpackAndVerify(txHash, { networkId })
       if (json) {
         print({ validation, tx: tx, signatures, type })
-        process.exit(1)
+        process.exit(0)
       }
       printValidation({ validation, tx: { ...tx, signatures: signatures.map(el => el.hash) }, txType: type })
       if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')

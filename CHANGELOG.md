@@ -1,3 +1,17 @@
+# 2.2.0 (2019-07-16)
+
+
+### Features
+
+* **Node:** Compatibility for node 4.0.0
+* **Inspect** Ability to unpack transaction using `inspect` command
+
+### Bug Fixes
+
+* **CLI:** Fix exit codes around the CLI ([#84](https://github.com/aeternity/aepp-cli-js/issues/84)) ([c775e1d](https://github.com/aeternity/aepp-cli-js/commit/c775e1d))
+
+
+
 # 2.1.0 (2019-05-20)
 
 

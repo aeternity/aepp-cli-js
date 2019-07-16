@@ -1,12 +1,12 @@
 {
   "name": "@aeternity/aepp-cli",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Aeternity command line interface",
   "bin": {
     "aecli": "./bin/aecli.js"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "3.3.0",
+    "@aeternity/aepp-sdk": "^4.2.0",
     "child_process": "^1.0.2",
     "commander": "^2.19.0",
     "esm": "^3.0.84",
@@ -42,6 +42,7 @@
     "eslint-plugin-standard": "^3.1.0",
     "mocha": "^5.0.0",
     "mocha-junit-reporter": "^1.17.0",
+    "recursive-rename": "^2.0.0",
     "safe-buffer": "^5.1.2",
     "sinon": "^7.2.3",
     "standard": "*",

@@ -284,6 +284,7 @@ program
   .option('--amount [amount]', 'Amount', 0)
   .option('--deposit [deposit]', 'Deposit', 0)
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
+  .option('--vmVersion [vmVersion]', 'VM version', utils.constant.VM_VERSION)
   .description('Build contract create transaction.')
   .action(async (ownerId, contractBytecode, initCallData, nonce, ...arguments) => await Transaction.contractDeploy(ownerId, contractBytecode, initCallData, nonce, utils.cli.getCmdFromArguments(arguments)))
 

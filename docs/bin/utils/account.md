@@ -71,7 +71,7 @@ Generate `keypair` encrypt it using password and write to `ethereum` keystore fi
 
 ```js
 export async function generateSecureWallet (name, { output = '', password, overwrite }) {
-  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(0)
+  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(1)
   password = password || await prompt(PROMPT_TYPE.askPassword)
   const { secretKey, publicKey } = Crypto.generateKeyPair(true)
 
@@ -97,7 +97,7 @@ Generate `keypair` from `PRIVATE KEY` encrypt it using password and to `ethereum
 
 ```js
 export async function generateSecureWalletFromPrivKey (name, priv, { output = '', password, overwrite }) {
-  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(0)
+  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(1)
   password = password || await prompt(PROMPT_TYPE.askPassword)
 
   const hexStr = Crypto.hexStringToByte(priv.trim())

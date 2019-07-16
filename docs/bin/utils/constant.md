@@ -50,6 +50,7 @@ That script contains default configuration for `CLI`
 ```js
 export const HASH_TYPES = {
   transaction: 'th',
+  rawTransaction: 'tx',
   contract: 'ct',
   block: 'kh',
   micro_block: 'mh',
@@ -115,7 +116,7 @@ export const PLAY_INTERVAL = 1000
 ```js
 export const GAS = 1600000 - 21000 // MAX GAS
 export const DEPOSIT = 0
-export const VM_VERSION = 1
+export const VM_VERSION = 4
 export const ORACLE_VM_VERSION = 0
 export const GAS_PRICE = 1000000000
 export const AMOUNT = 0
@@ -191,7 +192,7 @@ export const RESPONSE_TTL = 10
   
 
 ```js
-export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE }
+export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE, abiVersion: 1 }
 
 
 ```
