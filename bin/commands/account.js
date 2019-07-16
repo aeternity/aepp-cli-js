@@ -183,7 +183,7 @@ async function getAccountNonce (walletPath, options) {
 async function createSecureWallet (walletPath, { output, password, overwrite }) {
   try {
     await generateSecureWallet(walletPath, { output, password, overwrite })
-    process.exit(1)
+    process.exit(0)
   } catch (e) {
     printError(e.message)
   }
@@ -194,7 +194,7 @@ async function createSecureWallet (walletPath, { output, password, overwrite }) 
 async function createSecureWalletByPrivKey (walletPath, priv, { output, password, overwrite }) {
   try {
     await generateSecureWalletFromPrivKey(walletPath, priv, { output, password, overwrite })
-    process.exit(1)
+    process.exit(0)
   } catch (e) {
     printError(e.message)
   }
