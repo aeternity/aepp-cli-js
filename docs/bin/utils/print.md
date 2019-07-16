@@ -134,7 +134,7 @@ Print helper
 
 ```js
 export function print (msg, obj) {
-  if (typeof msg === 'object') console.log(JSON.stringify(msg))
+  if (typeof msg === 'object') return console.log(JSON.stringify(msg))
   if (obj) {
     console.log(msg)
     console.log(JSON.stringify(obj))
@@ -378,6 +378,7 @@ function printContractCallTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'Nonce', R.defaultTo('N/A', R.path(['tx', 'nonce'], tx)))
   printUnderscored(tabs + 'TTL', R.defaultTo(0, R.path(['tx', 'ttl'], tx)))
   printUnderscored(tabs + 'Version', R.defaultTo(0, R.path(['tx', 'version'], tx)))
+  printUnderscored(tabs + 'ABI Version', R.defaultTo(0, R.path(['tx', 'abiVersion'], tx)))
   printUnderscored(tabs + 'VM Version', R.defaultTo(0, R.path(['tx', 'vmVersion'], tx)))
 }
 

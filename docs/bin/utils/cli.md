@@ -32,8 +32,8 @@ import Tx from '@aeternity/aepp-sdk/es/tx/tx'
 import TxBuilder from '@aeternity/aepp-sdk/es/tx/builder'
 import Chain from '@aeternity/aepp-sdk/es/chain/node'
 import Account from '@aeternity/aepp-sdk/es/account/memory'
-import { getWalletByPathAndDecrypt } from './account'
 import ContractCompilerAPI from '@aeternity/aepp-sdk/es/contract/compiler'
+import { getWalletByPathAndDecrypt } from './account'
 
 
 ```
