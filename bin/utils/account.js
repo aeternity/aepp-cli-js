@@ -40,8 +40,7 @@ export async function generateSecureWallet (name, { output = '', password, overw
 
   writeFile(path.join(output, name), JSON.stringify(await dump(name, password, secretKey)))
 
-  printUnderscored('Address', Crypto.aeEncodeKey(publicKey))
-  printUnderscored('Path', path.resolve(process.cwd(), path.join(output, name)))
+  return { publicKey: Crypto.aeEncodeKey(publicKey), path: path.resolve(process.cwd(), path.join(output, name)) }
 }
 
 // Generate `keypair` from `PRIVATE KEY` encrypt it using password and to `ethereum` keystore file
@@ -56,8 +55,7 @@ export async function generateSecureWalletFromPrivKey (name, priv, { output = ''
 
   writeFile(path.join(output, name), JSON.stringify(encryptedKeyPair))
 
-  printUnderscored('Address', Crypto.aeEncodeKey(keys.publicKey))
-  printUnderscored('Path', path.resolve(process.cwd(), path.join(output, name)))
+  return { publicKey: Crypto.aeEncodeKey(keys.publicKey), path: path.resolve(process.cwd(), path.join(output, name)) }
 }
 
 // Get account file by path, decrypt it using password and return `keypair`
