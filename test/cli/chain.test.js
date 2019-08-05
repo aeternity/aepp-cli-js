@@ -34,7 +34,7 @@ describe('CLI Chain Module', function () {
     parseInt(res.block_height).should.be.a('number')
   })
   it('STATUS', async () => {
-    let wallet = await BaseAe()
+    const wallet = await BaseAe()
     wallet.setKeypair(generateKeyPair())
 
     const { nodeVersion } = await wallet.api.getStatus()
@@ -62,7 +62,7 @@ describe('CLI Chain Module', function () {
     isValid.should.equal(true)
   })
   it('NETWORK ID', async () => {
-    const nodeNetworkId = wallet.nodeNetworkId
+    const nodeNetworkId = wallet.getNetworkId()
     const { network_id } = parseBlock(await execute(['chain', 'network_id']))
     nodeNetworkId.should.equal(network_id)
   })
