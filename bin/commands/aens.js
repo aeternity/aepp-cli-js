@@ -59,6 +59,7 @@ async function claim (walletPath, domain, options) {
 
       print(`Name ${domain} claimed`)
       printUnderscored('Transaction hash', hash)
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
@@ -93,6 +94,7 @@ async function transferName (walletPath, domain, address, options) {
       const transferTX = await client.aensTransfer(name.id, address, { ttl, nameTtl, nonce })
       print('Transfer Success')
       printUnderscored('Transaction hash', transferTX.hash)
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
@@ -128,6 +130,7 @@ async function updateName (walletPath, domain, address, options) {
       const updateNameTx = await client.aensUpdate(name.id, address, { ttl, nameTtl, nonce })
       print('Update Success')
       printUnderscored('Transaction Hash', updateNameTx.hash)
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
@@ -157,6 +160,7 @@ async function revokeName (walletPath, domain, options) {
       const revokeTx = await client.aensRevoke(name.id, { ttl, nonce })
       print('Revoke Success')
       printUnderscored('Transaction hash', revokeTx.hash)
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
@@ -177,6 +181,7 @@ async function lookUp (domain, options) {
         await updateNameStatus(domain)(client),
         json
       )
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
