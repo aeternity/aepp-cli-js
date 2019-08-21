@@ -94,4 +94,8 @@ describe('CLI Account Module', function () {
     const nonce = await wallet.getAccountNonce(await wallet.address())
     parseBlock(await execute(['account', 'nonce', WALLET_NAME, '--password', 'test'], { withOutReject: true }))['next_nonce'].should.equal(`${nonce}`)
   })
+  it.only('Generate accounts', async () => {
+    const accounts = await execute(['account', 'generate', 2, '--forcePrompt', '--json'], { withOutReject: true })
+    console.log(accounts)
+  })
 })

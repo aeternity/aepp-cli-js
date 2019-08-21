@@ -158,6 +158,17 @@ program
   .description('Get account nonce')
   .action(async (walletPath, ...arguments) => await Account.getAccountNonce(walletPath, utils.cli.getCmdFromArguments(arguments)))
 
+// ## Initialize `generateKeyPairs` command
+//
+// You can use this command to generate KeyPair's.
+//
+// Example: `aecli account generate 10 --force
+program
+  .command('generate <count>')
+  .option('--forcePrompt', 'Force prompting')
+  .description('Generate keyPairs')
+  .action(async (count, ...arguments) => await Account.generateKeyPairs(count, utils.cli.getCmdFromArguments(arguments)))
+
 
 // Handle unknown command's
 program.on('command:*', () => utils.errors.unknownCommandHandler(program)())
