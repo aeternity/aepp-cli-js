@@ -1,3 +1,11 @@
+# 2.4.0 (2019-08-21)
+
+### Features
+
+* **ACCOUNT:** Add command for generating and printing bulk of Key Pairs ([#95](https://github.com/aeternity/aepp-cli-js/issues/95)) ([1cb3e5b](https://github.com/aeternity/aepp-cli-js/commit/1cb3e5b))
+
+
+
 # 2.3.0 (2019-08-05)
 
 
