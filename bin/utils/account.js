@@ -21,7 +21,6 @@ import path from 'path'
 import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto'
 import { dump, getAddressFromPriv, recover } from '@aeternity/aepp-sdk/es/utils/keystore'
 
-import { printUnderscored } from './print'
 import { isFileExist, readJSONFile, writeFile } from './helpers'
 import { PROMPT_TYPE, prompt } from './prompt'
 

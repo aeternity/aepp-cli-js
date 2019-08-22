@@ -19,6 +19,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
+import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
 import { HASH_TYPES } from '../utils/constant'
 import { initClientByWalletFile } from '../utils/cli'
@@ -30,7 +31,7 @@ import { PROMPT_TYPE, prompt } from '../utils/prompt'
 // ## `Sign` function
 // this function allow you to `sign` transaction's
 async function sign (walletPath, tx, options) {
-  let { json } = options
+  const { json } = options
   try {
     // Validate `tx` hash
     if (tx.slice(0, 2) !== 'tx') { throw new Error('Invalid transaction hash') }
@@ -153,7 +154,7 @@ async function getAddress (walletPath, options) {
           if (privateKey) {
             if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
               printUnderscored('Secret Key', keypair.secretKey)
-              print({ publicKey: await client.address(), secretKey: keypair.secretKey})
+              print({ publicKey: await client.address(), secretKey: keypair.secretKey })
             }
           } else {
             print({ publicKey: await client.address() })
@@ -244,6 +245,35 @@ async function createSecureWalletByPrivKey (walletPath, priv, { output, password
   }
 }
 
+// ## Create secure `wallet` file from `private-key`
+// This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
+async function generateKeyPairs (count = 1, { forcePrompt, json }) {
+  try {
+    if (!Number.isInteger(+count)) {
+      throw new Error('Count must be an Number')
+    }
+    if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
+      const accounts = Array.from(Array(parseInt(count))).map(_ => generateKeyPair(false))
+      if (json) {
+        print(JSON.stringify(accounts, null, 2))
+      } else {
+        accounts.forEach((acc, i) => {
+          printUnderscored('Account index', i)
+          printUnderscored('Public Key', acc.publicKey)
+          printUnderscored('Secret Key', acc.secretKey)
+          print('')
+        })
+      }
+    } else {
+      process.exit(0)
+    }
+    process.exit(0)
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
 export const Account = {
   spend,
   getBalance,
@@ -252,5 +282,6 @@ export const Account = {
   createSecureWallet,
   createSecureWalletByPrivKey,
   sign,
-  transferFunds
+  transferFunds,
+  generateKeyPairs
 }
