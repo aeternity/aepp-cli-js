@@ -1,3 +1,13 @@
+# 2.5.0 (2019-08-28)
+
+
+### Features
+
+* **Node** Node 5.0.0-rc1 compatibility
+
+
+
+
 # 2.4.0 (2019-08-21)
 
 ### Features
