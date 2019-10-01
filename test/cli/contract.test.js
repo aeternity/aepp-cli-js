@@ -18,28 +18,22 @@
 import fs from 'fs'
 import { before, describe, it } from 'mocha'
 
-import { configure, plan, ready, parseBlock, KEY_PAIR, WALLET_NAME, execute as exec } from './index'
+import { configure, plan, ready, WALLET_NAME, execute as exec } from './index'
 
-// CONTRACT DESCRIPTOR
+// CONTRACT SOURCE
 const testContract = `contract Identity =
-  type state = ()
-  entrypoint main(x : int, y: int) = x + y
+  entrypoint main(x : int) = x
 `
-const contractCall = `contract StateContract =
-  entrypoint main : (int, int) => int
-  entrypoint __call() = main(1,2)`
 
 const encodedNumber3 = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPJ9AW0'
-const CALL_DATA = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACD2yeBkazjNGxosFNO2BCRHh7eGNLVLUkTmDvM0oh3VAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAu/rRss='
-const DECODED_CALL_DATA = { arguments: [ { type: 'word', value: 1 }, { type: 'word', value: 2 } ], function: 'main' }
+const CALL_DATA = 'cb_KxG4F37sGwIZEGMb'
+const DECODED_CALL_DATA = { arguments: [{ type: 'int', value: 1 }], function: 'main' }
 
 plan(1000000000)
-const execute = (arg) => exec(arg, { withNetworkId: true })
 
 describe('CLI Contract Module', function () {
   configure(this)
   const contractFile = 'testContract'
-  let cAddress
   let deployDescriptor
   let wallet
   let bytecode
@@ -47,7 +41,6 @@ describe('CLI Contract Module', function () {
   before(async function () {
     // Spend tokens for wallet
     wallet = await ready(this)
-    fs.writeFileSync('callC', contractCall)
   })
   after(function () {
     // Remove wallet files
@@ -57,13 +50,11 @@ describe('CLI Contract Module', function () {
     // Remove contract files
     if (fs.existsSync(deployDescriptor)) { fs.unlinkSync(deployDescriptor) }
     if (fs.existsSync(contractFile)) { fs.unlinkSync(contractFile) }
-    if (fs.existsSync('callC')) { fs.unlinkSync('callC') }
   })
 
   it('Compile Contract', async () => {
     // Create contract file
     fs.writeFileSync(contractFile, testContract)
-
     // Compile contract
     const compiled = await wallet.contractCompile(testContract)
     const compiledCLI = (await exec(['contract', 'compile', contractFile]))
@@ -74,8 +65,8 @@ describe('CLI Contract Module', function () {
   })
 
   it('Encode callData', async () => {
-    const { callData } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'main', 1, 2, '--json']))
-    callData.should.be.equal(CALL_DATA)
+    const { callData: { calldata } } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'main', 1, '--json']))
+    calldata.should.be.equal(CALL_DATA)
   })
 
   it('Decode callData', async () => {

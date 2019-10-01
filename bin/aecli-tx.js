@@ -122,6 +122,7 @@ program
   .option('--deposit [deposit]', 'Deposit', 0)
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
   .option('--vmVersion [vmVersion]', 'VM version', utils.constant.VM_VERSION)
+  .option('--abiVersion [abiVersion]', 'ABI version', utils.constant.DEFAULT_CONTRACT_PARAMS.abiVersion)
   .description('Build contract create transaction.')
   .action(async (ownerId, contractBytecode, initCallData, nonce, ...arguments) => await Transaction.contractDeploy(ownerId, contractBytecode, initCallData, nonce, utils.cli.getCmdFromArguments(arguments)))
 
@@ -135,6 +136,8 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
+  .option('--abiVersion [abiVersion]', 'VM version', utils.constant.DEFAULT_CONTRACT_PARAMS.abiVersion)
+  .option('--vmVersion [vmVersion]', 'ABI version', utils.constant.VM_VERSION)
   .description('Build contract create transaction.')
   .action(async (callerId, contractId, callData, nonce, ...arguments) => await Transaction.contractCall(callerId, contractId, callData, nonce, utils.cli.getCmdFromArguments(arguments)))
 

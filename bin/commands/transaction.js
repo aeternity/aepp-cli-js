@@ -276,7 +276,7 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
 
 // ## Build `contractCall` transaction
 async function contractCall (callerId, contractId, callData, nonce, options) {
-  let { ttl, json, fee, gas } = options
+  const { ttl, json, fee, gas } = options
   nonce = parseInt(nonce)
   try {
     // Build `call` transaction's
