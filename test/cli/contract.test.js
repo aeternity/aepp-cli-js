@@ -40,6 +40,7 @@ describe('CLI Contract Module', function () {
 
   before(async function () {
     // Spend tokens for wallet
+    fs.writeFileSync(contractFile, testContract)
     wallet = await ready(this)
   })
   after(function () {
@@ -54,7 +55,6 @@ describe('CLI Contract Module', function () {
 
   it('Compile Contract', async () => {
     // Create contract file
-    fs.writeFileSync(contractFile, testContract)
     // Compile contract
     const compiled = await wallet.contractCompile(testContract)
     const compiledCLI = (await exec(['contract', 'compile', contractFile]))
@@ -65,8 +65,8 @@ describe('CLI Contract Module', function () {
   })
 
   it('Encode callData', async () => {
-    const { callData: { calldata } } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'main', 1, '--json']))
-    calldata.should.be.equal(CALL_DATA)
+    const { callData } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'main', 1, '--json']))
+    callData.should.be.equal(CALL_DATA)
   })
 
   it('Decode callData', async () => {

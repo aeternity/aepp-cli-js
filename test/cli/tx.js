@@ -31,7 +31,7 @@ function randomName () {
 }
 
 async function signAndPost (tx, assert) {
-  const signedRes = await execute(['account', 'sign', WALLET_NAME, tx, '--password', 'test'], { withNetworkId: true  })
+  const signedRes = await execute(['account', 'sign', WALLET_NAME, tx, '--password', 'test'], { withNetworkId: true })
   const { signed } = parseBlock(signedRes)
   return assert
     ? (await execute(['chain', 'broadcast', signed])).indexOf('Transaction send to the chain').should.be.equal(0)
@@ -46,7 +46,7 @@ describe('CLI Transaction Module', function () {
   let salt
   let queryId
   let contractId
-  let name = randomName()
+  const name = randomName()
   let nonce
   let nameId
   let compilerCLI
@@ -79,7 +79,7 @@ describe('CLI Transaction Module', function () {
     const unsigned_preclaim_tx = resObj['___ encoded']
     salt = resObj['___ salt']
     const res = (parseBlock(await signAndPost(unsigned_preclaim_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -87,7 +87,7 @@ describe('CLI Transaction Module', function () {
   it.skip('Build claim tx offline and send the chain', async () => {
     const unsigned_claim_tx = parseBlock(await execute(['tx', 'name-claim', TX_KEYS.publicKey, salt, name, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_claim_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     const { id } = await wallet.aensQuery(name)
     nameId = id
@@ -97,7 +97,7 @@ describe('CLI Transaction Module', function () {
   it.skip('Build update tx offline and send the chain', async () => {
     const unsigned_update_tx = parseBlock(await execute(['tx', 'name-update', TX_KEYS.publicKey, nameId, nonce, TX_KEYS.publicKey]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_update_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -105,7 +105,7 @@ describe('CLI Transaction Module', function () {
   it.skip('Build transfer tx offline and send the chain', async () => {
     const unsigned_transfer_tx = parseBlock(await execute(['tx', 'name-transfer', TX_KEYS.publicKey, TX_KEYS.publicKey, nameId, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_transfer_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -113,7 +113,7 @@ describe('CLI Transaction Module', function () {
   it.skip('Build revoke tx offline and send the chain', async () => {
     const unsigned_revoke_tx = parseBlock(await execute(['tx', 'name-revoke', TX_KEYS.publicKey, nameId, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_revoke_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -121,21 +121,21 @@ describe('CLI Transaction Module', function () {
   it('Build contract create tx offline and send the chain', async () => {
     // const { unsigned_contract_deploy_tx, contract_id } = parseBlock(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, 'contractTest']))
     const { bytecode } = await compilerCLI.contractCompile(testContract)
-    const { calldata: callData } = await compilerCLI.contractEncodeCall(testContract, 'init', [])
+    const callData = await compilerCLI.contractEncodeCall(testContract, 'init', [])
     const { tx, contractId: cId } = JSON.parse(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, bytecode, callData, nonce, '--json']))
     contractId = cId
     const res = (parseBlock(await signAndPost(tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
 
   it('Build contract call tx offline and send the chain', async () => {
-    const { calldata: callData } = await compilerCLI.contractEncodeCall(testContract, 'main', ['1', '2'])
+    const callData = await compilerCLI.contractEncodeCall(testContract, 'main', ['1', '2'])
 
     const { tx } = JSON.parse(await execute(['tx', 'contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -143,7 +143,7 @@ describe('CLI Transaction Module', function () {
   it('Build oracle register tx offline and send the chain', async () => {
     const unsigned_oracleregister_tx = (parseBlock(await execute(['tx', 'oracle-register', TX_KEYS.publicKey, '{city: "str"}', '{tmp:""num}', nonce], { withOutReject: true })))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_oracleregister_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -153,7 +153,7 @@ describe('CLI Transaction Module', function () {
     const res = (parseBlock(await signAndPost(unsigned_oracleextend_tx)))
     const oracleTtl = await wallet.getOracle(oracleId)
     const isExtended = +oracleTtl.ttl === +oracleCurrentTtl.ttl + 100
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isExtended.should.be.equal(true)
     isMined.should.be.equal(true)
     nonce += 1
@@ -163,7 +163,7 @@ describe('CLI Transaction Module', function () {
     const res = (parseBlock(await signAndPost(unsigned_oraclepostquery_tx)))
     const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
     queryId = queries[0].id
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     const hasQuery = !!queries.length
     isMined.should.be.equal(true)
     hasQuery.should.be.equal(true)
@@ -175,7 +175,7 @@ describe('CLI Transaction Module', function () {
     const res = (parseBlock(await signAndPost(unsigned_oraclerespond_tx)))
     const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
     const responseQuery = decodeBase64Check(queries[0].response.slice(3)).toString()
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     const hasQuery = !!queries.length
     isMined.should.be.equal(true)
     hasQuery.should.be.equal(true)
