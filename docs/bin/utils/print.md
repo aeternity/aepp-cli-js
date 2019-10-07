@@ -159,7 +159,7 @@ Print error helper
 
 ```js
 export function printError (msg, obj) {
-  console.log(msg, obj)
+  console.log(msg, obj || '')
 }
 
 

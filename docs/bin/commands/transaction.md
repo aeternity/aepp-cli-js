@@ -288,7 +288,8 @@ Create `preclaim` transaction
 
 ```js
 async function nameClaim (accountId, nameSalt, domain, nonce, options) {
-  let { ttl, json, fee } = options
+  const vsn = 2
+  let { ttl, json, fee, nameFee } = options
   const nameHash = `nm_${encodeBase58Check(Buffer.from(domain))}`
 
   try {
@@ -325,13 +326,14 @@ Initialize `Ae`
 ```js
     const txBuilder = initOfflineTxBuilder()
     const params = {
+      nameFee,
       accountId,
       nameSalt,
       name: nameHash,
       ttl,
       nonce
     }
-    fee = txBuilder.calculateFee(fee, TX_TYPE.nameClaim, { params })
+    fee = txBuilder.calculateFee(fee, TX_TYPE.nameClaim, { params, vsn })
 
 ```
 
@@ -347,7 +349,7 @@ Build `claim` transaction's
   
 
 ```js
-    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameClaim)
+    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameClaim, { vsn })
 
     if (json) {
       print({ tx, txObject })
@@ -747,7 +749,7 @@ Create `contract-deploy` transaction
 
 ```js
 async function contractCall (callerId, contractId, callData, nonce, options) {
-  let { ttl, json, fee, gas } = options
+  const { ttl, json, fee, gas } = options
   nonce = parseInt(nonce)
   try {
 

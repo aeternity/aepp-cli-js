@@ -116,7 +116,9 @@ export const PLAY_INTERVAL = 1000
 ```js
 export const GAS = 1600000 - 21000 // MAX GAS
 export const DEPOSIT = 0
-export const VM_VERSION = 4
+export const VM_VERSION = 5
+export const ABI_VERSION = 3
+export const COMPILER_BACKEND = 'fate'
 export const ORACLE_VM_VERSION = 0
 export const GAS_PRICE = 1000000000
 export const AMOUNT = 0
@@ -137,6 +139,7 @@ export const AMOUNT = 0
 
 ```js
 export const NAME_TTL = 50000
+export const NAME_FEE = '1000000000000000000000'
 export const CLIENT_TTL = 1
 
 
@@ -192,7 +195,7 @@ export const RESPONSE_TTL = 10
   
 
 ```js
-export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE, abiVersion: 1 }
+export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE, abiVersion: ABI_VERSION }
 
 
 ```
