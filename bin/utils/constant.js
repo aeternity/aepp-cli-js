@@ -45,6 +45,7 @@ export const PLAY_INTERVAL = 1000
 export const GAS = 1600000 - 21000 // MAX GAS
 export const DEPOSIT = 0
 export const VM_VERSION = 5
+export const ABI_VERSION = 5
 export const COMPILER_BACKEND = 'fate'
 export const ORACLE_VM_VERSION = 0
 export const GAS_PRICE = 1000000000
@@ -65,4 +66,4 @@ export const QUERY_TTL = 10
 export const RESPONSE_TTL = 10
 
 // ## Default transaction build param's
-export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE, abiVersion: 3 }
+export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE, abiVersion: ABI_VERSION }
