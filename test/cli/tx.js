@@ -26,8 +26,18 @@ const testContract = `contract Identity =
   entrypoint main(x : int, y: int) = x + y
 `
 
-function randomName () {
-  return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(36) + '.test'
+function randomName (length = 30, namespace = '.aet') {
+  return randomString(length).toLowerCase() + namespace
+}
+
+function randomString (len, charSet) {
+  charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let randomString = ''
+  for (let i = 0; i < len; i++) {
+    const randomPoz = Math.floor(Math.random() * charSet.length)
+    randomString += charSet.substring(randomPoz, randomPoz + 1)
+  }
+  return randomString
 }
 
 async function signAndPost (tx, assert) {
@@ -46,7 +56,7 @@ describe('CLI Transaction Module', function () {
   let salt
   let queryId
   let contractId
-  const name = randomName()
+  const name = randomName().toLowerCase()
   let nonce
   let nameId
   let compilerCLI
@@ -54,7 +64,7 @@ describe('CLI Transaction Module', function () {
   before(async function () {
     compilerCLI = await ready(this)
     const GENESIS = await BaseAe()
-    await GENESIS.spend('100000000000000000000000', TX_KEYS.publicKey)
+    await GENESIS.spend('100000000000000000000000000', TX_KEYS.publicKey)
     await execute(['account', 'save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite'])
     wallet = await BaseAe()
     wallet.setKeypair(TX_KEYS)
@@ -84,7 +94,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it.skip('Build claim tx offline and send the chain', async () => {
+  it('Build claim tx offline and send the chain', async () => {
     const unsigned_claim_tx = parseBlock(await execute(['tx', 'name-claim', TX_KEYS.publicKey, salt, name, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_claim_tx)))
     const isMined = !isNaN(res.block_height)
@@ -94,7 +104,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it.skip('Build update tx offline and send the chain', async () => {
+  it('Build update tx offline and send the chain', async () => {
     const unsigned_update_tx = parseBlock(await execute(['tx', 'name-update', TX_KEYS.publicKey, nameId, nonce, TX_KEYS.publicKey]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_update_tx)))
     const isMined = !isNaN(res.block_height)
@@ -102,7 +112,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it.skip('Build transfer tx offline and send the chain', async () => {
+  it('Build transfer tx offline and send the chain', async () => {
     const unsigned_transfer_tx = parseBlock(await execute(['tx', 'name-transfer', TX_KEYS.publicKey, TX_KEYS.publicKey, nameId, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_transfer_tx)))
     const isMined = !isNaN(res.block_height)
@@ -110,7 +120,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it.skip('Build revoke tx offline and send the chain', async () => {
+  it('Build revoke tx offline and send the chain', async () => {
     const unsigned_revoke_tx = parseBlock(await execute(['tx', 'name-revoke', TX_KEYS.publicKey, nameId, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_revoke_tx)))
     const isMined = !isNaN(res.block_height)
