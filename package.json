@@ -6,7 +6,7 @@
     "aecli": "./bin/aecli.js"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "^4.6.0",
+    "@aeternity/aepp-sdk": "^5.0.0",
     "child_process": "^1.0.2",
     "commander": "^2.19.0",
     "esm": "^3.0.84",

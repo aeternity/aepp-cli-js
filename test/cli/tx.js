@@ -23,16 +23,25 @@ import fs from 'fs'
 
 const WALLET_NAME = 'txWallet'
 const testContract = `contract Identity =
-  type state = ()
   entrypoint main(x : int, y: int) = x + y
 `
 
-function randomName () {
-  return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(36) + '.test'
+function randomName (length = 30, namespace = '.aet') {
+  return randomString(length).toLowerCase() + namespace
+}
+
+function randomString (len, charSet) {
+  charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let randomString = ''
+  for (let i = 0; i < len; i++) {
+    const randomPoz = Math.floor(Math.random() * charSet.length)
+    randomString += charSet.substring(randomPoz, randomPoz + 1)
+  }
+  return randomString
 }
 
 async function signAndPost (tx, assert) {
-  const signedRes = await execute(['account', 'sign', WALLET_NAME, tx, '--password', 'test'], { withNetworkId: true  })
+  const signedRes = await execute(['account', 'sign', WALLET_NAME, tx, '--password', 'test'], { withNetworkId: true })
   const { signed } = parseBlock(signedRes)
   return assert
     ? (await execute(['chain', 'broadcast', signed])).indexOf('Transaction send to the chain').should.be.equal(0)
@@ -47,7 +56,7 @@ describe('CLI Transaction Module', function () {
   let salt
   let queryId
   let contractId
-  let name = randomName()
+  const name = randomName().toLowerCase()
   let nonce
   let nameId
   let compilerCLI
@@ -55,7 +64,7 @@ describe('CLI Transaction Module', function () {
   before(async function () {
     compilerCLI = await ready(this)
     const GENESIS = await BaseAe()
-    await GENESIS.spend('100000000000000000000000', TX_KEYS.publicKey)
+    await GENESIS.spend('100000000000000000000000000', TX_KEYS.publicKey)
     await execute(['account', 'save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite'])
     wallet = await BaseAe()
     wallet.setKeypair(TX_KEYS)
@@ -80,7 +89,7 @@ describe('CLI Transaction Module', function () {
     const unsigned_preclaim_tx = resObj['___ encoded']
     salt = resObj['___ salt']
     const res = (parseBlock(await signAndPost(unsigned_preclaim_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -88,7 +97,7 @@ describe('CLI Transaction Module', function () {
   it('Build claim tx offline and send the chain', async () => {
     const unsigned_claim_tx = parseBlock(await execute(['tx', 'name-claim', TX_KEYS.publicKey, salt, name, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_claim_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     const { id } = await wallet.aensQuery(name)
     nameId = id
@@ -98,7 +107,7 @@ describe('CLI Transaction Module', function () {
   it('Build update tx offline and send the chain', async () => {
     const unsigned_update_tx = parseBlock(await execute(['tx', 'name-update', TX_KEYS.publicKey, nameId, nonce, TX_KEYS.publicKey]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_update_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -106,7 +115,7 @@ describe('CLI Transaction Module', function () {
   it('Build transfer tx offline and send the chain', async () => {
     const unsigned_transfer_tx = parseBlock(await execute(['tx', 'name-transfer', TX_KEYS.publicKey, TX_KEYS.publicKey, nameId, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_transfer_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -114,7 +123,7 @@ describe('CLI Transaction Module', function () {
   it('Build revoke tx offline and send the chain', async () => {
     const unsigned_revoke_tx = parseBlock(await execute(['tx', 'name-revoke', TX_KEYS.publicKey, nameId, nonce]))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_revoke_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -126,7 +135,7 @@ describe('CLI Transaction Module', function () {
     const { tx, contractId: cId } = JSON.parse(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, bytecode, callData, nonce, '--json']))
     contractId = cId
     const res = (parseBlock(await signAndPost(tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -136,7 +145,7 @@ describe('CLI Transaction Module', function () {
 
     const { tx } = JSON.parse(await execute(['tx', 'contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -144,7 +153,7 @@ describe('CLI Transaction Module', function () {
   it('Build oracle register tx offline and send the chain', async () => {
     const unsigned_oracleregister_tx = (parseBlock(await execute(['tx', 'oracle-register', TX_KEYS.publicKey, '{city: "str"}', '{tmp:""num}', nonce], { withOutReject: true })))['___ encoded']
     const res = (parseBlock(await signAndPost(unsigned_oracleregister_tx)))
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -154,7 +163,7 @@ describe('CLI Transaction Module', function () {
     const res = (parseBlock(await signAndPost(unsigned_oracleextend_tx)))
     const oracleTtl = await wallet.getOracle(oracleId)
     const isExtended = +oracleTtl.ttl === +oracleCurrentTtl.ttl + 100
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     isExtended.should.be.equal(true)
     isMined.should.be.equal(true)
     nonce += 1
@@ -164,7 +173,7 @@ describe('CLI Transaction Module', function () {
     const res = (parseBlock(await signAndPost(unsigned_oraclepostquery_tx)))
     const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
     queryId = queries[0].id
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     const hasQuery = !!queries.length
     isMined.should.be.equal(true)
     hasQuery.should.be.equal(true)
@@ -176,7 +185,7 @@ describe('CLI Transaction Module', function () {
     const res = (parseBlock(await signAndPost(unsigned_oraclerespond_tx)))
     const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
     const responseQuery = decodeBase64Check(queries[0].response.slice(3)).toString()
-    const isMined = !isNaN(res['block_height'])
+    const isMined = !isNaN(res.block_height)
     const hasQuery = !!queries.length
     isMined.should.be.equal(true)
     hasQuery.should.be.equal(true)
