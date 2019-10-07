@@ -81,6 +81,7 @@ program
   .command('name-claim <accountId> <salt> <domain> <nonce>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
+  .option('--nameFee [nameFee]', 'Name fee.', utils.constant.NAME_FEE)
   .description('Build name claim transaction.')
   .action(async (accountId, salt, domain, nonce, ...arguments) => await Transaction.nameClaim(accountId, salt, domain, nonce, utils.cli.getCmdFromArguments(arguments)))
 

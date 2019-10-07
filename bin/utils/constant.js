@@ -53,6 +53,7 @@ export const AMOUNT = 0
 
 // ## AENS
 export const NAME_TTL = 50000
+export const NAME_FEE = '1000000000000000000000'
 export const CLIENT_TTL = 1
 
 // ## ACCOUNT
