@@ -194,6 +194,7 @@ Update `name` pointer
 
       print(`Name ${domain} claimed`)
       printUnderscored('Transaction hash', hash)
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
@@ -298,6 +299,7 @@ Create `transferName` transaction
       const transferTX = await client.aensTransfer(name.id, address, { ttl, nameTtl, nonce })
       print('Transfer Success')
       printUnderscored('Transaction hash', transferTX.hash)
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
@@ -403,6 +405,7 @@ Create `updateName` transaction
       const updateNameTx = await client.aensUpdate(name.id, address, { ttl, nameTtl, nonce })
       print('Update Success')
       printUnderscored('Transaction Hash', updateNameTx.hash)
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
@@ -502,6 +505,7 @@ Create `revokeName` transaction
       const revokeTx = await client.aensRevoke(name.id, { ttl, nonce })
       print('Revoke Success')
       printUnderscored('Transaction hash', revokeTx.hash)
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
@@ -550,6 +554,7 @@ Check if `name` is unavailable and we can revoke it
         await updateNameStatus(domain)(client),
         json
       )
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)

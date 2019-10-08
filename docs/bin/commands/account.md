@@ -42,6 +42,7 @@ This script initialize all `account` function
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
+import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
 import { HASH_TYPES } from '../utils/constant'
 import { initClientByWalletFile } from '../utils/cli'
@@ -67,7 +68,7 @@ this function allow you to `sign` transaction's
 
 ```js
 async function sign (walletPath, tx, options) {
-  let { json } = options
+  const { json } = options
   try {
 
 ```
@@ -113,6 +114,7 @@ Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` f
         printUnderscored('Unsigned', tx)
         printUnderscored('Signed', signedTx)
       }
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
@@ -184,6 +186,7 @@ if waitMined false
       json
         ? print({ tx })
         : printTransaction(tx, json)
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
@@ -258,6 +261,7 @@ if waitMined false
       } else {
         printTransaction(tx, json)
       }
+      process.exit(0)
     })
   } catch (e) {
     printError(e.message)
@@ -305,6 +309,7 @@ Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client
         printUnderscored('Balance', await client.balance(keypair.publicKey, { height: +height, hash }))
         printUnderscored('ID', await client.address())
         printUnderscored('Nonce', nonce)
+        process.exit(0)
       }
     )
   } catch (e) {
@@ -329,7 +334,7 @@ This function allow you retrieve account `public` and `private` keys
 
 ```js
 async function getAddress (walletPath, options) {
-  const { privateKey, forcePrompt = false } = options
+  const { privateKey, forcePrompt = false, json } = options
   try {
 
 ```
@@ -350,12 +355,24 @@ Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client
 
     await handleApiError(
       async () => {
-        printUnderscored('Address', await client.address())
-        if (privateKey) {
-          if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-            printUnderscored('Secret Key', keypair.secretKey)
+        if (json) {
+          if (privateKey) {
+            if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
+              printUnderscored('Secret Key', keypair.secretKey)
+              print({ publicKey: await client.address(), secretKey: keypair.secretKey })
+            }
+          } else {
+            print({ publicKey: await client.address() })
+          }
+        } else {
+          printUnderscored('Address', await client.address())
+          if (privateKey) {
+            if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
+              printUnderscored('Secret Key', keypair.secretKey)
+            }
           }
         }
+        process.exit(0)
       }
     )
   } catch (e) {
@@ -380,6 +397,7 @@ This function allow you retrieve account `nonce`
 
 ```js
 async function getAccountNonce (walletPath, options) {
+  const { json } = options
   try {
 
 ```
@@ -401,9 +419,18 @@ Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client
     await handleApiError(
       async () => {
         const nonce = await client.getAccountNonce(keypair.publicKey)
-        printUnderscored('ID', keypair.publicKey)
-        printUnderscored('Nonce', nonce - 1)
-        printUnderscored('Next Nonce', nonce)
+        if (json) {
+          print({
+            id: keypair.publicKey,
+            nonce: nonce - 1,
+            nextNonce: nonce
+          })
+        } else {
+          printUnderscored('ID', keypair.publicKey)
+          printUnderscored('Nonce', nonce - 1)
+          printUnderscored('Next Nonce', nonce)
+        }
+        process.exit(0)
       }
     )
   } catch (e) {
@@ -427,9 +454,18 @@ This function allow you to generate `keypair` and write it to secure `ethereum` 
   
 
 ```js
-async function createSecureWallet (walletPath, { output, password, overwrite }) {
+async function createSecureWallet (walletPath, { output, password, overwrite, json }) {
   try {
-    await generateSecureWallet(walletPath, { output, password, overwrite })
+    const { publicKey, path } = await generateSecureWallet(walletPath, { output, password, overwrite })
+    if (json) {
+      print({
+        publicKey,
+        path
+      })
+    } else {
+      printUnderscored('Address', publicKey)
+      printUnderscored('Path', path)
+    }
     process.exit(0)
   } catch (e) {
     printError(e.message)
@@ -452,12 +488,64 @@ This function allow you to generate `keypair` from `private-key` and write it to
   
 
 ```js
-async function createSecureWalletByPrivKey (walletPath, priv, { output, password, overwrite }) {
+async function createSecureWalletByPrivKey (walletPath, priv, { output, password, overwrite, json }) {
   try {
-    await generateSecureWalletFromPrivKey(walletPath, priv, { output, password, overwrite })
+    const { publicKey, path } = await generateSecureWalletFromPrivKey(walletPath, priv, { output, password, overwrite })
+    if (json) {
+      print({
+        publicKey,
+        path
+      })
+    } else {
+      printUnderscored('Address', publicKey)
+      printUnderscored('Path', path)
+    }
     process.exit(0)
   } catch (e) {
     printError(e.message)
+  }
+}
+
+
+```
+
+
+
+
+
+
+
+## Create secure `wallet` file from `private-key`
+This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
+
+
+  
+
+```js
+async function generateKeyPairs (count = 1, { forcePrompt, json }) {
+  try {
+    if (!Number.isInteger(+count)) {
+      throw new Error('Count must be an Number')
+    }
+    if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
+      const accounts = Array.from(Array(parseInt(count))).map(_ => generateKeyPair(false))
+      if (json) {
+        print(JSON.stringify(accounts, null, 2))
+      } else {
+        accounts.forEach((acc, i) => {
+          printUnderscored('Account index', i)
+          printUnderscored('Public Key', acc.publicKey)
+          printUnderscored('Secret Key', acc.secretKey)
+          print('')
+        })
+      }
+    } else {
+      process.exit(0)
+    }
+    process.exit(0)
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
   }
 }
 
@@ -469,7 +557,8 @@ export const Account = {
   createSecureWallet,
   createSecureWalletByPrivKey,
   sign,
-  transferFunds
+  transferFunds,
+  generateKeyPairs
 }
 
 
