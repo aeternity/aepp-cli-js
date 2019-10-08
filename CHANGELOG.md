@@ -1,3 +1,13 @@
+# [2.6.0](https://github.com/aeternity/aepp-cli-js/compare/2.5.0...2.6.0) (2019-10-07)
+
+
+### Features
+
+* **Lima:** Add support for lima ([#105](https://github.com/aeternity/aepp-cli-js/issues/105)) ([f7b061a](https://github.com/aeternity/aepp-cli-js/commit/f7b061a))
+* **Compiler:** Add `backend` option to compiler(Can be `fate` or `aevm`. `fate` by default)
+* **AENS:** Add `nameFee` option to `claim` command
+
+
 # 2.5.0 (2019-08-28)
 
 

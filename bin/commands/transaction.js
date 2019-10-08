@@ -97,7 +97,8 @@ async function namePreClaim (accountId, domain, nonce, options) {
 
 // ## Build `nameClaim` transaction
 async function nameClaim (accountId, nameSalt, domain, nonce, options) {
-  let { ttl, json, fee } = options
+  const vsn = 2
+  let { ttl, json, fee, nameFee } = options
   const nameHash = `nm_${encodeBase58Check(Buffer.from(domain))}`
 
   try {
@@ -106,15 +107,16 @@ async function nameClaim (accountId, nameSalt, domain, nonce, options) {
     // Initialize `Ae`
     const txBuilder = initOfflineTxBuilder()
     const params = {
+      nameFee,
       accountId,
       nameSalt,
       name: nameHash,
       ttl,
       nonce
     }
-    fee = txBuilder.calculateFee(fee, TX_TYPE.nameClaim, { params })
+    fee = txBuilder.calculateFee(fee, TX_TYPE.nameClaim, { params, vsn })
     // Build `claim` transaction's
-    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameClaim)
+    const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameClaim, { vsn })
 
     if (json) {
       print({ tx, txObject })
@@ -276,7 +278,7 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
 
 // ## Build `contractCall` transaction
 async function contractCall (callerId, contractId, callData, nonce, options) {
-  let { ttl, json, fee, gas } = options
+  const { ttl, json, fee, gas } = options
   nonce = parseInt(nonce)
   try {
     // Build `call` transaction's

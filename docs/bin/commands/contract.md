@@ -67,6 +67,7 @@ import { GAS_PRICE } from '../utils/constant'
 
 ```js
 export async function compile (file, options) {
+  const { backend } = options
   try {
     const code = readFile(path.resolve(process.cwd(), file), 'utf-8')
     if (!code) throw new Error('Contract file not found')
@@ -89,7 +90,7 @@ Call `node` API which return `compiled code`
   
 
 ```js
-      const contract = await client.compileContractAPI(code)
+      const contract = await client.compileContractAPI(code, { backend })
       print(`Contract bytecode:
       ${contract}`)
     })
@@ -114,6 +115,7 @@ Call `node` API which return `compiled code`
 
 ```js
 export async function encodeData (source, fn, args = [], options) {
+  const { backend } = options
   try {
     const sourceCode = readFile(path.resolve(process.cwd(), source), 'utf-8')
     if (!sourceCode) throw new Error('Contract file not found')
@@ -136,7 +138,7 @@ Call `node` API which return `compiled code`
   
 
 ```js
-      const callData = await client.contractEncodeCallDataAPI(sourceCode, fn, args, options)
+      const callData = await client.contractEncodeCallDataAPI(sourceCode, fn, args, { backend })
       if (options.json) {
         print(JSON.stringify({ callData }))
       } else {
@@ -212,7 +214,7 @@ Call `node` API which return `compiled code`
 
 ```js
 export async function decodeCallData (data, options) {
-  const { sourcePath, code, fn } = options
+  const { sourcePath, code, fn, backend } = options
   let sourceCode
 
   if (!sourcePath && !code) throw new Error('Contract source(--sourcePath) or contract code(--code) required!')
@@ -244,8 +246,8 @@ Call `node` API which return `compiled code`
 
 ```js
       const decoded = code
-        ? await client.contractDecodeCallDataByCodeAPI(code, data)
-        : await client.contractDecodeCallDataBySourceAPI(sourceCode, fn, data)
+        ? await client.contractDecodeCallDataByCodeAPI(code, data, backend)
+        : await client.contractDecodeCallDataBySourceAPI(sourceCode, fn, data, { backend })
 
       if (options.json) {
         print(JSON.stringify({ decoded }))

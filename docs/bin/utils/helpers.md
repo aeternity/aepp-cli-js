@@ -346,7 +346,7 @@ Validate `name`
 
 ```js
 export function validateName (name) {
-  if (R.last(name.split('.')) !== 'test') { throw new Error('AENS TLDs must end in .test') }
+  if (!['test', 'aet'].includes(R.last(name.split('.')))) { throw new Error('AENS TLDs must end in .test') }
 }
 
 

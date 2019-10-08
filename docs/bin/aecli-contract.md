@@ -106,6 +106,7 @@ Example: `aecli contract compile ./mycontract.contract`
 ```js
 program
   .command('compile <file>')
+  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Compile a contract')
   .action(async (file, ...arguments) => await Contract.compile(file, utils.cli.getCmdFromArguments(arguments)))
 
@@ -131,6 +132,7 @@ Example: `aecli contract encodeData ./mycontract.contract testFn 1 2`
 ```js
 program
   .command('encodeData <source> <fn> [args...]')
+  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Encode contract call data')
   .action(async (source, fn, args, ...arguments) => await Contract.encodeData(source, fn, args, utils.cli.getCmdFromArguments(arguments)))
 
@@ -156,6 +158,7 @@ Example: `aecli contract decodeData cb_asdasdasdasdasdas int`
 ```js
 program
   .command('decodeData <data> <returnType>')
+  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Decode contract data')
   .action(async (data, returnType, ...arguments) => await Contract.decodeData(data, returnType, utils.cli.getCmdFromArguments(arguments)))
 
@@ -185,6 +188,7 @@ program
   .option('--sourcePath [sourcePath]', 'Path to contract source')
   .option('--code [code]', 'Compiler contract code')
   .option('--fn [fn]', 'Function name')
+  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Decode contract call data')
   .action(async (data, ...arguments) => await Contract.decodeCallData(data, utils.cli.getCmdFromArguments(arguments)))
 

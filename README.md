@@ -2,7 +2,7 @@
 [![npm](https://img.shields.io/npm/v/@aeternity/aepp-sdk.svg)](https://www.npmjs.com/package/@aeternity/aepp-cli)
 [![npm](https://img.shields.io/npm/l/@aeternity/aepp-sdk.svg)](https://www.npmjs.com/package/@aeternity/aepp-cli)
 
-# ️⚠️ [WIP] aepp-cli-js
+# aepp-cli-js
 Command Line Interface for the æternity blockchain.
 
 ## Disclaimer
@@ -16,8 +16,6 @@ check out the [develop branch].
 
 
 ## Installation
-> ️⚠️ **TODO**: The package is not yet published, so you can only install it by cloning this project.
->
 You can install this `CLI` using your preferred tool (`yarn` or `npm`). Here's an `npm` example
 ```
 npm install --global @aeternity/aepp-cli
