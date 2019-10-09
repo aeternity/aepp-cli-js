@@ -82,7 +82,7 @@ export async function decodeData (data, type, options) {
       if (options.json) {
         print(JSON.stringify({ decodedData }))
       } else {
-        print(`Contract bytecode:`)
+        print('Contract bytecode:')
         print(decodedData)
       }
     })
@@ -117,7 +117,7 @@ export async function decodeCallData (data, options) {
       if (options.json) {
         print(JSON.stringify({ decoded }))
       } else {
-        print(`Decoded Call Data:`)
+        print('Decoded Call Data:')
         print(decoded)
       }
     })

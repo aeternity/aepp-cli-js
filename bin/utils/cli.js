@@ -35,8 +35,8 @@ export function getCmdFromArguments (args) {
 }
 
 // Create `Ae` client
-export async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId }) {
-  return Ae({ url, process, keypair, internalUrl, compilerUrl, forceCompatibility, nativeMode, networkId })
+export async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId, accounts }) {
+  return Ae({ url, process, keypair, internalUrl, compilerUrl, forceCompatibility, nativeMode, networkId, accounts })
 }
 // Create `TxBuilder` client
 export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true, showWarning = true }) {
@@ -61,14 +61,17 @@ export async function initCompiler ({ url, internalUrl, compilerUrl }) {
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
-  const { password, privateKey, accountOnly = false, networkId } = options
+  const { password, privateKey, accountOnly = false, networkId, debug = true } = options
+
   const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
+  const accounts = [Account(R.merge(options, { keypair, networkId }))]
 
   const client = accountOnly
-    ? await Account(R.merge(options, { keypair, networkId }))
-    : await initClient(R.merge(options, { keypair }))
-  if (returnKeyPair)
+    ? accounts[0]
+    : await initClient(R.merge(options, { accounts, debug }))
+  if (returnKeyPair) {
     return { client, keypair }
+  }
   return client
 }
 
@@ -80,4 +83,8 @@ export function initExecCommands (program) {
 // ## Check if `command` is `EXECUTABLE`
 export function isExecCommand (cmd, execCommands) {
   return execCommands.find(({ name }) => cmd === name)
+}
+
+export function exit (error = 0) {
+  process.exit(error)
 }

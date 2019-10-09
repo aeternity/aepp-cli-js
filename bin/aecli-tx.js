@@ -29,8 +29,8 @@ const { Transaction } = require('./commands')
 
 // ## Initialize `options`
 program
-  .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
-  .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
+  .option('-u, --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+  .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
   // .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
   .option('--ttl [fee]', 'Override the ttl that the transaction is going to be sent with', utils.constant.TX_TTL)

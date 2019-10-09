@@ -19,16 +19,15 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { initChain, initClientByWalletFile } from '../utils/cli'
-import { printError, print, printUnderscored, printName } from '../utils/print'
+import { exit, initChain, initClientByWalletFile } from '../utils/cli'
+import { printError, print, printUnderscored, printName, printTransaction } from '../utils/print'
 import { handleApiError } from '../utils/errors'
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
 
 // ## Claim `name` function
-async function claim (walletPath, domain, options) {
-  // Parse options(`ttl`, `nameTtl`)
-  const ttl = parseInt(options.ttl)
-  const nameTtl = parseInt(options.nameTtl)
+async function preClaim (walletPath, domain, options) {
+  const { ttl, fee, nonce, waitMined, json } = options
+
   try {
     // Validate `name`(check if `name` end on `.test`)
     validateName(domain)
@@ -41,29 +40,49 @@ async function claim (walletPath, domain, options) {
       const name = await updateNameStatus(domain)(client)
       if (!isAvailable(name)) {
         print('Domain not available')
-        process.exit(1)
+        exit(1)
       }
-
-      // Create `preclaimName` transaction
-      const { salt, height } = await client.aensPreclaim(domain, { nameTtl, ttl })
-      print('Pre-Claimed')
-
-      // Wait for next block and create `claimName` transaction
-      await client.aensClaim(domain, salt, (height + 1), { nameTtl, ttl }).catch(async e => console.log(await e.verifyTx()))
-      print('Claimed')
-
-      // Update `name` pointer
-      const { id } = await updateNameStatus(domain)(client)
-      const { hash } = await client.aensUpdate(id, await client.address(), { nameTtl, ttl })
-      print('Updated')
-
-      print(`Name ${domain} claimed`)
-      printUnderscored('Transaction hash', hash)
-      process.exit(0)
+      // Create `pre-claim` transaction
+      printTransaction(
+        await client.aensPreclaim(domain, { ttl, fee, nonce, waitMined }),
+        json
+      )
+      exit()
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
+  }
+}
+
+// ## Claim `name` function
+async function claim (walletPath, domain, salt, options) {
+  const { ttl, fee, nonce, waitMined, json, nameFee } = options
+  try {
+    // Validate `name`
+    validateName(domain)
+
+    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+    const client = await initClientByWalletFile(walletPath, options)
+
+    await handleApiError(async () => {
+      // Check if that `name' available
+      const name = await updateNameStatus(domain)(client)
+      if (!isAvailable(name)) {
+        print('Domain not available')
+        exit(1)
+      }
+
+      // Wait for next block and create `claimName` transaction
+      printTransaction(
+        await client.aensClaim(domain, salt, { nonce, ttl, fee, waitMined, nameFee }),
+        json
+      )
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
   }
 }
 
@@ -86,7 +105,7 @@ async function transferName (walletPath, domain, address, options) {
       // Check if that `name` is unavailable and we can transfer it
       const name = await updateNameStatus(domain)(client)
       if (isAvailable(name)) {
-        print(`Domain is available, nothing to transfer`)
+        print('Domain is available, nothing to transfer')
         process.exit(1)
       }
 
@@ -152,7 +171,7 @@ async function revokeName (walletPath, domain, options) {
       // Check if `name` is unavailable and we can revoke it
       const name = await updateNameStatus(domain)(client)
       if (isAvailable(name)) {
-        print(`Domain is available, nothing to revoke`)
+        print('Domain is available, nothing to revoke')
         process.exit(1)
       }
 
@@ -185,11 +204,12 @@ async function lookUp (domain, options) {
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    process.exit(0)
   }
 }
 
 export const AENS = {
+  preClaim,
   revokeName,
   updateName,
   claim,

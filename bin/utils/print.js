@@ -64,7 +64,7 @@ export function printError (msg, obj) {
 
 // Print `underscored`
 export function printUnderscored (key, val) {
-  print(`${key}${R.repeat('_', WIDTH - key.length).reduce((a, b) => a += b, '')} ${typeof val !== 'object' ? val : JSON.stringify(val)}`)
+  print(`${key} ${R.repeat('_', WIDTH - key.length).reduce((a, b) => a += b, '')} ${typeof val !== 'object' ? val : JSON.stringify(val)}`)
 }
 
 // ## BLOCK
@@ -202,6 +202,7 @@ function printSpendTransaction (tx = {}, tabs = '') {
 function printNamePreclaimTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'Account', R.defaultTo('N/A', R.path(['tx', 'accountId'], tx)))
   printUnderscored(tabs + 'Commitment', R.defaultTo('N/A', R.path(['tx', 'commitmentId'], tx)))
+  printUnderscored(tabs + 'Salt', R.defaultTo('N/A', R.path(['salt'], tx)))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
   printUnderscored(tabs + 'Nonce', R.defaultTo('N/A', R.path(['tx', 'nonce'], tx)))

@@ -20,7 +20,7 @@
 import * as R from 'ramda'
 import fs from 'fs'
 
-import { GAS_PRICE, HASH_TYPES } from './constant'
+import { GAS_PRICE, HASH_TYPES, AENS_NAME_DOMAINS } from './constant'
 import { printError } from './print'
 import path from 'path'
 
@@ -154,7 +154,7 @@ export function isFileExist (path) {
 export function updateNameStatus (name) {
   return async (client) => {
     try {
-      return { ...(await client.api.getNameEntryByName(name)), status: 'CLAIMED' }
+      return { ...(await client.getName(name)), status: 'CLAIMED' }
     } catch (e) {
       if (e.response && e.response.status === 404) {
         return { name, status: 'AVAILABLE' }
@@ -169,7 +169,7 @@ export function isAvailable (name) { return name.status === 'AVAILABLE' }
 
 // Validate `name`
 export function validateName (name) {
-  if (!['test', 'aet'].includes(R.last(name.split('.')))) { throw new Error('AENS TLDs must end in .test') }
+  if (!AENS_NAME_DOMAINS.includes(R.last(name.split('.')))) { throw new Error('AENS TLDs must end in .' + R.head(AENS_NAME_DOMAINS)) }
 }
 
 // Grab contract descriptor by path

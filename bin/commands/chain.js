@@ -33,20 +33,26 @@ async function version (options) {
     // Call `getStatus` API and print it
     await handleApiError(async () => {
       const status = await client.api.getStatus()
+      const { consensusProtocolVersion } = client.getNodeInfo()
       if (json) {
         print(status)
         process.exit(0)
       }
-      printUnderscored(`Difficulty`, status.difficulty)
-      printUnderscored(`Node version`, status.nodeVersion)
-      printUnderscored(`Node revision`, status.nodeRevision)
-      printUnderscored(`Genesis hash`, status.genesisKeyBlockHash)
-      printUnderscored(`Network ID`, status.networkId)
-      printUnderscored(`Listening`, status.listening)
-      printUnderscored(`Peer count`, status.peerCount)
-      printUnderscored(`Pending transactions count`, status.pendingTransactionsCount)
-      printUnderscored(`Solutions`, status.solutions)
-      printUnderscored(`Syncing`, status.syncing)
+      const FORKS = {
+        3: 'Fortuna',
+        4: 'Lima'
+      }
+      printUnderscored('Difficulty', status.difficulty)
+      printUnderscored('Node version', status.nodeVersion)
+      printUnderscored('Consensus protocol version', `${FORKS[consensusProtocolVersion]}(${consensusProtocolVersion})`)
+      printUnderscored('Node revision', status.nodeRevision)
+      printUnderscored('Genesis hash', status.genesisKeyBlockHash)
+      printUnderscored('Network ID', status.networkId)
+      printUnderscored('Listening', status.listening)
+      printUnderscored('Peer count', status.peerCount)
+      printUnderscored('Pending transactions count', status.pendingTransactionsCount)
+      printUnderscored('Solutions', status.solutions)
+      printUnderscored('Syncing', status.syncing)
     })
   } catch (e) {
     printError(e.message)
@@ -67,7 +73,7 @@ async function getNetworkId (options) {
         print({ networkId })
         process.exit(0)
       }
-      printUnderscored(`Network ID`, networkId)
+      printUnderscored('Network ID', networkId)
     })
   } catch (e) {
     printError(e.message)
@@ -148,7 +154,7 @@ function playWithLimit (limit, blockHash) {
   return async (client, json) => {
     if (!limit) return
 
-    let block = await getBlock(blockHash)(client)
+    const block = await getBlock(blockHash)(client)
 
     setTimeout(async () => {
       printBlock(block, json)
@@ -160,7 +166,7 @@ function playWithLimit (limit, blockHash) {
 // # Play by `height`
 function playWithHeight (height, blockHash) {
   return async (client, json) => {
-    let block = await getBlock(blockHash)(client)
+    const block = await getBlock(blockHash)(client)
     if (parseInt(block.height) < height) return
 
     setTimeout(async () => {
@@ -172,7 +178,7 @@ function playWithHeight (height, blockHash) {
 
 // ## Send 'transaction' to the chain
 async function broadcast (signedTx, options) {
-  let { json, waitMined, verify } = options
+  const { json, waitMined, verify } = options
   try {
     // Initialize `Ae`
     const client = await initChain(options)

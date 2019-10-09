@@ -28,8 +28,8 @@ const { Contract } = require('./commands')
 
 // ## Initialize `options`
 program
-  .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
-  .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
+  .option('-u --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+  .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
   .option('--compilerUrl [compilerUrl]', 'Compiler URL', utils.constant.COMPILER_URL)
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
