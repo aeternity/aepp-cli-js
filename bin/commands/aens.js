@@ -20,9 +20,10 @@
  */
 
 import { exit, initChain, initClientByWalletFile } from '../utils/cli'
-import { printError, print, printUnderscored, printName, printTransaction } from '../utils/print'
+import { printError, print, printName, printTransaction } from '../utils/print'
 import { handleApiError } from '../utils/errors'
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
+import { isAddressValid } from '@aeternity/aepp-sdk/es/utils/crypto';
 
 // ## Claim `name` function
 async function preClaim (walletPath, domain, options) {
@@ -96,52 +97,15 @@ async function claim (walletPath, domain, salt, options) {
   }
 }
 
-// ##Transfer `name` function
-async function transferName (walletPath, domain, address, options) {
-  // Parse options(`ttl`, `nameTtl` and `nonce`)
-  const ttl = parseInt(options.ttl)
-  const nameTtl = parseInt(options.nameTtl)
-  const nonce = parseInt(options.nonce)
-
-  if (!address) {
-    program.outputHelp()
-    process.exit(1)
-  }
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const client = await initClientByWalletFile(walletPath, options)
-
-    await handleApiError(async () => {
-      // Check if that `name` is unavailable and we can transfer it
-      const name = await updateNameStatus(domain)(client)
-      if (isAvailable(name)) {
-        print('Domain is available, nothing to transfer')
-        process.exit(1)
-      }
-
-      // Create `transferName` transaction
-      const transferTX = await client.aensTransfer(name.id, address, { ttl, nameTtl, nonce })
-      print('Transfer Success')
-      printUnderscored('Transaction hash', transferTX.hash)
-      process.exit(0)
-    })
-  } catch (e) {
-    printError(e.message)
-    process.exit(1)
-  }
-}
-
 // ##Update `name` function
 async function updateName (walletPath, domain, address, options) {
   const { ttl, fee, nonce, waitMined, json, nameTtl, clientTtl } = options
 
-  if (!address) {
-    // eslint-disable-next-line no-undef
-    program.outputHelp()
-    exit(1)
-  }
-
   try {
+    // Validate `address`
+    if (!isAddressValid(address)) throw new Error(`Address "${address}" is not valid`)
+    // Validate `name`
+    validateName(domain)
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
 
@@ -171,13 +135,51 @@ async function updateName (walletPath, domain, address, options) {
   }
 }
 
-// ## Revoke `name` function
-async function revokeName (walletPath, domain, options) {
-  // Parse options(`ttl` and `nonce`)
-  const ttl = parseInt(options.ttl)
-  const nonce = parseInt(options.nonce)
+// ##Transfer `name` function
+async function transferName (walletPath, domain, address, options) {
+  const { ttl, fee, nonce, waitMined, json } = options
 
   try {
+    // Validate `address`
+    if (!isAddressValid(address)) throw new Error(`Address "${address}" is not valid`)
+    // Validate `name`
+    validateName(domain)
+    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+    const client = await initClientByWalletFile(walletPath, options)
+
+    await handleApiError(async () => {
+      // Check if that `name` is unavailable and we can transfer it
+      const name = await updateNameStatus(domain)(client)
+      if (isAvailable(name)) {
+        print('Domain is available, nothing to transfer')
+        process.exit(1)
+      }
+
+      // Create `transferName` transaction
+      const transferTX = await client.aensTransfer(name.id, address, { ttl, fee, nonce, waitMined })
+      if (waitMined) {
+        printTransaction(
+          transferTX,
+          json
+        )
+      } else {
+        print('Transaction send to the chain. Tx hash: ' + transferTX.hash)
+      }
+      exit(0)
+    })
+  } catch (e) {
+    printError(e.message)
+    process.exit(1)
+  }
+}
+
+// ## Revoke `name` function
+async function revokeName (walletPath, domain, options) {
+  const { ttl, fee, nonce, waitMined, json } = options
+
+  try {
+    // Validate `name`
+    validateName(domain)
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
 
@@ -186,18 +188,94 @@ async function revokeName (walletPath, domain, options) {
       const name = await updateNameStatus(domain)(client)
       if (isAvailable(name)) {
         print('Domain is available, nothing to revoke')
-        process.exit(1)
+        exit(1)
       }
 
       // Create `revokeName` transaction
-      const revokeTx = await client.aensRevoke(name.id, { ttl, nonce })
-      print('Revoke Success')
-      printUnderscored('Transaction hash', revokeTx.hash)
-      process.exit(0)
+      const revokeTx = await client.aensRevoke(name.id, { ttl, fee, nonce, waitMined })
+      if (waitMined) {
+        printTransaction(
+          revokeTx,
+          json
+        )
+      } else {
+        print('Transaction send to the chain. Tx hash: ' + revokeTx.hash)
+      }
+      exit(0)
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
+  }
+}
+
+async function nameBid (walletPath, domain, nameFee, options) {
+  const { ttl, fee, nonce, waitMined, json } = options
+  try {
+    // Validate `name`
+    validateName(domain)
+
+    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+    const client = await initClientByWalletFile(walletPath, options)
+
+    await handleApiError(async () => {
+      // Check if that `name' available
+      const name = await updateNameStatus(domain)(client)
+      if (!isAvailable(name)) {
+        print('Auction do not start or already end')
+        exit(1)
+      }
+
+      // Wait for next block and create `claimName` transaction
+      const nameBidTx = await client.aensBid(domain, nameFee, { nonce, ttl, fee, waitMined })
+      if (waitMined) {
+        printTransaction(
+          nameBidTx,
+          json
+        )
+      } else {
+        print('Transaction send to the chain. Tx hash: ' + nameBidTx.hash)
+      }
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
+  }
+}
+
+async function fullClaim (walletPath, domain, options) {
+  const { ttl, fee, nonce, nameFee, json, nameTtl, clientTtl } = options
+  try {
+    // Validate `name`
+    validateName(domain)
+    if (domain.length - 4 < 13) throw new Error('Full name claiming works only with name longer then 12 symbol(Not trigger auction)')
+
+    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+    const client = await initClientByWalletFile(walletPath, options)
+
+    await handleApiError(async () => {
+      // Check if that `name' available
+      const name = await updateNameStatus(domain)(client)
+      if (!isAvailable(name)) {
+        print('Domain not available')
+        exit(1)
+      }
+
+      // Wait for next block and create `claimName` transaction
+      const preclaim = await client.aensPreclaim(domain, nameFee, { nonce, ttl, fee })
+      const claim = await preclaim.claim({ nonce, ttl, fee, nameFee })
+      const updateTx = await claim.update(await client.address(), { nonce, ttl, fee, nameTtl, clientTtl })
+
+      printTransaction(
+        updateTx,
+        json
+      )
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
   }
 }
 
@@ -228,5 +306,7 @@ export const AENS = {
   updateName,
   claim,
   transferName,
+  nameBid,
+  fullClaim,
   lookUp
 }
