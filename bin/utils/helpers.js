@@ -19,10 +19,11 @@
 
 import * as R from 'ramda'
 import fs from 'fs'
-
-import { GAS_PRICE, HASH_TYPES, AENS_NAME_DOMAINS } from './constant'
-import { printError } from './print'
 import path from 'path'
+
+import { GAS_PRICE, HASH_TYPES } from './constant'
+import { printError } from './print'
+import { isNameValid } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 
 // ## Method which build arguments for call call/deploy contracts
 export async function prepareCallParams (name, { descrPath, contractAddress, contractSource, gas, ttl, nonce }) {
@@ -169,7 +170,7 @@ export function isAvailable (name) { return name.status === 'AVAILABLE' }
 
 // Validate `name`
 export function validateName (name) {
-  if (!AENS_NAME_DOMAINS.includes(R.last(name.split('.')))) { throw new Error('AENS TLDs must end in .' + R.head(AENS_NAME_DOMAINS)) }
+  isNameValid(name)
 }
 
 // Grab contract descriptor by path

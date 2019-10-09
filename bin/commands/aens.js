@@ -43,10 +43,15 @@ async function preClaim (walletPath, domain, options) {
         exit(1)
       }
       // Create `pre-claim` transaction
-      printTransaction(
-        await client.aensPreclaim(domain, { ttl, fee, nonce, waitMined }),
-        json
-      )
+      const preClaimTx = await client.aensPreclaim(domain, { ttl, fee, nonce, waitMined })
+      if (waitMined) {
+        printTransaction(
+          preClaimTx,
+          json
+        )
+      } else {
+        print('Transaction send to the chain. Tx hash: ' + preClaimTx.hash)
+      }
       exit()
     })
   } catch (e) {
@@ -74,10 +79,15 @@ async function claim (walletPath, domain, salt, options) {
       }
 
       // Wait for next block and create `claimName` transaction
-      printTransaction(
-        await client.aensClaim(domain, salt, { nonce, ttl, fee, waitMined, nameFee }),
-        json
-      )
+      const claimTx = await client.aensClaim(domain, salt, { nonce, ttl, fee, waitMined, nameFee })
+      if (waitMined) {
+        printTransaction(
+          claimTx,
+          json
+        )
+      } else {
+        print('Transaction send to the chain. Tx hash: ' + claimTx.hash)
+      }
       exit()
     })
   } catch (e) {
@@ -123,14 +133,12 @@ async function transferName (walletPath, domain, address, options) {
 
 // ##Update `name` function
 async function updateName (walletPath, domain, address, options) {
-  // Parse options(`ttl`, `nameTtl` and `nonce``)
-  const ttl = parseInt(options.ttl)
-  const nameTtl = parseInt(options.nameTtl)
-  const nonce = parseInt(options.nonce)
+  const { ttl, fee, nonce, waitMined, json, nameTtl, clientTtl } = options
 
   if (!address) {
+    // eslint-disable-next-line no-undef
     program.outputHelp()
-    process.exit(1)
+    exit(1)
   }
 
   try {
@@ -141,23 +149,29 @@ async function updateName (walletPath, domain, address, options) {
       // Check if that `name` is unavailable and we can update it
       const name = await updateNameStatus(domain)(client)
       if (isAvailable(name)) {
-        print(`Domain is ${name.status} and cannot be transferred`)
-        process.exit(1)
+        print(`Domain is ${name.status} and cannot be updated`)
+        exit(1)
       }
 
       // Create `updateName` transaction
-      const updateNameTx = await client.aensUpdate(name.id, address, { ttl, nameTtl, nonce })
-      print('Update Success')
-      printUnderscored('Transaction Hash', updateNameTx.hash)
-      process.exit(0)
+      const updateTx = await client.aensUpdate(name.id, address, { ttl, fee, nonce, waitMined, nameTtl, clientTtl })
+      if (waitMined) {
+        printTransaction(
+          updateTx,
+          json
+        )
+      } else {
+        print('Transaction send to the chain. Tx hash: ' + updateTx.hash)
+      }
+      exit()
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
-// ##Revoke `name` function
+// ## Revoke `name` function
 async function revokeName (walletPath, domain, options) {
   // Parse options(`ttl` and `nonce`)
   const ttl = parseInt(options.ttl)
