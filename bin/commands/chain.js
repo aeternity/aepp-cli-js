@@ -19,7 +19,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { initChain } from '../utils/cli'
+import { exit, initChain } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printBlock, print, printError, printUnderscored, printTransaction, printValidation } from '../utils/print'
 import { getBlock } from '../utils/helpers'
@@ -36,7 +36,7 @@ async function version (options) {
       const { consensusProtocolVersion } = client.getNodeInfo()
       if (json) {
         print(status)
-        process.exit(0)
+        exit()
       }
       const FORKS = {
         3: 'Fortuna',
@@ -53,10 +53,11 @@ async function version (options) {
       printUnderscored('Pending transactions count', status.pendingTransactionsCount)
       printUnderscored('Solutions', status.solutions)
       printUnderscored('Syncing', status.syncing)
+      exit()
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -69,15 +70,12 @@ async function getNetworkId (options) {
     // Call `getStatus` API and print it
     await handleApiError(async () => {
       const { networkId } = await client.api.getStatus()
-      if (json) {
-        print({ networkId })
-        process.exit(0)
-      }
-      printUnderscored('Network ID', networkId)
+      json ? print({ networkId }) : printUnderscored('Network ID', networkId)
+      exit(0)
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -92,14 +90,15 @@ async function ttl (absoluteTtl, options) {
       const height = await client.height()
       if (json) {
         print({ absoluteTtl, relativeTtl: +height + +absoluteTtl })
-        process.exit(0)
+      } else {
+        printUnderscored('Absolute TTL', absoluteTtl)
+        printUnderscored('Relative TTL', +height + +absoluteTtl)
       }
-      printUnderscored('Absolute TTL', absoluteTtl)
-      printUnderscored('Relative TTL', +height + +absoluteTtl)
+      exit()
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -115,7 +114,7 @@ async function top (options) {
     )
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -133,7 +132,7 @@ async function play (options) {
 
       if (height && height > parseInt(top.height)) {
         printError('Height is bigger then height of top block')
-        process.exit(1)
+        exit(1)
       }
 
       printBlock(top, json)
@@ -142,10 +141,11 @@ async function play (options) {
       height
         ? await playWithHeight(height, top.prevHash)(client, json)
         : await playWithLimit(--limit, top.prevHash)(client, json)
+      exit()
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -190,11 +190,13 @@ async function broadcast (signedTx, options) {
       } catch (e) {
         if (!!verify && e.errorData) printValidation(e.errorData)
         if (!verify) printValidation(await e.verifyTx())
+      } finally {
+        exit()
       }
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
