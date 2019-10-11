@@ -19,6 +19,7 @@ import { before, describe, it } from 'mocha'
 
 import { configure, plan, ready, execute as exec, WALLET_NAME } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 
 plan(10000000000000)
 
@@ -42,6 +43,7 @@ describe('CLI AENS Module', function () {
   configure(this)
   let wallet
   let nameAuctionsSupported
+  let name
   let name2
   let salt
 
@@ -52,6 +54,7 @@ describe('CLI AENS Module', function () {
       const { version } = wallet.getNodeInfo()
       const [majorVersion] = version.split('.')
       nameAuctionsSupported = +majorVersion === 5 && version !== '5.0.0-rc.1'
+      name = randomName(12, nameAuctionsSupported ? '.aet' : '.test')
       name2 = randomName(13, nameAuctionsSupported ? '.aet' : '.test')
     } catch (e) {
       console.log(e.toString())
@@ -64,6 +67,17 @@ describe('CLI AENS Module', function () {
     const address = await wallet.address()
 
     updateTx.blockHeight.should.be.gt(0)
+    const isUpdated = !!updateTx.pointers.find(({ id }) => id === address)
+    isUpdated.should.be.equal(true)
+  })
+  it('Full claim with options', async () => {
+    const name = randomName(13)
+    const updateTx = JSON.parse(await execute(['name', 'full-claim', WALLET_NAME, '--password', 'test', name, '--json', '--nameTtl', 50, '--nameFee', '3865700000000000000', '--clientTtl', 50]))
+    const address = await wallet.address()
+
+    updateTx.blockHeight.should.be.gt(0)
+    updateTx.tx.nameTtl.should.be.equal(50)
+    updateTx.tx.clientTtl.should.be.equal(50)
     const isUpdated = !!updateTx.pointers.find(({ id }) => id === address)
     isUpdated.should.be.equal(true)
   })
@@ -104,5 +118,26 @@ describe('CLI AENS Module', function () {
 
     revoke.blockHeight.should.be.gt(0)
     nameResult.status.should.equal('AVAILABLE')
+  })
+  describe('Name Auction', () => {
+    const nameFee = '3665700000000000000'
+    it('Open auction', async () => {
+      const account = MemoryAccount({ keypair: generateKeyPair() })
+      await wallet.addAccount(account)
+      await wallet.spend('30000000000000000000000', await account.address())
+      const preclaim = await wallet.aensPreclaim(name, { onAccount: await account.address() })
+      const claim = await preclaim.claim({ onAccount: await account.address() })
+      claim.blockHeight.should.be.gt(0)
+    })
+    it('Make bid', async () => {
+      const bid = JSON.parse(await execute(['name', 'bid', WALLET_NAME, '--password', 'test', name, nameFee, '--json']))
+      bid.tx.nameSalt.should.be.equal(0)
+      bid.tx.nameFee.should.be.equal(nameFee)
+    })
+    it('Fail on open  again', async () => {
+      const preClaim = JSON.parse(await execute(['name', 'pre-claim', WALLET_NAME, '--password', 'test', name, '--json']))
+      const claim = await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name, preClaim.salt, '--json'])
+      claim.indexOf('Giving up after 10 blocks mined').should.not.be.equal(-1)
+    })
   })
 })

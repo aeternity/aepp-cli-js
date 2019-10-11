@@ -245,7 +245,7 @@ async function nameBid (walletPath, domain, nameFee, options) {
 }
 
 async function fullClaim (walletPath, domain, options) {
-  const { ttl, fee, nonce, nameFee, json, nameTtl, clientTtl } = options
+  let { ttl, fee, nonce, nameFee, json, nameTtl, clientTtl } = options
   try {
     // Validate `name`
     validateName(domain)
@@ -264,9 +264,15 @@ async function fullClaim (walletPath, domain, options) {
       }
 
       // Wait for next block and create `claimName` transaction
-      const preclaim = await client.aensPreclaim(domain, nameFee, { nonce, ttl, fee })
+      if (nonce) {
+        nonce = parseInt(nonce)
+      }
+      const preclaim = await client.aensPreclaim(domain, { nonce, ttl, fee })
+      nonce += 1
       const claim = await preclaim.claim({ nonce, ttl, fee, nameFee })
+      nonce += 1
       const updateTx = await claim.update(await client.address(), { nonce, ttl, fee, nameTtl, clientTtl })
+      nonce += 1
 
       printTransaction(
         updateTx,
