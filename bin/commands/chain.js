@@ -156,10 +156,12 @@ function playWithLimit (limit, blockHash) {
 
     const block = await getBlock(blockHash)(client)
 
-    setTimeout(async () => {
-      printBlock(block, json)
-      await playWithLimit(--limit, block.prevHash)(client, json)
-    }, 1000)
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        printBlock(block, json)
+        resolve(await playWithLimit(--limit, block.prevHash)(client, json))
+      }, 1000)
+    })
   }
 }
 
@@ -169,10 +171,12 @@ function playWithHeight (height, blockHash) {
     const block = await getBlock(blockHash)(client)
     if (parseInt(block.height) < height) return
 
-    setTimeout(async () => {
-      printBlock(block, json)
-      await playWithHeight(height, block.prevHash)(client, json)
-    }, 1000)
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        printBlock(block, json)
+        resolve(await playWithHeight(height, block.prevHash)(client, json))
+      }, 1000)
+    })
   }
 }
 
