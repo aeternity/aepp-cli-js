@@ -27,9 +27,11 @@ export {
   AENS_NAME_DOMAINS,
   // ## TRANSACTION
   TX_TTL,
+  // # CONTRACT
   ABI_VERSIONS,
   VM_VERSIONS,
-  VM_TYPE
+  VM_TYPE,
+  MIN_GAS_PRICE as GAS_PRICE
 } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 
 // ## HAST TYPES
@@ -63,7 +65,6 @@ export const VM_VERSION = VM_VERSIONS.FATE
 export const ABI_VERSION = ABI_VERSIONS.FATE
 export const COMPILER_BACKEND = VM_TYPE.FATE
 export const ORACLE_VM_VERSION = 0
-export const GAS_PRICE = 1000000000 // 1e9
 export const AMOUNT = 0
 
 // ## ORACLE
