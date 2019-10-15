@@ -25,7 +25,7 @@ plan(10000000000000)
 
 const execute = (arg) => exec(arg, { withNetworkId: true })
 
-function randomName (length, namespace = '.aet') {
+function randomName (length, namespace = '.chain') {
   return randomString(length).toLowerCase() + namespace
 }
 
@@ -54,8 +54,8 @@ describe('CLI AENS Module', function () {
       const { version } = wallet.getNodeInfo()
       const [majorVersion] = version.split('.')
       nameAuctionsSupported = +majorVersion === 5 && version !== '5.0.0-rc.1'
-      name = randomName(12, nameAuctionsSupported ? '.aet' : '.test')
-      name2 = randomName(13, nameAuctionsSupported ? '.aet' : '.test')
+      name = randomName(12, nameAuctionsSupported ? '.chain' : '.test')
+      name2 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
     } catch (e) {
       console.log(e.toString())
     }
