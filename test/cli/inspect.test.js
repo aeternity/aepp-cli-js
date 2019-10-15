@@ -64,7 +64,7 @@ describe('CLI Inspect Module', function () {
   })
   it('Inspect Height', async () => {
     const top = JSON.parse(await execute(['chain', 'top', '--json']))
-    const inspectRes = parseBlock(await execute(['inspect', top.hash, '--json']))
+    const inspectRes = JSON.parse(await execute(['inspect', top.hash, '--json']))
 
     top.hash.should.equal(inspectRes.hash)
   })
