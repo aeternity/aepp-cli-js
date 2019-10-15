@@ -20,6 +20,7 @@ import { describe, it } from 'mocha'
 import { configure, BaseAe, execute, parseBlock, ready } from './index'
 import { decodeBase64Check, generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 import fs from 'fs'
+import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS } from '../../bin/utils/constant'
 
 const WALLET_NAME = 'txWallet'
 const testContract = `contract Identity =
@@ -55,6 +56,7 @@ describe('CLI Transaction Module', function () {
   let salt
   let queryId
   let contractId
+  let aevmCId
   const name = randomName().toLowerCase()
   let nonce
   let nameId
@@ -83,7 +85,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it.only('Build preclaim tx offline and send the chain', async () => {
+  it('Build preclaim tx offline and send the chain', async () => {
     const { tx, salt: nameSalt } = JSON.parse(await execute(['tx', 'name-preclaim', TX_KEYS.publicKey, name, nonce, '--json']))
     salt = nameSalt
     const res = (parseBlock(await signAndPost(tx)))
@@ -92,7 +94,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it.only('Build claim tx offline and send the chain', async () => {
+  it('Build claim tx offline and send the chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'name-claim', TX_KEYS.publicKey, salt, name, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
@@ -102,7 +104,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it.only('Build update tx offline and send the chain', async () => {
+  it('Build update tx offline and send the chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'name-update', TX_KEYS.publicKey, nameId, nonce, TX_KEYS.publicKey, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
@@ -110,7 +112,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it.only('Build transfer tx offline and send the chain', async () => {
+  it('Build transfer tx offline and send the chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'name-transfer', TX_KEYS.publicKey, TX_KEYS.publicKey, nameId, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
@@ -118,7 +120,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it.only('Build revoke tx offline and send the chain', async () => {
+  it('Build revoke tx offline and send the chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'name-revoke', TX_KEYS.publicKey, nameId, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
@@ -127,13 +129,24 @@ describe('CLI Transaction Module', function () {
   })
 
   it('Build contract create tx offline and send the chain', async () => {
-    // const { unsigned_contract_deploy_tx, contract_id } = parseBlock(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, 'contractTest']))
     const { bytecode } = await compilerCLI.contractCompile(testContract)
     const callData = await compilerCLI.contractEncodeCall(testContract, 'init', [])
     const { tx, contractId: cId } = JSON.parse(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, bytecode, callData, nonce, '--json']))
     contractId = cId
     const res = (parseBlock(await signAndPost(tx)))
-    const isMined = !isNaN(res.block_height)
+    const isMined = !isNaN(res.block_height_)
+    isMined.should.be.equal(true)
+    nonce += 1
+  })
+  it('Build contract create tx using AEVM offline and send the chain', async () => {
+    const { bytecode } = await compilerCLI.contractCompile(testContract, { backend: VM_TYPE.AEVM })
+    const callData = await compilerCLI.contractEncodeCall(testContract, 'init', [], { backend: VM_TYPE.AEVM })
+    const { tx, contractId: aevmContractId } = JSON.parse(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, bytecode, callData, nonce, '--json', '--backend', VM_TYPE.AEVM]))
+    const res = (parseBlock(await signAndPost(tx)))
+    aevmCId = aevmContractId
+    parseInt(res.vm_version_).should.be.equal(VM_VERSIONS.SOPHIA_IMPROVEMENTS_LIMA)
+    parseInt(res.abi_version_).should.be.equal(ABI_VERSIONS.SOPHIA)
+    const isMined = !isNaN(res.block_height_)
     isMined.should.be.equal(true)
     nonce += 1
   })
@@ -143,7 +156,18 @@ describe('CLI Transaction Module', function () {
 
     const { tx } = JSON.parse(await execute(['tx', 'contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
-    const isMined = !isNaN(res.block_height)
+    const isMined = !isNaN(res.block_height_)
+    isMined.should.be.equal(true)
+    nonce += 1
+  })
+
+  it('Build contract call tx AEVM offline and send the chain', async () => {
+    const callData = await compilerCLI.contractEncodeCall(testContract, 'main', ['1', '2'], { backend: VM_TYPE.AEVM })
+
+    const { tx } = JSON.parse(await execute(['tx', 'contract-call', TX_KEYS.publicKey, aevmCId, callData, nonce, '--json', '--backend', VM_TYPE.AEVM]))
+    const res = (parseBlock(await signAndPost(tx)))
+    parseInt(res.abi_version_).should.be.equal(ABI_VERSIONS.SOPHIA)
+    const isMined = !isNaN(res.block_height_)
     isMined.should.be.equal(true)
     nonce += 1
   })

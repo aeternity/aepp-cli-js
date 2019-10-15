@@ -26,8 +26,13 @@ import { TX_TYPE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 import { exit, initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printBuilderTransaction, printError, printUnderscored, printValidation } from '../utils/print'
-import { validateName } from '../utils/helpers'
-import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION, DEFAULT_CONTRACT_PARAMS } from '../utils/constant'
+import { getVmAbiVersion, validateName } from '../utils/helpers'
+import {
+  BUILD_ORACLE_TTL,
+  ORACLE_VM_VERSION,
+  DEFAULT_CONTRACT_PARAMS,
+  COMPILER_BACKEND
+} from '../utils/constant'
 
 // ## Build `spend` transaction
 async function spend (senderId, recipientId, amount, nonce, options) {
@@ -231,31 +236,24 @@ async function nameRevoke (accountId, nameId, nonce, options) {
 
 // ## Build `contractDeploy` transaction
 async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, options) {
-  let { ttl, json, fee, gas, deposit = 0, amount = 0, vmVersion } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  if (!vmVersion) vmVersion = DEFAULT_CONTRACT_PARAMS.vmVersion
+  const { json, backend = COMPILER_BACKEND } = options
   try {
     // Initialize `Ae`
     const txBuilder = await initTxBuilder(options)
     // Build `deploy` transaction's
     await handleApiError(async () => {
       // Create `contract-deploy` transaction
-      const { tx, contractId } = await txBuilder.contractCreateTx({
-        ...Object.assign(DEFAULT_CONTRACT_PARAMS, { vmVersion }),
+      const ctVersion = getVmAbiVersion(backend)
+      const { tx, contractId, txObject } = await txBuilder.contractCreateTx({
+        ...{ ...DEFAULT_CONTRACT_PARAMS, ...options, ...ctVersion },
         code: contractByteCode,
-        nonce,
-        fee,
-        ttl,
-        gas,
         ownerId,
-        callData: initCallData,
-        amount,
-        deposit
+        nonce,
+        callData: initCallData
       })
 
       if (json) {
-        print(JSON.stringify({ tx, contractId }))
+        print({ tx, contractId, txObject, ctVersion })
       } else {
         printUnderscored('Unsigned Contract Deploy TX', tx)
         printUnderscored('Contract ID', contractId)
@@ -269,8 +267,8 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
 
 // ## Build `contractCall` transaction
 async function contractCall (callerId, contractId, callData, nonce, options) {
-  const { ttl, json, fee, gas } = options
-  nonce = parseInt(nonce)
+  const { json, backend = COMPILER_BACKEND } = options
+  const ctVersion = getVmAbiVersion(backend)
   try {
     // Build `call` transaction's
     await handleApiError(async () => {
@@ -278,18 +276,15 @@ async function contractCall (callerId, contractId, callData, nonce, options) {
       const txBuilder = await initTxBuilder(options)
       // Create `contract-call` transaction
       const tx = await txBuilder.contractCallTx({
-        ...DEFAULT_CONTRACT_PARAMS,
+        ...{ ...DEFAULT_CONTRACT_PARAMS, ...options, ...ctVersion },
         callerId,
         nonce,
-        ttl,
-        fee,
-        gas,
         callData,
         contractId
       })
 
       json
-        ? print(JSON.stringify({ tx }))
+        ? print({ tx })
         : printUnderscored('Unsigned Contract Call TX', tx)
     })
   } catch (e) {

@@ -17,6 +17,8 @@
 // # Utils `constant` Module
 // That script contains default configuration for `CLI`
 
+import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS } from '@aeternity/aepp-sdk/es/tx/builder/schema'
+
 export {
   // ## AENS
   NAME_TTL,
@@ -24,7 +26,10 @@ export {
   CLIENT_TTL,
   AENS_NAME_DOMAINS,
   // ## TRANSACTION
-  TX_TTL
+  TX_TTL,
+  ABI_VERSIONS,
+  VM_VERSIONS,
+  VM_TYPE
 } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 
 // ## HAST TYPES
@@ -54,13 +59,12 @@ export const PLAY_INTERVAL = 1000
 // ## CONTRACT
 export const GAS = 1600000 - 21000 // MAX GAS
 export const DEPOSIT = 0
-export const VM_VERSION = 5 // fate
-export const ABI_VERSION = 3 // fate
-export const COMPILER_BACKEND = 'fate'
+export const VM_VERSION = VM_VERSIONS.FATE
+export const ABI_VERSION = ABI_VERSIONS.FATE
+export const COMPILER_BACKEND = VM_TYPE.FATE
 export const ORACLE_VM_VERSION = 0
 export const GAS_PRICE = 1000000000 // 1e9
 export const AMOUNT = 0
-export const WAIT_MINED = true // Wait until tx will be mined
 
 // ## ORACLE
 export const QUERY_FEE = 30000
