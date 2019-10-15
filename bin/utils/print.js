@@ -64,7 +64,7 @@ export function printError (msg, obj) {
 
 // Print `underscored`
 export function printUnderscored (key, val) {
-  print(`${key}${R.repeat('_', WIDTH - key.length).reduce((a, b) => a += b, '')} ${typeof val !== 'object' ? val : JSON.stringify(val)}`)
+  print(`${key} ${R.repeat('_', WIDTH - key.length).reduce((a, b) => a += b, '')} ${typeof val !== 'object' ? val : JSON.stringify(val)}`)
 }
 
 // ## BLOCK
@@ -164,6 +164,7 @@ function printContractCreateTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'TTL', R.defaultTo('N/A', R.path(['tx', 'ttl'], tx)))
   printUnderscored(tabs + 'Version', R.defaultTo('N/A', R.path(['tx', 'version'], tx)))
   printUnderscored(tabs + 'VM Version', R.defaultTo('N/A', R.path(['tx', 'vmVersion'], tx)))
+  printUnderscored(tabs + 'ABI Version', R.defaultTo('N/A', R.path(['tx', 'abiVersion'], tx)))
 }
 
 // Print `contract_call_tx` info
@@ -181,7 +182,6 @@ function printContractCallTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'TTL', R.defaultTo(0, R.path(['tx', 'ttl'], tx)))
   printUnderscored(tabs + 'Version', R.defaultTo(0, R.path(['tx', 'version'], tx)))
   printUnderscored(tabs + 'ABI Version', R.defaultTo(0, R.path(['tx', 'abiVersion'], tx)))
-  printUnderscored(tabs + 'VM Version', R.defaultTo(0, R.path(['tx', 'vmVersion'], tx)))
 }
 
 // Print `spend_tx` info
@@ -202,6 +202,7 @@ function printSpendTransaction (tx = {}, tabs = '') {
 function printNamePreclaimTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'Account', R.defaultTo('N/A', R.path(['tx', 'accountId'], tx)))
   printUnderscored(tabs + 'Commitment', R.defaultTo('N/A', R.path(['tx', 'commitmentId'], tx)))
+  printUnderscored(tabs + 'Salt', R.defaultTo('N/A', R.path(['salt'], tx)))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
   printUnderscored(tabs + 'Nonce', R.defaultTo('N/A', R.path(['tx', 'nonce'], tx)))
@@ -214,6 +215,7 @@ function printNameClaimTransaction (tx = {}, tabs = '') {
 
   printUnderscored(tabs + 'Account', R.defaultTo('N/A', R.path(['tx', 'accountId'], tx)))
   printUnderscored(tabs + 'Name', R.defaultTo('N/A', R.path(['tx', 'name'], tx)))
+  printUnderscored(tabs + 'Name Fee', R.defaultTo('N/A', R.path(['tx', 'nameFee'], tx)))
   printUnderscored(tabs + 'Name Salt', R.defaultTo('N/A', R.path(['tx', 'nameSalt'], tx)))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))

@@ -139,11 +139,21 @@ async function getAccountByHash (hash, options) {
       async () => {
         const { nonce } = await client.api.getAccountByPubkey(hash)
         const balance = await client.balance(hash)
-        printUnderscored('Account ID', hash)
-        printUnderscored('Account balance', balance)
-        printUnderscored('Account nonce', nonce)
-        print('Account Transactions: ')
-        printBlockTransactions((await client.api.getPendingAccountTransactionsByPubkey(hash)).transactions, json)
+        const transactions = (await client.api.getPendingAccountTransactionsByPubkey(hash)).transactions
+        if (json) {
+          print({
+            hash,
+            balance,
+            nonce,
+            transactions
+          })
+        } else {
+          printUnderscored('Account ID', hash)
+          printUnderscored('Account balance', balance)
+          printUnderscored('Account nonce', nonce)
+          print('Account Transactions: ')
+          printBlockTransactions(transactions)
+        }
       }
     )
   } catch (e) {

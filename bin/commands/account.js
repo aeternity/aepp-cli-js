@@ -22,7 +22,7 @@
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
 import { HASH_TYPES } from '../utils/constant'
-import { initClientByWalletFile } from '../utils/cli'
+import { exit, initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
 import { checkPref } from '../utils/helpers'
@@ -41,11 +41,13 @@ async function sign (walletPath, tx, options) {
 
     await handleApiError(async () => {
       const signedTx = await client.signTransaction(tx)
+      const address = await client.address()
+      const networkId = client.getNetworkId()
       if (json) {
-        print({ signedTx })
+        print({ signedTx, address, networkId })
       } else {
-        printUnderscored('Signing account address', await client.address())
-        printUnderscored('Network ID', client.networkId || client.nodeNetworkId || 'ae_mainnet') // TODO add getNetworkId function to SDK
+        printUnderscored('Signing account address', address)
+        printUnderscored('Network ID', networkId)
         printUnderscored('Unsigned', tx)
         printUnderscored('Signed', signedTx)
       }
@@ -122,17 +124,23 @@ async function transferFunds (walletPath, receiver, percentage, options) {
 // ## Get `balance` function
 // This function allow you retrieve account `balance`
 async function getBalance (walletPath, options) {
-  const { height, hash } = options
+  const { height, hash, json } = options
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
     await handleApiError(
       async () => {
         const nonce = await client.getAccountNonce(keypair.publicKey)
-        printUnderscored('Balance', await client.balance(keypair.publicKey, { height: +height, hash }))
-        printUnderscored('ID', await client.address())
-        printUnderscored('Nonce', nonce)
-        process.exit(0)
+        const balance = await client.balance(keypair.publicKey, { height: +height, hash })
+        const address = await client.address()
+        if (json) {
+          print({ address, nonce, balance })
+        } else {
+          printUnderscored('Balance', balance)
+          printUnderscored('ID', address)
+          printUnderscored('Nonce', nonce)
+        }
+        exit(0)
       }
     )
   } catch (e) {
@@ -153,7 +161,6 @@ async function getAddress (walletPath, options) {
         if (json) {
           if (privateKey) {
             if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-              printUnderscored('Secret Key', keypair.secretKey)
               print({ publicKey: await client.address(), secretKey: keypair.secretKey })
             }
           } else {
@@ -167,7 +174,7 @@ async function getAddress (walletPath, options) {
             }
           }
         }
-        process.exit(0)
+        exit(0)
       }
     )
   } catch (e) {

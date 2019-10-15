@@ -26,7 +26,6 @@ import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
 import { initClientByWalletFile, initCompiler } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
-import { GAS_PRICE } from '../utils/constant'
 
 // ## Function which compile your `source` code
 export async function compile (file, options) {
@@ -82,7 +81,7 @@ export async function decodeData (data, type, options) {
       if (options.json) {
         print(JSON.stringify({ decodedData }))
       } else {
-        print(`Contract bytecode:`)
+        print('Contract bytecode:')
         print(decodedData)
       }
     })
@@ -117,7 +116,7 @@ export async function decodeCallData (data, options) {
       if (options.json) {
         print(JSON.stringify({ decoded }))
       } else {
-        print(`Decoded Call Data:`)
+        print('Decoded Call Data:')
         print(decoded)
       }
     })
@@ -128,10 +127,7 @@ export async function decodeCallData (data, options) {
 
 // ## Function which `deploy ` contract
 async function deploy (walletPath, contractPath, init = [], options) {
-  const { json, gas } = options
-  const ttl = parseInt(options.ttl)
-  const nonce = parseInt(options.nonce)
-
+  const { json, gas, gasPrince, backend, ttl, nonce, fee } = options
   // Deploy a contract to the chain and create a deploy descriptor
   // with the contract informations that can be use to invoke the contract
   // later on.
@@ -156,14 +152,13 @@ async function deploy (walletPath, contractPath, init = [], options) {
         // even when the contract's `state` is `unit` (`()`). The arguments to
         // `init` have to be provided at deployment time and will be written to the
         // block as well, together with the contract's bytecode.
-        const deployDescriptor = await contract.deploy([...init], { ttl, gas, nonce, gasPrice: GAS_PRICE })
+        const deployDescriptor = await contract.deploy([...init], { fee, ttl, nonce, gas, gasPrince, backend })
         // Write contractDescriptor to file
         const descPath = `${R.last(contractPath.split('/'))}.deploy.${deployDescriptor.deployInfo.owner.slice(3)}.json`
         const contractDescriptor = R.merge({
           descPath,
           source: contractFile,
           bytecode: contract.compiled,
-          abi: 'sophia'
         }, deployDescriptor.deployInfo)
 
         writeFile(
@@ -172,7 +167,9 @@ async function deploy (walletPath, contractPath, init = [], options) {
         )
 
         // Log contract descriptor
-        logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json)
+        json
+          ? print({ descPath, ...deployDescriptor.deployInfo })
+          : logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json)
       }
     )
   } catch (e) {

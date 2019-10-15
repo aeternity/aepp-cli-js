@@ -29,8 +29,8 @@ const { Account } = require('./commands')
 
 // ## Initialize `options`
 program
-  .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
-  .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
+  .option('-u, --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+  .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
   .option('-P, --password [password]', 'Wallet Password')
   .option('-f --force', 'Ignore epoch version compatibility check')
   .option('--json', 'Print result in json format')
