@@ -249,8 +249,8 @@ async function fullClaim (walletPath, domain, options) {
   try {
     // Validate `name`
     validateName(domain)
-    const [_, namespace] = domain.split('.')
-    if (namespace !== 'test' && domain.length - 4 < 13) throw new Error('Full name claiming works only with name longer then 12 symbol(Not trigger auction)')
+    const [aensName, namespace] = domain.split('.')
+    if (namespace === 'chain' && aensName.length < 13) throw new Error('Full name claiming works only with name longer then 12 symbol(Not trigger auction)')
 
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
