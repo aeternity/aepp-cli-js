@@ -41,6 +41,7 @@ function randomString (len, charSet) {
 
 describe('CLI AENS Module', function () {
   configure(this)
+  const { publicKey } = generateKeyPair()
   let wallet
   let nameAuctionsSupported
   let name
@@ -103,7 +104,6 @@ describe('CLI AENS Module', function () {
     nameResult.status.should.equal('CLAIMED')
   })
   it('Update Name', async () => {
-    const { publicKey } = generateKeyPair()
     const updateTx = JSON.parse(await execute(['name', 'update', WALLET_NAME, '--password', 'test', name2, publicKey, '--json']))
     const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
 
@@ -111,6 +111,19 @@ describe('CLI AENS Module', function () {
     const isUpdatedNode = !!nameResult.pointers.find(({ id }) => id === publicKey)
     isUpdatedNode.should.be.equal(true)
     nameResult.status.should.equal('CLAIMED')
+  })
+  it('Fail spend by name on invalid input', async () => {
+    const amount = 100000009
+    const error = await execute(['account', 'spend', WALLET_NAME, '--password', 'test', 'sdasdaasdas', amount, '--json'])
+    error.indexOf('AENS: Invalid name domain').should.not.be.equal(-1)
+  })
+  it('Spend by name', async () => {
+    const amount = 100000009
+    const spendTx = JSON.parse(await execute(['account', 'spend', WALLET_NAME, '--password', 'test', name2, amount, '--json']))
+    const nameObject = await wallet.aensQuery(name2)
+    spendTx.tx.tx.recipientId.should.be.equal(nameObject.id)
+    const balance = await wallet.getBalance(publicKey)
+    balance.should.be.equal(`${amount}`)
   })
   it('Revoke Name', async () => {
     const revoke = JSON.parse(await execute(['name', 'revoke', WALLET_NAME, '--password', 'test', name2, '--json']))

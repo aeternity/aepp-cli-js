@@ -52,27 +52,24 @@ async function sign (walletPath, tx, options) {
         printUnderscored('Unsigned', tx)
         printUnderscored('Signed', signedTx)
       }
-      process.exit(0)
+      exit()
     })
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
 // ## `Spend` function
 // this function allow you to `send` token's to another `account`
-async function spend (walletPath, receiver, amount, options) {
-  let { ttl, json, nonce, fee, payload = '' } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  fee = parseInt(fee)
+async function spend (walletPath, receiverNameOrAddress, amount, options) {
+  const { ttl, json, nonce, fee, payload = '' } = options
   try {
-    checkPref(receiver, HASH_TYPES.account)
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
-      let tx = await client.spend(amount, receiver, { ttl, nonce, payload, fee })
+      let tx = await client.spend(amount, receiverNameOrAddress, { ttl, nonce, payload, fee })
       // if waitMined false
       if (typeof tx !== 'object') {
         tx = await client.tx(tx)
@@ -82,20 +79,18 @@ async function spend (walletPath, receiver, amount, options) {
       json
         ? print({ tx })
         : printTransaction(tx, json)
-      process.exit(0)
+      exit()
     })
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
 // ## `Transfer` function
 // this function allow you to `send` % of balance to another `account`
 async function transferFunds (walletPath, receiver, percentage, options) {
-  let { ttl, json, nonce, fee, payload = '', excludeFee } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  fee = parseInt(fee)
+  const { ttl, json, nonce, fee, payload = '', excludeFee } = options
   percentage = parseFloat(percentage)
   try {
     checkPref(receiver, HASH_TYPES.account)
@@ -115,10 +110,11 @@ async function transferFunds (walletPath, receiver, percentage, options) {
       } else {
         printTransaction(tx, json)
       }
-      process.exit(0)
+      exit()
     })
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -141,11 +137,12 @@ async function getBalance (walletPath, options) {
           printUnderscored('ID', address)
           printUnderscored('Nonce', nonce)
         }
-        exit(0)
+        exit()
       }
     )
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -175,11 +172,12 @@ async function getAddress (walletPath, options) {
             }
           }
         }
-        exit(0)
+        exit(1)
       }
     )
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -205,11 +203,12 @@ async function getAccountNonce (walletPath, options) {
           printUnderscored('Nonce', nonce - 1)
           printUnderscored('Next Nonce', nonce)
         }
-        process.exit(0)
+        process.exit()
       }
     )
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -227,9 +226,10 @@ async function createSecureWallet (walletPath, { output, password, overwrite, js
       printUnderscored('Address', publicKey)
       printUnderscored('Path', path)
     }
-    process.exit(0)
+    exit()
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -247,9 +247,10 @@ async function createSecureWalletByPrivKey (walletPath, priv, { output, password
       printUnderscored('Address', publicKey)
       printUnderscored('Path', path)
     }
-    process.exit(0)
+    exit()
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -273,12 +274,12 @@ async function generateKeyPairs (count = 1, { forcePrompt, json }) {
         })
       }
     } else {
-      process.exit(0)
+      exit()
     }
-    process.exit(0)
+    exit()
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
