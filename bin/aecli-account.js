@@ -41,17 +41,19 @@ program
 //
 // Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword`
 //
+// Example: `aecli account spend ./myWalletKeyFile aensAccountName.chain 100 --password testpassword`
+//
 // You can set transaction `ttl(Time to leave)`. If not set use default.
 //
 // Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
 program
-  .command('spend <wallet_path> <receiver> <amount>')
+  .command('spend <wallet_path> <receiverIdOrName> <amount>')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--payload [payload]', 'Transaction payload.', '')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .action(async (walletPath, receiver, amount, ...arguments) => await Account.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, receiverIdOrName, amount, ...arguments) => await Account.spend(walletPath, receiverIdOrName, amount, utils.cli.getCmdFromArguments(arguments)))
 
 
 // ## Initialize `transfer` command
