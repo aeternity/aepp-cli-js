@@ -20,6 +20,7 @@
  */
 
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
 import { HASH_TYPES } from '../utils/constant'
 import { exit, initClientByWalletFile } from '../utils/cli'

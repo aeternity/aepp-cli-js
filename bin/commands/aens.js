@@ -23,7 +23,7 @@ import { exit, initChain, initClientByWalletFile } from '../utils/cli'
 import { printError, print, printName, printTransaction } from '../utils/print'
 import { handleApiError } from '../utils/errors'
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
-import { isAddressValid } from '@aeternity/aepp-sdk/es/utils/crypto';
+import { isAddressValid } from '@aeternity/aepp-sdk/es/utils/crypto'
 
 // ## Claim `name` function
 async function preClaim (walletPath, domain, options) {
@@ -249,8 +249,8 @@ async function fullClaim (walletPath, domain, options) {
   try {
     // Validate `name`
     validateName(domain)
-    const [_, namespace] = domain.split('.')
-    if (namespace !== 'test' && domain.length - 4 < 13) throw new Error('Full name claiming works only with name longer then 12 symbol(Not trigger auction)')
+    const [aensName, namespace] = domain.split('.')
+    if (namespace === 'chain' && aensName.length < 13) throw new Error('Full name claiming works only with name longer then 12 symbol(Not trigger auction)')
 
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)

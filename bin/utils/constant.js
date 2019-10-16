@@ -17,7 +17,7 @@
 // # Utils `constant` Module
 // That script contains default configuration for `CLI`
 
-import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS } from '@aeternity/aepp-sdk/es/tx/builder/schema'
+import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS, MIN_GAS_PRICE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 
 export {
   // ## AENS
@@ -27,6 +27,7 @@ export {
   AENS_NAME_DOMAINS,
   // ## TRANSACTION
   TX_TTL,
+  // # CONTRACT
   ABI_VERSIONS,
   VM_VERSIONS,
   VM_TYPE
@@ -59,11 +60,11 @@ export const PLAY_INTERVAL = 1000
 // ## CONTRACT
 export const GAS = 1600000 - 21000 // MAX GAS
 export const DEPOSIT = 0
+export const GAS_PRICE = MIN_GAS_PRICE
 export const VM_VERSION = VM_VERSIONS.FATE
 export const ABI_VERSION = ABI_VERSIONS.FATE
 export const COMPILER_BACKEND = VM_TYPE.FATE
 export const ORACLE_VM_VERSION = 0
-export const GAS_PRICE = 1000000000 // 1e9
 export const AMOUNT = 0
 
 // ## ORACLE
