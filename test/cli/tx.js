@@ -27,7 +27,7 @@ const testContract = `contract Identity =
   entrypoint main(x : int, y: int) = x + y
 `
 
-function randomName (length = 18, namespace = '.aet') {
+function randomName (length = 18, namespace = '.chain') {
   return randomString(length).toLowerCase() + namespace
 }
 
