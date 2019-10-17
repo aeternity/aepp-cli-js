@@ -29,7 +29,7 @@ import { printError, print, logContractDescriptor, printTransaction, printUnders
 
 // ## Function which compile your `source` code
 export async function compile (file, options) {
-  const { backend } = options
+  const { backend, json } = options
   try {
     const code = readFile(path.resolve(process.cwd(), file), 'utf-8')
     if (!code) throw new Error('Contract file not found')
@@ -39,8 +39,11 @@ export async function compile (file, options) {
     await handleApiError(async () => {
       // Call `node` API which return `compiled code`
       const contract = await client.compileContractAPI(code, { backend })
-      print(`Contract bytecode:
-      ${contract}`)
+      if (json) {
+        print(contract)
+      } else {
+        print(`Contract bytecode: ${contract}`)
+      }
     })
   } catch (e) {
     printError(e.message)
