@@ -40,7 +40,7 @@ export async function compile (file, options) {
       // Call `node` API which return `compiled code`
       const contract = await client.compileContractAPI(code, { backend })
       if (json) {
-        print(contract)
+        print({ bytecode: contract })
       } else {
         print(`Contract bytecode: ${contract}`)
       }
