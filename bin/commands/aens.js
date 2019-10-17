@@ -23,7 +23,7 @@ import { exit, initChain, initClientByWalletFile } from '../utils/cli'
 import { printError, print, printName, printTransaction } from '../utils/print'
 import { handleApiError } from '../utils/errors'
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
-import { isAddressValid } from '@aeternity/aepp-sdk/es/utils/crypto';
+import { isAddressValid } from '@aeternity/aepp-sdk/es/utils/crypto'
 
 // ## Claim `name` function
 async function preClaim (walletPath, domain, options) {
