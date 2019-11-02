@@ -39,8 +39,8 @@ describe('CLI Chain Module', function () {
     await wallet.addAccount(MemoryAccount({ keypair: generateKeyPair() }), { select: true })
 
     const { nodeVersion } = await wallet.api.getStatus()
-    const res = JSON.parse(await execute(['chain', 'status', '--json']))
-    res.nodeVersion.should.equal(nodeVersion)
+    const {'node_version': nodeVersionResponse} = JSON.parse(await execute(['chain', 'status', '--json']))
+    nodeVersionResponse.should.equal(nodeVersion)
   })
   it('PLAY', async () => {
     const res = await execute(['chain', 'play', '--limit', '4'])
@@ -56,13 +56,13 @@ describe('CLI Chain Module', function () {
       execute(['chain', 'ttl', 10, '--json'])
     ])
     const height = await wallet.height()
-    const { relativeTtl } = JSON.parse(res)
+    const { 'RelativeTTL':relativeTtl } = JSON.parse(res)
     const isValid = [relativeTtl + 1, relativeTtl, relativeTtl - 1].includes(height + 10)
     isValid.should.equal(true)
   })
   it('NETWORK ID', async () => {
     const nodeNetworkId = wallet.getNetworkId()
-    const { networkId } = JSON.parse((await execute(['chain', 'network_id', '--json'])))
+    const { 'Network ID': networkId } = JSON.parse((await execute(['chain', 'network-id', '--json'])))
     nodeNetworkId.should.equal(networkId)
   })
 })

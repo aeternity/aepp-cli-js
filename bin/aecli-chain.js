@@ -42,7 +42,7 @@ program
 // Example: `aecli chain top`
 program
   .command('top')
-  .description('Get top of Chain')
+  .description('Print the information of the top block of the chain.')
   .action(async (...arguments) => await Chain.top(utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `status` command
@@ -52,7 +52,7 @@ program
 // Example: `aecli chain status`
 program
   .command('status')
-  .description('Get node version')
+  .description('Print the node node status.')
   .action(async (...arguments) => await Chain.version(utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `ttl` command
@@ -62,7 +62,7 @@ program
 // Example: `aecli chain ttl <absolute_ttl>`
 program
   .command('ttl <absoluteTtl>')
-  .description('Get relative ttl')
+  .description('Print the information of the top block of the chain.')
   .action(async (absoluteTtl, ...arguments) => await Chain.ttl(absoluteTtl, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `ttl` command
@@ -71,8 +71,8 @@ program
 //
 // Example: `aecli chain ttl <absolute_ttl>`
 program
-  .command('network_id')
-  .description('Get network ID')
+  .command('network-id')
+  .description('Retrieve the network id of the target node')
   .action(async (...arguments) => await Chain.getNetworkId(utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `play` command
@@ -85,7 +85,7 @@ program
 program
   .command('play')
   .option('-P --height [playToHeight]', 'Play to selected height')
-  .description('Real-time block monitoring')
+  .description('Play the blockchain backwards')
   .action(async (...arguments) => await Chain.play(utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `broadcast` command

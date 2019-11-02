@@ -26,7 +26,13 @@ import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/
 import { HASH_TYPES } from '../utils/constant'
 import { exit, initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { print, printError, printTransaction, printUnderscored } from '../utils/print'
+import {
+  print,
+  printer,
+  printError,
+  printTransaction,
+  printUnderscored
+} from '../utils/print'
 import { checkPref, readFile } from '../utils/helpers'
 import { PROMPT_TYPE, prompt } from '../utils/prompt'
 
@@ -195,7 +201,7 @@ async function getBalance (walletPath, options) {
         const balance = await client.balance(keypair.publicKey, { height: +height, hash })
         const address = await client.address()
         if (json) {
-          print({ address, nonce, balance })
+          print({ 'id': address, nonce, balance })
         } else {
           printUnderscored('Balance', balance)
           printUnderscored('ID', address)
@@ -213,7 +219,7 @@ async function getBalance (walletPath, options) {
 // ## Get `address` function
 // This function allow you retrieve account `public` and `private` keys
 async function getAddress (walletPath, options) {
-  const { privateKey, forcePrompt = false, json } = options
+  const { secretKey, password, forcePrompt = false, json } = options
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const { client, keypair } = await initClientByWalletFile(walletPath, { ...options, accountOnly: true }, true)
@@ -221,18 +227,18 @@ async function getAddress (walletPath, options) {
     await handleApiError(
       async () => {
         if (json) {
-          if (privateKey) {
+          if (secretKey) {
             if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-              print({ publicKey: await client.address(), secretKey: keypair.secretKey })
+              print({ 'Address': await client.address(), 'Secretkey': keypair.secretKey })
             }
           } else {
-            print({ publicKey: await client.address() })
+            print({ 'Address': await client.address() })
           }
         } else {
           printUnderscored('Address', await client.address())
-          if (privateKey) {
+          if (secretKey) {
             if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-              printUnderscored('Secret Key', keypair.secretKey)
+              printUnderscored('Secretkey', keypair.secretKey)
             }
           }
         }
@@ -283,8 +289,8 @@ async function createSecureWallet (walletPath, { output, password, overwrite, js
     const { publicKey, path } = await generateSecureWallet(walletPath, { output, password, overwrite })
     if (json) {
       print({
-        publicKey,
-        path
+        'Address': publicKey,
+        'Path': path
       })
     } else {
       printUnderscored('Address', publicKey)
@@ -304,8 +310,8 @@ async function createSecureWalletByPrivKey (walletPath, priv, { output, password
     const { publicKey, path } = await generateSecureWalletFromPrivKey(walletPath, priv, { output, password, overwrite })
     if (json) {
       print({
-        publicKey,
-        path
+        'Address': publicKey,
+        'Path': path
       })
     } else {
       printUnderscored('Address', publicKey)

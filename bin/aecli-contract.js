@@ -130,11 +130,11 @@ program
 // Example: `aecli contract deploy ./myWalletFile --password tstpass ./contractSourceCodeFile --gas 2222222`
 program
   .command('deploy <wallet_path> <contract_path> <callData>')
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .option('--network-id [networkId]', 'Network id (default: ae_mainnet)')
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .option('-P, --password [password]', 'Wallet Password')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
-  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS_PRICE)
+  .option('-G --gas-price [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS_PRICE)
   .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)

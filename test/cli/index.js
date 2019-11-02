@@ -88,7 +88,7 @@ export async function ready (mocha) {
 export async function execute (args, { withOutReject = false, withNetworkId = false } = {}) {
   return new Promise((resolve, reject) => {
     let result = ''
-    const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, ...withNetworkId ? ['--networkId', networkId] : [], ...(args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [])])
+    const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, ...withNetworkId ? ['--network-id', networkId] : [], ...(args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [])])
     child.stdin.setEncoding('utf-8')
     child.stdout.on('data', (data) => {
       result += (data.toString())

@@ -56,7 +56,7 @@ describe('CLI Account Module', function () {
     // fs.existsSync(walletName).should.equal(true)
 
     // check if wallet files valid
-    JSON.parse(await execute(['account', 'address', walletName, '--password', 'test', '--json'])).publicKey.should.be.a('string')
+    JSON.parse(await execute(['account', 'address', walletName, '--password', 'test', '--json'])).Address.should.be.a('string')
   })
   it('Create Wallet From Private Key', async () => {
     // create wallet
@@ -66,16 +66,15 @@ describe('CLI Account Module', function () {
     fs.existsSync(walletName).should.equal(true)
 
     // check if wallet valid
-    JSON.parse(await execute(['account', 'address', walletName, '--password', 'test', '--json'])).publicKey.should.equal(KEY_PAIR.publicKey)
+    JSON.parse(await execute(['account', 'address', walletName, '--password', 'test', '--json'])).Address.should.equal(KEY_PAIR.publicKey)
   })
   it('Check Wallet Address', async () => {
     // check if wallet valid
-    JSON.parse(await execute(['account', 'address', WALLET_NAME, '--password', 'test', '--json'])).publicKey.should.equal(KEY_PAIR.publicKey)
+    JSON.parse(await execute(['account', 'address', WALLET_NAME, '--password', 'test', '--json'])).Address.should.equal(KEY_PAIR.publicKey)
   })
   it('Check Wallet Address with Private Key', async () => {
     // check if wallet valid
-    const { secretKey } = JSON.parse(await execute(['account', 'address', WALLET_NAME, '--password', 'test', '--privateKey', '--forcePrompt', '--json']))
-    secretKey.should.equal(KEY_PAIR.secretKey)
+    JSON.parse(await execute(['account', 'address', WALLET_NAME, '--password', 'test', '--secret-key', '--forcePrompt', '--json'])).Secretkey.should.equal(KEY_PAIR.secretKey)
   })
   it('Check Wallet Balance', async () => {
     try {

@@ -206,7 +206,7 @@ program
 // Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
 program
   .command('verify <tx>')
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .option('--network-id [networkId]', 'Network id (default: ae_mainnet)')
   .description('Verify transaction')
   .action(async (tx, ...arguments) => await Transaction.verify(tx, utils.cli.getCmdFromArguments(arguments)))
 

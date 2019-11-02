@@ -34,6 +34,7 @@ program
   .option('-P, --password [password]', 'Wallet Password')
   .option('-f --force', 'Ignore epoch version compatibility check')
   .option('--json', 'Print result in json format')
+  .description('Handle account operations')
 
 // ## Initialize `spend` command
 //
@@ -48,7 +49,7 @@ program
 // Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
 program
   .command('spend <wallet_path> <receiverIdOrName> <amount>')
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .option('--network-id [networkId]', 'Network id (default: ae_mainnet)')
   .option('--payload [payload]', 'Transaction payload.', '')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
@@ -69,7 +70,7 @@ program
 program
   .command('transfer <wallet_path> <receiver> <percentage>')
   .option('--excludeFee', 'Exclude fee from amount')
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .option('--network-id [networkId]', 'Network id (default: ae_mainnet)')
   .option('--payload [payload]', 'Transaction payload.', '')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
@@ -85,7 +86,7 @@ program
 // Example: `aecli account sign ./myWalletKeyFile tx_1241rioefwj23f2wfdsfsdsdfsasdf --password testpassword`
 program
   .command('sign <wallet_path> <tx>')
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .option('--network-id [networkId]', 'Network id (default: ae_mainnet)')
   .description('Create a transaction to another wallet')
   .action(async (walletPath, tx, ...arguments) => await Account.sign(walletPath, tx, utils.cli.getCmdFromArguments(arguments)))
 
@@ -135,9 +136,9 @@ program
 // Example: `aecli account address ./myWalletKeyFile --password testpassword --privateKey` --> show  public key and private key
 program
   .command('address <wallet_path>')
-  .option('--privateKey', 'Print private key')
+  .option('--secret-key', 'Print the secret key in addition to the account address')
   .option('--forcePrompt', 'Force prompting')
-  .description('Get wallet address')
+  .description('Print the account address (public key)')
   .action(async (walletPath, ...arguments) => await Account.getAddress(walletPath, utils.cli.getCmdFromArguments(arguments)))
 
 // ## Initialize `create` command

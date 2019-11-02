@@ -68,6 +68,16 @@ export function printUnderscored (key, val) {
   print(`${key} ${R.repeat('_', WIDTH - key.length).reduce((a, b) => a += b, '')} ${typeof val !== 'object' ? val : JSON.stringify(val)}`)
 }
 
+export function printer(object, printJson) {
+  if(printJson) {
+    return print(object);
+  } else {
+    for (let [key, value] of Object.entries(object)) {
+      printUnderscored(key, value);
+    }
+  }
+}
+
 // ## BLOCK
 //
 // Print block

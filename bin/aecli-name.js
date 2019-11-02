@@ -35,7 +35,7 @@ program
   .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-P, --password [password]', 'Wallet Password')
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .option('--network-id [networkId]', 'Network id (default: ae_mainnet)')
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format', utils.constant.OUTPUT_JSON)
 
