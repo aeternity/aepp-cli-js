@@ -47,7 +47,9 @@
     "sinon": "^7.2.3",
     "standard": "*",
     "standard-loader": "^6.0.1",
-    "supports-color": "^5.4.0"
+    "supports-color": "^5.4.0",
+    "lodash": "^4.17.15",
+    "map-keys-deep-lodash": "^1.2.2"
   },
   "scripts": {
     "docs": "docco -t tooling/docs/markdown.jst -c /dev/null bin/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/commands/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/utils/*.js &&  rm -f docs/null && node rename-to-md.js",

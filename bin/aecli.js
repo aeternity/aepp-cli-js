@@ -28,12 +28,14 @@ const utils = require('./utils/index')
 
 // Array of child command's
 const EXECUTABLE_CMD = [
+  { name: 'account', desc: 'Handle account operations' },
   { name: 'chain', desc: 'Interact with the blockchain' },
-  { name: 'inspect', desc: 'Get information on transactions, blocks,...' },
-  { name: 'account', desc: 'Handle wallet operations' },
-  { name: 'contract', desc: 'Compile contracts' },
-  { name: 'name', desc: 'AENS system' },
-  { name: 'tx', desc: 'Transaction builder' },
+  { name: 'compiler', desc: 'Interact with Aeternity smart contract compiler' },
+  { name: 'config', desc: 'Print the client configuration' },
+  { name: 'contract', desc: 'Deploy and execute a contract on chain' },
+  { name: 'inspect', desc: 'Get information on transactions, blocks, etc...' },
+  { name: 'name', desc: 'Handle name lifecycle' },
+  { name: 'tx', desc: 'Handle transactions creation' },
   /* TODO implement oracle module
   * {name: 'oracle', desc: 'Interact with oracles'},
   */
@@ -46,10 +48,10 @@ program
   .version(require('../package.json').version)
 
 // ## Initialize `config` command
-program
-  .command('config')
-  .description('Print the client configuration')
-  .action((cmd) => utils.print.printConfig(cmd))
+// program
+//   .command('config')
+//   .description('Print the client configuration')
+//   .action((cmd) => utils.print.printConfig(cmd))
 
 // ## Initialize `child` command's
 utils.cli.initExecCommands(program)(EXECUTABLE_CMD)

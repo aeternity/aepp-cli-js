@@ -25,6 +25,9 @@ import { DEFAULT_CONTRACT_PARAMS, GAS_PRICE, HASH_TYPES, VM_VERSIONS, VM_TYPE, A
 import { printError } from './print'
 import { isNameValid } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 
+const _ = require('lodash')
+const mapKeysDeep = require("map-keys-deep-lodash");
+
 // ## Method which build arguments for call call/deploy contracts
 export async function prepareCallParams (name, { descrPath, contractAddress, contractSource, gas, ttl, nonce }) {
   ttl = parseInt(ttl)
@@ -180,4 +183,8 @@ export function getVmAbiVersion (backend) {
   if (backend === VM_TYPE.FATE) return { vmVersion: DEFAULT_CONTRACT_PARAMS.vmVersion, abiVersion: DEFAULT_CONTRACT_PARAMS.abiVersion }
   if (backend === VM_TYPE.AEVM) return { vmVersion: VM_VERSIONS.SOPHIA_IMPROVEMENTS_LIMA, abiVersion: ABI_VERSIONS.SOPHIA }
   throw new Error(`Could not get vm/abi version. Unknown backend ${backend}`)
+}
+
+export function camelToUnderscore(obj) {
+  return mapKeysDeep(obj, (v, k) => _.snakeCase(k))
 }

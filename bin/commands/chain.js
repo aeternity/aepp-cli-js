@@ -22,7 +22,8 @@
 import { exit, initChain } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printBlock, print, printError, printUnderscored, printTransaction, printValidation } from '../utils/print'
-import { getBlock } from '../utils/helpers'
+import { camelToUnderscore, getBlock } from '../utils/helpers'
+import { KEY_BLOCK_INTERVAL } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 
 // ## Retrieve `node` version
 async function version (options) {
@@ -35,7 +36,7 @@ async function version (options) {
       const status = await client.api.getStatus()
       const { consensusProtocolVersion } = client.getNodeInfo()
       if (json) {
-        print(status)
+        print(camelToUnderscore(status))
         exit()
       }
       const FORKS = {
@@ -70,7 +71,7 @@ async function getNetworkId (options) {
     // Call `getStatus` API and print it
     await handleApiError(async () => {
       const { networkId } = await client.api.getStatus()
-      json ? print({ networkId }) : printUnderscored('Network ID', networkId)
+      json ? print({ 'Network ID': networkId }) : printUnderscored('Network ID', networkId)
       exit(0)
     })
   } catch (e) {
@@ -88,11 +89,15 @@ async function ttl (absoluteTtl, options) {
     // Call `topBlock` API and calculate relative `ttl`
     await handleApiError(async () => {
       const height = await client.height()
+      let estExpiration = new Date();
+      estExpiration.setMinutes(estExpiration.getMinutes() + KEY_BLOCK_INTERVAL * absoluteTtl)
+      estExpiration = estExpiration.toLocaleString('en-US', { hour12: false })
       if (json) {
-        print({ absoluteTtl, relativeTtl: +height + +absoluteTtl })
+        print({ 'AbsoluteTTL': absoluteTtl, 'RelativeTTL': +height + +absoluteTtl, 'EstimatedExpiration': estExpiration })
       } else {
         printUnderscored('Absolute TTL', absoluteTtl)
         printUnderscored('Relative TTL', +height + +absoluteTtl)
+        printUnderscored('Estimated expiration', estExpiration)
       }
       exit()
     })
@@ -109,8 +114,10 @@ async function top (options) {
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getTopBlock` API and print it
+
+    let block = await client.topBlock()
     await handleApiError(
-      async () => printBlock(await client.topBlock(), json)
+      async () => printBlock(camelToUnderscore(block), json)
     )
   } catch (e) {
     printError(e.message)
