@@ -20,9 +20,10 @@
  */
 
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
 import { HASH_TYPES } from '../utils/constant'
-import { initClientByWalletFile } from '../utils/cli'
+import { exit, initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
 import { checkPref } from '../utils/helpers'
@@ -41,35 +42,34 @@ async function sign (walletPath, tx, options) {
 
     await handleApiError(async () => {
       const signedTx = await client.signTransaction(tx)
+      const address = await client.address()
+      const networkId = client.getNetworkId()
       if (json) {
-        print({ signedTx })
+        print({ signedTx, address, networkId })
       } else {
-        printUnderscored('Signing account address', await client.address())
-        printUnderscored('Network ID', client.networkId || client.nodeNetworkId || 'ae_mainnet') // TODO add getNetworkId function to SDK
+        printUnderscored('Signing account address', address)
+        printUnderscored('Network ID', networkId)
         printUnderscored('Unsigned', tx)
         printUnderscored('Signed', signedTx)
       }
-      process.exit(0)
+      exit()
     })
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
 // ## `Spend` function
 // this function allow you to `send` token's to another `account`
-async function spend (walletPath, receiver, amount, options) {
-  let { ttl, json, nonce, fee, payload = '' } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  fee = parseInt(fee)
+async function spend (walletPath, receiverNameOrAddress, amount, options) {
+  const { ttl, json, nonce, fee, payload = '' } = options
   try {
-    checkPref(receiver, HASH_TYPES.account)
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
-      let tx = await client.spend(amount, receiver, { ttl, nonce, payload, fee })
+      let tx = await client.spend(amount, receiverNameOrAddress, { ttl, nonce, payload, fee })
       // if waitMined false
       if (typeof tx !== 'object') {
         tx = await client.tx(tx)
@@ -79,20 +79,18 @@ async function spend (walletPath, receiver, amount, options) {
       json
         ? print({ tx })
         : printTransaction(tx, json)
-      process.exit(0)
+      exit()
     })
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
 // ## `Transfer` function
 // this function allow you to `send` % of balance to another `account`
 async function transferFunds (walletPath, receiver, percentage, options) {
-  let { ttl, json, nonce, fee, payload = '', excludeFee } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  fee = parseInt(fee)
+  const { ttl, json, nonce, fee, payload = '', excludeFee } = options
   percentage = parseFloat(percentage)
   try {
     checkPref(receiver, HASH_TYPES.account)
@@ -112,31 +110,39 @@ async function transferFunds (walletPath, receiver, percentage, options) {
       } else {
         printTransaction(tx, json)
       }
-      process.exit(0)
+      exit()
     })
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
 // ## Get `balance` function
 // This function allow you retrieve account `balance`
 async function getBalance (walletPath, options) {
-  const { height, hash } = options
+  const { height, hash, json } = options
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
     await handleApiError(
       async () => {
         const nonce = await client.getAccountNonce(keypair.publicKey)
-        printUnderscored('Balance', await client.balance(keypair.publicKey, { height: +height, hash }))
-        printUnderscored('ID', await client.address())
-        printUnderscored('Nonce', nonce)
-        process.exit(0)
+        const balance = await client.balance(keypair.publicKey, { height: +height, hash })
+        const address = await client.address()
+        if (json) {
+          print({ address, nonce, balance })
+        } else {
+          printUnderscored('Balance', balance)
+          printUnderscored('ID', address)
+          printUnderscored('Nonce', nonce)
+        }
+        exit()
       }
     )
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -153,7 +159,6 @@ async function getAddress (walletPath, options) {
         if (json) {
           if (privateKey) {
             if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-              printUnderscored('Secret Key', keypair.secretKey)
               print({ publicKey: await client.address(), secretKey: keypair.secretKey })
             }
           } else {
@@ -167,11 +172,12 @@ async function getAddress (walletPath, options) {
             }
           }
         }
-        process.exit(0)
+        exit(1)
       }
     )
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -197,11 +203,12 @@ async function getAccountNonce (walletPath, options) {
           printUnderscored('Nonce', nonce - 1)
           printUnderscored('Next Nonce', nonce)
         }
-        process.exit(0)
+        process.exit()
       }
     )
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -219,9 +226,10 @@ async function createSecureWallet (walletPath, { output, password, overwrite, js
       printUnderscored('Address', publicKey)
       printUnderscored('Path', path)
     }
-    process.exit(0)
+    exit()
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -239,9 +247,10 @@ async function createSecureWalletByPrivKey (walletPath, priv, { output, password
       printUnderscored('Address', publicKey)
       printUnderscored('Path', path)
     }
-    process.exit(0)
+    exit()
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -265,12 +274,12 @@ async function generateKeyPairs (count = 1, { forcePrompt, json }) {
         })
       }
     } else {
-      process.exit(0)
+      exit()
     }
-    process.exit(0)
+    exit()
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 

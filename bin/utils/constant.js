@@ -17,6 +17,22 @@
 // # Utils `constant` Module
 // That script contains default configuration for `CLI`
 
+import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS, MIN_GAS_PRICE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
+
+export {
+  // ## AENS
+  NAME_TTL,
+  NAME_FEE,
+  CLIENT_TTL,
+  AENS_NAME_DOMAINS,
+  // ## TRANSACTION
+  TX_TTL,
+  // # CONTRACT
+  ABI_VERSIONS,
+  VM_VERSIONS,
+  VM_TYPE
+} from '@aeternity/aepp-sdk/es/tx/builder/schema'
+
 // ## HAST TYPES
 export const HASH_TYPES = {
   transaction: 'th',
@@ -32,9 +48,9 @@ export const HASH_TYPES = {
 }
 
 // ## CONNECTION
-export const EPOCH_URL = 'https://sdk-mainnet.aepps.com'
-export const EPOCH_INTERNAL_URL = 'https://sdk-mainnet.aepps.com'
-export const EPOCH_WEBSOCKET_URL = 'https://sdk-testnet.aepps.com'
+export const NODE_URL = 'http://localhost:3013'
+export const NODE_INTERNAL_URL = 'http://localhost:3113'
+export const NODE_WEBSOCKET_URL = 'https://sdk-testnet.aepps.com'
 export const COMPILER_URL = 'http://localhost:3080'
 
 // ## CHAIN
@@ -44,20 +60,12 @@ export const PLAY_INTERVAL = 1000
 // ## CONTRACT
 export const GAS = 1600000 - 21000 // MAX GAS
 export const DEPOSIT = 0
-export const VM_VERSION = 5
-export const ABI_VERSION = 3
-export const COMPILER_BACKEND = 'fate'
+export const GAS_PRICE = MIN_GAS_PRICE
+export const VM_VERSION = VM_VERSIONS.FATE
+export const ABI_VERSION = ABI_VERSIONS.FATE
+export const COMPILER_BACKEND = VM_TYPE.FATE
 export const ORACLE_VM_VERSION = 0
-export const GAS_PRICE = 1000000000
 export const AMOUNT = 0
-
-// ## AENS
-export const NAME_TTL = 50000
-export const NAME_FEE = '1000000000000000000000'
-export const CLIENT_TTL = 1
-
-// ## ACCOUNT
-export const TX_TTL = 0
 
 // ## ORACLE
 export const QUERY_FEE = 30000
@@ -68,3 +76,6 @@ export const RESPONSE_TTL = 10
 
 // ## Default transaction build param's
 export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE, abiVersion: ABI_VERSION }
+
+// ## DEFAULT OUTPUT FORMAT
+export const OUTPUT_JSON = false

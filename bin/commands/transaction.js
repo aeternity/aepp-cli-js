@@ -20,14 +20,19 @@
  */
 
 import { encodeBase58Check, salt, assertedType } from '@aeternity/aepp-sdk/es/utils/crypto'
-import { commitmentHash } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
+import { commitmentHash, getMinimumNameFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 import { TX_TYPE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 
-import { initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
+import { exit, initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printBuilderTransaction, printError, printUnderscored, printValidation } from '../utils/print'
-import { validateName } from '../utils/helpers'
-import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION, DEFAULT_CONTRACT_PARAMS } from '../utils/constant'
+import { getVmAbiVersion, validateName } from '../utils/helpers'
+import {
+  BUILD_ORACLE_TTL,
+  ORACLE_VM_VERSION,
+  DEFAULT_CONTRACT_PARAMS,
+  COMPILER_BACKEND
+} from '../utils/constant'
 
 // ## Build `spend` transaction
 async function spend (senderId, recipientId, amount, nonce, options) {
@@ -52,8 +57,9 @@ async function spend (senderId, recipientId, amount, nonce, options) {
     // Build `spend` transaction
     const tx = txBuilder.buildTx({ ...params, fee }, TX_TYPE.spend)
     // Print Result
-    if (json) print({ tx: tx.tx, params: tx.txObject })
-    else printBuilderTransaction(tx, TX_TYPE.spend)
+    json
+      ? print({ tx: tx.tx, params: tx.txObject })
+      : printBuilderTransaction(tx, TX_TYPE.spend)
   } catch (e) {
     printError(e)
     process.exit(1)
@@ -84,11 +90,9 @@ async function namePreClaim (accountId, domain, nonce, options) {
     // Create `preclaim` transaction
     const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.namePreClaim)
 
-    if (json) {
-      print({ tx, txObject, salt: _salt })
-    } else {
-      printBuilderTransaction({ tx, txObject: { ...txObject, salt: _salt } }, TX_TYPE.namePreClaim)
-    }
+    json
+      ? print({ tx, txObject, salt: _salt })
+      : printBuilderTransaction({ tx, txObject: { ...txObject, salt: _salt } }, TX_TYPE.namePreClaim)
   } catch (e) {
     printError(e)
     process.exit(1)
@@ -106,6 +110,7 @@ async function nameClaim (accountId, nameSalt, domain, nonce, options) {
     validateName(domain)
     // Initialize `Ae`
     const txBuilder = initOfflineTxBuilder()
+    nameFee = nameFee || getMinimumNameFee(domain)
     const params = {
       nameFee,
       accountId,
@@ -118,11 +123,9 @@ async function nameClaim (accountId, nameSalt, domain, nonce, options) {
     // Build `claim` transaction's
     const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameClaim, { vsn })
 
-    if (json) {
-      print({ tx, txObject })
-    } else {
-      printBuilderTransaction({ tx, txObject }, TX_TYPE.nameClaim)
-    }
+    json
+      ? print({ tx, txObject })
+      : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameClaim)
   } catch (e) {
     printError(e)
     process.exit(1)
@@ -133,7 +136,7 @@ function classify (s) {
   const keys = {
     ak: 'account_pubkey',
     ok: 'oracle_pubkey',
-    ct: 'contract_pubkey',
+    ct: 'contract_pubkey'
   }
 
   if (!s.match(/^[a-z]{2}_.+/)) {
@@ -156,7 +159,6 @@ async function nameUpdate (accountId, nameId, nonce, pointers, options) {
     const txBuilder = initOfflineTxBuilder()
     // Create `update` transaction
     pointers = pointers.map(id => Object.assign({}, { id, key: classify(id) }))
-    console.log(pointers)
     const params = {
       nameId,
       accountId,
@@ -170,14 +172,12 @@ async function nameUpdate (accountId, nameId, nonce, pointers, options) {
     // Build `claim` transaction's
     const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameUpdate)
 
-    if (json) {
-      print({ tx, txObject })
-    } else {
-      printBuilderTransaction({ tx, txObject }, TX_TYPE.nameUpdate)
-    }
+    json
+      ? print({ tx, txObject })
+      : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameUpdate)
   } catch (e) {
     printError(e)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -199,14 +199,12 @@ async function nameTransfer (accountId, recipientId, nameId, nonce, options) {
     // Build `claim` transaction's
     const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameTransfer)
 
-    if (json) {
-      print({ tx, txObject })
-    } else {
-      printBuilderTransaction({ tx, txObject }, TX_TYPE.nameTransfer)
-    }
+    json
+      ? print({ tx, txObject })
+      : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameTransfer)
   } catch (e) {
     printError(e)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -227,44 +225,35 @@ async function nameRevoke (accountId, nameId, nonce, options) {
     // Build `claim` transaction's
     const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameRevoke)
 
-    if (json) {
-      print({ tx, txObject })
-    } else {
-      printBuilderTransaction({ tx, txObject }, TX_TYPE.nameRevoke)
-    }
+    json
+      ? print({ tx, txObject })
+      : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameRevoke)
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
 // ## Build `contractDeploy` transaction
 async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, options) {
-  let { ttl, json, fee, gas, deposit = 0, amount = 0, vmVersion } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  if (!vmVersion) vmVersion = DEFAULT_CONTRACT_PARAMS.vmVersion
+  const { json, backend = COMPILER_BACKEND } = options
   try {
     // Initialize `Ae`
     const txBuilder = await initTxBuilder(options)
     // Build `deploy` transaction's
     await handleApiError(async () => {
       // Create `contract-deploy` transaction
-      const { tx, contractId } = await txBuilder.contractCreateTx({
-        ...Object.assign(DEFAULT_CONTRACT_PARAMS, { vmVersion }),
+      const ctVersion = getVmAbiVersion(backend)
+      const { tx, contractId, txObject } = await txBuilder.contractCreateTx({
+        ...{ ...DEFAULT_CONTRACT_PARAMS, ...options, ...ctVersion },
         code: contractByteCode,
-        nonce,
-        fee,
-        ttl,
-        gas,
         ownerId,
-        callData: initCallData,
-        amount,
-        deposit
+        nonce,
+        callData: initCallData
       })
 
       if (json) {
-        print(JSON.stringify({ tx, contractId }))
+        print({ tx, contractId, txObject, ctVersion })
       } else {
         printUnderscored('Unsigned Contract Deploy TX', tx)
         printUnderscored('Contract ID', contractId)
@@ -272,14 +261,14 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
 // ## Build `contractCall` transaction
 async function contractCall (callerId, contractId, callData, nonce, options) {
-  const { ttl, json, fee, gas } = options
-  nonce = parseInt(nonce)
+  const { json, backend = COMPILER_BACKEND } = options
+  const ctVersion = getVmAbiVersion(backend)
   try {
     // Build `call` transaction's
     await handleApiError(async () => {
@@ -287,24 +276,20 @@ async function contractCall (callerId, contractId, callData, nonce, options) {
       const txBuilder = await initTxBuilder(options)
       // Create `contract-call` transaction
       const tx = await txBuilder.contractCallTx({
-        ...DEFAULT_CONTRACT_PARAMS,
+        ...{ ...DEFAULT_CONTRACT_PARAMS, ...options, ...ctVersion },
         callerId,
         nonce,
-        ttl,
-        fee,
-        gas,
         callData,
         contractId
       })
 
-      if (json)
-        print(JSON.stringify({ tx }))
-      else
-        printUnderscored('Unsigned Contract Call TX', tx)
+      json
+        ? print({ tx })
+        : printUnderscored('Unsigned Contract Call TX', tx)
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -332,13 +317,12 @@ async function oracleRegister (accountId, queryFormat, responseFormat, nonce, op
     fee = txBuilder.calculateFee(fee, TX_TYPE.oracleRegister, { params })
     // Build `claim` transaction's
     const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleRegister)
-    if (json)
-      print({ tx, txObject })
-    else
-      printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleRegister)
+    json
+      ? print({ tx, txObject })
+      : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleRegister)
   } catch (e) {
     printError(e)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -368,13 +352,12 @@ async function oraclePostQuery (senderId, oracleId, query, nonce, options) {
     // Build `claim` transaction's
     const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleQuery)
 
-    if (json)
-      print({ tx, txObject })
-    else
-      printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleQuery)
+    json
+      ? print({ tx, txObject })
+      : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleQuery)
   } catch (e) {
     printError(e)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -399,13 +382,12 @@ async function oracleExtend (callerId, oracleId, oracleTtl, nonce, options) {
     // Build `claim` transaction's
     const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleExtend)
 
-    if (json)
-      print({ tx, txObject })
-    else
-      printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleExtend)
+    json
+      ? print({ tx, txObject })
+      : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleExtend)
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -432,19 +414,18 @@ async function oracleRespond (callerId, oracleId, queryId, response, nonce, opti
     // Build `claim` transaction's
     const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleResponse)
 
-    if (json)
-      print({ tx, txObject })
-    else
-      printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleResponse)
+    json
+      ? print({ tx, txObject })
+      : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleResponse)
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
 // ## Verify 'transaction'
 async function verify (txHash, options) {
-  let { json, networkId } = options
+  const { json, networkId } = options
   try {
     // Validate input
     if (!assertedType(txHash, 'tx')) throw new Error('Invalid transaction, must be lik \'tx_23didf2+f3sd...\'')
@@ -455,14 +436,14 @@ async function verify (txHash, options) {
       const { validation, tx, signatures = [], txType: type } = await client.unpackAndVerify(txHash, { networkId })
       if (json) {
         print({ validation, tx: tx, signatures, type })
-        process.exit(0)
+        exit(0)
       }
       printValidation({ validation, tx: { ...tx, signatures: signatures.map(el => el.hash) }, txType: type })
       if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 

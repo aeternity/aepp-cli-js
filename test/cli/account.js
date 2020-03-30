@@ -18,7 +18,7 @@
 import fs from 'fs'
 import { before, describe, it } from 'mocha'
 
-import { configure, plan, ready, execute, parseBlock, BaseAe, KEY_PAIR, WALLET_NAME } from './index'
+import { configure, plan, ready, execute, BaseAe, KEY_PAIR, WALLET_NAME } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 
 const walletName = 'test.wallet'
@@ -46,9 +46,10 @@ describe('CLI Account Module', function () {
 
     // check for wallet files
     fs.existsSync(walletName).should.equal(true)
+    // fs.existsSync(walletName).should.equal(true)
 
     // check if wallet files valid
-    parseBlock(await execute(['account', 'address', walletName, '--password', 'test'])).address.should.be.a('string')
+    JSON.parse(await execute(['account', 'address', walletName, '--password', 'test', '--json'])).publicKey.should.be.a('string')
   })
   it('Create Wallet From Private Key', async () => {
     // create wallet
@@ -58,23 +59,22 @@ describe('CLI Account Module', function () {
     fs.existsSync(walletName).should.equal(true)
 
     // check if wallet valid
-    parseBlock(await execute(['account', 'address', walletName, '--password', 'test']))['address'].should.equal(KEY_PAIR.publicKey)
+    JSON.parse(await execute(['account', 'address', walletName, '--password', 'test', '--json'])).publicKey.should.equal(KEY_PAIR.publicKey)
   })
   it('Check Wallet Address', async () => {
     // check if wallet valid
-    parseBlock(await execute(['account', 'address', WALLET_NAME, '--password', 'test']))['address'].should.equal(KEY_PAIR.publicKey)
+    JSON.parse(await execute(['account', 'address', WALLET_NAME, '--password', 'test', '--json'])).publicKey.should.equal(KEY_PAIR.publicKey)
   })
   it('Check Wallet Address with Private Key', async () => {
     // check if wallet valid
-    const res = parseBlock(await execute(['account', 'address', WALLET_NAME, '--password', 'test', '--privateKey', '--forcePrompt']))
-    const [_, priv] = Object.keys(res)
-    res[priv].should.equal(KEY_PAIR.secretKey)
+    const { secretKey } = JSON.parse(await execute(['account', 'address', WALLET_NAME, '--password', 'test', '--privateKey', '--forcePrompt', '--json']))
+    secretKey.should.equal(KEY_PAIR.secretKey)
   })
   it('Check Wallet Balance', async () => {
     try {
       const balance = await wallet.balance(await wallet.address())
-      const cliBalance = parseBlock(await execute(['account', 'balance', WALLET_NAME, '--password', 'test'], { withOutReject: true }))
-      cliBalance['balance'].should.equal(balance)
+      const { balance: cliBalance } = JSON.parse(await execute(['account', 'balance', WALLET_NAME, '--password', 'test', '--json'], { withOutReject: true }))
+      cliBalance.should.equal(balance)
     } catch (e) {
       console.log(e)
     }
@@ -92,7 +92,7 @@ describe('CLI Account Module', function () {
   })
   it('Get account nonce', async () => {
     const nonce = await wallet.getAccountNonce(await wallet.address())
-    parseBlock(await execute(['account', 'nonce', WALLET_NAME, '--password', 'test'], { withOutReject: true }))['next_nonce'].should.equal(`${nonce}`)
+    JSON.parse(await execute(['account', 'nonce', WALLET_NAME, '--password', 'test', '--json'], { withOutReject: true })).nextNonce.should.equal(nonce)
   })
   it('Generate accounts', async () => {
     const accounts = JSON.parse(await execute(['account', 'generate', 2, '--forcePrompt', '--json'], { withOutReject: true }))
