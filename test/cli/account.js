@@ -48,7 +48,7 @@ describe('CLI Account Module', function () {
     fs.existsSync(walletName).should.equal(true)
 
     // check if wallet files valid
-    parseBlock(await execute(['account', 'address', walletName, '--password', 'test']))['address'].should.be.a('string')
+    parseBlock(await execute(['account', 'address', walletName, '--password', 'test'])).address.should.be.a('string')
   })
   it('Create Wallet From Private Key', async () => {
     // create wallet
