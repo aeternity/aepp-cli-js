@@ -6,7 +6,7 @@
     "aecli": "./bin/aecli.js"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "https://github.com/aeternity/aepp-sdk-js.git#develop",
+    "@aeternity/aepp-sdk": "7.2.1",
     "child_process": "^1.0.2",
     "commander": "^2.19.0",
     "esm": "^3.0.84",
@@ -40,7 +40,7 @@
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-react": "^7.10.0",
     "eslint-plugin-standard": "^3.1.0",
-    "mocha": "^5.0.0",
+    "mocha": "^7.0.0",
     "mocha-junit-reporter": "^1.17.0",
     "recursive-rename": "^2.0.0",
     "safe-buffer": "^5.1.2",
