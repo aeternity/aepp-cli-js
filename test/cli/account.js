@@ -16,16 +16,18 @@
  */
 
 import fs from 'fs'
-import { before, describe, it } from 'mocha'
+import { after, before, describe, it } from 'mocha'
 
 import { configure, plan, ready, execute, BaseAe, KEY_PAIR, WALLET_NAME } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
+import { formatAmount, AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk/es/utils/amount-formatter'
 
 const walletName = 'test.wallet'
 
 plan(1000000000)
 
-describe('CLI Account Module', function () {
+describe.only('CLI Account Module', function () {
   configure(this)
 
   let wallet
