@@ -19,6 +19,7 @@ import { describe, it } from 'mocha'
 
 import { configure, BaseAe, execute, parseBlock, ready } from './index'
 import { decodeBase64Check, generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 import fs from 'fs'
 import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS } from '../../bin/utils/constant'
 
@@ -68,7 +69,7 @@ describe('CLI Transaction Module', function () {
     await GENESIS.spend('100000000000000000000000000', TX_KEYS.publicKey)
     await execute(['account', 'save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite'])
     wallet = await BaseAe()
-    wallet.setKeypair(TX_KEYS)
+    await wallet.addAccount(MemoryAccount({ keypair: TX_KEYS }))
     fs.writeFileSync('contractTest', testContract)
     nonce = await wallet.getAccountNonce()
   })

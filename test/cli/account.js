@@ -20,12 +20,13 @@ import { before, describe, it } from 'mocha'
 
 import { configure, plan, ready, execute, BaseAe, KEY_PAIR, WALLET_NAME } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 
 const walletName = 'test.wallet'
 
 plan(1000000000)
 
-describe('CLI Account Module', function () {
+describe.only('CLI Account Module', function () {
   configure(this)
 
   let wallet
@@ -83,11 +84,11 @@ describe('CLI Account Module', function () {
     const amount = 100
     const receiverKeys = generateKeyPair()
     const receiver = await BaseAe()
-    receiver.setKeypair(receiverKeys)
+    await receiver.addAccount(MemoryAccount({ keypair: receiverKeys }), { select: true })
 
     // send coins
     await execute(['account', 'spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount], { withOutReject: true, withNetworkId: true })
-    const receiverBalance = await receiver.balance(await receiver.address())
+    const receiverBalance = await receiver.getBalance(await receiver.address())
     await parseInt(receiverBalance).should.equal(amount)
   })
   it('Get account nonce', async () => {

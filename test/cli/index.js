@@ -20,6 +20,8 @@ import * as R from 'ramda'
 // Workaround until fighting with babel7
 require = require('esm')(module/*, options */) // use to handle es6 import/export
 const Ae = require('@aeternity/aepp-sdk/es/ae/universal').default
+const MemoryAccount = require('@aeternity/aepp-sdk/es/account/memory').default
+const Node = require('@aeternity/aepp-sdk/es/node').default
 const { generateKeyPair } = require('@aeternity/aepp-sdk/es/utils/crypto')
 
 const cliCommand = './bin/aecli.js'
@@ -28,17 +30,23 @@ const url = process.env.TEST_URL || 'http://localhost:3013'
 const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
 const internalUrl = process.env.TEST_INTERNAL_URL || 'http://localhost:3113'
 export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
+export const forceCompatibility = process.env.FORCE_COMPATIBILITY || false
 
 const TIMEOUT = 18000000
 
 export const KEY_PAIR = generateKeyPair()
 export const WALLET_NAME = 'mywallet'
 
-
-export const BaseAe = Ae.compose({
+export const BaseAe = async (params) => Ae.waitMined(true).compose({
   deepProps: { Swagger: { defaults: { debug: !!process.env['DEBUG'] } } },
-  props: { url, internalUrl, process }
+  props: { process, compilerUrl }
+})({
+  ...params,
+  forceCompatibility,
+  nodes: [{ name: 'test', instance: await Node({ url, internalUrl }) }]
 })
+
+const BaseAeWithAccounts = BaseAe
 
 export function configure (mocha) {
   mocha.timeout(TIMEOUT)
@@ -64,7 +72,8 @@ export async function ready (mocha) {
   }
 
   const client = await BaseAe({ networkId, compilerUrl })
-  client.setKeypair(KEY_PAIR)
+  client.removeAccount(await client.address())
+  await client.addAccount(MemoryAccount({ keypair: KEY_PAIR }), { select: true })
   await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
   return client
 }
