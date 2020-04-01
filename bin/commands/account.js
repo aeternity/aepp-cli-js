@@ -32,6 +32,32 @@ import { PROMPT_TYPE, prompt } from '../utils/prompt'
 
 // ## `Sign` function
 // this function allow you to `sign` transaction's
+async function signMessage (walletPath, data = [], options) {
+  const { json } = options
+  try {
+    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+    const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
+    const dataForSign = data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
+    await handleApiError(async () => {
+      const signedMessage = await client.signMessage(dataForSign)
+      const address = await client.address()
+      if (json) {
+        print({ signedMessage, address })
+      } else {
+        printUnderscored('Signing account address', address)
+        printUnderscored('Unsigned', dataForSign)
+        printUnderscored('Signed', signedMessage)
+      }
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
+  }
+}
+
+// ## `Sign` function
+// this function allow you to `sign` transaction's
 async function sign (walletPath, tx, options) {
   const { json } = options
   try {
@@ -293,5 +319,6 @@ export const Account = {
   createSecureWalletByPrivKey,
   sign,
   transferFunds,
-  generateKeyPairs
+  generateKeyPairs,
+  signMessage
 }

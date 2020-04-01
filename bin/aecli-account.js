@@ -90,6 +90,17 @@ program
   .action(async (walletPath, tx, ...arguments) => await Account.sign(walletPath, tx, utils.cli.getCmdFromArguments(arguments)))
 
 
+// ## Initialize `sign-message` command
+//
+// You can use this command to sign message
+//
+// Example: `aecli account sign ./myWalletKeyFile Hello --password testpassword`
+program
+  .command('sign-message <wallet_path> [data...]')
+  .description('Create a transaction to another wallet')
+  .action(async (walletPath, data, ...arguments) => await Account.signMessage(walletPath, data, utils.cli.getCmdFromArguments(arguments)))
+
+
 // ## Initialize `balance` command
 //
 // You can use this command to retrieve balance of account
