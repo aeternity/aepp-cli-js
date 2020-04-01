@@ -52,6 +52,7 @@ export async function initTxBuilder ({ url, internalUrl, force: forceCompatibili
   return Tx({
     nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }],
     nativeMode,
+    forceCompatibility,
     showWarning
   })
 }
@@ -62,13 +63,14 @@ export function initOfflineTxBuilder () {
 // Create `Chain` client
 export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
   return Chain({
-    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }]
+    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }],
+    forceCompatibility
   })
 }
 
 // Create `Chain` client
-export async function initCompiler ({ url, internalUrl, compilerUrl }) {
-  return ContractCompilerAPI({ compilerUrl })
+export async function initCompiler ({ url, internalUrl, compilerUrl, forceCompatibility }) {
+  return ContractCompilerAPI({ compilerUrl, forceCompatibility })
 }
 
 // ## Get account files and decrypt it using password
