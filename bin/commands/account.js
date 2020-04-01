@@ -41,12 +41,19 @@ async function signMessage (walletPath, data = [], options) {
     await handleApiError(async () => {
       const signedMessage = await client.signMessage(dataForSign)
       const address = await client.address()
+      const result = {
+        data: dataForSign,
+        address,
+        signature: Array.from(signedMessage),
+        signatureHex: Buffer.from(signedMessage).toString('hex')
+      }
       if (json) {
-        print({ signedMessage, address })
+        print(result)
       } else {
-        printUnderscored('Signing account address', address)
-        printUnderscored('Unsigned', dataForSign)
-        printUnderscored('Signed', signedMessage)
+        printUnderscored('Unsigned', result.data)
+        printUnderscored('Signing account address', result.address)
+        printUnderscored('Signature', result.signature)
+        printUnderscored('Signature Hex', result.signatureHex)
       }
       exit()
     })
