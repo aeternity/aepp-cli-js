@@ -51,7 +51,7 @@
   },
   "scripts": {
     "docs": "docco -t tooling/docs/markdown.jst -c /dev/null bin/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/commands/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/utils/*.js &&  rm -f docs/null && node rename-to-md.js",
-    "test": "mocha --recursive --require @babel/register",
+    "test": "mocha --recursive --require esm",
     "test:watch": "mocha --recursive --require @babel/register --watch",
     "test-jenkins": "mocha --recursive --require @babel/register --reporter mocha-junit-reporter && rm -rf node_modules/",
     "genChangelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
