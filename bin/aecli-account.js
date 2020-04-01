@@ -53,6 +53,7 @@ program
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .option('-D, --denomination [denomination]', 'Denomination of amount', utils.constant.DENOMINATION)
   .action(async (walletPath, receiverIdOrName, amount, ...arguments) => await Account.spend(walletPath, receiverIdOrName, amount, utils.cli.getCmdFromArguments(arguments)))
 
 
@@ -73,6 +74,7 @@ program
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .option('-D, --denomination [denomination]', 'Denomination of amount', utils.constant.DENOMINATION)
   .action(async (walletPath, receiver, percentage, ...arguments) => await Account.transferFunds(walletPath, receiver, percentage, utils.cli.getCmdFromArguments(arguments)))
 
 

@@ -20,6 +20,7 @@
  */
 
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk/es/utils/amount-formatter'
 
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
 import { HASH_TYPES } from '../utils/constant'
@@ -63,13 +64,13 @@ async function sign (walletPath, tx, options) {
 // ## `Spend` function
 // this function allow you to `send` token's to another `account`
 async function spend (walletPath, receiverNameOrAddress, amount, options) {
-  const { ttl, json, nonce, fee, payload = '' } = options
+  const { ttl, json, nonce, fee, payload = '', denomination = AE_AMOUNT_FORMATS.AETTOS } = options
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
-      let tx = await client.spend(amount, receiverNameOrAddress, { ttl, nonce, payload, fee })
+      let tx = await client.spend(amount, receiverNameOrAddress, { ttl, nonce, payload, fee, denomination })
       // if waitMined false
       if (typeof tx !== 'object') {
         tx = await client.tx(tx)

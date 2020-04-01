@@ -18,6 +18,7 @@
 import { before, describe, it } from 'mocha'
 import { configure, BaseAe, execute, parseBlock, ready } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import MemoryAccount from "@aeternity/aepp-sdk/es/account/memory";
 
 describe('CLI Chain Module', function () {
   let wallet
@@ -35,7 +36,7 @@ describe('CLI Chain Module', function () {
   })
   it('STATUS', async () => {
     const wallet = await BaseAe()
-    wallet.setKeypair(generateKeyPair())
+    await wallet.addAccount(MemoryAccount({ keypair: generateKeyPair() }), { select: true })
 
     const { nodeVersion } = await wallet.api.getStatus()
     const res = JSON.parse(await execute(['chain', 'status', '--json']))

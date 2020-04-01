@@ -19,6 +19,7 @@
 import * as R from 'ramda'
 
 import Ae from '@aeternity/aepp-sdk/es/ae/universal'
+import Node from '@aeternity/aepp-sdk/es/node'
 import Tx from '@aeternity/aepp-sdk/es/tx/tx'
 import TxBuilder from '@aeternity/aepp-sdk/es/tx/builder'
 import Chain from '@aeternity/aepp-sdk/es/chain/node'
@@ -35,12 +36,24 @@ export function getCmdFromArguments (args) {
 }
 
 // Create `Ae` client
-export async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId, accounts }) {
-  return Ae({ url, process, keypair, internalUrl, compilerUrl, forceCompatibility, nativeMode, networkId, accounts })
+export async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId, accounts = [] }) {
+  return Ae({
+    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }],
+    process,
+    internalUrl,
+    compilerUrl,
+    nativeMode,
+    networkId,
+    accounts: [...keypair ? [Account({ keypair })] : [], ...accounts]
+  })
 }
 // Create `TxBuilder` client
 export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true, showWarning = true }) {
-  return Tx({ url, internalUrl, forceCompatibility, nativeMode, showWarning })
+  return Tx({
+    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }],
+    nativeMode,
+    showWarning
+  })
 }
 // Create `OfflineTxBuilder` client
 export function initOfflineTxBuilder () {
@@ -48,7 +61,9 @@ export function initOfflineTxBuilder () {
 }
 // Create `Chain` client
 export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
-  return Chain({ url, internalUrl, forceCompatibility })
+  return Chain({
+    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }]
+  })
 }
 
 // Create `Chain` client
