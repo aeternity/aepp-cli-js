@@ -16,11 +16,12 @@
  */
 
 import fs from 'fs'
-import { before, describe, it } from 'mocha'
+import { after, before, describe, it } from 'mocha'
+import { AE_AMOUNT_FORMATS, formatAmount } from '@aeternity/aepp-sdk/es/utils/amount-formatter'
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
+import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 
 import { configure, plan, ready, execute, BaseAe, KEY_PAIR, WALLET_NAME } from './index'
-import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
-import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 
 const walletName = 'test.wallet'
 
@@ -90,6 +91,16 @@ describe.only('CLI Account Module', function () {
     await execute(['account', 'spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount], { withOutReject: true, withNetworkId: true })
     const receiverBalance = await receiver.getBalance(await receiver.address())
     await parseInt(receiverBalance).should.equal(amount)
+  })
+  it('Spend coins to another wallet using denomination', async () => {
+    const amount = 1 // 1 AE
+    const denomination = AE_AMOUNT_FORMATS.AE
+    const receiverKeys = generateKeyPair()
+    const receiver = await BaseAe()
+    // send coins
+    await execute(['account', 'spend', WALLET_NAME, '--password', 'test', '-D', denomination, receiverKeys.publicKey, amount], { withOutReject: true, withNetworkId: true })
+    const receiverBalance = await receiver.getBalance(receiverKeys.publicKey)
+    receiverBalance.should.equal(formatAmount(amount, { denomination: AE_AMOUNT_FORMATS.AE }))
   })
   it('Get account nonce', async () => {
     const nonce = await wallet.getAccountNonce(await wallet.address())
