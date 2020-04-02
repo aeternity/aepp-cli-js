@@ -27,22 +27,23 @@ import { HASH_TYPES } from '../utils/constant'
 import { exit, initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
-import { checkPref } from '../utils/helpers'
+import { checkPref, readFile } from '../utils/helpers'
 import { PROMPT_TYPE, prompt } from '../utils/prompt'
 
-// ## `Sign` function
-// this function allow you to `sign` transaction's
+// ## `Sign message` function
+// this function allow you to `sign` arbitrary data
 async function signMessage (walletPath, data = [], options) {
-  const { json } = options
+  const { json, filePath } = options
+  const dataForSign = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+    if (dataForSign.length >= 0xFD) throw new Error('Message too long!')
     const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
-    const dataForSign = data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
     await handleApiError(async () => {
       const signedMessage = await client.signMessage(dataForSign)
       const address = await client.address()
       const result = {
-        data: dataForSign,
+        data: typeof dataForSign !== 'string' ? Array.from(dataForSign) : dataForSign,
         address,
         signature: Array.from(signedMessage),
         signatureHex: Buffer.from(signedMessage).toString('hex')
@@ -54,6 +55,35 @@ async function signMessage (walletPath, data = [], options) {
         printUnderscored('Signing account address', result.address)
         printUnderscored('Signature', result.signature)
         printUnderscored('Signature Hex', result.signatureHex)
+      }
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
+  }
+}
+
+// ## `Verify` function
+// this function allow you to `verify` signed data
+async function verifyMessage (walletPath, hexSignature, data = [], options) {
+  const { json, filePath } = options
+  const dataForVerify = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
+  try {
+    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+    if (dataForVerify.length >= 0xFD) throw new Error('Message too long!')
+    const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
+    await handleApiError(async () => {
+      const isCorrect = await client.verifyMessage(dataForVerify, hexSignature)
+      const result = {
+        data: typeof dataForVerify !== 'string' ? Array.from(dataForVerify) : dataForVerify,
+        isCorrect
+      }
+      if (json) {
+        print(result)
+      } else {
+        printUnderscored('Valid signature', isCorrect)
+        printUnderscored('Data', dataForVerify)
       }
       exit()
     })
@@ -327,5 +357,6 @@ export const Account = {
   sign,
   transferFunds,
   generateKeyPairs,
-  signMessage
+  signMessage,
+  verifyMessage
 }

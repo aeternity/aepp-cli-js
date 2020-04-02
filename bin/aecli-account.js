@@ -94,11 +94,24 @@ program
 //
 // You can use this command to sign message
 //
-// Example: `aecli account sign ./myWalletKeyFile Hello --password testpassword`
+// Example: `aecli account sign-message ./myWalletKeyFile Hello --password testpassword`
 program
   .command('sign-message <wallet_path> [data...]')
+  .option('--filePath [path]', 'Specify the path to the file for signing(ignore command message argument and use file instead)')
   .description('Create a transaction to another wallet')
   .action(async (walletPath, data, ...arguments) => await Account.signMessage(walletPath, data, utils.cli.getCmdFromArguments(arguments)))
+
+
+// ## Initialize `verify-message` command
+//
+// You can use this command to sign message
+//
+// Example: `aecli account verify-message ./myWalletKeyFile asd1dasfadfsdasdasdasHexSig... Hello --password testpassword`
+program
+  .command('verify-message <wallet_path> <hexSignature> [data...]')
+  .option('--filePath [path]', 'Specify the path to the file(ignore comm and message argument and use file instead)')
+  .description('Create a transaction to another wallet')
+  .action(async (walletPath, hexSignature, data, ...arguments) => await Account.verifyMessage(walletPath, hexSignature, data, utils.cli.getCmdFromArguments(arguments)))
 
 
 // ## Initialize `balance` command
