@@ -49,7 +49,6 @@ import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
 import { initClientByWalletFile, initCompiler } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
-import { GAS_PRICE } from '../utils/constant'
 
 
 ```
@@ -189,7 +188,7 @@ Call `node` API which return `compiled code`
       if (options.json) {
         print(JSON.stringify({ decodedData }))
       } else {
-        print(`Contract bytecode:`)
+        print('Contract bytecode:')
         print(decodedData)
       }
     })
@@ -252,7 +251,7 @@ Call `node` API which return `compiled code`
       if (options.json) {
         print(JSON.stringify({ decoded }))
       } else {
-        print(`Decoded Call Data:`)
+        print('Decoded Call Data:')
         print(decoded)
       }
     })
@@ -277,10 +276,7 @@ Call `node` API which return `compiled code`
 
 ```js
 async function deploy (walletPath, contractPath, init = [], options) {
-  const { json, gas } = options
-  const ttl = parseInt(options.ttl)
-  const nonce = parseInt(options.nonce)
-
+  const { json, gas, gasPrince, backend, ttl, nonce, fee } = options
 
 ```
 
@@ -361,7 +357,7 @@ block as well, together with the contract's bytecode.
   
 
 ```js
-        const deployDescriptor = await contract.deploy([...init], { ttl, gas, nonce, gasPrice: GAS_PRICE })
+        const deployDescriptor = await contract.deploy([...init], { fee, ttl, nonce, gas, gasPrince, backend })
 
 ```
 
@@ -382,7 +378,6 @@ Write contractDescriptor to file
           descPath,
           source: contractFile,
           bytecode: contract.compiled,
-          abi: 'sophia'
         }, deployDescriptor.deployInfo)
 
         writeFile(
@@ -405,7 +400,9 @@ Log contract descriptor
   
 
 ```js
-        logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json)
+        json
+          ? print({ descPath, ...deployDescriptor.deployInfo })
+          : logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json)
       }
     )
   } catch (e) {

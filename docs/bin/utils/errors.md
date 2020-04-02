@@ -41,7 +41,7 @@ That script contains helper function for error handling
 ```js
 
 import { printError, print } from './print'
-import { isExecCommand } from './cli'
+import { exit, isExecCommand } from './cli'
 
 
 ```
@@ -58,7 +58,7 @@ import { isExecCommand } from './cli'
   
 
 ```js
-export function logApiError (error) { printError(`API ERROR: `, error) }
+export function logApiError (error) { printError('API ERROR: ', error) }
 
 
 ```
@@ -81,7 +81,7 @@ export async function handleApiError (fn) {
   } catch (e) {
     const response = e.response
     logApiError(response && response.data ? response.data.reason : e)
-    process.exit(1)
+    exit(1)
   }
 }
 

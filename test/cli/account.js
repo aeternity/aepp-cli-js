@@ -29,15 +29,20 @@ plan(1000000000)
 
 describe.only('CLI Account Module', function () {
   configure(this)
-
+  let sig
+  let sigFromFile
+  const fileName = 'testData'
+  const fileData = 'Hello world!'
   let wallet
 
   before(async function () {
     // Spend tokens for wallet
+    fs.writeFileSync(fileName, fileData)
     wallet = await ready(this)
   })
   after(function () {
     // Remove wallet files
+    if (fs.existsSync(fileName)) { fs.unlinkSync(fileName) }
     if (fs.existsSync(walletName)) { fs.unlinkSync(walletName) }
     if (fs.existsSync(`${walletName}.pub`)) { fs.unlinkSync(`${walletName}.pub`) }
   })
@@ -109,5 +114,33 @@ describe.only('CLI Account Module', function () {
   it('Generate accounts', async () => {
     const accounts = JSON.parse(await execute(['account', 'generate', 2, '--forcePrompt', '--json'], { withOutReject: true }))
     accounts.length.should.be.equal(2)
+  })
+  it('Sign message', async () => {
+    const data = 'Hello world'
+    const signedMessage = JSON.parse(await execute(['account', 'sign-message', WALLET_NAME, data, '--json', '--password', 'test'], { withOutReject: false }))
+    const signedUsingSDK = Array.from(await wallet.signMessage(data))
+    sig = signedMessage.signatureHex
+    signedMessage.data.should.be.equal(data)
+    signedMessage.address.should.be.equal(await wallet.address())
+    Array.isArray(signedMessage.signature).should.be.equal(true)
+    signedMessage.signature.toString().should.be.equal(signedUsingSDK.toString())
+    signedMessage.signatureHex.should.be.a('string')
+  })
+  it('Sign message using file', async () => {
+    const { data, signature, signatureHex, address } = JSON.parse(await execute(['account', 'sign-message', WALLET_NAME, '--json', '--filePath', fileName, '--password', 'test']))
+    const signedUsingSDK = Array.from(await wallet.signMessage(data))
+    sigFromFile = signatureHex
+    signature.toString().should.be.equal(signedUsingSDK.toString())
+    data.toString().should.be.equal(Array.from(Buffer.from(fileData)).toString())
+    address.should.be.equal(await wallet.address())
+    Array.isArray(signature).should.be.equal(true)
+    signatureHex.should.be.a('string')
+  })
+  it('verify message', async () => {
+    const data = 'Hello world'
+    const verify = JSON.parse(await execute(['account', 'verify-message', WALLET_NAME, sig ,data, '--json', '--password', 'test'], { withOutReject: false }))
+    verify.isCorrect.should.be.equal(true)
+    const verifyFromFile = JSON.parse(await execute(['account', 'verify-message', WALLET_NAME, sigFromFile , '--json', '--password', 'test', '--filePath', fileName], { withOutReject: false }))
+    verifyFromFile.isCorrect.should.be.equal(true)
   })
 })

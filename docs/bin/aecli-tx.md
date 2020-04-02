@@ -80,8 +80,8 @@ const { Transaction } = require('./commands')
 
 ```js
 program
-  .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
-  .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
+  .option('-u, --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+  .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
 
 ```
 
@@ -282,11 +282,11 @@ program
   .command('contract-deploy <ownerId> <contractBytecode> <initCallData> <nonce>')
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
-  .option('--amount [amount]', 'Amount', 0)
-  .option('--deposit [deposit]', 'Deposit', 0)
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
-  .option('--vmVersion [vmVersion]', 'VM version', utils.constant.VM_VERSION)
-  .option('--abiVersion [abiVersion]', 'ABI version', utils.constant.DEFAULT_CONTRACT_PARAMS.abiVersion)
+  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS_PRICE)
+  .option('--amount [amount]', 'Amount', utils.constant.AMOUNT)
+  .option('--deposit [deposit]', 'Deposit', utils.constant.DEPOSIT)
+  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Build contract create transaction.')
   .action(async (ownerId, contractBytecode, initCallData, nonce, ...arguments) => await Transaction.contractDeploy(ownerId, contractBytecode, initCallData, nonce, utils.cli.getCmdFromArguments(arguments)))
 
@@ -314,8 +314,9 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
-  .option('--abiVersion [abiVersion]', 'VM version', utils.constant.DEFAULT_CONTRACT_PARAMS.abiVersion)
-  .option('--vmVersion [vmVersion]', 'ABI version', utils.constant.VM_VERSION)
+  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS_PRICE)
+  .option('--amount [amount]', 'Amount', utils.constant.AMOUNT)
+  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Build contract create transaction.')
   .action(async (callerId, contractId, callData, nonce, ...arguments) => await Transaction.contractCall(callerId, contractId, callData, nonce, utils.cli.getCmdFromArguments(arguments)))
 
