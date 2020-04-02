@@ -80,8 +80,8 @@ const { Inspect } = require('./commands')
 
 ```js
 program
-  .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
-  .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
+  .option('-u --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+  .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
 
@@ -117,7 +117,7 @@ Example: `aecli inspect th_asfwegfj34234t34t` --> get info about `transaction` b
 program
   .arguments('<hash>')
   .description('Hash or Name to inspect (eg: ak_..., mk_..., name.test)')
-  .action(async (hash, cmd) => await Inspect.inspect(hash, cmd))
+  .action(async (hash, cmd) => Inspect.inspect(hash, cmd))
 
 
 ```

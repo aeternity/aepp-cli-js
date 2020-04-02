@@ -43,13 +43,134 @@ This script initialize all `account` function
  */
 
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk/es/utils/amount-formatter'
+
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
 import { HASH_TYPES } from '../utils/constant'
-import { initClientByWalletFile } from '../utils/cli'
+import { exit, initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
-import { checkPref } from '../utils/helpers'
+import { checkPref, readFile } from '../utils/helpers'
 import { PROMPT_TYPE, prompt } from '../utils/prompt'
+
+
+```
+
+
+
+
+
+
+
+## `Sign message` function
+this function allow you to `sign` arbitrary data
+
+
+  
+
+```js
+async function signMessage (walletPath, data = [], options) {
+  const { json, filePath } = options
+  const dataForSign = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
+  try {
+
+```
+
+
+
+
+
+
+
+Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+
+
+  
+
+```js
+    if (dataForSign.length >= 0xFD) throw new Error('Message too long!')
+    const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
+    await handleApiError(async () => {
+      const signedMessage = await client.signMessage(dataForSign)
+      const address = await client.address()
+      const result = {
+        data: typeof dataForSign !== 'string' ? Array.from(dataForSign) : dataForSign,
+        address,
+        signature: Array.from(signedMessage),
+        signatureHex: Buffer.from(signedMessage).toString('hex')
+      }
+      if (json) {
+        print(result)
+      } else {
+        printUnderscored('Unsigned', result.data)
+        printUnderscored('Signing account address', result.address)
+        printUnderscored('Signature', result.signature)
+        printUnderscored('Signature Hex', result.signatureHex)
+      }
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
+  }
+}
+
+
+```
+
+
+
+
+
+
+
+## `Verify` function
+this function allow you to `verify` signed data
+
+
+  
+
+```js
+async function verifyMessage (walletPath, hexSignature, data = [], options) {
+  const { json, filePath } = options
+  const dataForVerify = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
+  try {
+
+```
+
+
+
+
+
+
+
+Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+
+
+  
+
+```js
+    if (dataForVerify.length >= 0xFD) throw new Error('Message too long!')
+    const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
+    await handleApiError(async () => {
+      const isCorrect = await client.verifyMessage(dataForVerify, hexSignature)
+      const result = {
+        data: typeof dataForVerify !== 'string' ? Array.from(dataForVerify) : dataForVerify,
+        isCorrect
+      }
+      if (json) {
+        print(result)
+      } else {
+        printUnderscored('Valid signature', isCorrect)
+        printUnderscored('Data', dataForVerify)
+      }
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
+  }
+}
 
 
 ```
@@ -106,18 +227,21 @@ Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` f
 
     await handleApiError(async () => {
       const signedTx = await client.signTransaction(tx)
+      const address = await client.address()
+      const networkId = client.getNetworkId()
       if (json) {
-        print({ signedTx })
+        print({ signedTx, address, networkId })
       } else {
-        printUnderscored('Signing account address', await client.address())
-        printUnderscored('Network ID', client.networkId || client.nodeNetworkId || 'ae_mainnet') // TODO add getNetworkId function to SDK
+        printUnderscored('Signing account address', address)
+        printUnderscored('Network ID', networkId)
         printUnderscored('Unsigned', tx)
         printUnderscored('Signed', signedTx)
       }
-      process.exit(0)
+      exit()
     })
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -137,13 +261,9 @@ this function allow you to `send` token's to another `account`
   
 
 ```js
-async function spend (walletPath, receiver, amount, options) {
-  let { ttl, json, nonce, fee, payload = '' } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  fee = parseInt(fee)
+async function spend (walletPath, receiverNameOrAddress, amount, options) {
+  const { ttl, json, nonce, fee, payload = '', denomination = AE_AMOUNT_FORMATS.AETTOS } = options
   try {
-    checkPref(receiver, HASH_TYPES.account)
 
 ```
 
@@ -162,7 +282,7 @@ Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
-      let tx = await client.spend(amount, receiver, { ttl, nonce, payload, fee })
+      let tx = await client.spend(amount, receiverNameOrAddress, { ttl, nonce, payload, fee, denomination })
 
 ```
 
@@ -186,10 +306,11 @@ if waitMined false
       json
         ? print({ tx })
         : printTransaction(tx, json)
-      process.exit(0)
+      exit()
     })
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -210,10 +331,7 @@ this function allow you to `send` % of balance to another `account`
 
 ```js
 async function transferFunds (walletPath, receiver, percentage, options) {
-  let { ttl, json, nonce, fee, payload = '', excludeFee } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
-  fee = parseInt(fee)
+  const { ttl, json, nonce, fee, payload = '', excludeFee } = options
   percentage = parseFloat(percentage)
   try {
     checkPref(receiver, HASH_TYPES.account)
@@ -261,10 +379,11 @@ if waitMined false
       } else {
         printTransaction(tx, json)
       }
-      process.exit(0)
+      exit()
     })
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -285,7 +404,7 @@ This function allow you retrieve account `balance`
 
 ```js
 async function getBalance (walletPath, options) {
-  const { height, hash } = options
+  const { height, hash, json } = options
   try {
 
 ```
@@ -306,14 +425,21 @@ Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client
     await handleApiError(
       async () => {
         const nonce = await client.getAccountNonce(keypair.publicKey)
-        printUnderscored('Balance', await client.balance(keypair.publicKey, { height: +height, hash }))
-        printUnderscored('ID', await client.address())
-        printUnderscored('Nonce', nonce)
-        process.exit(0)
+        const balance = await client.balance(keypair.publicKey, { height: +height, hash })
+        const address = await client.address()
+        if (json) {
+          print({ address, nonce, balance })
+        } else {
+          printUnderscored('Balance', balance)
+          printUnderscored('ID', address)
+          printUnderscored('Nonce', nonce)
+        }
+        exit()
       }
     )
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -358,7 +484,6 @@ Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client
         if (json) {
           if (privateKey) {
             if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-              printUnderscored('Secret Key', keypair.secretKey)
               print({ publicKey: await client.address(), secretKey: keypair.secretKey })
             }
           } else {
@@ -372,11 +497,12 @@ Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client
             }
           }
         }
-        process.exit(0)
+        exit(1)
       }
     )
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -430,11 +556,12 @@ Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client
           printUnderscored('Nonce', nonce - 1)
           printUnderscored('Next Nonce', nonce)
         }
-        process.exit(0)
+        process.exit()
       }
     )
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -466,9 +593,10 @@ async function createSecureWallet (walletPath, { output, password, overwrite, js
       printUnderscored('Address', publicKey)
       printUnderscored('Path', path)
     }
-    process.exit(0)
+    exit()
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -500,9 +628,10 @@ async function createSecureWalletByPrivKey (walletPath, priv, { output, password
       printUnderscored('Address', publicKey)
       printUnderscored('Path', path)
     }
-    process.exit(0)
+    exit()
   } catch (e) {
     printError(e.message)
+    exit(1)
   }
 }
 
@@ -540,12 +669,12 @@ async function generateKeyPairs (count = 1, { forcePrompt, json }) {
         })
       }
     } else {
-      process.exit(0)
+      exit()
     }
-    process.exit(0)
+    exit()
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -558,7 +687,9 @@ export const Account = {
   createSecureWalletByPrivKey,
   sign,
   transferFunds,
-  generateKeyPairs
+  generateKeyPairs,
+  signMessage,
+  verifyMessage
 }
 
 

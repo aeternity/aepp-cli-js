@@ -28,6 +28,7 @@ That script contains helper function's for work with `cli`
 import * as R from 'ramda'
 
 import Ae from '@aeternity/aepp-sdk/es/ae/universal'
+import Node from '@aeternity/aepp-sdk/es/node'
 import Tx from '@aeternity/aepp-sdk/es/tx/tx'
 import TxBuilder from '@aeternity/aepp-sdk/es/tx/builder'
 import Chain from '@aeternity/aepp-sdk/es/chain/node'
@@ -72,8 +73,16 @@ Create `Ae` client
   
 
 ```js
-export async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId }) {
-  return Ae({ url, process, keypair, internalUrl, compilerUrl, forceCompatibility, nativeMode, networkId })
+export async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId, accounts = [] }) {
+  return Ae({
+    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }],
+    process,
+    internalUrl,
+    compilerUrl,
+    nativeMode,
+    networkId,
+    accounts: [...keypair ? [Account({ keypair })] : [], ...accounts]
+  })
 }
 
 ```
@@ -91,7 +100,12 @@ Create `TxBuilder` client
 
 ```js
 export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true, showWarning = true }) {
-  return Tx({ url, internalUrl, forceCompatibility, nativeMode, showWarning })
+  return Tx({
+    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }],
+    nativeMode,
+    forceCompatibility,
+    showWarning
+  })
 }
 
 ```
@@ -127,7 +141,10 @@ Create `Chain` client
 
 ```js
 export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
-  return Chain({ url, internalUrl, forceCompatibility })
+  return Chain({
+    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }],
+    forceCompatibility
+  })
 }
 
 
@@ -145,8 +162,8 @@ Create `Chain` client
   
 
 ```js
-export async function initCompiler ({ url, internalUrl, compilerUrl }) {
-  return ContractCompilerAPI({ compilerUrl })
+export async function initCompiler ({ url, internalUrl, compilerUrl, forceCompatibility }) {
+  return ContractCompilerAPI({ compilerUrl, forceCompatibility })
 }
 
 
@@ -168,14 +185,17 @@ We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from fi
 
 ```js
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
-  const { password, privateKey, accountOnly = false, networkId } = options
+  const { password, privateKey, accountOnly = false, networkId, debug = true } = options
+
   const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
+  const accounts = [Account(R.merge(options, { keypair, networkId }))]
 
   const client = accountOnly
-    ? await Account(R.merge(options, { keypair, networkId }))
-    : await initClient(R.merge(options, { keypair }))
-  if (returnKeyPair)
+    ? accounts[0]
+    : await initClient(R.merge(options, { accounts, debug }))
+  if (returnKeyPair) {
     return { client, keypair }
+  }
   return client
 }
 
@@ -215,6 +235,10 @@ export function initExecCommands (program) {
 ```js
 export function isExecCommand (cmd, execCommands) {
   return execCommands.find(({ name }) => cmd === name)
+}
+
+export function exit (error = 0) {
+  process.exit(error)
 }
 
 
