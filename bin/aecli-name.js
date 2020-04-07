@@ -115,12 +115,13 @@ program
 //
 // Example: `aecli name update ./myWalletKeyFile --password testpass testname.test ak_qwe23dffasfgdesag323`
 program
-  .command('update <wallet_path> <name> <address>')
+  .command('update <wallet_path> <name> [addresses...]')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+  .option('--extendPointers', 'Extend pointers', false)
   .option('--nameTtl [nameTtl]', 'Validity of name.', utils.constant.NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
   .description('Update a name pointer')
-  .action(async (walletPath, name, address, ...arguments) => await AENS.updateName(walletPath, name, address, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, name, addresses, ...arguments) => await AENS.updateName(walletPath, name, addresses, utils.cli.getCmdFromArguments(arguments)))
 
 
 // ## Initialize `revoke` command

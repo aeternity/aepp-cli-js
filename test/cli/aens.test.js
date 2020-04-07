@@ -17,7 +17,7 @@
 
 import { before, describe, it } from 'mocha'
 
-import { configure, plan, ready, execute as exec, WALLET_NAME } from './index'
+import { configure, plan, ready, execute as exec, WALLET_NAME, randomString } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 
@@ -29,17 +29,7 @@ function randomName (length, namespace = '.chain') {
   return randomString(length).toLowerCase() + namespace
 }
 
-function randomString (len, charSet) {
-  charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let randomString = ''
-  for (let i = 0; i < len; i++) {
-    const randomPoz = Math.floor(Math.random() * charSet.length)
-    randomString += charSet.substring(randomPoz, randomPoz + 1)
-  }
-  return randomString
-}
-
-describe('CLI AENS Module', function () {
+describe.only('CLI AENS Module', function () {
   configure(this)
   const { publicKey } = generateKeyPair()
   let wallet
@@ -104,7 +94,7 @@ describe('CLI AENS Module', function () {
     nameResult.status.should.equal('CLAIMED')
   })
   it('Update Name', async () => {
-    const updateTx = JSON.parse(await execute(['name', 'update', WALLET_NAME, '--password', 'test', name2, publicKey, '--json']))
+    const updateTx = JSON.parse(await execute(['name', 'update', WALLET_NAME, name2, publicKey, '--password', 'test', '--json']))
     const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
 
     updateTx.blockHeight.should.be.gt(0)
@@ -124,6 +114,17 @@ describe('CLI AENS Module', function () {
     spendTx.tx.tx.recipientId.should.be.equal(nameObject.id)
     const balance = await wallet.getBalance(publicKey)
     balance.should.be.equal(`${amount}`)
+  })
+  it('Transfer name', async () => {
+    const keypair = generateKeyPair()
+    await wallet.addAccount(MemoryAccount({ keypair }))
+
+    const transferTx = JSON.parse(await execute(['name', 'transfer', WALLET_NAME, name2, keypair.publicKey, '--password', 'test', '--json']))
+    transferTx.blockHeight.should.be.gt(0)
+    await wallet.spend(1, keypair.publicKey, { denomination: 'ae' })
+    const claim2 = await wallet.aensQuery(name2)
+    const transferBack = await claim2.transfer(await wallet.address(), { onAccount: keypair.publicKey })
+    transferBack.blockHeight.should.be.gt(0)
   })
   it('Revoke Name', async () => {
     const revoke = JSON.parse(await execute(['name', 'revoke', WALLET_NAME, '--password', 'test', name2, '--json']))
