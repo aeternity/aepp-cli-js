@@ -17,7 +17,7 @@
 
 import { before, describe, it } from 'mocha'
 
-import { configure, plan, ready, execute as exec, WALLET_NAME } from './index'
+import { configure, plan, ready, execute as exec, WALLET_NAME, randomString } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 
@@ -29,17 +29,7 @@ function randomName (length, namespace = '.chain') {
   return randomString(length).toLowerCase() + namespace
 }
 
-function randomString (len, charSet) {
-  charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let randomString = ''
-  for (let i = 0; i < len; i++) {
-    const randomPoz = Math.floor(Math.random() * charSet.length)
-    randomString += charSet.substring(randomPoz, randomPoz + 1)
-  }
-  return randomString
-}
-
-describe('CLI AENS Module', function () {
+describe.only('CLI AENS Module', function () {
   configure(this)
   const { publicKey } = generateKeyPair()
   let wallet
@@ -104,7 +94,7 @@ describe('CLI AENS Module', function () {
     nameResult.status.should.equal('CLAIMED')
   })
   it('Update Name', async () => {
-    const updateTx = JSON.parse(await execute(['name', 'update', WALLET_NAME, '--password', 'test', name2, publicKey, '--json']))
+    const updateTx = JSON.parse(await execute(['name', 'update', WALLET_NAME, name2, publicKey, '--password', 'test', '--json']))
     const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
 
     updateTx.blockHeight.should.be.gt(0)
