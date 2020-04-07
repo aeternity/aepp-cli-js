@@ -115,6 +115,17 @@ describe.only('CLI AENS Module', function () {
     const balance = await wallet.getBalance(publicKey)
     balance.should.be.equal(`${amount}`)
   })
+  it('Transfer name', async () => {
+    const keypair = generateKeyPair()
+    await wallet.addAccount(MemoryAccount({ keypair }))
+
+    const transferTx = JSON.parse(await execute(['name', 'transfer', WALLET_NAME, name2, keypair.publicKey, '--password', 'test', '--json']))
+    transferTx.blockHeight.should.be.gt(0)
+    await wallet.spend(1, keypair.publicKey, { denomination: 'ae' })
+    const claim2 = await wallet.aensQuery(name2)
+    const transferBack = await claim2.transfer(await wallet.address(), { onAccount: keypair.publicKey })
+    transferBack.blockHeight.should.be.gt(0)
+  })
   it('Revoke Name', async () => {
     const revoke = JSON.parse(await execute(['name', 'revoke', WALLET_NAME, '--password', 'test', name2, '--json']))
     const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))

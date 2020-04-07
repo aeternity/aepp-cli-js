@@ -157,7 +157,7 @@ async function transferName (walletPath, domain, address, options) {
       }
 
       // Create `transferName` transaction
-      const transferTX = await client.aensTransfer(name.id, address, { ttl, fee, nonce, waitMined })
+      const transferTX = await client.aensTransfer(domain, address, { ttl, fee, nonce, waitMined })
       if (waitMined) {
         printTransaction(
           transferTX,
