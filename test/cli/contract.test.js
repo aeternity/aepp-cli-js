@@ -37,6 +37,7 @@ describe('CLI Contract Module', function () {
   let deployDescriptor
   let wallet
   let bytecode
+  let cAddress
 
   before(async function () {
     // Spend tokens for wallet
@@ -79,22 +80,22 @@ describe('CLI Contract Module', function () {
     decodedData.value.should.be.equal(3)
   })
 
-  // it('Deploy Contract', async () => {
-  //   // Create contract file
-  //   fs.writeFileSync(contractFile, testContract)
-  //
-  //   // Deploy contract
-  //   const res = await execute(['contract', 'deploy', WALLET_NAME, '--password', 'test', contractFile])
-  //   const { contract_address, transaction_hash, deploy_descriptor } = (parseBlock(res))
-  //   deployDescriptor = deploy_descriptor
-  //   const [name, pref, address] = deployDescriptor.split('.')
-  //   cAddress = contract_address
-  //   contract_address.should.be.ok
-  //   transaction_hash.should.be.ok
-  //   name.should.equal(contractFile)
-  //   pref.should.equal('deploy')
-  //   address.should.equal(KEY_PAIR.publicKey.split('_')[1])
-  // })
+  it('Deploy Contract', async () => {
+    // Create contract file
+    fs.writeFileSync(contractFile, testContract)
+
+    // Deploy contract
+    const res = await execute(['contract', 'deploy', WALLET_NAME, '--password', 'test', contractFile])
+    const { contract_address, transaction_hash, deploy_descriptor } = (parseBlock(res))
+    deployDescriptor = deploy_descriptor
+    const [name, pref, address] = deployDescriptor.split('.')
+    cAddress = contract_address
+    contract_address.should.be.ok
+    transaction_hash.should.be.ok
+    name.should.equal(contractFile)
+    pref.should.equal('deploy')
+    address.should.equal(KEY_PAIR.publicKey.split('_')[1])
+  })
   //
   // it('Call Contract by descriptor', async () => {
   //   // Call contract
