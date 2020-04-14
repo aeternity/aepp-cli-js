@@ -101,17 +101,22 @@ program
 // You can preset gas, nonce and ttl for that call. If not set use default.
 // Example: `aecli contract call ./myWalletFile --password tstpass sumFunc int 1 2 --descrPath ./contractDescriptorFile.json  --gas 2222222 --nonce 4 --ttl 1243`
 program
-  .command('call <wallet_path> <fn> <return_type> [args...]')
+  .command('call <wallet_path> <fn> [args...]')
+  .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-P, --password [password]', 'Wallet Password')
   .option('-G --gas [gas]', 'Amount of gas to call the contract', utils.constant.GAS)
   .option('-d --descrPath [descrPath]', 'Path to contract descriptor file')
+  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .option('-s --callStatic', 'Call static', false)
   .option('-t --topHash', 'Hash of block to make call')
   .option('--contractAddress [contractAddress]', 'Contract address to call')
   .option('--contractSource [contractSource]', 'Contract source code')
+  .option('-F, --fee [fee]', 'Spend transaction fee.')
+  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+  .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Execute a function of the contract')
-  .action(async (walletPath, fn, returnType, args, ...arguments) => await Contract.call(walletPath, fn, returnType, args, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, fn, args, ...arguments) => await Contract.call(walletPath, fn, args, utils.cli.getCmdFromArguments(arguments)))
 
 //
 // ## Initialize `deploy` command

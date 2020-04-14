@@ -18,12 +18,11 @@
 import fs from 'fs'
 import { before, describe, it } from 'mocha'
 
-import { configure, plan, ready, WALLET_NAME, execute as exec, parseBlock } from './index'
-import KEY_PAIR from '@aeternity/aepp-sdk/es/account/memory';
+import { configure, plan, ready, WALLET_NAME, execute as exec, parseBlock, KEY_PAIR } from './index'
 
 // CONTRACT SOURCE
 const testContract = `contract Identity =
-  entrypoint main(x : int) = x
+  entrypoint main(x : int, y: int) = x + y
 `
 
 const encodedNumber3 = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPJ9AW0'
@@ -86,43 +85,42 @@ describe('CLI Contract Module', function () {
     fs.writeFileSync(contractFile, testContract)
 
     // Deploy contract
-    const res = await exec(['contract', 'deploy', WALLET_NAME, '--password', 'test', contractFile])
-    const { contract_address, transaction_hash, deploy_descriptor } = (parseBlock(res))
-    deployDescriptor = deploy_descriptor
-    const [name, pref, address] = deployDescriptor.split('.')
-    cAddress = contract_address
-    contract_address.should.be.ok
-    transaction_hash.should.be.ok
+    const res = JSON.parse(await exec(['contract', 'deploy', WALLET_NAME, '--password', 'test', contractFile, '--json']))
+    const { result: { contractId }, transaction, descPath } = res
+    deployDescriptor = descPath
+    const [name, pref, add] = deployDescriptor.split('.')
+    cAddress = contractId
+    contractId.should.be.ok
+    transaction.should.be.ok
     name.should.equal(contractFile)
     pref.should.equal('deploy')
-    address.should.equal(KEY_PAIR.publicKey.split('_')[1])
+    add.should.equal(KEY_PAIR.publicKey.split('_')[1])
   })
 
   it('Call Contract by descriptor', async () => {
     // Call contract
-    const callResponse = (parseBlock(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--descrPath', deployDescriptor, 'main', 'int', '1', '2'])))
-    const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
+    const callResponse = JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'main', '1', '2']))
+    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
     isValid.should.be.equal(true)
-    callResponse['return_value_(decoded)'].should.equal('3')
+    callResponse.decodedResult.should.equal(3)
   })
   it('Call Contract static by descriptor', async () => {
     // Call contract
-    const callResponse = (parseBlock(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--descrPath', deployDescriptor, 'main', 'int', '1', '2', '--callStatic'])))
-    const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
+    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'main', '1', '2', '--callStatic'])))
+    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
     isValid.should.be.equal(true)
-    callResponse['return_value_(decoded)'].should.equal('3')
+    callResponse.decodedResult.should.equal(3)
   })
   it('Call Contract by contract address', async () => {
-    const callResponse = (parseBlock(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, '--contractSource', contractFile, 'main', 'int', '1', '2'])))
-    const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
+    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'main', '1', '2'])))
+    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
     isValid.should.be.equal(true)
-    callResponse['return_value_(decoded)'].should.equal('3')
+    callResponse.decodedResult.should.equal(3)
   })
   it('Call Contract static by contract address', async () => {
-    const callResponse = (parseBlock(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--contractAddress', cAddress, '--contractSource', contractFile, 'main', 'int', '1', '2', '--callStatic'])))
-    const isValid = callResponse['return_value_(encoded)'].indexOf('cb_') !== -1
-
+    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'main', '1', '2', '--callStatic'])))
+    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
     isValid.should.be.equal(true)
-    callResponse['return_value_(decoded)'].should.equal('3')
+    callResponse.decodedResult.should.equal(3)
   })
 })
