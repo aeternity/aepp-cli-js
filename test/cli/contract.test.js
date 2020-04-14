@@ -26,8 +26,8 @@ const testContract = `contract Identity =
 `
 
 const encodedNumber3 = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPJ9AW0'
-const CALL_DATA = 'cb_KxG4F37sGwIZEGMb'
-const DECODED_CALL_DATA = { arguments: [{ type: 'int', value: 1 }], function: 'main' }
+const CALL_DATA = 'cb_KxG4F37sKwIEFmEjaA=='
+const DECODED_CALL_DATA = { arguments: [{ type: 'int', value: 1 }, { type: 'int', value: 2 }], function: 'main' }
 
 plan(1000000000)
 
@@ -66,7 +66,7 @@ describe('CLI Contract Module', function () {
   })
 
   it('Encode callData', async () => {
-    const { callData } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'main', 1, '--json']))
+    const { callData } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'main', '1', '2', '--json']))
     callData.should.be.equal(CALL_DATA)
   })
 
