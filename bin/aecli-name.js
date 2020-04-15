@@ -42,9 +42,9 @@ program
 
 // ## Initialize `claim` command
 //
-// You can use this command to `claim` AENS name. Name must end on `.test`.
+// You can use this command to `claim` AENS name. Name must end on `.chain`.
 //
-// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.test`
+// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.chain`
 //
 // This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
 //
@@ -63,7 +63,7 @@ program
 //
 // You can use this command to `pre-claim` AENS name
 //
-// Example: `aecli name pre-claim ./myWalletKeyFile --password testpass  testname.aet`
+// Example: `aecli name pre-claim ./myWalletKeyFile --password testpass  testname.chain`
 //
 // This command build and send `pre-claim` transaction.
 // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
@@ -78,9 +78,9 @@ program
 
 // ## Initialize `claim` command
 //
-// You can use this command to `claim` AENS name. Name must end on `.test`.
+// You can use this command to `claim` AENS name. Name must end on `.chain`.
 //
-// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.test`
+// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.chain`
 //
 // This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
 //
@@ -95,9 +95,9 @@ program
 
 // ## Initialize `claim` command
 //
-// You can use this command to `claim` AENS name. Name must end on `.test`.
+// You can use this command to `claim` AENS name. Name must end on `.chain`.
 //
-// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.test`
+// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.chain`
 //
 // This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
 //
@@ -109,11 +109,11 @@ program
   .action(async (walletPath, name, nameFee, ...arguments) => await AENS.nameBid(walletPath, name, nameFee, utils.cli.getCmdFromArguments(arguments)))
 
 
-// ## Initialize `claim` command
+// ## Initialize `update` command
 //
 // You can use this command to `update` pointer of AENS name.
 //
-// Example: `aecli name update ./myWalletKeyFile --password testpass testname.test ak_qwe23dffasfgdesag323`
+// Example: `aecli name update ./myWalletKeyFile --password testpass testname.chain ak_qwe23dffasfgdesag323`
 program
   .command('update <wallet_path> <name> [addresses...]')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
@@ -122,6 +122,19 @@ program
   .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
   .description('Update a name pointer')
   .action(async (walletPath, name, addresses, ...arguments) => await AENS.updateName(walletPath, name, addresses, utils.cli.getCmdFromArguments(arguments)))
+
+
+// ## Initialize `extend` command
+//
+// You can use this command to `extend` ttl of AENS name.
+//
+// Example: `aecli name extend ./myWalletKeyFile --password testpass testname.chain 100`
+program
+  .command('extend <wallet_path> <name> <nameTtl')
+  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+  .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
+  .description('Extend name ttl')
+  .action(async (walletPath, name, nameTtl, ...arguments) => await AENS.extendName(walletPath, name, nameTtl, utils.cli.getCmdFromArguments(arguments)))
 
 
 // ## Initialize `revoke` command
