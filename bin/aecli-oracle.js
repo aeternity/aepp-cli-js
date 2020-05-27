@@ -66,6 +66,22 @@ program
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 program
+  .command('respondQuery <wallet_path> <oracleId> <queryId> <response>')
+  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+  .option('--responseTtl [responseTtl]', 'Query response time to leave', utils.constant.RESPONSE_TTL)
+  .description('Respond to  Oracle Query')
+  .action(async (walletPath, oracleId, queryId, response, ...arguments) => await Oracle.respondToQuery(walletPath, oracleId, queryId, response, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `create oracle query` command
+//
+// You can use this command to `create` Oracle
+//
+// Example: `aecli oracle create ./myWalletKeyFile --password testpass`
+//
+// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+//
+// You can use `--ttl` to pre-set transaction `time to leave`
+program
   .command('query <wallet_path> <oracleId> <query>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--responseTtl [responseTtl]', 'Query response time to leave', utils.constant.RESPONSE_TTL)
@@ -73,6 +89,7 @@ program
   .option('--queryFee [queryFee]', 'Oracle query fee', utils.constant.QUERY_FEE)
   .description('Create Oracle query')
   .action(async (walletPath, oracleId, query, ...arguments) => await Oracle.createOracleQuery(walletPath, oracleId, query, utils.cli.getCmdFromArguments(arguments)))
+
 
 //
 program

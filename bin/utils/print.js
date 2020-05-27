@@ -34,7 +34,7 @@ const TX_TYPE_PRINT_MAP = {
   'OracleRegisterTx': printOracleRegisterTransaction,
   'OracleQueryTx': printOraclePostQueryTransaction,
   'OracleExtendTx': printOracleExtendTransaction,
-  'OracleResponseTx': printOracleResponseTransaction
+  'OracleRespondTx': printOracleResponseTransaction
 }
 // ## Row width
 const WIDTH = 40
@@ -280,6 +280,7 @@ function printOracleRegisterTransaction (tx = {}, tabs = '') {
 function printOraclePostQueryTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'Account', R.defaultTo('N/A', R.path(['tx', 'senderId'], tx)))
   printUnderscored(tabs + 'Oracle ID', R.defaultTo('N/A', 'ok_' + R.path(['tx', 'oracleId'], tx).slice(3)))
+  printUnderscored(tabs + 'Query ID', R.defaultTo('N/A', 'oq' + R.path(['id'], tx).slice(3)))
   printUnderscored(tabs + 'Query', R.defaultTo('N/A', R.path(['tx', 'query'], tx)))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
@@ -328,8 +329,8 @@ export function printTransaction (tx, json, tabs = 0, skipBase = false) {
     return
   }
   const tabsString = getTabs(tabs)
-  if (!skipBase) printTxBase(tx, tabsString)
-  printTxInfo(tx, tabsString)
+  if (!skipBase) printTxBase({ ...tx, ...tx.tx ? tx.tx : {}}, tabsString)
+  printTxInfo({ ...tx, ...tx.tx ? tx.tx : {}}, tabsString)
 }
 
 // ##OTHER

@@ -99,6 +99,40 @@ async function createOracleQuery (walletPath, oracleId, query, options) {
   }
 }
 
+// ## Claim `name` function
+async function respondToQuery (walletPath, oracleId, queryId, response, options) {
+  const { ttl, fee, nonce, waitMined, json, responseTtl  } = options
+
+  try {
+    if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
+    if (!assertedType(queryId, 'oq', true)) throw new Error('Invalid queryId')
+    const client = await initClientByWalletFile(walletPath, options)
+
+    await handleApiError(async () => {
+      const oracle = await client.getOracleObject(oracleId)
+      const queryResponse = await oracle.respondToQuery(queryId, response, {
+        ttl,
+        waitMined,
+        nonce,
+        fee,
+        responseTtl: isNaN(parseInt(responseTtl)) ? responseTtl : BUILD_ORACLE_TTL(responseTtl)
+      })
+      if (waitMined) {
+        printTransaction(
+          queryResponse,
+          json
+        )
+      } else {
+        print('Transaction send to the chain. Tx hash: ', queryResponse)
+      }
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
+  }
+}
+
 async function queryOracle (oracleId, options) {
   try {
     if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
@@ -119,5 +153,6 @@ async function queryOracle (oracleId, options) {
 export const Oracle = {
   createOracle,
   queryOracle,
-  createOracleQuery
+  createOracleQuery,
+  respondToQuery
 }
