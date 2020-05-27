@@ -22,11 +22,48 @@
 import * as R from 'ramda'
 import path from 'path'
 
-import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
-import { initClientByWalletFile, initCompiler } from '../utils/cli'
+import { isAvailable, prepareCallParams, readFile, updateNameStatus, writeFile } from '../utils/helpers'
+import { exit, initClientByWalletFile, initCompiler } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
+import { BUILD_ORACLE_TTL } from '../utils/constant';
 
+
+// ## Claim `name` function
+async function createOracle (walletPath, queryFormat, responseFormat, options) {
+  const { ttl, fee, nonce, waitMined, json, oracleTtl, queryFee } = options
+
+  try {
+    const client = await initClientByWalletFile(walletPath, options)
+    await handleApiError(async () => {
+      // Register Oracle
+      const oracle = await client.registerOracle(
+        queryFormat,
+        responseFormat,
+        { ttl,
+          waitMined,
+          nonce,
+          fee,
+          oracleTtl: isNaN(parseInt(oracleTtl)) ? oracleTtl : BUILD_ORACLE_TTL(oracleTtl),
+          queryFee
+        }
+      )
+      if (waitMined) {
+        printTransaction(
+          oracle,
+          json
+        )
+      } else {
+        print('Transaction send to the chain. Tx hash: ', oracle)
+      }
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
+  }
+}
 
 export const Oracle = {
+  createOracle
 }

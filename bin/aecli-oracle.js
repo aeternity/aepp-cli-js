@@ -39,6 +39,24 @@ program
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format', utils.constant.OUTPUT_JSON)
 
+// ## Initialize `create` command
+//
+// You can use this command to `create` Oracle
+//
+// Example: `aecli oracle create ./myWalletKeyFile --password testpass`
+//
+// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+//
+// You can use `--ttl` to pre-set transaction `time to leave`
+program
+  .command('create <wallet_path> <queryFormat> <responseFormat>')
+  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+  .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', utils.constant.ORACLE_TTL)
+  .option('--queryFee [queryFee]', 'Oracle query fee', utils.constant.QUERY_FEE)
+  .description('Pre-Claim a domain name')
+  .action(async (walletPath, queryFormat, responseFormat, ...arguments) => await Oracle.createOracle(walletPath, queryFormat, responseFormat, utils.cli.getCmdFromArguments(arguments)))
+
+
 // Handle unknown command's
 program.on('command:*', () => utils.errors.unknownCommandHandler(program)())
 
