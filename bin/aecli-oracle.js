@@ -53,8 +53,32 @@ program
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', utils.constant.ORACLE_TTL)
   .option('--queryFee [queryFee]', 'Oracle query fee', utils.constant.QUERY_FEE)
-  .description('Pre-Claim a domain name')
+  .description('Register Oracle')
   .action(async (walletPath, queryFormat, responseFormat, ...arguments) => await Oracle.createOracle(walletPath, queryFormat, responseFormat, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `create oracle query` command
+//
+// You can use this command to `create` Oracle
+//
+// Example: `aecli oracle create ./myWalletKeyFile --password testpass`
+//
+// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+//
+// You can use `--ttl` to pre-set transaction `time to leave`
+program
+  .command('query <wallet_path> <oracleId> <query>')
+  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+  .option('--responseTtl [responseTtl]', 'Query response time to leave', utils.constant.RESPONSE_TTL)
+  .option('--queryTtl [queryTtl]', 'Query time to leave', utils.constant.QUERY_TTL)
+  .option('--queryFee [queryFee]', 'Oracle query fee', utils.constant.QUERY_FEE)
+  .description('Create Oracle query')
+  .action(async (walletPath, oracleId, query, ...arguments) => await Oracle.createOracleQuery(walletPath, oracleId, query, utils.cli.getCmdFromArguments(arguments)))
+
+//
+program
+  .command('get <oracleId>')
+  .description('Get Oracle')
+  .action(async (oracleId, ...arguments) => await Oracle.queryOracle(oracleId, utils.cli.getCmdFromArguments(arguments)))
 
 
 // Handle unknown command's

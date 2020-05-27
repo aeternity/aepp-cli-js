@@ -22,11 +22,11 @@
 import * as R from 'ramda'
 import path from 'path'
 
-import { isAvailable, prepareCallParams, readFile, updateNameStatus, writeFile } from '../utils/helpers'
-import { exit, initClientByWalletFile, initCompiler } from '../utils/cli'
+import { exit, initChain, initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
+import { printError, print, printTransaction, printUnderscored, printOracle, printQueries } from '../utils/print'
 import { BUILD_ORACLE_TTL } from '../utils/constant';
+import { assertedType } from '@aeternity/aepp-sdk/es/utils/crypto';
 
 
 // ## Claim `name` function
@@ -64,6 +64,60 @@ async function createOracle (walletPath, queryFormat, responseFormat, options) {
   }
 }
 
+// ## Claim `name` function
+async function createOracleQuery (walletPath, oracleId, query, options) {
+  const { ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl  } = options
+
+  try {
+    if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
+    const client = await initClientByWalletFile(walletPath, options)
+
+    await handleApiError(async () => {
+      const oracle = await client.getOracleObject(oracleId)
+      const oracleQuery = await oracle.postQuery(query, {
+        ttl,
+        waitMined,
+        nonce,
+        fee,
+        queryTll: isNaN(parseInt(queryTll)) ? queryTll : BUILD_ORACLE_TTL(queryTll),
+        responseTtl: isNaN(parseInt(responseTtl)) ? responseTtl : BUILD_ORACLE_TTL(responseTtl),
+        queryFee
+      })
+      if (waitMined) {
+        printTransaction(
+          oracleQuery,
+          json
+        )
+      } else {
+        print('Transaction send to the chain. Tx hash: ', oracleQuery)
+      }
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
+  }
+}
+
+async function queryOracle (oracleId, options) {
+  try {
+    if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
+    const client = await initChain(options)
+    await handleApiError(async () => {
+      const oracle = await client.getOracle(oracleId)
+      const { oracleQueries: queries } = await client.getOracleQueries(oracleId)
+      printOracle(oracle, options.json)
+      printQueries(queries, options.json)
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
+  }
+}
+
 export const Oracle = {
-  createOracle
+  createOracle,
+  queryOracle,
+  createOracleQuery
 }
