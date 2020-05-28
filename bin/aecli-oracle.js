@@ -43,7 +43,7 @@ program
 //
 // You can use this command to `create` Oracle
 //
-// Example: `aecli oracle create ./myWalletKeyFile --password testpass`
+// Example: `aecli oracle create ./myWalletKeyFile --password testpass string string`
 //
 // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
 //
@@ -58,9 +58,9 @@ program
 
 // ## Initialize `extend oracle` command
 //
-// You can use this command to `create` Oracle
+// You can use this command to `extend` Oracle time to leave
 //
-// Example: `aecli oracle create ./myWalletKeyFile --password testpass`
+// Example: `aecli oracle extend ./myWalletKeyFile --password testpass ok_12dasdgfa32fasf 200`
 //
 // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
 //
@@ -73,31 +73,15 @@ program
 
 // ## Initialize `create oracle query` command
 //
-// You can use this command to `create` Oracle
+// You can use this command to `create` an Oracle Query
 //
-// Example: `aecli oracle create ./myWalletKeyFile --password testpass`
-//
-// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
-//
-// You can use `--ttl` to pre-set transaction `time to leave`
-program
-  .command('respondQuery <wallet_path> <oracleId> <queryId> <response>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .option('--responseTtl [responseTtl]', 'Query response time to leave', utils.constant.RESPONSE_TTL)
-  .description('Respond to  Oracle Query')
-  .action(async (walletPath, oracleId, queryId, response, ...arguments) => await Oracle.respondToQuery(walletPath, oracleId, queryId, response, utils.cli.getCmdFromArguments(arguments)))
-
-// ## Initialize `create oracle query` command
-//
-// You can use this command to `create` Oracle
-//
-// Example: `aecli oracle create ./myWalletKeyFile --password testpass`
+// Example: `aecli oracle create-query ./myWalletKeyFile --password testpass ok_123asdasd... WhatTheWeatherIs?`
 //
 // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 program
-  .command('query <wallet_path> <oracleId> <query>')
+  .command('create-query <wallet_path> <oracleId> <query>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--responseTtl [responseTtl]', 'Query response time to leave', utils.constant.RESPONSE_TTL)
   .option('--queryTtl [queryTtl]', 'Query time to leave', utils.constant.QUERY_TTL)
@@ -105,8 +89,31 @@ program
   .description('Create Oracle query')
   .action(async (walletPath, oracleId, query, ...arguments) => await Oracle.createOracleQuery(walletPath, oracleId, query, utils.cli.getCmdFromArguments(arguments)))
 
-
+// ## Initialize `respond query` command
 //
+// You can use this command to `respond` to Oracle Query
+//
+// Example: `aecli oracle respondQuery ./myWalletKeyFile --password testpass ok_12313... oq_12efdsafa... +16Degree`
+//
+// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+//
+// You can use `--ttl` to pre-set transaction `time to leave`
+program
+  .command('respond-query <wallet_path> <oracleId> <queryId> <response>')
+  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+  .option('--responseTtl [responseTtl]', 'Query response time to leave', utils.constant.RESPONSE_TTL)
+  .description('Respond to  Oracle Query')
+  .action(async (walletPath, oracleId, queryId, response, ...arguments) => await Oracle.respondToQuery(walletPath, oracleId, queryId, response, utils.cli.getCmdFromArguments(arguments)))
+
+// ## Initialize `get oracle` command
+//
+// You can use this command to `get` an Oracle
+//
+// Example: `aecli oracle respondQuery ./myWalletKeyFile --password testpass ok_12313... oq_12efdsafa... +16Degree`
+//
+// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+//
+// You can use `--ttl` to pre-set transaction `time to leave`
 program
   .command('get <oracleId>')
   .description('Get Oracle')
