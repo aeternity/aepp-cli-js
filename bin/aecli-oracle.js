@@ -56,6 +56,21 @@ program
   .description('Register Oracle')
   .action(async (walletPath, queryFormat, responseFormat, ...arguments) => await Oracle.createOracle(walletPath, queryFormat, responseFormat, utils.cli.getCmdFromArguments(arguments)))
 
+// ## Initialize `extend oracle` command
+//
+// You can use this command to `create` Oracle
+//
+// Example: `aecli oracle create ./myWalletKeyFile --password testpass`
+//
+// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+//
+// You can use `--ttl` to pre-set transaction `time to leave`
+program
+  .command('extend <wallet_path> <oracleId> <oracleTtl>')
+  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+  .description('Extend Oracle')
+  .action(async (walletPath, oracleId, oracleTtl, ...arguments) => await Oracle.extendOracle(walletPath, oracleId, oracleTtl, utils.cli.getCmdFromArguments(arguments)))
+
 // ## Initialize `create oracle query` command
 //
 // You can use this command to `create` Oracle

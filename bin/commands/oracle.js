@@ -19,17 +19,14 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import * as R from 'ramda'
-import path from 'path'
-
 import { exit, initChain, initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { printError, print, printTransaction, printUnderscored, printOracle, printQueries } from '../utils/print'
+import { printError, print, printTransaction, printOracle, printQueries } from '../utils/print'
 import { BUILD_ORACLE_TTL } from '../utils/constant';
 import { assertedType } from '@aeternity/aepp-sdk/es/utils/crypto';
 
 
-// ## Claim `name` function
+// ## Create Oracle
 async function createOracle (walletPath, queryFormat, responseFormat, options) {
   const { ttl, fee, nonce, waitMined, json, oracleTtl, queryFee } = options
 
@@ -64,7 +61,41 @@ async function createOracle (walletPath, queryFormat, responseFormat, options) {
   }
 }
 
-// ## Claim `name` function
+// ## Extend Oracle
+async function extendOracle (walletPath, oracleId, oracleTtl, options) {
+  const { ttl, fee, nonce, waitMined, json } = options
+
+  try {
+    if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number')
+    if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
+    const client = await initClientByWalletFile(walletPath, options)
+    await handleApiError(async () => {
+      const oracle = await client.getOracleObject(oracleId)
+      const extended = await oracle.extendOracle(
+        BUILD_ORACLE_TTL(oracleTtl),
+        { ttl,
+          waitMined,
+          nonce,
+          fee,
+        }
+      )
+      if (waitMined) {
+        printTransaction(
+          extended,
+          json
+        )
+      } else {
+        print('Transaction send to the chain. Tx hash: ', extended)
+      }
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
+  }
+}
+
+// ## Create Oracle Query
 async function createOracleQuery (walletPath, oracleId, query, options) {
   const { ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl  } = options
 
@@ -99,7 +130,7 @@ async function createOracleQuery (walletPath, oracleId, query, options) {
   }
 }
 
-// ## Claim `name` function
+// ## Respond to Oracle Query
 async function respondToQuery (walletPath, oracleId, queryId, response, options) {
   const { ttl, fee, nonce, waitMined, json, responseTtl  } = options
 
@@ -133,6 +164,7 @@ async function respondToQuery (walletPath, oracleId, queryId, response, options)
   }
 }
 
+// ## Get oracle
 async function queryOracle (oracleId, options) {
   try {
     if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
@@ -152,6 +184,7 @@ async function queryOracle (oracleId, options) {
 
 export const Oracle = {
   createOracle,
+  extendOracle,
   queryOracle,
   createOracleQuery,
   respondToQuery
