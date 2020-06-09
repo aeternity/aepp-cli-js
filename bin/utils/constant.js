@@ -31,7 +31,10 @@ export {
   // # CONTRACT
   ABI_VERSIONS,
   VM_VERSIONS,
-  VM_TYPE
+  VM_TYPE,
+  ORACLE_TTL,
+  QUERY_TTL,
+  QUERY_FEE,
 } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 
 // ## HAST TYPES
@@ -49,8 +52,8 @@ export const HASH_TYPES = {
 }
 
 // ## CONNECTION
-export const NODE_URL = 'http://localhost:3013'
-export const NODE_INTERNAL_URL = 'http://localhost:3113'
+export const NODE_URL = 'https://sdk-testnet.aepps.com'
+export const NODE_INTERNAL_URL = 'https://sdk-testnet.aepps.com'
 export const NODE_WEBSOCKET_URL = 'https://sdk-testnet.aepps.com'
 export const COMPILER_URL = 'http://localhost:3080'
 
@@ -69,10 +72,7 @@ export const ORACLE_VM_VERSION = 0
 export const AMOUNT = 0
 
 // ## ORACLE
-export const QUERY_FEE = 30000
 export const BUILD_ORACLE_TTL = (ttl) => { return { type: 'delta', value: ttl } }
-export const ORACLE_TTL = 500
-export const QUERY_TTL = 10
 export const RESPONSE_TTL = 10
 
 // ## Default transaction build param's

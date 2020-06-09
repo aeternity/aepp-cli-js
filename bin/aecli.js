@@ -34,9 +34,7 @@ const EXECUTABLE_CMD = [
   { name: 'contract', desc: 'Compile contracts' },
   { name: 'name', desc: 'AENS system' },
   { name: 'tx', desc: 'Transaction builder' },
-  /* TODO implement oracle module
-  * {name: 'oracle', desc: 'Interact with oracles'},
-  */
+  {name: 'oracle', desc: 'Interact with oracles'},
   { name: 'crypto', desc: 'Crypto helpers' }
 ]
 // ##Get version from `package.json`

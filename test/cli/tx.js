@@ -164,7 +164,9 @@ describe('CLI Transaction Module', function () {
   })
 
   it('Build oracle register tx offline and send the chain', async () => {
-    const { tx } = JSON.parse(await execute(['tx', 'oracle-register', TX_KEYS.publicKey, '{city: "str"}', '{tmp:""num}', nonce, '--json'], { withOutReject: true }))
+    const result = await execute(['tx', 'oracle-register', TX_KEYS.publicKey, '{city: "str"}', '{tmp:""num}', nonce, '--json'], { withOutReject: true })
+    console.log(result)
+    const { tx } = JSON.parse(result)
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
     isMined.should.be.equal(true)

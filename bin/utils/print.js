@@ -19,6 +19,7 @@
 import * as R from 'ramda'
 
 import { HASH_TYPES } from './constant'
+import { decodeBase64Check } from '@aeternity/aepp-sdk/es/utils/crypto';
 
 // ## CONSTANT
 const TX_TYPE_PRINT_MAP = {
@@ -33,7 +34,7 @@ const TX_TYPE_PRINT_MAP = {
   'OracleRegisterTx': printOracleRegisterTransaction,
   'OracleQueryTx': printOraclePostQueryTransaction,
   'OracleExtendTx': printOracleExtendTransaction,
-  'OracleResponseTx': printOracleResponseTransaction
+  'OracleRespondTx': printOracleResponseTransaction
 }
 // ## Row width
 const WIDTH = 40
@@ -279,6 +280,7 @@ function printOracleRegisterTransaction (tx = {}, tabs = '') {
 function printOraclePostQueryTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'Account', R.defaultTo('N/A', R.path(['tx', 'senderId'], tx)))
   printUnderscored(tabs + 'Oracle ID', R.defaultTo('N/A', 'ok_' + R.path(['tx', 'oracleId'], tx).slice(3)))
+  printUnderscored(tabs + 'Query ID', R.defaultTo('N/A', 'oq' + R.path(['id'], tx).slice(3)))
   printUnderscored(tabs + 'Query', R.defaultTo('N/A', R.path(['tx', 'query'], tx)))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
@@ -327,8 +329,8 @@ export function printTransaction (tx, json, tabs = 0, skipBase = false) {
     return
   }
   const tabsString = getTabs(tabs)
-  if (!skipBase) printTxBase(tx, tabsString)
-  printTxInfo(tx, tabsString)
+  if (!skipBase) printTxBase({ ...tx, ...tx.tx ? tx.tx : {}}, tabsString)
+  printTxInfo({ ...tx, ...tx.tx ? tx.tx : {}}, tabsString)
 }
 
 // ##OTHER
@@ -359,7 +361,9 @@ export function printQueries (queries = [], json) {
     printUnderscored('Query ID', R.defaultTo('N/A', R.prop('id', q)))
     printUnderscored('Fee', R.defaultTo('N/A', R.prop('fee', q)))
     printUnderscored('Query', R.defaultTo('N/A', R.prop('query', q)))
+    printUnderscored('Query decoded', R.defaultTo('N/A', decodeBase64Check(q.query.slice(3)).toString()))
     printUnderscored('Response', R.defaultTo('N/A', R.prop('response', q)))
+    printUnderscored('Response decoded', R.defaultTo('N/A', decodeBase64Check(q.response.slice(3)).toString()))
     printUnderscored('Response Ttl', R.defaultTo('N/A', R.prop('responseTtl', q)))
     printUnderscored('Sender Id', R.defaultTo('N/A', R.prop('senderId', q)))
     printUnderscored('Sender Nonce', R.defaultTo('N/A', R.prop('senderNonce', q)))
