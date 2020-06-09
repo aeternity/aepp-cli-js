@@ -36,6 +36,8 @@ describe('CLI AENS Module', function () {
   let nameAuctionsSupported
   let name
   let name2
+  let name3
+  let name4
   let salt
 
   before(async function () {
@@ -47,14 +49,15 @@ describe('CLI AENS Module', function () {
       nameAuctionsSupported = +majorVersion === 5 && version !== '5.0.0-rc.1'
       name = randomName(12, nameAuctionsSupported ? '.chain' : '.test')
       name2 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
+      name3 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
+      name4 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
     } catch (e) {
       console.log(e.toString())
     }
   })
 
   it('Full claim', async () => {
-    const name = randomName(13)
-    const updateTx = JSON.parse(await execute(['name', 'full-claim', WALLET_NAME, '--password', 'test', name, '--json']))
+    const updateTx = JSON.parse(await execute(['name', 'full-claim', WALLET_NAME, '--password', 'test', name3, '--json']))
     const address = await wallet.address()
 
     updateTx.blockHeight.should.be.gt(0)
@@ -62,8 +65,7 @@ describe('CLI AENS Module', function () {
     isUpdated.should.be.equal(true)
   })
   it('Full claim with options', async () => {
-    const name = randomName(13)
-    const updateTx = JSON.parse(await execute(['name', 'full-claim', WALLET_NAME, '--password', 'test', name, '--json', '--nameTtl', 50, '--nameFee', '3865700000000000000', '--clientTtl', 50]))
+    const updateTx = JSON.parse(await execute(['name', 'full-claim', WALLET_NAME, '--password', 'test', name4, '--json', '--nameTtl', 50, '--nameFee', '3865700000000000000', '--clientTtl', 50]))
     const address = await wallet.address()
 
     updateTx.blockHeight.should.be.gt(0)

@@ -85,7 +85,9 @@ describe('CLI Contract Module', function () {
     fs.writeFileSync(contractFile, testContract)
 
     // Deploy contract
-    const res = JSON.parse(await exec(['contract', 'deploy', WALLET_NAME, '--password', 'test', contractFile, '--json']))
+    const { callData } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'init', '--json']))
+    const resRaw = await exec(['contract', 'deploy', WALLET_NAME, '--password', 'test', contractFile, callData, '--json'])
+    const res = JSON.parse(resRaw)
     const { result: { contractId }, transaction, descPath } = res
     deployDescriptor = descPath
     const [name, pref, add] = deployDescriptor.split('.')
@@ -99,7 +101,8 @@ describe('CLI Contract Module', function () {
 
   it('Call Contract by descriptor', async () => {
     // Call contract
-    const callResponse = JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'main', '1', '2']))
+    const res = await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'main', '1', '2'])
+    const callResponse = JSON.parse(res)
     const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
     isValid.should.be.equal(true)
     callResponse.decodedResult.should.equal(3)

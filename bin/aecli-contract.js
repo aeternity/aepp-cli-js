@@ -129,7 +129,7 @@ program
 //
 // Example: `aecli contract deploy ./myWalletFile --password tstpass ./contractSourceCodeFile --gas 2222222`
 program
-  .command('deploy <wallet_path> <contract_path> [init...]')
+  .command('deploy <wallet_path> <contract_path> <callData>')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .option('-P, --password [password]', 'Wallet Password')
@@ -140,7 +140,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Deploy a contract on the chain')
-  .action(async (walletPath, path, init, ...arguments) => await Contract.deploy(walletPath, path, init, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, path, callData, ...arguments) => await Contract.deploy(walletPath, path, callData, utils.cli.getCmdFromArguments(arguments)))
 
 
 // Handle unknown command's
