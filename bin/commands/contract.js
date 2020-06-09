@@ -130,7 +130,7 @@ export async function decodeCallData (data, options) {
 }
 
 // ## Function which `deploy ` contract
-async function deploy (walletPath, contractPath, callData, options) {
+async function deploy (walletPath, contractPath, callData = "", options) {
   const { json, gas, gasPrince, backend = COMPILER_BACKEND, ttl, nonce, fee } = options
   // Deploy a contract to the chain and create a deploy descriptor
   // with the contract informations that can be use to invoke the contract
@@ -138,6 +138,7 @@ async function deploy (walletPath, contractPath, callData, options) {
   //   The generated descriptor will be created in the same folde of the contract
   // source file. Multiple deploy of the same contract file will generate different
   // deploy descriptor
+  if (callData.split('_')[0] !== 'cb') throw new Error('"callData" should be a string with "cb" prefix')
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
@@ -146,11 +147,11 @@ async function deploy (walletPath, contractPath, callData, options) {
     await handleApiError(
       async () => {
         const ownerId = await client.address()
-        const code = await client.contractCompile(contractFile, { backend })
+        const { bytecode: code } = await client.contractCompile(contractFile, { backend })
         const opt = R.merge(client.Ae.defaults, { gas, gasPrince, backend, ttl, nonce, fee })
 
         // Prepare contract create transaction
-        const { tx, contractId } = await this.contractCreateTx(R.merge(opt, {
+        const { tx, contractId } = await client.contractCreateTx(R.merge(opt, {
           callData,
           code,
           ownerId
@@ -173,7 +174,7 @@ async function deploy (walletPath, contractPath, callData, options) {
             descPath,
             source: contractFile,
             bytecode: code
-          }, deployDescriptor.deployInfo)
+          }, deployDescriptor)
           // Write to file
           writeFile(
             descPath,
@@ -181,7 +182,7 @@ async function deploy (walletPath, contractPath, callData, options) {
           )
           // Log contract descriptor
           json
-            ? print({ descPath, ...deployDescriptor.deployInfo })
+            ? print({ descPath, ...deployDescriptor })
             : logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json)
           exit()
         } else {
@@ -196,9 +197,9 @@ async function deploy (walletPath, contractPath, callData, options) {
 }
 
 // ## Function which `call` contract
-async function call (walletPath, fn, returnType, callData, options) {
+async function call (walletPath, fn, args, options) {
   const { callStatic, json, top } = options
-  if (!fn || !returnType) {
+  if (!fn) {
     program.outputHelp()
     exit(1)
   }
@@ -215,16 +216,19 @@ async function call (walletPath, fn, returnType, callData, options) {
         // The execution result, if successful, will be an AEVM-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
         // not be a hexadecimal string, anymore.
-        if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json)
-        print('----------------------Transaction info-----------------------')
-        printUnderscored('Contract address', params.address)
-        printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
-        printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
-        printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
-        // Decode result
-        console.log(callResult)
-        const decoded = await callResult.decode()
-        printUnderscored('Return value (decoded)', decoded)
+        json && print(callResult)
+        if (!json) {
+          if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json)
+          print('----------------------Transaction info-----------------------')
+          printUnderscored('Contract address', params.address)
+          printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
+          printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
+          printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
+          // Decode result
+          const decoded = await callResult.decode()
+          printUnderscored('Return value (decoded)', decoded)
+        }
+
       }
     )
   } catch (e) {
