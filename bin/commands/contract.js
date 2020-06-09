@@ -154,12 +154,12 @@ async function deploy (walletPath, contractPath, init = [], options) {
         // block as well, together with the contract's bytecode.
         const deployDescriptor = await contract.deploy([...init], { fee, ttl, nonce, gas, gasPrince, backend })
         // Write contractDescriptor to file
-        const descPath = `${R.last(contractPath.split('/'))}.deploy.${deployDescriptor.deployInfo.owner.slice(3)}.json`
+        const descPath = `${R.last(contractPath.split('/'))}.deploy.${deployDescriptor.owner.slice(3)}.json`
         const contractDescriptor = R.merge({
           descPath,
           source: contractFile,
           bytecode: contract.compiled,
-        }, deployDescriptor.deployInfo)
+        }, contract.deployInfo)
 
         writeFile(
           descPath,
@@ -168,8 +168,8 @@ async function deploy (walletPath, contractPath, init = [], options) {
 
         // Log contract descriptor
         json
-          ? print({ descPath, ...deployDescriptor.deployInfo })
-          : logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json)
+          ? print(contractDescriptor)
+          : logContractDescriptor(contractDescriptor, 'Contract was successfully deployed')
       }
     )
   } catch (e) {
@@ -179,9 +179,9 @@ async function deploy (walletPath, contractPath, init = [], options) {
 }
 
 // ## Function which `call` contract
-async function call (walletPath, fn, returnType, args, options) {
+async function call (walletPath, fn, args, options) {
   const { callStatic, json, top } = options
-  if (!fn || !returnType) {
+  if (!fn) {
     program.outputHelp()
     process.exit(1)
   }
@@ -195,19 +195,16 @@ async function call (walletPath, fn, returnType, args, options) {
         // Call static or call
         const contract = await client.getContractInstance(params.source, { contractAddress: params.address })
         const callResult = await contract.call(fn, args, { ...params.options, callStatic, top })
-        // The execution result, if successful, will be an AEVM-encoded result
-        // value. Once type decoding will be implemented in the SDK, this value will
-        // not be a hexadecimal string, anymore.
-        if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json)
-        print('----------------------Transaction info-----------------------')
-        printUnderscored('Contract address', params.address)
-        printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
-        printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
-        printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
-        // Decode result
-        console.log(callResult)
-        const decoded = await callResult.decode()
-        printUnderscored('Return value (decoded)', decoded)
+        if (json) {
+          print(callResult)
+        } else {
+          print('----------------------Transaction info-----------------------')
+          printUnderscored('Contract address', params.address)
+          printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
+          printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
+          printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
+          printUnderscored('Return value (decoded)', callResult.decodedRes)
+        }
       }
     )
   } catch (e) {

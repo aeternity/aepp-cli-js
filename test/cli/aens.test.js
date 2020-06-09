@@ -102,6 +102,15 @@ describe('CLI AENS Module', function () {
     isUpdatedNode.should.be.equal(true)
     nameResult.status.should.equal('CLAIMED')
   })
+  it('extend name ttl', async () => {
+    const height = await wallet.height()
+    const extendTx = JSON.parse(await execute(['name', 'extend', WALLET_NAME, name2, 50, '--password', 'test', '--json']))
+    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const isExtended = (nameResult.ttl - 50) >= height
+    isExtended.should.be.equal(true)
+    extendTx.blockHeight.should.be.gt(0)
+    nameResult.status.should.equal('CLAIMED')
+  })
   it('Fail spend by name on invalid input', async () => {
     const amount = 100000009
     const error = await execute(['account', 'spend', WALLET_NAME, '--password', 'test', 'sdasdaasdas', amount, '--json'])
