@@ -18,6 +18,7 @@
 // That script contains default configuration for `CLI`
 
 import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS, MIN_GAS_PRICE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
+import { AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk/es/utils/amount-formatter'
 
 export {
   // ## AENS
@@ -79,3 +80,5 @@ export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, 
 
 // ## DEFAULT OUTPUT FORMAT
 export const OUTPUT_JSON = false
+// ## AMOUNT FORMAT
+export const DENOMINATION = AE_AMOUNT_FORMATS.AETTOS

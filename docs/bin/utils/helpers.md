@@ -42,10 +42,11 @@ That script contains base helper function
 
 import * as R from 'ramda'
 import fs from 'fs'
-
-import { GAS_PRICE, HASH_TYPES } from './constant'
-import { printError } from './print'
 import path from 'path'
+
+import { DEFAULT_CONTRACT_PARAMS, GAS_PRICE, HASH_TYPES, VM_VERSIONS, VM_TYPE, ABI_VERSIONS } from './constant'
+import { printError } from './print'
+import { isNameValid } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
 
 
 ```
@@ -303,7 +304,7 @@ Get `name` status
 export function updateNameStatus (name) {
   return async (client) => {
     try {
-      return { ...(await client.api.getNameEntryByName(name)), status: 'CLAIMED' }
+      return { ...(await client.getName(name)), status: 'CLAIMED' }
     } catch (e) {
       if (e.response && e.response.status === 404) {
         return { name, status: 'AVAILABLE' }
@@ -346,7 +347,7 @@ Validate `name`
 
 ```js
 export function validateName (name) {
-  if (!['test', 'aet'].includes(R.last(name.split('.')))) { throw new Error('AENS TLDs must end in .test') }
+  isNameValid(name)
 }
 
 
@@ -365,6 +366,12 @@ Grab contract descriptor by path
 
 ```js
 export const grabDesc = async descrPath => descrPath && readJSONFile(path.resolve(process.cwd(), descrPath))
+
+export function getVmAbiVersion (backend) {
+  if (backend === VM_TYPE.FATE) return { vmVersion: DEFAULT_CONTRACT_PARAMS.vmVersion, abiVersion: DEFAULT_CONTRACT_PARAMS.abiVersion }
+  if (backend === VM_TYPE.AEVM) return { vmVersion: VM_VERSIONS.SOPHIA_IMPROVEMENTS_LIMA, abiVersion: ABI_VERSIONS.SOPHIA }
+  throw new Error(`Could not get vm/abi version. Unknown backend ${backend}`)
+}
 
 
 ```

@@ -80,8 +80,8 @@ const { Account } = require('./commands')
 
 ```js
 program
-  .option('-u, --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
-  .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
+  .option('-u, --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+  .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
   .option('-P, --password [password]', 'Wallet Password')
   .option('-f --force', 'Ignore epoch version compatibility check')
   .option('--json', 'Print result in json format')
@@ -101,6 +101,8 @@ You can use this command to send tokens to another account
 
 Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword`
 
+Example: `aecli account spend ./myWalletKeyFile aensAccountName.chain 100 --password testpassword`
+
 You can set transaction `ttl(Time to leave)`. If not set use default.
 
 Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
@@ -110,13 +112,14 @@ Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasd
 
 ```js
 program
-  .command('spend <wallet_path> <receiver> <amount>')
+  .command('spend <wallet_path> <receiverIdOrName> <amount>')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--payload [payload]', 'Transaction payload.', '')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .action(async (walletPath, receiver, amount, ...arguments) => await Account.spend(walletPath, receiver, amount, utils.cli.getCmdFromArguments(arguments)))
+  .option('-D, --denomination [denomination]', 'Denomination of amount', utils.constant.DENOMINATION)
+  .action(async (walletPath, receiverIdOrName, amount, ...arguments) => await Account.spend(walletPath, receiverIdOrName, amount, utils.cli.getCmdFromArguments(arguments)))
 
 
 
@@ -150,6 +153,7 @@ program
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .option('-D, --denomination [denomination]', 'Denomination of amount', utils.constant.DENOMINATION)
   .action(async (walletPath, receiver, percentage, ...arguments) => await Account.transferFunds(walletPath, receiver, percentage, utils.cli.getCmdFromArguments(arguments)))
 
 
@@ -177,6 +181,58 @@ program
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .description('Create a transaction to another wallet')
   .action(async (walletPath, tx, ...arguments) => await Account.sign(walletPath, tx, utils.cli.getCmdFromArguments(arguments)))
+
+
+
+```
+
+
+
+
+
+
+
+## Initialize `sign-message` command
+
+You can use this command to sign message
+
+Example: `aecli account sign-message ./myWalletKeyFile Hello --password testpassword`
+
+
+  
+
+```js
+program
+  .command('sign-message <wallet_path> [data...]')
+  .option('--filePath [path]', 'Specify the path to the file for signing(ignore command message argument and use file instead)')
+  .description('Create a transaction to another wallet')
+  .action(async (walletPath, data, ...arguments) => await Account.signMessage(walletPath, data, utils.cli.getCmdFromArguments(arguments)))
+
+
+
+```
+
+
+
+
+
+
+
+## Initialize `verify-message` command
+
+You can use this command to sign message
+
+Example: `aecli account verify-message ./myWalletKeyFile asd1dasfadfsdasdasdasHexSig... Hello --password testpassword`
+
+
+  
+
+```js
+program
+  .command('verify-message <wallet_path> <hexSignature> [data...]')
+  .option('--filePath [path]', 'Specify the path to the file(ignore comm and message argument and use file instead)')
+  .description('Create a transaction to another wallet')
+  .action(async (walletPath, hexSignature, data, ...arguments) => await Account.verifyMessage(walletPath, hexSignature, data, utils.cli.getCmdFromArguments(arguments)))
 
 
 

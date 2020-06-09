@@ -17,8 +17,9 @@
 
 import { describe, it } from 'mocha'
 
-import { configure, BaseAe, execute, parseBlock, ready } from './index'
+import { configure, BaseAe, execute, parseBlock, ready, randomString } from './index'
 import { decodeBase64Check, generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 import fs from 'fs'
 import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS } from '../../bin/utils/constant'
 
@@ -29,16 +30,6 @@ const testContract = `contract Identity =
 
 function randomName (length = 18, namespace = '.chain') {
   return randomString(length).toLowerCase() + namespace
-}
-
-function randomString (len, charSet) {
-  charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let randomString = ''
-  for (let i = 0; i < len; i++) {
-    const randomPoz = Math.floor(Math.random() * charSet.length)
-    randomString += charSet.substring(randomPoz, randomPoz + 1)
-  }
-  return randomString
 }
 
 async function signAndPost (tx, assert) {
@@ -68,7 +59,7 @@ describe('CLI Transaction Module', function () {
     await GENESIS.spend('100000000000000000000000000', TX_KEYS.publicKey)
     await execute(['account', 'save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite'])
     wallet = await BaseAe()
-    wallet.setKeypair(TX_KEYS)
+    await wallet.addAccount(MemoryAccount({ keypair: TX_KEYS }))
     fs.writeFileSync('contractTest', testContract)
     nonce = await wallet.getAccountNonce()
   })

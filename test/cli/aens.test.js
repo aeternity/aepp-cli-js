@@ -17,7 +17,7 @@
 
 import { before, describe, it } from 'mocha'
 
-import { configure, plan, ready, execute as exec, WALLET_NAME } from './index'
+import { configure, plan, ready, execute as exec, WALLET_NAME, randomString } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 
@@ -29,18 +29,9 @@ function randomName (length, namespace = '.chain') {
   return randomString(length).toLowerCase() + namespace
 }
 
-function randomString (len, charSet) {
-  charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let randomString = ''
-  for (let i = 0; i < len; i++) {
-    const randomPoz = Math.floor(Math.random() * charSet.length)
-    randomString += charSet.substring(randomPoz, randomPoz + 1)
-  }
-  return randomString
-}
-
 describe('CLI AENS Module', function () {
   configure(this)
+  const { publicKey } = generateKeyPair()
   let wallet
   let nameAuctionsSupported
   let name
@@ -105,14 +96,46 @@ describe('CLI AENS Module', function () {
     nameResult.status.should.equal('CLAIMED')
   })
   it('Update Name', async () => {
-    const { publicKey } = generateKeyPair()
-    const updateTx = JSON.parse(await execute(['name', 'update', WALLET_NAME, '--password', 'test', name2, publicKey, '--json']))
+    const updateTx = JSON.parse(await execute(['name', 'update', WALLET_NAME, name2, publicKey, '--password', 'test', '--json']))
     const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
 
     updateTx.blockHeight.should.be.gt(0)
     const isUpdatedNode = !!nameResult.pointers.find(({ id }) => id === publicKey)
     isUpdatedNode.should.be.equal(true)
     nameResult.status.should.equal('CLAIMED')
+  })
+  it('extend name ttl', async () => {
+    const height = await wallet.height()
+    const extendTx = JSON.parse(await execute(['name', 'extend', WALLET_NAME, name2, 50, '--password', 'test', '--json']))
+    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const isExtended = (nameResult.ttl - 50) >= height
+    isExtended.should.be.equal(true)
+    extendTx.blockHeight.should.be.gt(0)
+    nameResult.status.should.equal('CLAIMED')
+  })
+  it('Fail spend by name on invalid input', async () => {
+    const amount = 100000009
+    const error = await execute(['account', 'spend', WALLET_NAME, '--password', 'test', 'sdasdaasdas', amount, '--json'])
+    error.indexOf('AENS: Invalid name domain').should.not.be.equal(-1)
+  })
+  it('Spend by name', async () => {
+    const amount = 100000009
+    const spendTx = JSON.parse(await execute(['account', 'spend', WALLET_NAME, '--password', 'test', name2, amount, '--json']))
+    const nameObject = await wallet.aensQuery(name2)
+    spendTx.tx.tx.recipientId.should.be.equal(nameObject.id)
+    const balance = await wallet.getBalance(publicKey)
+    balance.should.be.equal(`${amount}`)
+  })
+  it('Transfer name', async () => {
+    const keypair = generateKeyPair()
+    await wallet.addAccount(MemoryAccount({ keypair }))
+
+    const transferTx = JSON.parse(await execute(['name', 'transfer', WALLET_NAME, name2, keypair.publicKey, '--password', 'test', '--json']))
+    transferTx.blockHeight.should.be.gt(0)
+    await wallet.spend(1, keypair.publicKey, { denomination: 'ae' })
+    const claim2 = await wallet.aensQuery(name2)
+    const transferBack = await claim2.transfer(await wallet.address(), { onAccount: keypair.publicKey })
+    transferBack.blockHeight.should.be.gt(0)
   })
   it('Revoke Name', async () => {
     const revoke = JSON.parse(await execute(['name', 'revoke', WALLET_NAME, '--password', 'test', name2, '--json']))

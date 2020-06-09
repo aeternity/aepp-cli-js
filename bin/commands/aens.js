@@ -31,7 +31,7 @@ async function preClaim (walletPath, domain, options) {
 
   try {
     // Validate `name`(check if `name` end on `.test`)
-    validateName(domain)
+    // validateName(domain)
 
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
@@ -66,7 +66,7 @@ async function claim (walletPath, domain, salt, options) {
   const { ttl, fee, nonce, waitMined, json, nameFee } = options
   try {
     // Validate `name`
-    validateName(domain)
+    // validateName(domain)
 
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
@@ -98,12 +98,13 @@ async function claim (walletPath, domain, salt, options) {
 }
 
 // ##Update `name` function
-async function updateName (walletPath, domain, address, options) {
-  const { ttl, fee, nonce, waitMined, json, nameTtl, clientTtl } = options
+async function updateName (walletPath, domain, addresses, options) {
+  const { ttl, fee, nonce, waitMined, json, nameTtl, clientTtl, extendPointers = false } = options
 
   try {
     // Validate `address`
-    if (!isAddressValid(address)) throw new Error(`Address "${address}" is not valid`)
+    const invalidAddresses = addresses.filter(address => !isAddressValid(address))
+    if (invalidAddresses.length) throw new Error(`Addresses "[${invalidAddresses}]" is not valid`)
     // Validate `name`
     validateName(domain)
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
@@ -118,7 +119,43 @@ async function updateName (walletPath, domain, address, options) {
       }
 
       // Create `updateName` transaction
-      const updateTx = await client.aensUpdate(name.id, address, { ttl, fee, nonce, waitMined, nameTtl, clientTtl })
+      const updateTx = await client.aensUpdate(domain, addresses, { ttl, fee, nonce, waitMined, nameTtl, clientTtl, extendPointers })
+      if (waitMined) {
+        printTransaction(
+          updateTx,
+          json
+        )
+      } else {
+        print('Transaction send to the chain. Tx hash: ' + updateTx.hash)
+      }
+      exit()
+    })
+  } catch (e) {
+    printError(e.message)
+    exit(1)
+  }
+}
+
+// ##Extend `name` ttl  function
+async function extendName (walletPath, domain, nameTtl, options) {
+  const { ttl, fee, nonce, waitMined, json, clientTtl } = options
+
+  try {
+    // Validate `name`
+    validateName(domain)
+    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+    const client = await initClientByWalletFile(walletPath, options)
+
+    await handleApiError(async () => {
+      // Check if that `name` is unavailable and we can update it
+      const name = await updateNameStatus(domain)(client)
+      if (isAvailable(name)) {
+        print(`Domain is ${name.status} and cannot be extended`)
+        exit(1)
+      }
+
+      // Create `updateName` transaction
+      const updateTx = await client.aensUpdate(domain, [], { ttl, fee, nonce, waitMined, nameTtl, extendPointers: true })
       if (waitMined) {
         printTransaction(
           updateTx,
@@ -156,7 +193,7 @@ async function transferName (walletPath, domain, address, options) {
       }
 
       // Create `transferName` transaction
-      const transferTX = await client.aensTransfer(name.id, address, { ttl, fee, nonce, waitMined })
+      const transferTX = await client.aensTransfer(domain, address, { ttl, fee, nonce, waitMined })
       if (waitMined) {
         printTransaction(
           transferTX,
@@ -192,7 +229,7 @@ async function revokeName (walletPath, domain, options) {
       }
 
       // Create `revokeName` transaction
-      const revokeTx = await client.aensRevoke(name.id, { ttl, fee, nonce, waitMined })
+      const revokeTx = await client.aensRevoke(domain, { ttl, fee, nonce, waitMined })
       if (waitMined) {
         printTransaction(
           revokeTx,
@@ -271,7 +308,7 @@ async function fullClaim (walletPath, domain, options) {
       nonce += 1
       const claim = await preclaim.claim({ nonce, ttl, fee, nameFee })
       nonce += 1
-      const updateTx = await claim.update(await client.address(), { nonce, ttl, fee, nameTtl, clientTtl })
+      const updateTx = await claim.update([await client.address()], { nonce, ttl, fee, nameTtl, clientTtl })
       nonce += 1
 
       printTransaction(
@@ -311,6 +348,7 @@ export const AENS = {
   preClaim,
   revokeName,
   updateName,
+  extendName,
   claim,
   transferName,
   nameBid,
