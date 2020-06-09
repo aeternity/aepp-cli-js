@@ -29,7 +29,7 @@ function randomName (length, namespace = '.chain') {
   return randomString(length).toLowerCase() + namespace
 }
 
-describe.only('CLI AENS Module', function () {
+describe('CLI AENS Module', function () {
   configure(this)
   const { publicKey } = generateKeyPair()
   let wallet

@@ -154,7 +154,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--queryFee [queryFee]', 'Oracle Query fee.', utils.constant.QUERY_FEE)
-  .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.ORACLE_TTL)
+  .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.ORACLE_TTL.value)
   .description('Build oracle register transaction.')
   .action(async (accountId, queryFormat, responseFormat, nonce, ...arguments) => await Transaction.oracleRegister(accountId, queryFormat, responseFormat, nonce, utils.cli.getCmdFromArguments(arguments)))
 
@@ -169,7 +169,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--queryFee [queryFee]', 'Oracle Query fee.', utils.constant.QUERY_FEE)
-  .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.QUERY_TTL)
+  .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.QUERY_TTL.value)
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.RESPONSE_TTL)
   .description('Build oracle post query transaction.')
   .action(async (accountId, oracleId, query, nonce, ...arguments) => await Transaction.oraclePostQuery(accountId, oracleId, query, nonce, utils.cli.getCmdFromArguments(arguments)))

@@ -27,7 +27,7 @@ const walletName = 'test.wallet'
 
 plan(1000000000)
 
-describe.only('CLI Account Module', function () {
+describe('CLI Account Module', function () {
   configure(this)
   let sig
   let sigFromFile
