@@ -172,8 +172,12 @@ async function queryOracle (oracleId, options) {
     await handleApiError(async () => {
       const oracle = await client.getOracle(oracleId)
       const { oracleQueries: queries } = await client.getOracleQueries(oracleId)
-      printOracle(oracle, options.json)
-      printQueries(queries, options.json)
+      if (options.json) {
+        console.log(JSON.stringify({ ...oracle, queries }))
+      } else {
+        printOracle(oracle, options.json)
+        printQueries(queries, options.json)
+      }
       exit()
     })
   } catch (e) {
