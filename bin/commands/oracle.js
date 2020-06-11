@@ -19,11 +19,11 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { exit, initChain, initClientByWalletFile } from '../utils/cli'
-import { handleApiError } from '../utils/errors'
-import { printError, print, printTransaction, printOracle, printQueries } from '../utils/print'
-import { BUILD_ORACLE_TTL } from '../utils/constant'
 import { Crypto } from '@aeternity/aepp-sdk'
+import { exit, initChain, initClientByWalletFile } from '../utils/cli'
+import { BUILD_ORACLE_TTL } from '../utils/constant'
+import { handleApiError } from '../utils/errors'
+import { print, printError, printOracle, printQueries, printTransaction } from '../utils/print'
 
 // ## Create Oracle
 async function createOracle (walletPath, queryFormat, responseFormat, options) {
@@ -171,8 +171,8 @@ async function queryOracle (oracleId, options) {
     if (!Crypto.assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
     const client = await initChain(options)
     await handleApiError(async () => {
-      const oracle = await client.api.getOracleByPubkey(oracleId)
-      const { oracleQueries: queries } = await client.api.getOracleQueriesByPubkey(oracleId)
+      const oracle = await client.getOracle(oracleId)
+      const { oracleQueries: queries } = await client.getOracleQueries(oracleId)
       if (options.json) {
         console.log(JSON.stringify({ ...oracle, queries }))
       } else {

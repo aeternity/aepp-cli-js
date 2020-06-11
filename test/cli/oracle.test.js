@@ -15,10 +15,10 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { before, describe, it } from 'mocha'
-
-import { configure, plan, ready, execute as exec, WALLET_NAME } from './index'
 import { Crypto } from '@aeternity/aepp-sdk'
+import { before, describe, it } from 'mocha'
+import { configure, execute as exec, plan, ready, WALLET_NAME } from './index'
+
 
 plan(10000000000000)
 
