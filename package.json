@@ -40,11 +40,9 @@
     "mocha": "^5.0.0",
     "mocha-junit-reporter": "^1.17.0",
     "recursive-rename": "^2.0.0",
-    "safe-buffer": "^5.1.2",
     "sinon": "^7.2.3",
     "standard": "*",
-    "standard-loader": "^6.0.1",
-    "supports-color": "^5.4.0"
+    "standard-loader": "^6.0.1"
   },
   "scripts": {
     "docs": "docco -t tooling/docs/markdown.jst -c /dev/null bin/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/commands/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/utils/*.js &&  rm -f docs/null && node rename-to-md.js",
