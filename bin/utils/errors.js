@@ -18,7 +18,7 @@
 // That script contains helper function for error handling
 
 import { printError, print } from './print'
-import { exit, isExecCommand } from './cli'
+import { exit } from './cli'
 
 // ## `API` errors handler
 export async function handleApiError (fn) {
@@ -36,7 +36,7 @@ export function unknownCommandHandler (program) {
   return (execCommands = []) => {
     const cmd = program.args[0]
 
-    if (isExecCommand(cmd, execCommands)) return
+    if (execCommands.find(({ name }) => cmd === name)) return
 
     print('Invalid command: %s\nSee --help for a list of available commands.', cmd)
     program.help()

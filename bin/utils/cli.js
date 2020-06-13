@@ -97,11 +97,6 @@ export function initExecCommands (program) {
   return (cmds) => cmds.forEach(({ name, desc }) => program.command(name, desc))
 }
 
-// ## Check if `command` is `EXECUTABLE`
-export function isExecCommand (cmd, execCommands) {
-  return execCommands.find(({ name }) => cmd === name)
-}
-
 export function exit (error = 0) {
   process.exit(error)
 }
