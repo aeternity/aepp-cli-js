@@ -36,7 +36,7 @@ export function getCmdFromArguments (args) {
 }
 
 // Create `Ae` client
-export async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId, accounts = [] }) {
+async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId, accounts = [] }) {
   return Ae({
     nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }],
     process,
