@@ -92,11 +92,6 @@ export async function initClientByWalletFile (walletPath, options, returnKeyPair
   return client
 }
 
-// ## Initialize commander executable commands
-export function initExecCommands (program) {
-  return (cmds) => cmds.forEach(({ name, desc }) => program.command(name, desc))
-}
-
 export function exit (error = 0) {
   process.exit(error)
 }
