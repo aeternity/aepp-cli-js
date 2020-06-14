@@ -52,9 +52,6 @@ program
 // ## Initialize `child` command's
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
 
-// Handle unknown command's
-program.on('command:*', () => utils.errors.unknownCommandHandler(program)(EXECUTABLE_CMD))
-
 // Parse arguments or show `help` if argument's is empty
 program.parse(process.argv)
 if (program.args.length === 0) program.help()

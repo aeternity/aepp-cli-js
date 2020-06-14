@@ -100,10 +100,6 @@ program
   .description('Send transaction to the chain')
   .action(async (tx, ...arguments) => await Chain.broadcast(tx, utils.cli.getCmdFromArguments(arguments)))
 
-
-// Handle unknown command's
-program.on('command:*', () => utils.errors.unknownCommandHandler(program)())
-
 // Parse arguments or show `help` if argument's is empty
 program.parse(process.argv)
 if (program.args.length === 0) program.help()
