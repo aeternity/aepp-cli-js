@@ -18,10 +18,7 @@
 // That script contains helper function for error handling
 
 import { printError, print } from './print'
-import { exit, isExecCommand } from './cli'
-
-// ## `API` errors logger
-export function logApiError (error) { printError('API ERROR: ', error) }
+import { exit } from './cli'
 
 // ## `API` errors handler
 export async function handleApiError (fn) {
@@ -29,7 +26,7 @@ export async function handleApiError (fn) {
     return await fn()
   } catch (e) {
     const response = e.response
-    logApiError(response && response.data ? response.data.reason : e)
+    printError('API ERROR: ', response && response.data ? response.data.reason : e)
     exit(1)
   }
 }
@@ -39,7 +36,7 @@ export function unknownCommandHandler (program) {
   return (execCommands = []) => {
     const cmd = program.args[0]
 
-    if (isExecCommand(cmd, execCommands)) return
+    if (execCommands.find(({ name }) => cmd === name)) return
 
     print('Invalid command: %s\nSee --help for a list of available commands.', cmd)
     program.help()

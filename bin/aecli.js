@@ -50,7 +50,7 @@ program
   .action((cmd) => utils.print.printConfig(cmd))
 
 // ## Initialize `child` command's
-utils.cli.initExecCommands(program)(EXECUTABLE_CMD)
+EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
 
 // Handle unknown command's
 program.on('command:*', () => utils.errors.unknownCommandHandler(program)(EXECUTABLE_CMD))
