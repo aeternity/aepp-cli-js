@@ -169,6 +169,5 @@ program
   .description('Look up name')
   .action(async (name, ...arguments) => await AENS.lookUp(name, utils.cli.getCmdFromArguments(arguments)))
 
-// Parse arguments or show `help` if argument's is empty
+// Parse arguments
 program.parse(process.argv)
-if (program.args.length === 0) program.help()

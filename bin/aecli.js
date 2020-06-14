@@ -52,6 +52,5 @@ program
 // ## Initialize `child` command's
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
 
-// Parse arguments or show `help` if argument's is empty
+// Parse arguments
 program.parse(process.argv)
-if (program.args.length === 0) program.help()
