@@ -28,11 +28,8 @@ import ContractCompilerAPI from '@aeternity/aepp-sdk/es/contract/compiler'
 import { getWalletByPathAndDecrypt } from './account'
 
 // ## Merge options with parent options.
-export function getCmdFromArguments (args) {
-  return R.merge(
-    R.head(args),
-    R.head(args).parent
-  )
+export function getCmdFromArguments ([options, commander]) {
+  return { ...options, ...commander.parent.opts() }
 }
 
 // Create `Ae` client
