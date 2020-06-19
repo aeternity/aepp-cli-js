@@ -138,8 +138,4 @@ program
   .command('unpack <tx>')
   .action(unpackTx)
 
-// HANDLE UNKNOWN COMMAND
-program.on('command:*', () => utils.errors.unknownCommandHandler(program)())
-
 program.parse(process.argv)
-if (program.args.length === 0) program.help()

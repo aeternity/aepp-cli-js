@@ -197,10 +197,5 @@ program
   .description('Generate keyPairs')
   .action(async (count, ...arguments) => await Account.generateKeyPairs(count, utils.cli.getCmdFromArguments(arguments)))
 
-
-// Handle unknown command's
-program.on('command:*', () => utils.errors.unknownCommandHandler(program)())
-
-// Parse arguments or show `help` if argument's is empty
+// Parse arguments
 program.parse(process.argv)
-if (program.args.length === 0) program.help()

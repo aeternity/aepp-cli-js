@@ -54,6 +54,5 @@ program
   .description('Hash or Name to inspect (eg: ak_..., mk_..., name.test)')
   .action(async (hash, cmd) => Inspect.inspect(hash, cmd))
 
-// Parse arguments or show `help` if argument's is empty
+// Parse arguments
 program.parse(process.argv)
-if (program.args.length === 0) program.help()

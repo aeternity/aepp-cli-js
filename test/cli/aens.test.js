@@ -77,7 +77,7 @@ describe('CLI AENS Module', function () {
 
   it('Pre Claim Name', async () => {
     const preClaim = JSON.parse(await execute(['name', 'pre-claim', WALLET_NAME, '--password', 'test', name2, '--json']))
-    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const nameResult = JSON.parse(await exec(['inspect', name2, '--json']))
     salt = preClaim.salt
 
     preClaim.blockHeight.should.be.gt(0)
@@ -89,7 +89,7 @@ describe('CLI AENS Module', function () {
 
   it('Claim Name', async () => {
     const claim = JSON.parse(await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name2, salt, '--json']))
-    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const nameResult = JSON.parse(await exec(['inspect', name2, '--json']))
 
     claim.blockHeight.should.be.gt(0)
     claim.pointers.length.should.be.equal(0)
@@ -97,7 +97,7 @@ describe('CLI AENS Module', function () {
   })
   it('Update Name', async () => {
     const updateTx = JSON.parse(await execute(['name', 'update', WALLET_NAME, name2, publicKey, '--password', 'test', '--json']))
-    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const nameResult = JSON.parse(await exec(['inspect', name2, '--json']))
 
     updateTx.blockHeight.should.be.gt(0)
     const isUpdatedNode = !!nameResult.pointers.find(({ id }) => id === publicKey)
@@ -107,7 +107,7 @@ describe('CLI AENS Module', function () {
   it('extend name ttl', async () => {
     const height = await wallet.height()
     const extendTx = JSON.parse(await execute(['name', 'extend', WALLET_NAME, name2, 50, '--password', 'test', '--json']))
-    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const nameResult = JSON.parse(await exec(['inspect', name2, '--json']))
     const isExtended = (nameResult.ttl - 50) >= height
     isExtended.should.be.equal(true)
     extendTx.blockHeight.should.be.gt(0)
@@ -139,7 +139,7 @@ describe('CLI AENS Module', function () {
   })
   it('Revoke Name', async () => {
     const revoke = JSON.parse(await execute(['name', 'revoke', WALLET_NAME, '--password', 'test', name2, '--json']))
-    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const nameResult = JSON.parse(await exec(['inspect', name2, '--json']))
 
     revoke.blockHeight.should.be.gt(0)
     nameResult.status.should.equal('AVAILABLE')
