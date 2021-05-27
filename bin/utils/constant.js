@@ -52,10 +52,9 @@ export const HASH_TYPES = {
 }
 
 // ## CONNECTION
-export const NODE_URL = 'https://sdk-testnet.aepps.com'
-export const NODE_INTERNAL_URL = 'https://sdk-testnet.aepps.com'
-export const NODE_WEBSOCKET_URL = 'https://sdk-testnet.aepps.com'
-export const COMPILER_URL = 'http://localhost:3080'
+export const NODE_URL = 'https://testnet.aeternity.io'
+export const NODE_INTERNAL_URL = 'https://testnet.aeternity.io'
+export const COMPILER_URL = 'https://compiler.aepps.com'
 
 // ## CHAIN
 export const PLAY_LIMIT = 10
