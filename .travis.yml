@@ -12,3 +12,12 @@ before_install:
       export FORCE_COMPATIBILITY=true;
     fi
   - docker-compose up -d
+
+deploy:
+  - provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    keep_history: true
+    local_dir: docs
+    on:
+      branch: develop
