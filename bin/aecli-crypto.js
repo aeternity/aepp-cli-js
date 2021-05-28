@@ -57,7 +57,7 @@ async function generateKeyPair (name, { output, password } = {}) {
 // This function shows how to use a compliant private key to sign an æternity
 // transaction and turn it into an RLP-encoded tuple ready for mining
 function signTx (tx, privKey) {
-  if (!tx.match(/^tx\_.+/)) {
+  if (!tx.match(/^tx_.+/)) {
     throw Error('Not a valid transaction')
   }
 

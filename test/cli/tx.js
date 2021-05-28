@@ -15,7 +15,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { describe, it } from 'mocha'
+import { describe, it, before, after } from 'mocha'
 
 import { configure, BaseAe, execute, parseBlock, ready, randomString } from './index'
 import { decodeBase64Check, generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'

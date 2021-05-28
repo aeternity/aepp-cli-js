@@ -138,7 +138,7 @@ async function updateName (walletPath, domain, addresses, options) {
 
 // ##Extend `name` ttl  function
 async function extendName (walletPath, domain, nameTtl, options) {
-  const { ttl, fee, nonce, waitMined, json, clientTtl } = options
+  const { ttl, fee, nonce, waitMined, json } = options
 
   try {
     // Validate `name`

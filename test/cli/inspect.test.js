@@ -16,9 +16,9 @@
  */
 
 import fs from 'fs'
-import { describe, it } from 'mocha'
+import { before, describe, it } from 'mocha'
 
-import { configure, BaseAe, execute, parseBlock, KEY_PAIR, ready } from './index'
+import { configure, execute, parseBlock, KEY_PAIR, ready } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 
 // CONTRACT DESCRIPTOR
@@ -70,7 +70,6 @@ describe('CLI Inspect Module', function () {
   })
   it.skip('Inspect Deploy', async () => {
     const fileName = 'test.deploy.json'
-    const wallet = await BaseAe()
 
     // create contract descriptor file
     fs.writeFileSync(fileName, JSON.stringify(contractDescriptor))
@@ -78,7 +77,6 @@ describe('CLI Inspect Module', function () {
     const descriptor = parseBlock(await execute(['inspect', 'deploy', fileName]))
     // remove contract descriptor file
     fs.unlinkSync(fileName)
-    // const transaction = await wallet.tx(descriptor.transaction)
     descriptor.source.should.equal(contractDescriptor.source)
     descriptor.bytecode.should.equal(contractDescriptor.bytecode)
     descriptor.address.should.equal(contractDescriptor.address)

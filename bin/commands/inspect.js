@@ -29,7 +29,7 @@ import {
   printError,
   printName, printOracle, printQueries,
   printTransaction,
-  printUnderscored, printValidation
+  printUnderscored
 } from '../utils/print'
 import { checkPref, getBlock, updateNameStatus, validateName } from '../utils/helpers'
 import { TxBuilder } from '@aeternity/aepp-sdk'
@@ -45,7 +45,7 @@ async function inspect (hash, option) {
     return
   }
 
-  const [pref, _] = hash.split('_')
+  const [pref] = hash.split('_')
   switch (pref) {
     // Get `block` by `hash`
     case HASH_TYPES.block:

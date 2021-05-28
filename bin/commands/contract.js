@@ -199,10 +199,6 @@ async function deploy (walletPath, contractPath, callData = '', options) {
 // ## Function which `call` contract
 async function call (walletPath, fn, args, options) {
   const { callStatic, json, top } = options
-  if (!fn) {
-    program.outputHelp()
-    exit(1)
-  }
   try {
     // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)

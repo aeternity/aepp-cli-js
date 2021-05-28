@@ -19,10 +19,10 @@ import { spawn } from 'child_process'
 import * as R from 'ramda'
 // Workaround until fighting with babel7
 const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
-const Ae = require('@aeternity/aepp-sdk/es/ae/universal').default
-const MemoryAccount = require('@aeternity/aepp-sdk/es/account/memory').default
-const Node = require('@aeternity/aepp-sdk/es/node').default
-const { generateKeyPair } = require('@aeternity/aepp-sdk/es/utils/crypto')
+const Ae = requireEsm('@aeternity/aepp-sdk/es/ae/universal').default
+const MemoryAccount = requireEsm('@aeternity/aepp-sdk/es/account/memory').default
+const Node = requireEsm('@aeternity/aepp-sdk/es/node').default
+const { generateKeyPair } = requireEsm('@aeternity/aepp-sdk/es/utils/crypto')
 
 const cliCommand = './bin/aecli.js'
 

@@ -44,7 +44,7 @@ const WIDTH = 40
 // Calculate tabs length
 function getTabs (tabs) {
   if (!tabs) return ''
-  return R.repeat(' ', tabs * 4).reduce((a, b) => a += b, '')
+  return R.repeat(' ', tabs * 4).reduce((a, b) => a + b, '')
 }
 
 // Print helper
@@ -65,7 +65,7 @@ export function printError (msg, obj) {
 
 // Print `underscored`
 export function printUnderscored (key, val) {
-  print(`${key} ${R.repeat('_', WIDTH - key.length).reduce((a, b) => a += b, '')} ${typeof val !== 'object' ? val : JSON.stringify(val)}`)
+  print(`${key} ${R.repeat('_', WIDTH - key.length).reduce((a, b) => a + b, '')} ${typeof val !== 'object' ? val : JSON.stringify(val)}`)
 }
 
 // ## BLOCK

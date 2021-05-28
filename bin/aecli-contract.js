@@ -22,7 +22,7 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-const requireEsm = require('esm')(module/*, options*/) //use to handle es6 import/export
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
 const utils = requireEsm('./utils/index')
 const { Contract } = requireEsm('./commands')
 
@@ -45,7 +45,6 @@ program
   .description('Compile a contract')
   .action(async (file, ...args) => await Contract.compile(file, utils.cli.getCmdFromArguments(args)))
 
-
 // ## Initialize `encode callData` command
 //
 // You can use this command to prepare `callData`
@@ -55,8 +54,7 @@ program
   .command('encodeData <source> <fn> [args...]')
   .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Encode contract call data')
-  .action(async (source, fn, args, ...args) => await Contract.encodeData(source, fn, args, utils.cli.getCmdFromArguments(args)))
-
+  .action(async (source, fn, args, ...otherArgs) => await Contract.encodeData(source, fn, args, utils.cli.getCmdFromArguments(otherArgs)))
 
 // ## Initialize `decode data` command
 //
@@ -68,7 +66,6 @@ program
   .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Decode contract data')
   .action(async (data, returnType, ...args) => await Contract.decodeData(data, returnType, utils.cli.getCmdFromArguments(args)))
-
 
 // ## Initialize `decode call data` command
 //
@@ -84,7 +81,6 @@ program
   .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Decode contract call data')
   .action(async (data, ...args) => await Contract.decodeCallData(data, utils.cli.getCmdFromArguments(args)))
-
 
 // ## Initialize `call` command
 //
@@ -116,7 +112,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Execute a function of the contract')
-  .action(async (walletPath, fn, args, ...args) => await Contract.call(walletPath, fn, args, utils.cli.getCmdFromArguments(args)))
+  .action(async (walletPath, fn, args, ...otherArgs) => await Contract.call(walletPath, fn, args, utils.cli.getCmdFromArguments(otherArgs)))
 
 //
 // ## Initialize `deploy` command

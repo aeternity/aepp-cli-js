@@ -16,9 +16,9 @@
  */
 
 import fs from 'fs'
-import { before, describe, it } from 'mocha'
+import { before, after, describe, it } from 'mocha'
 
-import { configure, plan, ready, WALLET_NAME, execute as exec, parseBlock, KEY_PAIR } from './index'
+import { configure, plan, ready, WALLET_NAME, execute as exec, KEY_PAIR } from './index'
 
 // CONTRACT SOURCE
 const testContract = `contract Identity =
@@ -44,6 +44,7 @@ describe('CLI Contract Module', function () {
     fs.writeFileSync(contractFile, testContract)
     wallet = await ready(this)
   })
+
   after(function () {
     // Remove wallet files
     if (fs.existsSync(WALLET_NAME)) { fs.unlinkSync(WALLET_NAME) }
@@ -92,8 +93,8 @@ describe('CLI Contract Module', function () {
     deployDescriptor = descPath
     const [name, pref, add] = deployDescriptor.split('.')
     cAddress = contractId
-    contractId.should.be.ok
-    transaction.should.be.ok
+    contractId.should.be.a('string')
+    transaction.should.be.a('string')
     name.should.equal(contractFile)
     pref.should.equal('deploy')
     add.should.equal(KEY_PAIR.publicKey.split('_')[1])
