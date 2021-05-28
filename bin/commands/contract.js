@@ -26,7 +26,6 @@ import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
 import { exit, initClientByWalletFile, initCompiler } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
-import { COMPILER_BACKEND } from '../utils/constant'
 
 // ## Function which compile your `source` code
 export async function compile (file, options) {
@@ -131,7 +130,7 @@ export async function decodeCallData (data, options) {
 
 // ## Function which `deploy ` contract
 async function deploy (walletPath, contractPath, callData = '', options) {
-  const { json, gas, gasPrice, backend = COMPILER_BACKEND, ttl, nonce, fee } = options
+  const { json, gas, gasPrice, ttl, nonce, fee } = options
   // Deploy a contract to the chain and create a deploy descriptor
   // with the contract informations that can be use to invoke the contract
   // later on.
@@ -147,8 +146,8 @@ async function deploy (walletPath, contractPath, callData = '', options) {
     await handleApiError(
       async () => {
         const ownerId = await client.address()
-        const { bytecode: code } = await client.contractCompile(contractFile, { backend })
-        const opt = R.merge(client.Ae.defaults, { gas, gasPrice, backend, ttl, nonce, fee })
+        const { bytecode: code } = await client.contractCompile(contractFile)
+        const opt = R.merge(client.Ae.defaults, { gas, gasPrice, ttl, nonce, fee })
 
         // Prepare contract create transaction
         const { tx, contractId } = await client.contractCreateTx(R.merge(opt, {

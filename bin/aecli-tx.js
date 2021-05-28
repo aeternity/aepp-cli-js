@@ -122,7 +122,6 @@ program
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS_PRICE)
   .option('--amount [amount]', 'Amount', utils.constant.AMOUNT)
   .option('--deposit [deposit]', 'Deposit', utils.constant.DEPOSIT)
-  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Build contract create transaction.')
   .action(async (ownerId, contractBytecode, initCallData, nonce, ...args) => await Transaction.contractDeploy(ownerId, contractBytecode, initCallData, nonce, utils.cli.getCmdFromArguments(args)))
 
@@ -138,7 +137,6 @@ program
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS_PRICE)
   .option('--amount [amount]', 'Amount', utils.constant.AMOUNT)
-  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Build contract create transaction.')
   .action(async (callerId, contractId, callData, nonce, ...args) => await Transaction.contractCall(callerId, contractId, callData, nonce, utils.cli.getCmdFromArguments(args)))
 

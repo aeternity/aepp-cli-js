@@ -23,13 +23,8 @@ import { Crypto, SCHEMA, TxBuilderHelper } from '@aeternity/aepp-sdk'
 import { exit, initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printBuilderTransaction, printError, printUnderscored, printValidation } from '../utils/print'
-import { getVmAbiVersion, validateName } from '../utils/helpers'
-import {
-  BUILD_ORACLE_TTL,
-  ORACLE_VM_VERSION,
-  DEFAULT_CONTRACT_PARAMS,
-  COMPILER_BACKEND
-} from '../utils/constant'
+import { validateName } from '../utils/helpers'
+import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION } from '../utils/constant'
 
 const { TX_TYPE } = SCHEMA
 
@@ -235,16 +230,15 @@ async function nameRevoke (accountId, nameId, nonce, options) {
 
 // ## Build `contractDeploy` transaction
 async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, options) {
-  const { json, backend = COMPILER_BACKEND } = options
+  const { json } = options
   try {
     // Initialize `Ae`
     const txBuilder = await initTxBuilder(options)
     // Build `deploy` transaction's
     await handleApiError(async () => {
       // Create `contract-deploy` transaction
-      const ctVersion = getVmAbiVersion(backend)
       const { tx, contractId, txObject } = await txBuilder.contractCreateTx({
-        ...{ ...DEFAULT_CONTRACT_PARAMS, ...options, ...ctVersion },
+        ...options,
         code: contractByteCode,
         ownerId,
         nonce,
@@ -252,7 +246,7 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
       })
 
       if (json) {
-        print({ tx, contractId, txObject, ctVersion })
+        print({ tx, contractId, txObject })
       } else {
         printUnderscored('Unsigned Contract Deploy TX', tx)
         printUnderscored('Contract ID', contractId)
@@ -266,8 +260,7 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
 
 // ## Build `contractCall` transaction
 async function contractCall (callerId, contractId, callData, nonce, options) {
-  const { json, backend = COMPILER_BACKEND } = options
-  const ctVersion = getVmAbiVersion(backend)
+  const { json } = options
   try {
     // Build `call` transaction's
     await handleApiError(async () => {
@@ -275,7 +268,7 @@ async function contractCall (callerId, contractId, callData, nonce, options) {
       const txBuilder = await initTxBuilder(options)
       // Create `contract-call` transaction
       const tx = await txBuilder.contractCallTx({
-        ...{ ...DEFAULT_CONTRACT_PARAMS, ...options, ...ctVersion },
+        ...options,
         callerId,
         nonce,
         callData,

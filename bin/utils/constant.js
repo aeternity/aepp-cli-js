@@ -30,8 +30,6 @@ export const {
   // ## TRANSACTION
   TX_TTL,
   // # CONTRACT
-  ABI_VERSIONS,
-  VM_VERSIONS,
   VM_TYPE,
   ORACLE_TTL,
   QUERY_TTL,
@@ -65,18 +63,12 @@ export const PLAY_INTERVAL = 1000
 export const GAS = 1600000 - 21000 // MAX GAS
 export const DEPOSIT = 0
 export const GAS_PRICE = MIN_GAS_PRICE
-export const VM_VERSION = VM_VERSIONS.FATE
-export const ABI_VERSION = ABI_VERSIONS.FATE
-export const COMPILER_BACKEND = VM_TYPE.FATE
 export const ORACLE_VM_VERSION = 0
 export const AMOUNT = 0
 
 // ## ORACLE
 export const BUILD_ORACLE_TTL = (ttl) => { return { type: 'delta', value: ttl } }
 export const RESPONSE_TTL = 10
-
-// ## Default transaction build param's
-export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE, abiVersion: ABI_VERSION }
 
 // ## DEFAULT OUTPUT FORMAT
 export const OUTPUT_JSON = false

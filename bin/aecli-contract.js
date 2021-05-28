@@ -41,7 +41,6 @@ program
 // Example: `aecli contract compile ./mycontract.contract`
 program
   .command('compile <file>')
-  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Compile a contract')
   .action(async (file, ...args) => await Contract.compile(file, utils.cli.getCmdFromArguments(args)))
 
@@ -52,7 +51,6 @@ program
 // Example: `aecli contract encodeData ./mycontract.contract testFn 1 2`
 program
   .command('encodeData <source> <fn> [args...]')
-  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Encode contract call data')
   .action(async (source, fn, args, ...otherArgs) => await Contract.encodeData(source, fn, args, utils.cli.getCmdFromArguments(otherArgs)))
 
@@ -63,7 +61,6 @@ program
 // Example: `aecli contract decodeData cb_asdasdasdasdasdas int`
 program
   .command('decodeData <data> <returnType>')
-  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Decode contract data')
   .action(async (data, returnType, ...args) => await Contract.decodeData(data, returnType, utils.cli.getCmdFromArguments(args)))
 
@@ -78,7 +75,6 @@ program
   .option('--sourcePath [sourcePath]', 'Path to contract source')
   .option('--code [code]', 'Compiler contract code')
   .option('--fn [fn]', 'Function name')
-  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Decode contract call data')
   .action(async (data, ...args) => await Contract.decodeCallData(data, utils.cli.getCmdFromArguments(args)))
 
@@ -103,7 +99,6 @@ program
   .option('-P, --password [password]', 'Wallet Password')
   .option('-G --gas [gas]', 'Amount of gas to call the contract', utils.constant.GAS)
   .option('-d --descrPath [descrPath]', 'Path to contract descriptor file')
-  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .option('-s --callStatic', 'Call static', false)
   .option('-t --topHash', 'Hash of block to make call')
   .option('--contractAddress [contractAddress]', 'Contract address to call')
@@ -131,7 +126,6 @@ program
   .option('-P, --password [password]', 'Wallet Password')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS_PRICE)
-  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
