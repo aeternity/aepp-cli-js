@@ -28,7 +28,8 @@
     "cz-conventional-changelog": "^3.3.0",
     "docco": "^0.8.1",
     "mocha": "^8.4.0",
-    "recursive-rename": "^4.0.0"
+    "recursive-rename": "^4.0.0",
+    "standard": "^16.0.3"
   },
   "repository": {
     "type": "git",
@@ -36,7 +37,9 @@
   },
   "scripts": {
     "docs": "docco -t tooling/docs/markdown.jst -c /dev/null bin/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/commands/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/utils/*.js &&  rm -f docs/null && node rename-to-md.js",
-    "test": "mocha --recursive --require @babel/register",
+    "lint": "standard",
+    "test:e2e": "mocha --recursive --require @babel/register",
+    "test": "npm run lint && npm run test:e2e",
     "test:watch": "mocha --recursive --require @babel/register --watch",
     "genChangelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "prepublishOnly": "npm run docs"

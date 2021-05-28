@@ -32,7 +32,7 @@ import {
   printUnderscored, printValidation
 } from '../utils/print'
 import { checkPref, getBlock, updateNameStatus, validateName } from '../utils/helpers'
-import { TxBuilder } from "@aeternity/aepp-sdk";
+import { TxBuilder } from '@aeternity/aepp-sdk'
 
 // ## Inspect function
 // That function get the param(`hash`, `height` or `name`) and show you info about it

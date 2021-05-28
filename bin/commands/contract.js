@@ -130,7 +130,7 @@ export async function decodeCallData (data, options) {
 }
 
 // ## Function which `deploy ` contract
-async function deploy (walletPath, contractPath, callData = "", options) {
+async function deploy (walletPath, contractPath, callData = '', options) {
   const { json, gas, gasPrice, backend = COMPILER_BACKEND, ttl, nonce, fee } = options
   // Deploy a contract to the chain and create a deploy descriptor
   // with the contract informations that can be use to invoke the contract
@@ -228,7 +228,6 @@ async function call (walletPath, fn, args, options) {
           const decoded = await callResult.decode()
           printUnderscored('Return value (decoded)', decoded)
         }
-
       }
     )
   } catch (e) {

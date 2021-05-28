@@ -22,9 +22,8 @@
 import { exit, initChain, initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, printTransaction, printOracle, printQueries } from '../utils/print'
-import { BUILD_ORACLE_TTL } from '../utils/constant';
-import { assertedType } from '@aeternity/aepp-sdk/es/utils/crypto';
-
+import { BUILD_ORACLE_TTL } from '../utils/constant'
+import { assertedType } from '@aeternity/aepp-sdk/es/utils/crypto'
 
 // ## Create Oracle
 async function createOracle (walletPath, queryFormat, responseFormat, options) {
@@ -37,7 +36,8 @@ async function createOracle (walletPath, queryFormat, responseFormat, options) {
       const oracle = await client.registerOracle(
         queryFormat,
         responseFormat,
-        { ttl,
+        {
+          ttl,
           waitMined,
           nonce,
           fee,
@@ -73,10 +73,11 @@ async function extendOracle (walletPath, oracleId, oracleTtl, options) {
       const oracle = await client.getOracleObject(oracleId)
       const extended = await oracle.extendOracle(
         BUILD_ORACLE_TTL(oracleTtl),
-        { ttl,
+        {
+          ttl,
           waitMined,
           nonce,
-          fee,
+          fee
         }
       )
       if (waitMined) {
@@ -97,7 +98,7 @@ async function extendOracle (walletPath, oracleId, oracleTtl, options) {
 
 // ## Create Oracle Query
 async function createOracleQuery (walletPath, oracleId, query, options) {
-  const { ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl  } = options
+  const { ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl } = options
 
   try {
     if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
@@ -132,7 +133,7 @@ async function createOracleQuery (walletPath, oracleId, query, options) {
 
 // ## Respond to Oracle Query
 async function respondToQuery (walletPath, oracleId, queryId, response, options) {
-  const { ttl, fee, nonce, waitMined, json, responseTtl  } = options
+  const { ttl, fee, nonce, waitMined, json, responseTtl } = options
 
   try {
     if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')

@@ -138,9 +138,9 @@ describe('CLI Account Module', function () {
   })
   it('verify message', async () => {
     const data = 'Hello world'
-    const verify = JSON.parse(await execute(['account', 'verify-message', WALLET_NAME, sig ,data, '--json', '--password', 'test'], { withOutReject: false }))
+    const verify = JSON.parse(await execute(['account', 'verify-message', WALLET_NAME, sig, data, '--json', '--password', 'test'], { withOutReject: false }))
     verify.isCorrect.should.be.equal(true)
-    const verifyFromFile = JSON.parse(await execute(['account', 'verify-message', WALLET_NAME, sigFromFile , '--json', '--password', 'test', '--filePath', fileName], { withOutReject: false }))
+    const verifyFromFile = JSON.parse(await execute(['account', 'verify-message', WALLET_NAME, sigFromFile, '--json', '--password', 'test', '--filePath', fileName], { withOutReject: false }))
     verifyFromFile.isCorrect.should.be.equal(true)
   })
 })

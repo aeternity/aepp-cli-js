@@ -18,7 +18,7 @@
 import { before, describe, it } from 'mocha'
 import { configure, BaseAe, execute, parseBlock, ready } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
-import MemoryAccount from "@aeternity/aepp-sdk/es/account/memory";
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 
 describe('CLI Chain Module', function () {
   let wallet

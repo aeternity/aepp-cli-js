@@ -34,7 +34,7 @@ export {
   VM_TYPE,
   ORACLE_TTL,
   QUERY_TTL,
-  QUERY_FEE,
+  QUERY_FEE
 } from '@aeternity/aepp-sdk/es/tx/builder/schema'
 
 // ## HAST TYPES

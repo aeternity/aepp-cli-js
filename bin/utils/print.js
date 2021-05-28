@@ -19,22 +19,22 @@
 import * as R from 'ramda'
 
 import { HASH_TYPES } from './constant'
-import { decodeBase64Check } from '@aeternity/aepp-sdk/es/utils/crypto';
+import { decodeBase64Check } from '@aeternity/aepp-sdk/es/utils/crypto'
 
 // ## CONSTANT
 const TX_TYPE_PRINT_MAP = {
-  'SpendTx': printSpendTransaction,
-  'ContractCreateTx': printContractCreateTransaction,
-  'ContractCallTx': printContractCallTransaction,
-  'NamePreclaimTx': printNamePreclaimTransaction,
-  'NameClaimTx': printNameClaimTransaction,
-  'NameTransferTx': printNameTransferTransaction,
-  'NameUpdateTx': printNameUpdateTransaction,
-  'NameRevokeTx': printNameRevokeTransaction,
-  'OracleRegisterTx': printOracleRegisterTransaction,
-  'OracleQueryTx': printOraclePostQueryTransaction,
-  'OracleExtendTx': printOracleExtendTransaction,
-  'OracleRespondTx': printOracleResponseTransaction
+  SpendTx: printSpendTransaction,
+  ContractCreateTx: printContractCreateTransaction,
+  ContractCallTx: printContractCallTransaction,
+  NamePreclaimTx: printNamePreclaimTransaction,
+  NameClaimTx: printNameClaimTransaction,
+  NameTransferTx: printNameTransferTransaction,
+  NameUpdateTx: printNameUpdateTransaction,
+  NameRevokeTx: printNameRevokeTransaction,
+  OracleRegisterTx: printOracleRegisterTransaction,
+  OracleQueryTx: printOraclePostQueryTransaction,
+  OracleExtendTx: printOracleExtendTransaction,
+  OracleRespondTx: printOracleResponseTransaction
 }
 // ## Row width
 const WIDTH = 40
@@ -93,8 +93,7 @@ export function printBlock (block, json) {
   printUnderscored(tabString + 'Version', R.prop('version', block))
   printUnderscored(tabString + 'Target', R.defaultTo('N/A', R.prop('target', block)))
   printUnderscored(tabString + 'Transactions', R.defaultTo(0, R.path(['transactions', 'length'], block)))
-  if (R.defaultTo(0, R.path(['transactions', 'length'], block)))
-    printBlockTransactions(block.transactions, false, tabs + 1)
+  if (R.defaultTo(0, R.path(['transactions', 'length'], block))) { printBlockTransactions(block.transactions, false, tabs + 1) }
 
   print('<<------------------------------------->>')
 }
@@ -187,7 +186,6 @@ function printContractCallTransaction (tx = {}, tabs = '') {
 
 // Print `spend_tx` info
 function printSpendTransaction (tx = {}, tabs = '') {
-
   printUnderscored(tabs + 'Sender account', R.defaultTo('N/A', R.path(['tx', 'senderId'], tx)))
   printUnderscored(tabs + 'Recipient account', R.defaultTo('N/A', R.path(['tx', 'recipientId'], tx)))
   printUnderscored(tabs + 'Amount', R.defaultTo('N/A', R.path(['tx', 'amount'], tx)))
@@ -213,7 +211,6 @@ function printNamePreclaimTransaction (tx = {}, tabs = '') {
 
 // Print `claim_tx` info
 function printNameClaimTransaction (tx = {}, tabs = '') {
-
   printUnderscored(tabs + 'Account', R.defaultTo('N/A', R.path(['tx', 'accountId'], tx)))
   printUnderscored(tabs + 'Name', R.defaultTo('N/A', R.path(['tx', 'name'], tx)))
   printUnderscored(tabs + 'Name Fee', R.defaultTo('N/A', R.path(['tx', 'nameFee'], tx)))
@@ -318,7 +315,7 @@ function replaceAt (str, index, replacement) {
 }
 
 function printTxInfo (tx, tabs) {
-  let type = R.path(['tx', 'type'], tx)
+  const type = R.path(['tx', 'type'], tx)
   TX_TYPE_PRINT_MAP[replaceAt(type, 0, type[0].toUpperCase())](tx, tabs)
 }
 // Function which print `tx`
@@ -329,8 +326,8 @@ export function printTransaction (tx, json, tabs = 0, skipBase = false) {
     return
   }
   const tabsString = getTabs(tabs)
-  if (!skipBase) printTxBase({ ...tx, ...tx.tx ? tx.tx : {}}, tabsString)
-  printTxInfo({ ...tx, ...tx.tx ? tx.tx : {}}, tabsString)
+  if (!skipBase) printTxBase({ ...tx, ...tx.tx ? tx.tx : {} }, tabsString)
+  printTxInfo({ ...tx, ...tx.tx ? tx.tx : {} }, tabsString)
 }
 
 // ##OTHER
@@ -412,7 +409,7 @@ export function logContractDescriptor (desc, title = '', json) {
 
 // Print `config`
 export function printConfig ({ host }) {
-  print('WALLET_PUB' + process.env['WALLET_PUB'])
+  print('WALLET_PUB' + process.env.WALLET_PUB)
   print('EPOCH_URL' + host)
 }
 

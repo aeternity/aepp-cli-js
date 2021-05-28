@@ -18,7 +18,7 @@
 import { before, describe, it } from 'mocha'
 
 import { configure, plan, ready, execute as exec, WALLET_NAME } from './index'
-import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto';
+import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
 
 plan(10000000000000)
 

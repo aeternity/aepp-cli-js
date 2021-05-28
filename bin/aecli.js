@@ -34,7 +34,7 @@ const EXECUTABLE_CMD = [
   { name: 'contract', desc: 'Compile contracts' },
   { name: 'name', desc: 'AENS system' },
   { name: 'tx', desc: 'Transaction builder' },
-  {name: 'oracle', desc: 'Interact with oracles'},
+  { name: 'oracle', desc: 'Interact with oracles' },
   { name: 'crypto', desc: 'Crypto helpers' }
 ]
 // ##Get version from `package.json`
@@ -50,7 +50,7 @@ program
   .action((cmd) => utils.print.printConfig(cmd))
 
 // ## Initialize `child` command's
-EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
+EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc))
 
 // Parse arguments
 program.parse(process.argv)
