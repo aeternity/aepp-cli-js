@@ -114,8 +114,8 @@ describe('CLI AENS Module', function () {
   })
   it('Fail spend by name on invalid input', async () => {
     const amount = 100000009
-    const error = await execute(['account', 'spend', WALLET_NAME, '--password', 'test', 'sdasdaasdas', amount, '--json'])
-    error.indexOf('AENS: Invalid name domain').should.not.be.equal(-1)
+    await execute(['account', 'spend', WALLET_NAME, '--password', 'test', 'sdasdaasdas', amount, '--json'])
+      .should.be.rejectedWith('Invalid name or address')
   })
   it('Spend by name', async () => {
     const amount = 100000009
@@ -160,8 +160,8 @@ describe('CLI AENS Module', function () {
     })
     it('Fail on open  again', async () => {
       const preClaim = JSON.parse(await execute(['name', 'pre-claim', WALLET_NAME, '--password', 'test', name, '--json']))
-      const claim = await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name, preClaim.salt, '--json'])
-      claim.indexOf('Giving up after 10 blocks mined').should.not.be.equal(-1)
+      await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name, preClaim.salt, '--json'])
+        .should.be.rejectedWith('Giving up after 10 blocks mined')
     })
   })
 })

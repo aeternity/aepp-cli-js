@@ -80,10 +80,10 @@ describe('CLI Oracle Module', function () {
 
   it('Get non existed Oracle', async () => {
     const fakeOracleId = Crypto.generateKeyPair().publicKey.replace('ak_', 'ok_')
-    const oracleNotFound = await execute(['oracle', 'get', fakeOracleId, '--json'])
-    const oracleInvalid = await execute(['oracle', 'get', 'oq_d1sadasdasda', '--json'])
-    oracleNotFound.should.be.equal('API ERROR:  Oracle not found\n')
-    oracleInvalid.should.be.equal('Invalid oracleId \n')
+    await execute(['oracle', 'get', fakeOracleId, '--json'])
+      .should.be.rejectedWith('API ERROR:')
+    await execute(['oracle', 'get', 'oq_d1sadasdasda', '--json'])
+      .should.be.rejectedWith('Invalid oracleId')
   })
 
   it('Get existed Oracle', async () => {
