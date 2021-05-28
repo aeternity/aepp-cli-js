@@ -23,7 +23,7 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-require = require('esm')(module/*, options*/) //use to handle es6 import/export
+require = require('esm')(module/*, options */) // use to handle es6 import/export
 const utils = require('./utils/index')
 const { AENS } = require('./commands')
 
@@ -38,7 +38,6 @@ program
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format', utils.constant.OUTPUT_JSON)
-
 
 // ## Initialize `claim` command
 //
@@ -58,7 +57,6 @@ program
   .description('Claim a domain name')
   .action(async (walletPath, name, ...args) => await AENS.fullClaim(walletPath, name, utils.cli.getCmdFromArguments(args)))
 
-
 // ## Initialize `pre-claim` command
 //
 // You can use this command to `pre-claim` AENS name
@@ -74,7 +72,6 @@ program
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Pre-Claim a domain name')
   .action(async (walletPath, name, ...args) => await AENS.preClaim(walletPath, name, utils.cli.getCmdFromArguments(args)))
-
 
 // ## Initialize `claim` command
 //
@@ -92,7 +89,6 @@ program
   .description('Claim a domain name')
   .action(async (walletPath, name, salt, ...args) => await AENS.claim(walletPath, name, salt, utils.cli.getCmdFromArguments(args)))
 
-
 // ## Initialize `claim` command
 //
 // You can use this command to `claim` AENS name. Name must end on `.chain`.
@@ -108,7 +104,6 @@ program
   .description('Bid on name')
   .action(async (walletPath, name, nameFee, ...args) => await AENS.nameBid(walletPath, name, nameFee, utils.cli.getCmdFromArguments(args)))
 
-
 // ## Initialize `update` command
 //
 // You can use this command to `update` pointer of AENS name.
@@ -123,7 +118,6 @@ program
   .description('Update a name pointer')
   .action(async (walletPath, name, addresses, ...args) => await AENS.updateName(walletPath, name, addresses, utils.cli.getCmdFromArguments(args)))
 
-
 // ## Initialize `extend` command
 //
 // You can use this command to `extend` ttl of AENS name.
@@ -135,7 +129,6 @@ program
   .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
   .description('Extend name ttl')
   .action(async (walletPath, name, nameTtl, ...args) => await AENS.extendName(walletPath, name, nameTtl, utils.cli.getCmdFromArguments(args)))
-
 
 // ## Initialize `revoke` command
 //

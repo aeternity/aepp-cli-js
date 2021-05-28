@@ -23,7 +23,7 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-require = require('esm')(module/*, options*/) //use to handle es6 import/export
+require = require('esm')(module/*, options */) // use to handle es6 import/export
 const utils = require('./utils/index')
 const { Account } = require('./commands')
 
@@ -56,7 +56,6 @@ program
   .option('-D, --denomination [denomination]', 'Denomination of amount', utils.constant.DENOMINATION)
   .action(async (walletPath, receiverIdOrName, amount, ...args) => await Account.spend(walletPath, receiverIdOrName, amount, utils.cli.getCmdFromArguments(args)))
 
-
 // ## Initialize `transfer` command
 //
 // You can use this command to send % of balance to another account
@@ -77,7 +76,6 @@ program
   .option('-D, --denomination [denomination]', 'Denomination of amount', utils.constant.DENOMINATION)
   .action(async (walletPath, receiver, percentage, ...args) => await Account.transferFunds(walletPath, receiver, percentage, utils.cli.getCmdFromArguments(args)))
 
-
 // ## Initialize `sign` command
 //
 // You can use this command to sign your transaction's
@@ -88,7 +86,6 @@ program
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .description('Create a transaction to another wallet')
   .action(async (walletPath, tx, ...args) => await Account.sign(walletPath, tx, utils.cli.getCmdFromArguments(args)))
-
 
 // ## Initialize `sign-message` command
 //
@@ -101,7 +98,6 @@ program
   .description('Create a transaction to another wallet')
   .action(async (walletPath, data, ...args) => await Account.signMessage(walletPath, data, utils.cli.getCmdFromArguments(args)))
 
-
 // ## Initialize `verify-message` command
 //
 // You can use this command to sign message
@@ -112,7 +108,6 @@ program
   .option('--filePath [path]', 'Specify the path to the file(ignore comm and message argument and use file instead)')
   .description('Create a transaction to another wallet')
   .action(async (walletPath, hexSignature, data, ...args) => await Account.verifyMessage(walletPath, hexSignature, data, utils.cli.getCmdFromArguments(args)))
-
 
 // ## Initialize `balance` command
 //

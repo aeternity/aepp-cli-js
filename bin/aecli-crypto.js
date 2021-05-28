@@ -20,33 +20,31 @@ const program = require('commander')
 const fs = require('fs')
 const path = require('path')
 
-
 require = require('esm')(module/*, options */) // use to handle es6 import/export
-const { prompt, PROMPT_TYPE }  = require('./utils/prompt')
+const { prompt, PROMPT_TYPE } = require('./utils/prompt')
 const { Crypto } = require('@aeternity/aepp-sdk')
 const utils = require('./utils/index')
-
 
 // ## Key Extraction (from node nodes)
 async function extractReadableKeys (dir, options) {
   const pwd = options.input
-    const password = await prompt(PROMPT_TYPE.askPassword)
-    try {
-      const key = fs.readFileSync(path.join(pwd, dir, 'sign_key'))
-      const pubKey = fs.readFileSync(path.join(pwd, dir, 'sign_key.pub'))
+  const password = await prompt(PROMPT_TYPE.askPassword)
+  try {
+    const key = fs.readFileSync(path.join(pwd, dir, 'sign_key'))
+    const pubKey = fs.readFileSync(path.join(pwd, dir, 'sign_key.pub'))
 
-      const decrypted = Crypto.decryptPrivateKey(password, key)
+    const decrypted = Crypto.decryptPrivateKey(password, key)
 
-      const privateHex = Buffer.from(decrypted).toString('hex')
-      const decryptedPub = Crypto.decryptPubKey(password, pubKey)
+    const privateHex = Buffer.from(decrypted).toString('hex')
+    const decryptedPub = Crypto.decryptPubKey(password, pubKey)
 
-      console.log(`Private key (hex): ${privateHex}`)
-      console.log(`Public key (base check): ak_${Crypto.encodeBase58Check(decryptedPub)}`)
-      console.log(`Public key (hex): ${decryptedPub.toString('hex')}`)
-    } catch (e) {
-      console.log(e.message)
-      process.exit(1)
-    }
+    console.log(`Private key (hex): ${privateHex}`)
+    console.log(`Public key (base check): ak_${Crypto.encodeBase58Check(decryptedPub)}`)
+    console.log(`Public key (hex): ${decryptedPub.toString('hex')}`)
+  } catch (e) {
+    console.log(e.message)
+    process.exit(1)
+  }
 }
 
 // ## Key Pair Generation
@@ -106,7 +104,7 @@ function unpackTx (tx) {
 //
 // This helper function decodes address(base58) to hex
 function decodeAddress (address) {
-  const decoded = Crypto.decodeBase58Check(address.split('_')[1]).toString('hex');
+  const decoded = Crypto.decodeBase58Check(address.split('_')[1]).toString('hex')
   console.log(`Decoded address (hex): ${decoded}`)
 }
 

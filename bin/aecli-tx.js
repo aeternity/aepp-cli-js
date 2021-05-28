@@ -23,7 +23,7 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-require = require('esm')(module/*, options*/) //use to handle es6 import/export
+require = require('esm')(module/*, options */) // use to handle es6 import/export
 const utils = require('./utils/index')
 const { Transaction } = require('./commands')
 
@@ -109,7 +109,6 @@ program
   .description('Build name revoke transaction.')
   .action(async (accountId, domain, nonce, ...args) => await Transaction.nameRevoke(accountId, domain, nonce, utils.cli.getCmdFromArguments(args)))
 
-
 // ## Initialize `contract-deploy` command
 //
 // You can use this command to build `contract create` transaction
@@ -143,7 +142,6 @@ program
   .description('Build contract create transaction.')
   .action(async (callerId, contractId, callData, nonce, ...args) => await Transaction.contractCall(callerId, contractId, callData, nonce, utils.cli.getCmdFromArguments(args)))
 
-
 // ## Initialize `oracle-register` command
 //
 // You can use this command to build `oracle-register` transaction
@@ -157,7 +155,6 @@ program
   .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.ORACLE_TTL.value)
   .description('Build oracle register transaction.')
   .action(async (accountId, queryFormat, responseFormat, nonce, ...args) => await Transaction.oracleRegister(accountId, queryFormat, responseFormat, nonce, utils.cli.getCmdFromArguments(args)))
-
 
 // ## Initialize `oracle-post-query` command
 //
