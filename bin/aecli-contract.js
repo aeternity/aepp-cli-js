@@ -43,7 +43,7 @@ program
   .command('compile <file>')
   .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Compile a contract')
-  .action(async (file, ...arguments) => await Contract.compile(file, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (file, ...args) => await Contract.compile(file, utils.cli.getCmdFromArguments(args)))
 
 
 // ## Initialize `encode callData` command
@@ -55,7 +55,7 @@ program
   .command('encodeData <source> <fn> [args...]')
   .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Encode contract call data')
-  .action(async (source, fn, args, ...arguments) => await Contract.encodeData(source, fn, args, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (source, fn, args, ...args) => await Contract.encodeData(source, fn, args, utils.cli.getCmdFromArguments(args)))
 
 
 // ## Initialize `decode data` command
@@ -67,7 +67,7 @@ program
   .command('decodeData <data> <returnType>')
   .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Decode contract data')
-  .action(async (data, returnType, ...arguments) => await Contract.decodeData(data, returnType, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (data, returnType, ...args) => await Contract.decodeData(data, returnType, utils.cli.getCmdFromArguments(args)))
 
 
 // ## Initialize `decode call data` command
@@ -83,7 +83,7 @@ program
   .option('--fn [fn]', 'Function name')
   .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Decode contract call data')
-  .action(async (data, ...arguments) => await Contract.decodeCallData(data, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (data, ...args) => await Contract.decodeCallData(data, utils.cli.getCmdFromArguments(args)))
 
 
 // ## Initialize `call` command
@@ -116,7 +116,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Execute a function of the contract')
-  .action(async (walletPath, fn, args, ...arguments) => await Contract.call(walletPath, fn, args, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, fn, args, ...args) => await Contract.call(walletPath, fn, args, utils.cli.getCmdFromArguments(args)))
 
 //
 // ## Initialize `deploy` command
@@ -140,7 +140,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Deploy a contract on the chain')
-  .action(async (walletPath, path, callData, ...arguments) => await Contract.deploy(walletPath, path, callData, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, path, callData, ...args) => await Contract.deploy(walletPath, path, callData, utils.cli.getCmdFromArguments(args)))
 
 // Parse arguments
 program.parse(process.argv)

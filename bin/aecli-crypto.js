@@ -119,14 +119,14 @@ program
   .command('decrypt <directory>')
   .description('Decrypts public and private key to readable formats for testing purposes')
   .option('-i, --input [directory]', 'Directory where to look for keys', '.')
-  .action(async (dir, ...arguments) => await extractReadableKeys(dir, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (dir, ...args) => await extractReadableKeys(dir, utils.cli.getCmdFromArguments(args)))
 
 program
   .command('genkey <keyname>')
   .description('Generate keypair')
   .option('-o, --output [directory]', 'Output directory for the keys', '.')
   .option('-p, --password [directory]', 'Password for keypair', '.')
-  .action(async (keyname, ...arguments) => await generateKeyPair(keyname, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (keyname, ...args) => await generateKeyPair(keyname, utils.cli.getCmdFromArguments(args)))
 
 program
   .command('sign <tx> [privkey]')
