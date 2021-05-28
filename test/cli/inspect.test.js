@@ -89,7 +89,7 @@ describe('CLI Inspect Module', function () {
   it('Inspect Name', async () => {
     const invalidName = await execute(['inspect', 'asd', '--json'])
     const validName = JSON.parse(await execute(['inspect', 'nazdou2222222.chain', '--json']))
-    invalidName.indexOf('AENS: Invalid name domain').should.not.equal(-1)
+    invalidName.should.contain('Name should end with .chain')
     validName.status.should.be.equal('AVAILABLE')
   })
 })

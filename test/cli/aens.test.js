@@ -81,7 +81,7 @@ describe('CLI AENS Module', function () {
 
     preClaim.blockHeight.should.be.gt(0)
     preClaim.salt.should.be.a('number')
-    preClaim.commitmentId.indexOf('cm').should.not.be.equal(-1)
+    preClaim.commitmentId.should.contain('cm')
     nameResult.name.should.be.equal(name2)
     nameResult.status.should.equal('AVAILABLE')
   })

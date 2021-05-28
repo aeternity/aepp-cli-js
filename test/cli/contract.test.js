@@ -104,27 +104,23 @@ describe('CLI Contract Module', function () {
     // Call contract
     const res = await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'main', '1', '2'])
     const callResponse = JSON.parse(res)
-    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
+    callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.equal(3)
   })
   it('Call Contract static by descriptor', async () => {
     // Call contract
     const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'main', '1', '2', '--callStatic'])))
-    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
+    callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.equal(3)
   })
   it('Call Contract by contract address', async () => {
     const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'main', '1', '2'])))
-    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
+    callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.equal(3)
   })
   it('Call Contract static by contract address', async () => {
     const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'main', '1', '2', '--callStatic'])))
-    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
+    callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.equal(3)
   })
 })

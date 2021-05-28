@@ -33,7 +33,7 @@ function randomName (length = 18, namespace = '.chain') {
 async function signAndPost (tx, assert) {
   const { signedTx } = JSON.parse(await execute(['account', 'sign', WALLET_NAME, tx, '--password', 'test', '--json'], { withNetworkId: true }))
   return assert
-    ? (await execute(['chain', 'broadcast', signedTx, '--no-waitMined'])).indexOf('Transaction send to the chain').should.be.equal(0)
+    ? (await execute(['chain', 'broadcast', signedTx, '--no-waitMined'])).should.contain('Transaction send to the chain')
     : execute(['chain', 'broadcast', signedTx])
 }
 
