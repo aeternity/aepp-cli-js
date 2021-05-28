@@ -31,26 +31,21 @@ const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
 const internalUrl = process.env.TEST_INTERNAL_URL || 'http://localhost:3113'
 const publicKey = process.env.PUBLIC_KEY || 'ak_2dATVcZ9KJU5a8hdsVtTv21pYiGWiPbmVcU1Pz72FFqpk9pSRR'
 const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876bb84e3cdf71efb12f56c7335fad54d5cf08400e988222f26eb4b02c8f89077457467211a6e6d955edb70749c6a33b'
-export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
-export const forceCompatibility = process.env.FORCE_COMPATIBILITY || false
+const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
+export const ignoreVersion = process.env.IGNORE_VERSION || false
 
 const TIMEOUT = 18000000
 
 export const KEY_PAIR = generateKeyPair()
 export const WALLET_NAME = 'mywallet'
 
-export const BaseAe = async (params) => {
-  const ae = await Ae.waitMined(true).compose({
-    deepProps: { Swagger: { defaults: { debug: !!process.env.DEBUG } } },
-    props: { process, compilerUrl }
-  })({
-    ...params,
-    forceCompatibility,
-    nodes: [{ name: 'test', instance: await Node({ url, internalUrl }) }]
-  })
-  await ae.addAccount(MemoryAccount({ keypair: { publicKey, secretKey } }), { select: true })
-  return ae
-}
+export const BaseAe = async (params = {}) => await Universal.waitMined(true)({
+  ignoreVersion,
+  compilerUrl,
+  nodes: [{ name: 'test', instance: await Node({ url, internalUrl }) }],
+  accounts: [MemoryAccount({ keypair: { publicKey, secretKey } })],
+  ...params
+})
 
 export function configure (mocha) {
   mocha.timeout(TIMEOUT)
@@ -66,7 +61,7 @@ export function plan (amount) {
 export async function ready (mocha) {
   configure(mocha)
 
-  const ae = await BaseAe({ networkId, compilerUrl })
+  const ae = await BaseAe({ networkId })
   await ae.awaitHeight(3)
 
   if (!charged && planned > 0) {
@@ -78,9 +73,10 @@ export async function ready (mocha) {
     charged = true
   }
 
-  const client = await BaseAe({ networkId, compilerUrl })
-  client.removeAccount(await client.address())
-  await client.addAccount(MemoryAccount({ keypair: KEY_PAIR }), { select: true })
+  const client = await BaseAe({
+    networkId,
+    accounts: [MemoryAccount({ keypair: KEY_PAIR })]
+  })
   await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
   return client
 }
