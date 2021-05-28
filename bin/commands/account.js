@@ -235,7 +235,7 @@ async function getAddress (walletPath, options) {
             }
           }
         }
-        exit(1)
+        exit()
       }
     )
   } catch (e) {
