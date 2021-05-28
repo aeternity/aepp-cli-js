@@ -25,7 +25,6 @@ const testContract = `contract Identity =
   entrypoint main(x : int, y: int) = x + y
 `
 
-const encodedNumber3 = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPJ9AW0'
 const CALL_DATA = 'cb_KxG4F37sKwIEFmEjaA=='
 const DECODED_CALL_DATA = { arguments: [{ type: 'int', value: 1 }, { type: 'int', value: 2 }], function: 'main' }
 
@@ -74,11 +73,6 @@ describe('CLI Contract Module', function () {
   it('Decode callData', async () => {
     const { decoded } = JSON.parse(await exec(['contract', 'decodeCallData', CALL_DATA, '--code', bytecode, '--json']))
     return Promise.resolve(decoded).should.eventually.become(DECODED_CALL_DATA)
-  })
-
-  it('Decode Data', async () => {
-    const { decodedData } = JSON.parse(await exec(['contract', 'decodeData', encodedNumber3, 'int', '--json']))
-    decodedData.value.should.be.equal(3)
   })
 
   it('Deploy Contract', async () => {

@@ -74,26 +74,6 @@ export async function encodeData (source, fn, args = [], options) {
 }
 
 // ## Function which compile your `source` code
-export async function decodeData (data, type, options) {
-  try {
-    const client = await initCompiler(options)
-
-    await handleApiError(async () => {
-      // Call `node` API which return `compiled code`
-      const decodedData = await client.contractDecodeDataAPI(type, data)
-      if (options.json) {
-        print(JSON.stringify({ decodedData }))
-      } else {
-        print('Contract bytecode:')
-        print(decodedData)
-      }
-    })
-  } catch (e) {
-    printError(e.message)
-  }
-}
-
-// ## Function which compile your `source` code
 export async function decodeCallData (data, options) {
   const { sourcePath, code, fn, backend } = options
   let sourceCode
@@ -236,6 +216,5 @@ export const Contract = {
   deploy,
   call,
   encodeData,
-  decodeData,
   decodeCallData
 }

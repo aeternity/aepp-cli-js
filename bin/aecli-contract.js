@@ -54,16 +54,6 @@ program
   .description('Encode contract call data')
   .action(async (source, fn, args, ...otherArgs) => await Contract.encodeData(source, fn, args, utils.cli.getCmdFromArguments(otherArgs)))
 
-// ## Initialize `decode data` command
-//
-// You can use this command to decode contract return data
-//
-// Example: `aecli contract decodeData cb_asdasdasdasdasdas int`
-program
-  .command('decodeData <data> <returnType>')
-  .description('Decode contract data')
-  .action(async (data, returnType, ...args) => await Contract.decodeData(data, returnType, utils.cli.getCmdFromArguments(args)))
-
 // ## Initialize `decode call data` command
 //
 // You can use this command to decode contract call data using source or bytecode
