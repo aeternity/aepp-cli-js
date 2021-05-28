@@ -19,7 +19,7 @@ import fs from 'fs'
 import { before, describe, it } from 'mocha'
 
 import { configure, execute, parseBlock, KEY_PAIR, ready } from './index'
-import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { Crypto } from '@aeternity/aepp-sdk'
 
 // CONTRACT DESCRIPTOR
 const contractDescriptor = {
@@ -47,7 +47,7 @@ describe('CLI Inspect Module', function () {
     isEqual.should.equal(true)
   })
   it('Inspect Transaction', async () => {
-    const recipient = (generateKeyPair()).publicKey
+    const recipient = (Crypto.generateKeyPair()).publicKey
     const amount = 420
     // Create transaction to inspect
     const { hash } = await wallet.spend(amount, recipient)

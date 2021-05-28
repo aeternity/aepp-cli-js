@@ -18,7 +18,7 @@
 import { before, describe, it } from 'mocha'
 
 import { configure, plan, ready, execute as exec, WALLET_NAME } from './index'
-import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { Crypto } from '@aeternity/aepp-sdk'
 
 plan(10000000000000)
 
@@ -79,7 +79,7 @@ describe('CLI Oracle Module', function () {
   })
 
   it('Get non existed Oracle', async () => {
-    const fakeOracleId = generateKeyPair().publicKey.replace('ak_', 'ok_')
+    const fakeOracleId = Crypto.generateKeyPair().publicKey.replace('ak_', 'ok_')
     const oracleNotFound = await execute(['oracle', 'get', fakeOracleId, '--json'])
     const oracleInvalid = await execute(['oracle', 'get', 'oq_d1sadasdasda', '--json'])
     oracleNotFound.should.be.equal('API ERROR:  Oracle not found\n')

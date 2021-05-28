@@ -17,10 +17,11 @@
 // # Utils `constant` Module
 // That script contains default configuration for `CLI`
 
-import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS, MIN_GAS_PRICE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
-import { AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk/es/utils/amount-formatter'
+import { SCHEMA, AmountFormatter } from '@aeternity/aepp-sdk'
 
-export {
+const { MIN_GAS_PRICE } = SCHEMA
+
+export const {
   // ## AENS
   NAME_TTL,
   NAME_FEE,
@@ -35,7 +36,7 @@ export {
   ORACLE_TTL,
   QUERY_TTL,
   QUERY_FEE
-} from '@aeternity/aepp-sdk/es/tx/builder/schema'
+} = SCHEMA
 
 // ## HAST TYPES
 export const HASH_TYPES = {
@@ -80,4 +81,4 @@ export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, 
 // ## DEFAULT OUTPUT FORMAT
 export const OUTPUT_JSON = false
 // ## AMOUNT FORMAT
-export const DENOMINATION = AE_AMOUNT_FORMATS.AETTOS
+export const DENOMINATION = AmountFormatter.AE_AMOUNT_FORMATS.AETTOS

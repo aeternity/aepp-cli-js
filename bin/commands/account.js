@@ -19,8 +19,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
-import { AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk/es/utils/amount-formatter'
+import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
 
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
 import { HASH_TYPES } from '../utils/constant'
@@ -127,7 +126,7 @@ async function sign (walletPath, tx, options) {
 // ## `Spend` function
 // this function allow you to `send` token's to another `account`
 async function spend (walletPath, receiverNameOrAddress, amount, options) {
-  const { ttl, json, nonce, fee, payload = '', denomination = AE_AMOUNT_FORMATS.AETTOS } = options
+  const { ttl, json, nonce, fee, payload = '', denomination = AmountFormatter.AE_AMOUNT_FORMATS.AETTOS } = options
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
@@ -326,7 +325,7 @@ async function generateKeyPairs (count = 1, { forcePrompt, json }) {
       throw new Error('Count must be an Number')
     }
     if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-      const accounts = Array.from(Array(parseInt(count))).map(_ => generateKeyPair(false))
+      const accounts = Array.from(Array(parseInt(count))).map(_ => Crypto.generateKeyPair(false))
       if (json) {
         print(JSON.stringify(accounts, null, 2))
       } else {

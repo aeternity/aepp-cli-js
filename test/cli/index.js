@@ -19,10 +19,7 @@ import { spawn } from 'child_process'
 import * as R from 'ramda'
 // Workaround until fighting with babel7
 const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
-const Ae = requireEsm('@aeternity/aepp-sdk/es/ae/universal').default
-const MemoryAccount = requireEsm('@aeternity/aepp-sdk/es/account/memory').default
-const Node = requireEsm('@aeternity/aepp-sdk/es/node').default
-const { generateKeyPair } = requireEsm('@aeternity/aepp-sdk/es/utils/crypto')
+const { Universal, MemoryAccount, Node, Crypto } = requireEsm('@aeternity/aepp-sdk')
 
 const cliCommand = './bin/aecli.js'
 
@@ -36,8 +33,10 @@ export const ignoreVersion = process.env.IGNORE_VERSION || false
 
 const TIMEOUT = 18000000
 
-export const KEY_PAIR = generateKeyPair()
+export const KEY_PAIR = Crypto.generateKeyPair()
 export const WALLET_NAME = 'mywallet'
+
+export const genAccount = () => MemoryAccount({ keypair: Crypto.generateKeyPair() })
 
 export const BaseAe = async (params = {}) => await Universal.waitMined(true)({
   ignoreVersion,

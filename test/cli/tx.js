@@ -18,8 +18,7 @@
 import { describe, it, before, after } from 'mocha'
 
 import { configure, BaseAe, execute, parseBlock, ready, randomString } from './index'
-import { decodeBase64Check, generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
-import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
+import { Crypto, MemoryAccount } from '@aeternity/aepp-sdk'
 import fs from 'fs'
 import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS } from '../../bin/utils/constant'
 
@@ -41,7 +40,7 @@ async function signAndPost (tx, assert) {
 
 describe('CLI Transaction Module', function () {
   configure(this)
-  const TX_KEYS = generateKeyPair()
+  const TX_KEYS = Crypto.generateKeyPair()
   const oracleId = 'ok_' + TX_KEYS.publicKey.slice(3)
   let wallet
   let salt
@@ -199,7 +198,7 @@ describe('CLI Transaction Module', function () {
     const { tx } = JSON.parse(await execute(['tx', 'oracle-respond', TX_KEYS.publicKey, oracleId, queryId, response, nonce, '--json'], { withOutReject: true }))
     const res = (parseBlock(await signAndPost(tx)))
     const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
-    const responseQuery = decodeBase64Check(queries[0].response.slice(3)).toString()
+    const responseQuery = Crypto.decodeBase64Check(queries[0].response.slice(3)).toString()
     const isMined = !isNaN(res.block_height_)
     const hasQuery = !!queries.length
     isMined.should.be.equal(true)

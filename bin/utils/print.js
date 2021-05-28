@@ -19,7 +19,7 @@
 import * as R from 'ramda'
 
 import { HASH_TYPES } from './constant'
-import { decodeBase64Check } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { Crypto } from '@aeternity/aepp-sdk'
 
 // ## CONSTANT
 const TX_TYPE_PRINT_MAP = {
@@ -358,9 +358,9 @@ export function printQueries (queries = [], json) {
     printUnderscored('Query ID', R.defaultTo('N/A', R.prop('id', q)))
     printUnderscored('Fee', R.defaultTo('N/A', R.prop('fee', q)))
     printUnderscored('Query', R.defaultTo('N/A', R.prop('query', q)))
-    printUnderscored('Query decoded', R.defaultTo('N/A', decodeBase64Check(q.query.slice(3)).toString()))
+    printUnderscored('Query decoded', R.defaultTo('N/A', Crypto.decodeBase64Check(q.query.slice(3)).toString()))
     printUnderscored('Response', R.defaultTo('N/A', R.prop('response', q)))
-    printUnderscored('Response decoded', R.defaultTo('N/A', decodeBase64Check(q.response.slice(3)).toString()))
+    printUnderscored('Response decoded', R.defaultTo('N/A', Crypto.decodeBase64Check(q.response.slice(3)).toString()))
     printUnderscored('Response Ttl', R.defaultTo('N/A', R.prop('responseTtl', q)))
     printUnderscored('Sender Id', R.defaultTo('N/A', R.prop('senderId', q)))
     printUnderscored('Sender Nonce', R.defaultTo('N/A', R.prop('senderNonce', q)))

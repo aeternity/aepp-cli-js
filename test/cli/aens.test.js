@@ -17,9 +17,8 @@
 
 import { before, describe, it } from 'mocha'
 
-import { configure, plan, ready, execute as exec, WALLET_NAME, randomString } from './index'
-import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
-import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
+import { configure, plan, ready, execute as exec, WALLET_NAME, randomString, genAccount } from './index'
+import { Crypto } from '@aeternity/aepp-sdk'
 
 plan(10000000000000)
 
@@ -31,7 +30,7 @@ function randomName (length, namespace = '.chain') {
 
 describe('CLI AENS Module', function () {
   configure(this)
-  const { publicKey } = generateKeyPair()
+  const { publicKey } = Crypto.generateKeyPair()
   let wallet
   let nameAuctionsSupported
   let name
@@ -127,14 +126,14 @@ describe('CLI AENS Module', function () {
     balance.should.be.equal(`${amount}`)
   })
   it('Transfer name', async () => {
-    const keypair = generateKeyPair()
-    await wallet.addAccount(MemoryAccount({ keypair }))
+    const account = genAccount()
+    await wallet.addAccount(account)
 
-    const transferTx = JSON.parse(await execute(['name', 'transfer', WALLET_NAME, name2, keypair.publicKey, '--password', 'test', '--json']))
+    const transferTx = JSON.parse(await execute(['name', 'transfer', WALLET_NAME, name2, await account.address(), '--password', 'test', '--json']))
     transferTx.blockHeight.should.be.gt(0)
-    await wallet.spend(1, keypair.publicKey, { denomination: 'ae' })
+    await wallet.spend(1, await account.address(), { denomination: 'ae' })
     const claim2 = await wallet.aensQuery(name2)
-    const transferBack = await claim2.transfer(await wallet.address(), { onAccount: keypair.publicKey })
+    const transferBack = await claim2.transfer(await wallet.address(), { onAccount: await account.address() })
     transferBack.blockHeight.should.be.gt(0)
   })
   it('Revoke Name', async () => {
@@ -147,7 +146,7 @@ describe('CLI AENS Module', function () {
   describe('Name Auction', () => {
     const nameFee = '3665700000000000000'
     it('Open auction', async () => {
-      const account = MemoryAccount({ keypair: generateKeyPair() })
+      const account = genAccount()
       await wallet.addAccount(account)
       await wallet.spend('30000000000000000000000', await account.address())
       const preclaim = await wallet.aensPreclaim(name, { onAccount: await account.address() })

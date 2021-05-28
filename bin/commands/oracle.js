@@ -23,7 +23,7 @@ import { exit, initChain, initClientByWalletFile } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printError, print, printTransaction, printOracle, printQueries } from '../utils/print'
 import { BUILD_ORACLE_TTL } from '../utils/constant'
-import { assertedType } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { Crypto } from '@aeternity/aepp-sdk'
 
 // ## Create Oracle
 async function createOracle (walletPath, queryFormat, responseFormat, options) {
@@ -67,7 +67,7 @@ async function extendOracle (walletPath, oracleId, oracleTtl, options) {
 
   try {
     if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number')
-    if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
+    if (!Crypto.assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
     const client = await initClientByWalletFile(walletPath, options)
     await handleApiError(async () => {
       const oracle = await client.getOracleObject(oracleId)
@@ -101,7 +101,7 @@ async function createOracleQuery (walletPath, oracleId, query, options) {
   const { ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl } = options
 
   try {
-    if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
+    if (!Crypto.assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
@@ -136,8 +136,8 @@ async function respondToQuery (walletPath, oracleId, queryId, response, options)
   const { ttl, fee, nonce, waitMined, json, responseTtl } = options
 
   try {
-    if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
-    if (!assertedType(queryId, 'oq', true)) throw new Error('Invalid queryId')
+    if (!Crypto.assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
+    if (!Crypto.assertedType(queryId, 'oq', true)) throw new Error('Invalid queryId')
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
@@ -168,7 +168,7 @@ async function respondToQuery (walletPath, oracleId, queryId, response, options)
 // ## Get oracle
 async function queryOracle (oracleId, options) {
   try {
-    if (!assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
+    if (!Crypto.assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
     const client = await initChain(options)
     await handleApiError(async () => {
       const oracle = await client.getOracle(oracleId)

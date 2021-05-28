@@ -23,7 +23,7 @@ import path from 'path'
 
 import { DEFAULT_CONTRACT_PARAMS, GAS_PRICE, HASH_TYPES, VM_VERSIONS, VM_TYPE, ABI_VERSIONS } from './constant'
 import { printError } from './print'
-import { isNameValid } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
+import { TxBuilderHelper } from '@aeternity/aepp-sdk'
 
 // ## Method which build arguments for call call/deploy contracts
 export async function prepareCallParams (name, { descrPath, contractAddress, contractSource, gas, ttl, nonce }) {
@@ -170,7 +170,7 @@ export function isAvailable (name) { return name.status === 'AVAILABLE' }
 
 // Validate `name`
 export function validateName (name) {
-  isNameValid(name)
+  TxBuilderHelper.ensureNameValid(name)
 }
 
 // Grab contract descriptor by path
