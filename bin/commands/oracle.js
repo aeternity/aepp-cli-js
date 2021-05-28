@@ -171,8 +171,8 @@ async function queryOracle (oracleId, options) {
     if (!Crypto.assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
     const client = await initChain(options)
     await handleApiError(async () => {
-      const oracle = await client.getOracle(oracleId)
-      const { oracleQueries: queries } = await client.getOracleQueries(oracleId)
+      const oracle = await client.api.getOracleByPubkey(oracleId)
+      const { oracleQueries: queries } = await client.api.getOracleQueriesByPubkey(oracleId)
       if (options.json) {
         console.log(JSON.stringify({ ...oracle, queries }))
       } else {

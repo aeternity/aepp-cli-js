@@ -217,8 +217,8 @@ async function getOracle (oracleId, options) {
     await handleApiError(
       async () => {
         // printTransaction(await client.api.getContract(contractId), json)
-        printOracle(await client.getOracle(oracleId), json)
-        const { oracleQueries: queries } = await client.getOracleQueries(oracleId)
+        printOracle(await client.api.getOracleByPubkey(oracleId), json)
+        const { oracleQueries: queries } = await client.api.getOracleQueriesByPubkey(oracleId)
         if (queries) printQueries(queries, json)
       }
     )

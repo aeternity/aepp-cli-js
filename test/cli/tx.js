@@ -147,10 +147,10 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
   it('Build oracle extend  tx offline and send the chain', async () => {
-    const oracleCurrentTtl = await wallet.getOracle(oracleId)
+    const oracleCurrentTtl = await wallet.api.getOracleByPubkey(oracleId)
     const { tx } = JSON.parse(await execute(['tx', 'oracle-extend', TX_KEYS.publicKey, oracleId, 100, nonce, '--json'], { withOutReject: true }))
     const res = (parseBlock(await signAndPost(tx)))
-    const oracleTtl = await wallet.getOracle(oracleId)
+    const oracleTtl = await wallet.api.getOracleByPubkey(oracleId)
     const isExtended = +oracleTtl.ttl === +oracleCurrentTtl.ttl + 100
     const isMined = !isNaN(res.block_height_)
     isExtended.should.be.equal(true)
@@ -160,7 +160,7 @@ describe('CLI Transaction Module', function () {
   it('Build oracle post query tx offline and send the chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'oracle-post-query', TX_KEYS.publicKey, oracleId, '{city: "Berlin"}', nonce, '--json'], { withOutReject: true }))
     const res = (parseBlock(await signAndPost(tx)))
-    const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
+    const { oracleQueries: queries } = await wallet.api.getOracleQueriesByPubkey(oracleId)
     queryId = queries[0].id
     const isMined = !isNaN(res.block_height_)
     const hasQuery = !!queries.length
@@ -172,7 +172,7 @@ describe('CLI Transaction Module', function () {
     const response = '{tmp: 10}'
     const { tx } = JSON.parse(await execute(['tx', 'oracle-respond', TX_KEYS.publicKey, oracleId, queryId, response, nonce, '--json'], { withOutReject: true }))
     const res = (parseBlock(await signAndPost(tx)))
-    const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
+    const { oracleQueries: queries } = await wallet.api.getOracleQueriesByPubkey(oracleId)
     const responseQuery = Crypto.decodeBase64Check(queries[0].response.slice(3)).toString()
     const isMined = !isNaN(res.block_height_)
     const hasQuery = !!queries.length
