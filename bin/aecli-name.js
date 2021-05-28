@@ -23,9 +23,9 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-require = require('esm')(module/*, options */) // use to handle es6 import/export
-const utils = require('./utils/index')
-const { AENS } = require('./commands')
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
+const utils = requireEsm('./utils/index')
+const { AENS } = requireEsm('./commands')
 
 // ## Initialize `options`
 program

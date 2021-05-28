@@ -23,8 +23,8 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-require = require('esm')(module/*, options */) // use to handle es6 import/export
-const utils = require('./utils/index')
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
+const utils = requireEsm('./utils/index')
 
 // Array of child command's
 const EXECUTABLE_CMD = [
@@ -41,7 +41,7 @@ const EXECUTABLE_CMD = [
 //
 // You get get CLI version by exec `aecli version`
 program
-  .version(require('../package.json').version)
+  .version(requireEsm('../package.json').version)
 
 // ## Initialize `config` command
 program

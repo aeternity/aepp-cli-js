@@ -18,7 +18,7 @@
 import { spawn } from 'child_process'
 import * as R from 'ramda'
 // Workaround until fighting with babel7
-require = require('esm')(module/*, options */) // use to handle es6 import/export
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
 const Ae = require('@aeternity/aepp-sdk/es/ae/universal').default
 const MemoryAccount = require('@aeternity/aepp-sdk/es/account/memory').default
 const Node = require('@aeternity/aepp-sdk/es/node').default

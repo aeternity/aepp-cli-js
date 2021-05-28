@@ -20,10 +20,10 @@ const program = require('commander')
 const fs = require('fs')
 const path = require('path')
 
-require = require('esm')(module/*, options */) // use to handle es6 import/export
-const { prompt, PROMPT_TYPE } = require('./utils/prompt')
-const { Crypto } = require('@aeternity/aepp-sdk')
-const utils = require('./utils/index')
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
+const { prompt, PROMPT_TYPE } = requireEsm('./utils/prompt')
+const { Crypto } = requireEsm('@aeternity/aepp-sdk')
+const utils = requireEsm('./utils/index')
 
 // ## Key Extraction (from node nodes)
 async function extractReadableKeys (dir, options) {
