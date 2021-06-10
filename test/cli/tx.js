@@ -67,7 +67,7 @@ describe('CLI Transaction Module', function () {
     if (fs.existsSync(WALLET_NAME)) { fs.unlinkSync(WALLET_NAME) }
   })
 
-  it('Build spend tx offline and send the chain', async () => {
+  it('Build spend tx offline and send on-chain', async () => {
     const amount = 100
 
     const { tx } = JSON.parse(await execute(['tx', 'spend', TX_KEYS.publicKey, TX_KEYS.publicKey, amount, nonce, '--json']))
@@ -75,7 +75,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build preclaim tx offline and send the chain', async () => {
+  it('Build preclaim tx offline and send on-chain', async () => {
     const { tx, salt: nameSalt } = JSON.parse(await execute(['tx', 'name-preclaim', TX_KEYS.publicKey, name, nonce, '--json']))
     salt = nameSalt
     const res = (parseBlock(await signAndPost(tx)))
@@ -84,7 +84,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build claim tx offline and send the chain', async () => {
+  it('Build claim tx offline and send on-chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'name-claim', TX_KEYS.publicKey, salt, name, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
@@ -94,7 +94,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build update tx offline and send the chain', async () => {
+  it('Build update tx offline and send on-chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'name-update', TX_KEYS.publicKey, nameId, nonce, TX_KEYS.publicKey, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
@@ -102,7 +102,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build transfer tx offline and send the chain', async () => {
+  it('Build transfer tx offline and send on-chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'name-transfer', TX_KEYS.publicKey, TX_KEYS.publicKey, nameId, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
@@ -110,7 +110,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build revoke tx offline and send the chain', async () => {
+  it('Build revoke tx offline and send on-chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'name-revoke', TX_KEYS.publicKey, nameId, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
@@ -118,7 +118,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build contract create tx offline and send the chain', async () => {
+  it('Build contract create tx offline and send on-chain', async () => {
     const { bytecode } = await compilerCLI.contractCompile(testContract)
     const callData = await compilerCLI.contractEncodeCall(testContract, 'init', [])
     const { tx, contractId: cId } = JSON.parse(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, bytecode, callData, nonce, '--json']))
@@ -129,7 +129,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build contract call tx offline and send the chain', async () => {
+  it('Build contract call tx offline and send on-chain', async () => {
     const callData = await compilerCLI.contractEncodeCall(testContract, 'test', ['1', '2'])
     const { tx } = JSON.parse(await execute(['tx', 'contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
@@ -138,7 +138,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build oracle register tx offline and send the chain', async () => {
+  it('Build oracle register tx offline and send on-chain', async () => {
     const result = await execute(['tx', 'oracle-register', TX_KEYS.publicKey, '{city: "str"}', '{tmp:""num}', nonce, '--json'], { withOutReject: true })
     const { tx } = JSON.parse(result)
     const res = (parseBlock(await signAndPost(tx)))
@@ -147,7 +147,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build oracle extend  tx offline and send the chain', async () => {
+  it('Build oracle extend  tx offline and send on-chain', async () => {
     const oracleCurrentTtl = await wallet.api.getOracleByPubkey(oracleId)
     const { tx } = JSON.parse(await execute(['tx', 'oracle-extend', TX_KEYS.publicKey, oracleId, 100, nonce, '--json'], { withOutReject: true }))
     const res = (parseBlock(await signAndPost(tx)))
@@ -159,7 +159,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build oracle post query tx offline and send the chain', async () => {
+  it('Build oracle post query tx offline and send on-chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'oracle-post-query', TX_KEYS.publicKey, oracleId, '{city: "Berlin"}', nonce, '--json'], { withOutReject: true }))
     const res = (parseBlock(await signAndPost(tx)))
     const { oracleQueries: queries } = await wallet.api.getOracleQueriesByPubkey(oracleId)
@@ -171,7 +171,7 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build oracle respond tx offline and send the chain', async () => {
+  it('Build oracle respond tx offline and send on-chain', async () => {
     const response = '{tmp: 10}'
     const { tx } = JSON.parse(await execute(['tx', 'oracle-respond', TX_KEYS.publicKey, oracleId, queryId, response, nonce, '--json'], { withOutReject: true }))
     const res = (parseBlock(await signAndPost(tx)))
