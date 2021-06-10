@@ -23,7 +23,11 @@ import { Crypto } from '@aeternity/aepp-sdk'
 import { exit, initChain, initClientByWalletFile } from '../utils/cli'
 import { BUILD_ORACLE_TTL } from '../utils/constant'
 import { handleApiError } from '../utils/errors'
-import { print, printError, printOracle, printQueries, printTransaction } from '../utils/print'
+import {
+  print, printError,
+  printOracle,
+  printQueries, printTransaction
+} from '../utils/print'
 
 // ## Create Oracle
 async function createOracle (walletPath, queryFormat, responseFormat, options) {
@@ -33,23 +37,18 @@ async function createOracle (walletPath, queryFormat, responseFormat, options) {
     const client = await initClientByWalletFile(walletPath, options)
     await handleApiError(async () => {
       // Register Oracle
-      const oracle = await client.registerOracle(
-        queryFormat,
-        responseFormat,
-        {
-          ttl,
-          waitMined,
-          nonce,
-          fee,
-          oracleTtl: isNaN(parseInt(oracleTtl)) ? oracleTtl : BUILD_ORACLE_TTL(oracleTtl),
-          queryFee
-        }
-      )
+      const oracle = await client.registerOracle(queryFormat, responseFormat, {
+        ttl,
+        waitMined,
+        nonce,
+        fee,
+        oracleTtl: isNaN(parseInt(oracleTtl))
+          ? oracleTtl
+          : BUILD_ORACLE_TTL(oracleTtl),
+        queryFee
+      })
       if (waitMined) {
-        printTransaction(
-          oracle,
-          json
-        )
+        printTransaction(oracle, json)
       } else {
         print('Transaction send to the chain. Tx hash: ', oracle)
       }
@@ -67,24 +66,20 @@ async function extendOracle (walletPath, oracleId, oracleTtl, options) {
 
   try {
     if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number')
-    if (!Crypto.assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
+    if (!Crypto.assertedType(oracleId, 'ok', true)) {
+      throw new Error('Invalid oracleId')
+    }
     const client = await initClientByWalletFile(walletPath, options)
     await handleApiError(async () => {
       const oracle = await client.getOracleObject(oracleId)
-      const extended = await oracle.extendOracle(
-        BUILD_ORACLE_TTL(oracleTtl),
-        {
-          ttl,
-          waitMined,
-          nonce,
-          fee
-        }
-      )
+      const extended = await oracle.extendOracle(BUILD_ORACLE_TTL(oracleTtl), {
+        ttl,
+        waitMined,
+        nonce,
+        fee
+      })
       if (waitMined) {
-        printTransaction(
-          extended,
-          json
-        )
+        printTransaction(extended, json)
       } else {
         print('Transaction send to the chain. Tx hash: ', extended)
       }
@@ -98,10 +93,13 @@ async function extendOracle (walletPath, oracleId, oracleTtl, options) {
 
 // ## Create Oracle Query
 async function createOracleQuery (walletPath, oracleId, query, options) {
-  const { ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl } = options
+  const { ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl } =
+    options
 
   try {
-    if (!Crypto.assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
+    if (!Crypto.assertedType(oracleId, 'ok', true)) {
+      throw new Error('Invalid oracleId')
+    }
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
@@ -111,15 +109,16 @@ async function createOracleQuery (walletPath, oracleId, query, options) {
         waitMined,
         nonce,
         fee,
-        queryTll: isNaN(parseInt(queryTll)) ? queryTll : BUILD_ORACLE_TTL(queryTll),
-        responseTtl: isNaN(parseInt(responseTtl)) ? responseTtl : BUILD_ORACLE_TTL(responseTtl),
+        queryTll: isNaN(parseInt(queryTll))
+          ? queryTll
+          : BUILD_ORACLE_TTL(queryTll),
+        responseTtl: isNaN(parseInt(responseTtl))
+          ? responseTtl
+          : BUILD_ORACLE_TTL(responseTtl),
         queryFee
       })
       if (waitMined) {
-        printTransaction(
-          oracleQuery,
-          json
-        )
+        printTransaction(oracleQuery, json)
       } else {
         print('Transaction send to the chain. Tx hash: ', oracleQuery)
       }
@@ -132,12 +131,22 @@ async function createOracleQuery (walletPath, oracleId, query, options) {
 }
 
 // ## Respond to Oracle Query
-async function respondToQuery (walletPath, oracleId, queryId, response, options) {
+async function respondToQuery (
+  walletPath,
+  oracleId,
+  queryId,
+  response,
+  options
+) {
   const { ttl, fee, nonce, waitMined, json, responseTtl } = options
 
   try {
-    if (!Crypto.assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
-    if (!Crypto.assertedType(queryId, 'oq', true)) throw new Error('Invalid queryId')
+    if (!Crypto.assertedType(oracleId, 'ok', true)) {
+      throw new Error('Invalid oracleId')
+    }
+    if (!Crypto.assertedType(queryId, 'oq', true)) {
+      throw new Error('Invalid queryId')
+    }
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
@@ -147,13 +156,12 @@ async function respondToQuery (walletPath, oracleId, queryId, response, options)
         waitMined,
         nonce,
         fee,
-        responseTtl: isNaN(parseInt(responseTtl)) ? responseTtl : BUILD_ORACLE_TTL(responseTtl)
+        responseTtl: isNaN(parseInt(responseTtl))
+          ? responseTtl
+          : BUILD_ORACLE_TTL(responseTtl)
       })
       if (waitMined) {
-        printTransaction(
-          queryResponse,
-          json
-        )
+        printTransaction(queryResponse, json)
       } else {
         print('Transaction send to the chain. Tx hash: ', queryResponse)
       }
@@ -168,11 +176,15 @@ async function respondToQuery (walletPath, oracleId, queryId, response, options)
 // ## Get oracle
 async function queryOracle (oracleId, options) {
   try {
-    if (!Crypto.assertedType(oracleId, 'ok', true)) throw new Error('Invalid oracleId')
+    if (!Crypto.assertedType(oracleId, 'ok', true)) {
+      throw new Error('Invalid oracleId')
+    }
     const client = await initChain(options)
     await handleApiError(async () => {
-      const oracle = await client.getOracle(oracleId)
-      const { oracleQueries: queries } = await client.getOracleQueries(oracleId)
+      const oracle = await client.api.getOracleByPubkey(oracleId)
+      const { oracleQueries: queries } =
+        await client.api.getOracleQueriesByPubkey(oracleId)
+
       if (options.json) {
         console.log(JSON.stringify({ ...oracle, queries }))
       } else {
