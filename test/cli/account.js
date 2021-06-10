@@ -18,10 +18,8 @@
 import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
 
-import { configure, plan, ready, execute, BaseAe, KEY_PAIR, WALLET_NAME } from './index'
-import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
-import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
-import { formatAmount, AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk/es/utils/amount-formatter'
+import { configure, plan, ready, execute, BaseAe, KEY_PAIR, WALLET_NAME, genAccount } from './index'
+import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
 
 const walletName = 'test.wallet'
 
@@ -88,9 +86,8 @@ describe('CLI Account Module', function () {
   })
   it('Spend coins to another wallet', async () => {
     const amount = 100
-    const receiverKeys = generateKeyPair()
     const receiver = await BaseAe()
-    await receiver.addAccount(MemoryAccount({ keypair: receiverKeys }), { select: true })
+    await receiver.addAccount(genAccount(), { select: true })
 
     // send coins
     await execute(['account', 'spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount], { withOutReject: true, withNetworkId: true })
@@ -99,13 +96,13 @@ describe('CLI Account Module', function () {
   })
   it('Spend coins to another wallet using denomination', async () => {
     const amount = 1 // 1 AE
-    const denomination = AE_AMOUNT_FORMATS.AE
-    const receiverKeys = generateKeyPair()
+    const denomination = AmountFormatter.AE_AMOUNT_FORMATS.AE
+    const receiverKeys = Crypto.generateKeyPair()
     const receiver = await BaseAe()
     // send coins
     await execute(['account', 'spend', WALLET_NAME, '--password', 'test', '-D', denomination, receiverKeys.publicKey, amount], { withOutReject: true, withNetworkId: true })
     const receiverBalance = await receiver.getBalance(receiverKeys.publicKey)
-    receiverBalance.should.equal(formatAmount(amount, { denomination: AE_AMOUNT_FORMATS.AE }))
+    receiverBalance.should.equal(AmountFormatter.formatAmount(amount, { denomination: AmountFormatter.AE_AMOUNT_FORMATS.AE }))
   })
   it('Get account nonce', async () => {
     const nonce = await wallet.getAccountNonce(await wallet.address())
@@ -138,9 +135,9 @@ describe('CLI Account Module', function () {
   })
   it('verify message', async () => {
     const data = 'Hello world'
-    const verify = JSON.parse(await execute(['account', 'verify-message', WALLET_NAME, sig ,data, '--json', '--password', 'test'], { withOutReject: false }))
+    const verify = JSON.parse(await execute(['account', 'verify-message', WALLET_NAME, sig, data, '--json', '--password', 'test'], { withOutReject: false }))
     verify.isCorrect.should.be.equal(true)
-    const verifyFromFile = JSON.parse(await execute(['account', 'verify-message', WALLET_NAME, sigFromFile , '--json', '--password', 'test', '--filePath', fileName], { withOutReject: false }))
+    const verifyFromFile = JSON.parse(await execute(['account', 'verify-message', WALLET_NAME, sigFromFile, '--json', '--password', 'test', '--filePath', fileName], { withOutReject: false }))
     verifyFromFile.isCorrect.should.be.equal(true)
   })
 })

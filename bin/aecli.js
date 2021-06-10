@@ -23,8 +23,8 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-require = require('esm')(module/*, options */) // use to handle es6 import/export
-const utils = require('./utils/index')
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
+const utils = requireEsm('./utils/index')
 
 // Array of child command's
 const EXECUTABLE_CMD = [
@@ -34,14 +34,14 @@ const EXECUTABLE_CMD = [
   { name: 'contract', desc: 'Compile contracts' },
   { name: 'name', desc: 'AENS system' },
   { name: 'tx', desc: 'Transaction builder' },
-  {name: 'oracle', desc: 'Interact with oracles'},
+  { name: 'oracle', desc: 'Interact with oracles' },
   { name: 'crypto', desc: 'Crypto helpers' }
 ]
 // ##Get version from `package.json`
 //
 // You get get CLI version by exec `aecli version`
 program
-  .version(require('../package.json').version)
+  .version(requireEsm('../package.json').version)
 
 // ## Initialize `config` command
 program
@@ -50,7 +50,7 @@ program
   .action((cmd) => utils.print.printConfig(cmd))
 
 // ## Initialize `child` command's
-EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
+EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc))
 
 // Parse arguments
 program.parse(process.argv)

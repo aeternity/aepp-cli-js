@@ -9,6 +9,15 @@ before_install:
   - if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then
       export NODE_TAG=master;
       export COMPILER_TAG=latest;
-      export FORCE_COMPATIBILITY=true;
+      export IGNORE_VERSION=true;
     fi
   - docker-compose up -d
+
+deploy:
+  - provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    keep_history: true
+    local_dir: docs
+    on:
+      branch: develop

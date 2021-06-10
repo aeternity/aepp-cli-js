@@ -17,9 +17,8 @@
 
 import { before, describe, it } from 'mocha'
 
-import { configure, plan, ready, execute as exec, WALLET_NAME, randomString } from './index'
-import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
-import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
+import { configure, plan, ready, execute as exec, WALLET_NAME, randomString, genAccount } from './index'
+import { Crypto } from '@aeternity/aepp-sdk'
 
 plan(10000000000000)
 
@@ -31,7 +30,7 @@ function randomName (length, namespace = '.chain') {
 
 describe('CLI AENS Module', function () {
   configure(this)
-  const { publicKey } = generateKeyPair()
+  const { publicKey } = Crypto.generateKeyPair()
   let wallet
   let nameAuctionsSupported
   let name
@@ -82,7 +81,7 @@ describe('CLI AENS Module', function () {
 
     preClaim.blockHeight.should.be.gt(0)
     preClaim.salt.should.be.a('number')
-    preClaim.commitmentId.indexOf('cm').should.not.be.equal(-1)
+    preClaim.commitmentId.should.contain('cm')
     nameResult.name.should.be.equal(name2)
     nameResult.status.should.equal('AVAILABLE')
   })
@@ -115,8 +114,8 @@ describe('CLI AENS Module', function () {
   })
   it('Fail spend by name on invalid input', async () => {
     const amount = 100000009
-    const error = await execute(['account', 'spend', WALLET_NAME, '--password', 'test', 'sdasdaasdas', amount, '--json'])
-    error.indexOf('AENS: Invalid name domain').should.not.be.equal(-1)
+    await execute(['account', 'spend', WALLET_NAME, '--password', 'test', 'sdasdaasdas', amount, '--json'])
+      .should.be.rejectedWith('Invalid name or address')
   })
   it('Spend by name', async () => {
     const amount = 100000009
@@ -127,14 +126,14 @@ describe('CLI AENS Module', function () {
     balance.should.be.equal(`${amount}`)
   })
   it('Transfer name', async () => {
-    const keypair = generateKeyPair()
-    await wallet.addAccount(MemoryAccount({ keypair }))
+    const account = genAccount()
+    await wallet.addAccount(account)
 
-    const transferTx = JSON.parse(await execute(['name', 'transfer', WALLET_NAME, name2, keypair.publicKey, '--password', 'test', '--json']))
+    const transferTx = JSON.parse(await execute(['name', 'transfer', WALLET_NAME, name2, await account.address(), '--password', 'test', '--json']))
     transferTx.blockHeight.should.be.gt(0)
-    await wallet.spend(1, keypair.publicKey, { denomination: 'ae' })
+    await wallet.spend(1, await account.address(), { denomination: 'ae' })
     const claim2 = await wallet.aensQuery(name2)
-    const transferBack = await claim2.transfer(await wallet.address(), { onAccount: keypair.publicKey })
+    const transferBack = await claim2.transfer(await wallet.address(), { onAccount: await account.address() })
     transferBack.blockHeight.should.be.gt(0)
   })
   it('Revoke Name', async () => {
@@ -147,7 +146,7 @@ describe('CLI AENS Module', function () {
   describe('Name Auction', () => {
     const nameFee = '3665700000000000000'
     it('Open auction', async () => {
-      const account = MemoryAccount({ keypair: generateKeyPair() })
+      const account = genAccount()
       await wallet.addAccount(account)
       await wallet.spend('30000000000000000000000', await account.address())
       const preclaim = await wallet.aensPreclaim(name, { onAccount: await account.address() })
@@ -161,8 +160,8 @@ describe('CLI AENS Module', function () {
     })
     it('Fail on open  again', async () => {
       const preClaim = JSON.parse(await execute(['name', 'pre-claim', WALLET_NAME, '--password', 'test', name, '--json']))
-      const claim = await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name, preClaim.salt, '--json'])
-      claim.indexOf('Giving up after 10 blocks mined').should.not.be.equal(-1)
+      await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name, preClaim.salt, '--json'])
+        .should.be.rejectedWith('Giving up after 10 blocks mined')
     })
   })
 })

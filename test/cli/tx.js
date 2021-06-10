@@ -15,13 +15,11 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { describe, it } from 'mocha'
+import { describe, it, before, after } from 'mocha'
 
 import { configure, BaseAe, execute, parseBlock, ready, randomString } from './index'
-import { decodeBase64Check, generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
-import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
+import { Crypto, MemoryAccount } from '@aeternity/aepp-sdk'
 import fs from 'fs'
-import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS } from '../../bin/utils/constant'
 
 const WALLET_NAME = 'txWallet'
 const testContract = `contract Identity =
@@ -35,19 +33,18 @@ function randomName (length = 18, namespace = '.chain') {
 async function signAndPost (tx, assert) {
   const { signedTx } = JSON.parse(await execute(['account', 'sign', WALLET_NAME, tx, '--password', 'test', '--json'], { withNetworkId: true }))
   return assert
-    ? (await execute(['chain', 'broadcast', signedTx, '--no-waitMined'])).indexOf('Transaction send to the chain').should.be.equal(0)
+    ? (await execute(['chain', 'broadcast', signedTx, '--no-waitMined'])).should.contain('Transaction send to the chain')
     : execute(['chain', 'broadcast', signedTx])
 }
 
 describe('CLI Transaction Module', function () {
   configure(this)
-  const TX_KEYS = generateKeyPair()
+  const TX_KEYS = Crypto.generateKeyPair()
   const oracleId = 'ok_' + TX_KEYS.publicKey.slice(3)
   let wallet
   let salt
   let queryId
   let contractId
-  let aevmCId
   const name = randomName().toLowerCase()
   let nonce
   let nameId
@@ -129,35 +126,12 @@ describe('CLI Transaction Module', function () {
     isMined.should.be.equal(true)
     nonce += 1
   })
-  it('Build contract create tx using AEVM offline and send the chain', async () => {
-    const { bytecode } = await compilerCLI.contractCompile(testContract, { backend: VM_TYPE.AEVM })
-    const callData = await compilerCLI.contractEncodeCall(testContract, 'init', [], { backend: VM_TYPE.AEVM })
-    const { tx, contractId: aevmContractId } = JSON.parse(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, bytecode, callData, nonce, '--json', '--backend', VM_TYPE.AEVM]))
-    const res = (parseBlock(await signAndPost(tx)))
-    aevmCId = aevmContractId
-    parseInt(res.vm_version_).should.be.equal(VM_VERSIONS.SOPHIA_IMPROVEMENTS_LIMA)
-    parseInt(res.abi_version_).should.be.equal(ABI_VERSIONS.SOPHIA)
-    const isMined = !isNaN(res.block_height_)
-    isMined.should.be.equal(true)
-    nonce += 1
-  })
 
   it('Build contract call tx offline and send the chain', async () => {
     const callData = await compilerCLI.contractEncodeCall(testContract, 'main', ['1', '2'])
 
     const { tx } = JSON.parse(await execute(['tx', 'contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
-    const isMined = !isNaN(res.block_height_)
-    isMined.should.be.equal(true)
-    nonce += 1
-  })
-
-  it('Build contract call tx AEVM offline and send the chain', async () => {
-    const callData = await compilerCLI.contractEncodeCall(testContract, 'main', ['1', '2'], { backend: VM_TYPE.AEVM })
-
-    const { tx } = JSON.parse(await execute(['tx', 'contract-call', TX_KEYS.publicKey, aevmCId, callData, nonce, '--json', '--backend', VM_TYPE.AEVM]))
-    const res = (parseBlock(await signAndPost(tx)))
-    parseInt(res.abi_version_).should.be.equal(ABI_VERSIONS.SOPHIA)
     const isMined = !isNaN(res.block_height_)
     isMined.should.be.equal(true)
     nonce += 1
@@ -173,10 +147,10 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
   it('Build oracle extend  tx offline and send the chain', async () => {
-    const oracleCurrentTtl = await wallet.getOracle(oracleId)
+    const oracleCurrentTtl = await wallet.api.getOracleByPubkey(oracleId)
     const { tx } = JSON.parse(await execute(['tx', 'oracle-extend', TX_KEYS.publicKey, oracleId, 100, nonce, '--json'], { withOutReject: true }))
     const res = (parseBlock(await signAndPost(tx)))
-    const oracleTtl = await wallet.getOracle(oracleId)
+    const oracleTtl = await wallet.api.getOracleByPubkey(oracleId)
     const isExtended = +oracleTtl.ttl === +oracleCurrentTtl.ttl + 100
     const isMined = !isNaN(res.block_height_)
     isExtended.should.be.equal(true)
@@ -186,7 +160,7 @@ describe('CLI Transaction Module', function () {
   it('Build oracle post query tx offline and send the chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'oracle-post-query', TX_KEYS.publicKey, oracleId, '{city: "Berlin"}', nonce, '--json'], { withOutReject: true }))
     const res = (parseBlock(await signAndPost(tx)))
-    const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
+    const { oracleQueries: queries } = await wallet.api.getOracleQueriesByPubkey(oracleId)
     queryId = queries[0].id
     const isMined = !isNaN(res.block_height_)
     const hasQuery = !!queries.length
@@ -198,8 +172,8 @@ describe('CLI Transaction Module', function () {
     const response = '{tmp: 10}'
     const { tx } = JSON.parse(await execute(['tx', 'oracle-respond', TX_KEYS.publicKey, oracleId, queryId, response, nonce, '--json'], { withOutReject: true }))
     const res = (parseBlock(await signAndPost(tx)))
-    const { oracleQueries: queries } = await wallet.getOracleQueries(oracleId)
-    const responseQuery = decodeBase64Check(queries[0].response.slice(3)).toString()
+    const { oracleQueries: queries } = await wallet.api.getOracleQueriesByPubkey(oracleId)
+    const responseQuery = Crypto.decodeBase64Check(queries[0].response.slice(3)).toString()
     const isMined = !isNaN(res.block_height_)
     const hasQuery = !!queries.length
     isMined.should.be.equal(true)

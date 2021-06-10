@@ -23,9 +23,9 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-require = require('esm')(module/*, options*/) //use to handle es6 import/export
-const utils = require('./utils/index')
-const { Oracle } = require('./commands')
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
+const utils = requireEsm('./utils/index')
+const { Oracle } = requireEsm('./commands')
 
 // ## Initialize `options`
 program
@@ -54,7 +54,7 @@ program
   .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', utils.constant.ORACLE_TTL)
   .option('--queryFee [queryFee]', 'Oracle query fee', utils.constant.QUERY_FEE)
   .description('Register Oracle')
-  .action(async (walletPath, queryFormat, responseFormat, ...arguments) => await Oracle.createOracle(walletPath, queryFormat, responseFormat, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, queryFormat, responseFormat, ...args) => await Oracle.createOracle(walletPath, queryFormat, responseFormat, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `extend oracle` command
 //
@@ -69,7 +69,7 @@ program
   .command('extend <wallet_path> <oracleId> <oracleTtl>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Extend Oracle')
-  .action(async (walletPath, oracleId, oracleTtl, ...arguments) => await Oracle.extendOracle(walletPath, oracleId, oracleTtl, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, oracleId, oracleTtl, ...args) => await Oracle.extendOracle(walletPath, oracleId, oracleTtl, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `create oracle query` command
 //
@@ -87,7 +87,7 @@ program
   .option('--queryTtl [queryTtl]', 'Query time to leave', utils.constant.QUERY_TTL)
   .option('--queryFee [queryFee]', 'Oracle query fee', utils.constant.QUERY_FEE)
   .description('Create Oracle query')
-  .action(async (walletPath, oracleId, query, ...arguments) => await Oracle.createOracleQuery(walletPath, oracleId, query, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, oracleId, query, ...args) => await Oracle.createOracleQuery(walletPath, oracleId, query, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `respond query` command
 //
@@ -103,7 +103,7 @@ program
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--responseTtl [responseTtl]', 'Query response time to leave', utils.constant.RESPONSE_TTL)
   .description('Respond to  Oracle Query')
-  .action(async (walletPath, oracleId, queryId, response, ...arguments) => await Oracle.respondToQuery(walletPath, oracleId, queryId, response, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, oracleId, queryId, response, ...args) => await Oracle.respondToQuery(walletPath, oracleId, queryId, response, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `get oracle` command
 //
@@ -117,7 +117,7 @@ program
 program
   .command('get <oracleId>')
   .description('Get Oracle')
-  .action(async (oracleId, ...arguments) => await Oracle.queryOracle(oracleId, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (oracleId, ...args) => await Oracle.queryOracle(oracleId, utils.cli.getCmdFromArguments(args)))
 
 // Parse arguments
 program.parse(process.argv)

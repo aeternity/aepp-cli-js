@@ -19,20 +19,14 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { encodeBase58Check, salt, assertedType } from '@aeternity/aepp-sdk/es/utils/crypto'
-import { commitmentHash, getMinimumNameFee } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
-import { TX_TYPE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
-
+import { Crypto, SCHEMA, TxBuilderHelper } from '@aeternity/aepp-sdk'
 import { exit, initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printBuilderTransaction, printError, printUnderscored, printValidation } from '../utils/print'
-import { getVmAbiVersion, validateName } from '../utils/helpers'
-import {
-  BUILD_ORACLE_TTL,
-  ORACLE_VM_VERSION,
-  DEFAULT_CONTRACT_PARAMS,
-  COMPILER_BACKEND
-} from '../utils/constant'
+import { validateName } from '../utils/helpers'
+import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION } from '../utils/constant'
+
+const { TX_TYPE } = SCHEMA
 
 // ## Build `spend` transaction
 async function spend (senderId, recipientId, amount, nonce, options) {
@@ -77,8 +71,8 @@ async function namePreClaim (accountId, domain, nonce, options) {
     const txBuilder = initOfflineTxBuilder()
 
     // Generate `salt` and `commitmentId` and build `name` hash
-    const _salt = salt()
-    const commitmentId = await commitmentHash(domain, _salt)
+    const _salt = Crypto.salt()
+    const commitmentId = await TxBuilderHelper.commitmentHash(domain, _salt)
 
     const params = {
       accountId,
@@ -103,14 +97,14 @@ async function namePreClaim (accountId, domain, nonce, options) {
 async function nameClaim (accountId, nameSalt, domain, nonce, options) {
   const vsn = 2
   let { ttl, json, fee, nameFee } = options
-  const nameHash = `nm_${encodeBase58Check(Buffer.from(domain))}`
+  const nameHash = `nm_${Crypto.encodeBase58Check(Buffer.from(domain))}`
 
   try {
     // Validate `name`(check if `name` end on `.test`)
     validateName(domain)
     // Initialize `Ae`
     const txBuilder = initOfflineTxBuilder()
-    nameFee = nameFee || getMinimumNameFee(domain)
+    nameFee = nameFee || TxBuilderHelper.getMinimumNameFee(domain)
     const params = {
       nameFee,
       accountId,
@@ -236,16 +230,15 @@ async function nameRevoke (accountId, nameId, nonce, options) {
 
 // ## Build `contractDeploy` transaction
 async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, options) {
-  const { json, backend = COMPILER_BACKEND } = options
+  const { json } = options
   try {
     // Initialize `Ae`
     const txBuilder = await initTxBuilder(options)
     // Build `deploy` transaction's
     await handleApiError(async () => {
       // Create `contract-deploy` transaction
-      const ctVersion = getVmAbiVersion(backend)
       const { tx, contractId, txObject } = await txBuilder.contractCreateTx({
-        ...{ ...DEFAULT_CONTRACT_PARAMS, ...options, ...ctVersion },
+        ...options,
         code: contractByteCode,
         ownerId,
         nonce,
@@ -253,7 +246,7 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
       })
 
       if (json) {
-        print({ tx, contractId, txObject, ctVersion })
+        print({ tx, contractId, txObject })
       } else {
         printUnderscored('Unsigned Contract Deploy TX', tx)
         printUnderscored('Contract ID', contractId)
@@ -267,8 +260,7 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
 
 // ## Build `contractCall` transaction
 async function contractCall (callerId, contractId, callData, nonce, options) {
-  const { json, backend = COMPILER_BACKEND } = options
-  const ctVersion = getVmAbiVersion(backend)
+  const { json } = options
   try {
     // Build `call` transaction's
     await handleApiError(async () => {
@@ -276,7 +268,7 @@ async function contractCall (callerId, contractId, callData, nonce, options) {
       const txBuilder = await initTxBuilder(options)
       // Create `contract-call` transaction
       const tx = await txBuilder.contractCallTx({
-        ...{ ...DEFAULT_CONTRACT_PARAMS, ...options, ...ctVersion },
+        ...options,
         callerId,
         nonce,
         callData,
@@ -428,7 +420,7 @@ async function verify (txHash, options) {
   const { json, networkId } = options
   try {
     // Validate input
-    if (!assertedType(txHash, 'tx')) throw new Error('Invalid transaction, must be lik \'tx_23didf2+f3sd...\'')
+    if (!Crypto.assertedType(txHash, 'tx')) throw new Error('Invalid transaction, must be lik \'tx_23didf2+f3sd...\'')
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getStatus` API and print it

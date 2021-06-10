@@ -21,9 +21,9 @@ import * as R from 'ramda'
 import fs from 'fs'
 import path from 'path'
 
-import { DEFAULT_CONTRACT_PARAMS, GAS_PRICE, HASH_TYPES, VM_VERSIONS, VM_TYPE, ABI_VERSIONS } from './constant'
+import { GAS_PRICE, HASH_TYPES } from './constant'
 import { printError } from './print'
-import { isNameValid } from '@aeternity/aepp-sdk/es/tx/builder/helpers'
+import { TxBuilderHelper } from '@aeternity/aepp-sdk'
 
 // ## Method which build arguments for call call/deploy contracts
 export async function prepareCallParams (name, { descrPath, contractAddress, contractSource, gas, ttl, nonce }) {
@@ -75,7 +75,7 @@ export function getBlock (hash) {
 // ## Method which validate `hash`
 export function checkPref (hash, hashType) {
   if (hash.length < 3 || hash.indexOf('_') === -1) {
-    throw new Error(`Invalid input, likely you forgot to escape the $ sign (use \\_)`)
+    throw new Error('Invalid input, likely you forgot to escape the $ sign (use \\_)')
   }
 
   /* block and micro block check */
@@ -170,14 +170,8 @@ export function isAvailable (name) { return name.status === 'AVAILABLE' }
 
 // Validate `name`
 export function validateName (name) {
-  isNameValid(name)
+  TxBuilderHelper.ensureNameValid(name)
 }
 
 // Grab contract descriptor by path
 export const grabDesc = async descrPath => descrPath && readJSONFile(path.resolve(process.cwd(), descrPath))
-
-export function getVmAbiVersion (backend) {
-  if (backend === VM_TYPE.FATE) return { vmVersion: DEFAULT_CONTRACT_PARAMS.vmVersion, abiVersion: DEFAULT_CONTRACT_PARAMS.abiVersion }
-  if (backend === VM_TYPE.AEVM) return { vmVersion: VM_VERSIONS.SOPHIA_IMPROVEMENTS_LIMA, abiVersion: ABI_VERSIONS.SOPHIA }
-  throw new Error(`Could not get vm/abi version. Unknown backend ${backend}`)
-}

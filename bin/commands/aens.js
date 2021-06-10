@@ -23,7 +23,7 @@ import { exit, initChain, initClientByWalletFile } from '../utils/cli'
 import { printError, print, printName, printTransaction } from '../utils/print'
 import { handleApiError } from '../utils/errors'
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
-import { isAddressValid } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { Crypto } from '@aeternity/aepp-sdk'
 
 // ## Claim `name` function
 async function preClaim (walletPath, domain, options) {
@@ -103,7 +103,7 @@ async function updateName (walletPath, domain, addresses, options) {
 
   try {
     // Validate `address`
-    const invalidAddresses = addresses.filter(address => !isAddressValid(address))
+    const invalidAddresses = addresses.filter(address => !Crypto.isAddressValid(address))
     if (invalidAddresses.length) throw new Error(`Addresses "[${invalidAddresses}]" is not valid`)
     // Validate `name`
     validateName(domain)
@@ -138,7 +138,7 @@ async function updateName (walletPath, domain, addresses, options) {
 
 // ##Extend `name` ttl  function
 async function extendName (walletPath, domain, nameTtl, options) {
-  const { ttl, fee, nonce, waitMined, json, clientTtl } = options
+  const { ttl, fee, nonce, waitMined, json } = options
 
   try {
     // Validate `name`
@@ -178,7 +178,7 @@ async function transferName (walletPath, domain, address, options) {
 
   try {
     // Validate `address`
-    if (!isAddressValid(address)) throw new Error(`Address "${address}" is not valid`)
+    if (!Crypto.isAddressValid(address)) throw new Error(`Address "${address}" is not valid`)
     // Validate `name`
     validateName(domain)
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`

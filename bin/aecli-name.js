@@ -23,9 +23,9 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-require = require('esm')(module/*, options*/) //use to handle es6 import/export
-const utils = require('./utils/index')
-const { AENS } = require('./commands')
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
+const utils = requireEsm('./utils/index')
+const { AENS } = requireEsm('./commands')
 
 // ## Initialize `options`
 program
@@ -38,7 +38,6 @@ program
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format', utils.constant.OUTPUT_JSON)
-
 
 // ## Initialize `claim` command
 //
@@ -56,8 +55,7 @@ program
   .option('--nameTtl [nameTtl]', 'Validity of name.', utils.constant.NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
   .description('Claim a domain name')
-  .action(async (walletPath, name, ...arguments) => await AENS.fullClaim(walletPath, name, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (walletPath, name, ...args) => await AENS.fullClaim(walletPath, name, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `pre-claim` command
 //
@@ -73,8 +71,7 @@ program
   .command('pre-claim <wallet_path> <name>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Pre-Claim a domain name')
-  .action(async (walletPath, name, ...arguments) => await AENS.preClaim(walletPath, name, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (walletPath, name, ...args) => await AENS.preClaim(walletPath, name, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `claim` command
 //
@@ -90,8 +87,7 @@ program
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--nameFee [nameFee]', 'Wait until transaction will be mined', utils.constant.NAME_FEE)
   .description('Claim a domain name')
-  .action(async (walletPath, name, salt, ...arguments) => await AENS.claim(walletPath, name, salt, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (walletPath, name, salt, ...args) => await AENS.claim(walletPath, name, salt, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `claim` command
 //
@@ -106,8 +102,7 @@ program
   .command('bid <wallet_path> <name> <nameFee>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Bid on name')
-  .action(async (walletPath, name, nameFee, ...arguments) => await AENS.nameBid(walletPath, name, nameFee, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (walletPath, name, nameFee, ...args) => await AENS.nameBid(walletPath, name, nameFee, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `update` command
 //
@@ -121,8 +116,7 @@ program
   .option('--nameTtl [nameTtl]', 'Validity of name.', utils.constant.NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
   .description('Update a name pointer')
-  .action(async (walletPath, name, addresses, ...arguments) => await AENS.updateName(walletPath, name, addresses, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (walletPath, name, addresses, ...args) => await AENS.updateName(walletPath, name, addresses, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `extend` command
 //
@@ -134,8 +128,7 @@ program
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
   .description('Extend name ttl')
-  .action(async (walletPath, name, nameTtl, ...arguments) => await AENS.extendName(walletPath, name, nameTtl, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (walletPath, name, nameTtl, ...args) => await AENS.extendName(walletPath, name, nameTtl, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `revoke` command
 //
@@ -146,7 +139,7 @@ program
   .command('revoke  <wallet_path> <name>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Revoke a domain name')
-  .action(async (walletPath, name, ...arguments) => await AENS.revokeName(walletPath, name, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, name, ...args) => await AENS.revokeName(walletPath, name, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `transfer` command
 //
@@ -157,7 +150,7 @@ program
   .command('transfer <wallet_path> <name> <address>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Transfer a name to another account')
-  .action(async (walletPath, name, address, ...arguments) => await AENS.transferName(walletPath, name, address, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, name, address, ...args) => await AENS.transferName(walletPath, name, address, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `lookup` command
 //
@@ -167,7 +160,7 @@ program
 program
   .command('lookup <name>')
   .description('Look up name')
-  .action(async (name, ...arguments) => await AENS.lookUp(name, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (name, ...args) => await AENS.lookUp(name, utils.cli.getCmdFromArguments(args)))
 
 // Parse arguments
 program.parse(process.argv)

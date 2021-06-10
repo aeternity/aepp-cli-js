@@ -29,10 +29,10 @@ import {
   printError,
   printName, printOracle, printQueries,
   printTransaction,
-  printUnderscored, printValidation
+  printUnderscored
 } from '../utils/print'
 import { checkPref, getBlock, updateNameStatus, validateName } from '../utils/helpers'
-import { TxBuilder } from "@aeternity/aepp-sdk";
+import { TxBuilder } from '@aeternity/aepp-sdk'
 
 // ## Inspect function
 // That function get the param(`hash`, `height` or `name`) and show you info about it
@@ -45,7 +45,7 @@ async function inspect (hash, option) {
     return
   }
 
-  const [pref, _] = hash.split('_')
+  const [pref] = hash.split('_')
   switch (pref) {
     // Get `block` by `hash`
     case HASH_TYPES.block:
@@ -217,8 +217,8 @@ async function getOracle (oracleId, options) {
     await handleApiError(
       async () => {
         // printTransaction(await client.api.getContract(contractId), json)
-        printOracle(await client.getOracle(oracleId), json)
-        const { oracleQueries: queries } = await client.getOracleQueries(oracleId)
+        printOracle(await client.api.getOracleByPubkey(oracleId), json)
+        const { oracleQueries: queries } = await client.api.getOracleQueriesByPubkey(oracleId)
         if (queries) printQueries(queries, json)
       }
     )

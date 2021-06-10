@@ -18,8 +18,7 @@
 */
 import path from 'path'
 
-import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto'
-import { dump, getAddressFromPriv, recover } from '@aeternity/aepp-sdk/es/utils/keystore'
+import { Crypto, Keystore } from '@aeternity/aepp-sdk'
 
 import { isFileExist, readJSONFile, writeFile } from './helpers'
 import { PROMPT_TYPE, prompt } from './prompt'
@@ -37,7 +36,7 @@ export async function generateSecureWallet (name, { output = '', password, overw
   password = password || await prompt(PROMPT_TYPE.askPassword)
   const { secretKey, publicKey } = Crypto.generateKeyPair(true)
 
-  writeFile(path.join(output, name), JSON.stringify(await dump(name, password, secretKey)))
+  writeFile(path.join(output, name), JSON.stringify(await Keystore.dump(name, password, secretKey)))
 
   return { publicKey: Crypto.aeEncodeKey(publicKey), path: path.resolve(process.cwd(), path.join(output, name)) }
 }
@@ -50,7 +49,7 @@ export async function generateSecureWalletFromPrivKey (name, priv, { output = ''
   const hexStr = Crypto.hexStringToByte(priv.trim())
   const keys = Crypto.generateKeyPairFromSecret(hexStr)
 
-  const encryptedKeyPair = await dump(name, password, keys.secretKey)
+  const encryptedKeyPair = await Keystore.dump(name, password, keys.secretKey)
 
   writeFile(path.join(output, name), JSON.stringify(encryptedKeyPair))
 
@@ -64,11 +63,11 @@ export async function getWalletByPathAndDecrypt (walletPath, { password } = {}) 
 
     if (!password || typeof password !== 'string' || !password.length) password = await prompt(PROMPT_TYPE.askPassword)
 
-    const privKey = await recover(password, keyFile)
+    const privKey = await Keystore.recover(password, keyFile)
 
     return {
       secretKey: privKey,
-      publicKey: getAddressFromPriv(privKey)
+      publicKey: Keystore.getAddressFromPriv(privKey)
     }
   } catch (e) {
     throw new Error('GET WALLET ERROR: ' + e.message)

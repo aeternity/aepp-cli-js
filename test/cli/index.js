@@ -18,39 +18,33 @@
 import { spawn } from 'child_process'
 import * as R from 'ramda'
 // Workaround until fighting with babel7
-require = require('esm')(module/*, options */) // use to handle es6 import/export
-const Ae = require('@aeternity/aepp-sdk/es/ae/universal').default
-const MemoryAccount = require('@aeternity/aepp-sdk/es/account/memory').default
-const Node = require('@aeternity/aepp-sdk/es/node').default
-const { generateKeyPair } = require('@aeternity/aepp-sdk/es/utils/crypto')
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
+const { Universal, MemoryAccount, Node, Crypto } = requireEsm('@aeternity/aepp-sdk')
 
 const cliCommand = './bin/aecli.js'
 
 const url = process.env.TEST_URL || 'http://localhost:3013'
 const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
 const internalUrl = process.env.TEST_INTERNAL_URL || 'http://localhost:3113'
-const publicKey = process.env.PUBLIC_KEY || 'ak_2dATVcZ9KJU5a8hdsVtTv21pYiGWiPbmVcU1Pz72FFqpk9pSRR';
-const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876bb84e3cdf71efb12f56c7335fad54d5cf08400e988222f26eb4b02c8f89077457467211a6e6d955edb70749c6a33b';
-export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
-export const forceCompatibility = process.env.FORCE_COMPATIBILITY || false
+const publicKey = process.env.PUBLIC_KEY || 'ak_2dATVcZ9KJU5a8hdsVtTv21pYiGWiPbmVcU1Pz72FFqpk9pSRR'
+const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876bb84e3cdf71efb12f56c7335fad54d5cf08400e988222f26eb4b02c8f89077457467211a6e6d955edb70749c6a33b'
+const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
+export const ignoreVersion = process.env.IGNORE_VERSION || false
 
 const TIMEOUT = 18000000
 
-export const KEY_PAIR = generateKeyPair()
+export const KEY_PAIR = Crypto.generateKeyPair()
 export const WALLET_NAME = 'mywallet'
 
-export const BaseAe = async (params) => {
-  const ae = await Ae.waitMined(true).compose({
-    deepProps: { Swagger: { defaults: { debug: !!process.env['DEBUG'] } } },
-    props: { process, compilerUrl }
-  })({
-    ...params,
-    forceCompatibility,
-    nodes: [{ name: 'test', instance: await Node({ url, internalUrl }) }]
-  })
-  await ae.addAccount(MemoryAccount({ keypair: { publicKey, secretKey } }), { select: true })
-  return ae
-}
+export const genAccount = () => MemoryAccount({ keypair: Crypto.generateKeyPair() })
+
+export const BaseAe = async (params = {}) => await Universal.waitMined(true)({
+  ignoreVersion,
+  compilerUrl,
+  nodes: [{ name: 'test', instance: await Node({ url, internalUrl }) }],
+  accounts: [MemoryAccount({ keypair: { publicKey, secretKey } })],
+  ...params
+})
 
 export function configure (mocha) {
   mocha.timeout(TIMEOUT)
@@ -66,7 +60,7 @@ export function plan (amount) {
 export async function ready (mocha) {
   configure(mocha)
 
-  const ae = await BaseAe({ networkId, compilerUrl })
+  const ae = await BaseAe({ networkId })
   await ae.awaitHeight(3)
 
   if (!charged && planned > 0) {
@@ -78,28 +72,30 @@ export async function ready (mocha) {
     charged = true
   }
 
-  const client = await BaseAe({ networkId, compilerUrl })
-  client.removeAccount(await client.address())
-  await client.addAccount(MemoryAccount({ keypair: KEY_PAIR }), { select: true })
+  const client = await BaseAe({
+    networkId,
+    accounts: [MemoryAccount({ keypair: KEY_PAIR })]
+  })
   await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
   return client
 }
 
-export async function execute (args, { withOutReject = false, withNetworkId = false } = {}) {
+export async function execute (args, { withNetworkId = false } = {}) {
   return new Promise((resolve, reject) => {
     let result = ''
     const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, ...withNetworkId ? ['--networkId', networkId] : [], ...(args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [])])
     child.stdin.setEncoding('utf-8')
     child.stdout.on('data', (data) => {
-      result += (data.toString())
+      result += data.toString()
     })
 
     child.stderr.on('data', (data) => {
-      if (!withOutReject) reject(data.toString())
+      result += data.toString()
     })
 
     child.on('close', (code) => {
-      resolve(result.toString())
+      if (code) reject(new Error(result.toString()))
+      else resolve(result.toString())
     })
   })
 }
