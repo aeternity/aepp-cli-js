@@ -184,7 +184,6 @@ async function queryOracle (oracleId, options) {
       const oracle = await client.api.getOracleByPubkey(oracleId)
       const { oracleQueries: queries } =
         await client.api.getOracleQueriesByPubkey(oracleId)
-
       if (options.json) {
         console.log(JSON.stringify({ ...oracle, queries }))
       } else {
