@@ -19,13 +19,12 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import * as R from 'ramda'
 import path from 'path'
-
-import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
+import * as R from 'ramda'
 import { exit, initClientByWalletFile, initCompiler } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
+import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
+import { logContractDescriptor, print, printError, printTransaction, printUnderscored } from '../utils/print'
 
 // ## Function which compile your `source` code
 export async function compile (file, options) {
@@ -188,7 +187,7 @@ async function call (walletPath, fn, args, options) {
         // Call static or call
         const contract = await client.getContractInstance(params.source, { contractAddress: params.address })
         const callResult = await contract.call(fn, args, { ...params.options, callStatic, top })
-        // The execution result, if successful, will be an AEVM-encoded result
+        // The execution result, if successful, will be an FATE-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
         // not be a hexadecimal string, anymore.
         json && print(callResult)
