@@ -18,41 +18,32 @@
 */
 import * as R from 'ramda'
 
-import Ae from '@aeternity/aepp-sdk/es/ae/universal'
-import Node from '@aeternity/aepp-sdk/es/node'
-import Tx from '@aeternity/aepp-sdk/es/tx/tx'
-import TxBuilder from '@aeternity/aepp-sdk/es/tx/builder'
-import Chain from '@aeternity/aepp-sdk/es/chain/node'
-import Account from '@aeternity/aepp-sdk/es/account/memory'
-import ContractCompilerAPI from '@aeternity/aepp-sdk/es/contract/compiler'
+import { Universal, Node, Transaction, TxBuilder, ChainNode, MemoryAccount, ContractCompilerAPI } from '@aeternity/aepp-sdk'
 import { getWalletByPathAndDecrypt } from './account'
 
 // ## Merge options with parent options.
-export function getCmdFromArguments (args) {
-  return R.merge(
-    R.head(args),
-    R.head(args).parent
-  )
+export function getCmdFromArguments ([options, commander]) {
+  return { ...options, ...commander.parent.opts() }
 }
 
-// Create `Ae` client
-export async function initClient ({ url, keypair, internalUrl, compilerUrl, force: forceCompatibility, native: nativeMode = true, networkId, accounts = [] }) {
-  return Ae({
-    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }],
+// Create `Universal` client
+async function initClient ({ url, keypair, internalUrl, compilerUrl, force: ignoreVersion, native: nativeMode = true, networkId, accounts = [] }) {
+  return Universal({
+    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, ignoreVersion }) }],
     process,
     internalUrl,
     compilerUrl,
     nativeMode,
     networkId,
-    accounts: [...keypair ? [Account({ keypair })] : [], ...accounts]
+    accounts: [...keypair ? [MemoryAccount({ keypair })] : [], ...accounts]
   })
 }
 // Create `TxBuilder` client
-export async function initTxBuilder ({ url, internalUrl, force: forceCompatibility, native: nativeMode = true, showWarning = true }) {
-  return Tx({
-    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }],
+export async function initTxBuilder ({ url, internalUrl, force: ignoreVersion, native: nativeMode = true, showWarning = true }) {
+  return Transaction({
+    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, ignoreVersion }) }],
     nativeMode,
-    forceCompatibility,
+    ignoreVersion,
     showWarning
   })
 }
@@ -60,28 +51,27 @@ export async function initTxBuilder ({ url, internalUrl, force: forceCompatibili
 export function initOfflineTxBuilder () {
   return TxBuilder
 }
-// Create `Chain` client
-export async function initChain ({ url, internalUrl, force: forceCompatibility }) {
-  return Chain({
-    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, forceCompatibility }) }],
-    forceCompatibility
+// Create `ChainNode` client
+export async function initChain ({ url, internalUrl, force: ignoreVersion }) {
+  return ChainNode({
+    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, ignoreVersion }) }],
+    ignoreVersion
   })
 }
 
-// Create `Chain` client
-export async function initCompiler ({ url, internalUrl, compilerUrl, forceCompatibility }) {
-  return ContractCompilerAPI({ compilerUrl, forceCompatibility })
+export async function initCompiler ({ url, internalUrl, compilerUrl, ignoreVersion }) {
+  return ContractCompilerAPI({ compilerUrl, ignoreVersion })
 }
 
 // ## Get account files and decrypt it using password
-// After that create `Ae` client using this `keyPair`
+// After that create `Universal` client using this `keyPair`
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
   const { password, privateKey, accountOnly = false, networkId, debug = true } = options
 
   const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
-  const accounts = [Account(R.merge(options, { keypair, networkId }))]
+  const accounts = [MemoryAccount(R.merge(options, { keypair, networkId }))]
 
   const client = accountOnly
     ? accounts[0]
@@ -90,16 +80,6 @@ export async function initClientByWalletFile (walletPath, options, returnKeyPair
     return { client, keypair }
   }
   return client
-}
-
-// ## Initialize commander executable commands
-export function initExecCommands (program) {
-  return (cmds) => cmds.forEach(({ name, desc }) => program.command(name, desc))
-}
-
-// ## Check if `command` is `EXECUTABLE`
-export function isExecCommand (cmd, execCommands) {
-  return execCommands.find(({ name }) => cmd === name)
 }
 
 export function exit (error = 0) {

@@ -23,9 +23,9 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-require = require('esm')(module/*, options*/) //use to handle es6 import/export
-const utils = require('./utils/index')
-const { Account } = require('./commands')
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
+const utils = requireEsm('./utils/index')
+const { Account } = requireEsm('./commands')
 
 // ## Initialize `options`
 program
@@ -54,8 +54,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-D, --denomination [denomination]', 'Denomination of amount', utils.constant.DENOMINATION)
-  .action(async (walletPath, receiverIdOrName, amount, ...arguments) => await Account.spend(walletPath, receiverIdOrName, amount, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (walletPath, receiverIdOrName, amount, ...args) => await Account.spend(walletPath, receiverIdOrName, amount, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `transfer` command
 //
@@ -75,8 +74,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-D, --denomination [denomination]', 'Denomination of amount', utils.constant.DENOMINATION)
-  .action(async (walletPath, receiver, percentage, ...arguments) => await Account.transferFunds(walletPath, receiver, percentage, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (walletPath, receiver, percentage, ...args) => await Account.transferFunds(walletPath, receiver, percentage, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `sign` command
 //
@@ -87,8 +85,7 @@ program
   .command('sign <wallet_path> <tx>')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .description('Create a transaction to another wallet')
-  .action(async (walletPath, tx, ...arguments) => await Account.sign(walletPath, tx, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (walletPath, tx, ...args) => await Account.sign(walletPath, tx, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `sign-message` command
 //
@@ -99,8 +96,7 @@ program
   .command('sign-message <wallet_path> [data...]')
   .option('--filePath [path]', 'Specify the path to the file for signing(ignore command message argument and use file instead)')
   .description('Create a transaction to another wallet')
-  .action(async (walletPath, data, ...arguments) => await Account.signMessage(walletPath, data, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (walletPath, data, ...args) => await Account.signMessage(walletPath, data, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `verify-message` command
 //
@@ -111,8 +107,7 @@ program
   .command('verify-message <wallet_path> <hexSignature> [data...]')
   .option('--filePath [path]', 'Specify the path to the file(ignore comm and message argument and use file instead)')
   .description('Create a transaction to another wallet')
-  .action(async (walletPath, hexSignature, data, ...arguments) => await Account.verifyMessage(walletPath, hexSignature, data, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (walletPath, hexSignature, data, ...args) => await Account.verifyMessage(walletPath, hexSignature, data, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `balance` command
 //
@@ -124,7 +119,7 @@ program
   .option('--height [height]', 'Specific block height')
   .option('--hash [hash]', 'Specific block hash')
   .description('Get wallet balance')
-  .action(async (walletPath, ...arguments) => await Account.getBalance(walletPath, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, ...args) => await Account.getBalance(walletPath, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `address` command
 //
@@ -138,7 +133,7 @@ program
   .option('--privateKey', 'Print private key')
   .option('--forcePrompt', 'Force prompting')
   .description('Get wallet address')
-  .action(async (walletPath, ...arguments) => await Account.getAddress(walletPath, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, ...args) => await Account.getAddress(walletPath, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `create` command
 //
@@ -155,7 +150,7 @@ program
   .option('-O, --output [output]', 'Output directory', '.')
   .option('--overwrite', 'Overwrite if exist')
   .description('Create a secure wallet')
-  .action(async (name, ...arguments) => await Account.createSecureWallet(name, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (name, ...args) => await Account.createSecureWallet(name, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `save` command
 //
@@ -172,7 +167,7 @@ program
   .option('-O, --output [output]', 'Output directory', '.')
   .option('--overwrite', 'Overwrite if exist')
   .description('Save a private keys string to a password protected file wallet')
-  .action(async (name, priv, ...arguments) => await Account.createSecureWalletByPrivKey(name, priv, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (name, priv, ...args) => await Account.createSecureWalletByPrivKey(name, priv, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `nonce` command
 //
@@ -184,7 +179,7 @@ program
 program
   .command('nonce <wallet_path>')
   .description('Get account nonce')
-  .action(async (walletPath, ...arguments) => await Account.getAccountNonce(walletPath, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (walletPath, ...args) => await Account.getAccountNonce(walletPath, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `generateKeyPairs` command
 //
@@ -195,12 +190,7 @@ program
   .command('generate <count>')
   .option('--forcePrompt', 'Force prompting')
   .description('Generate keyPairs')
-  .action(async (count, ...arguments) => await Account.generateKeyPairs(count, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (count, ...args) => await Account.generateKeyPairs(count, utils.cli.getCmdFromArguments(args)))
 
-
-// Handle unknown command's
-program.on('command:*', () => utils.errors.unknownCommandHandler(program)())
-
-// Parse arguments or show `help` if argument's is empty
+// Parse arguments
 program.parse(process.argv)
-if (program.args.length === 0) program.help()

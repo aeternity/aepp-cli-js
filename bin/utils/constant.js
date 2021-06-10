@@ -17,10 +17,11 @@
 // # Utils `constant` Module
 // That script contains default configuration for `CLI`
 
-import { ABI_VERSIONS, VM_TYPE, VM_VERSIONS, MIN_GAS_PRICE } from '@aeternity/aepp-sdk/es/tx/builder/schema'
-import { AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk/es/utils/amount-formatter'
+import { SCHEMA, AmountFormatter } from '@aeternity/aepp-sdk'
 
-export {
+const { MIN_GAS_PRICE } = SCHEMA
+
+export const {
   // ## AENS
   NAME_TTL,
   NAME_FEE,
@@ -29,13 +30,11 @@ export {
   // ## TRANSACTION
   TX_TTL,
   // # CONTRACT
-  ABI_VERSIONS,
-  VM_VERSIONS,
   VM_TYPE,
   ORACLE_TTL,
   QUERY_TTL,
-  QUERY_FEE,
-} from '@aeternity/aepp-sdk/es/tx/builder/schema'
+  QUERY_FEE
+} = SCHEMA
 
 // ## HAST TYPES
 export const HASH_TYPES = {
@@ -52,10 +51,9 @@ export const HASH_TYPES = {
 }
 
 // ## CONNECTION
-export const NODE_URL = 'https://sdk-testnet.aepps.com'
-export const NODE_INTERNAL_URL = 'https://sdk-testnet.aepps.com'
-export const NODE_WEBSOCKET_URL = 'https://sdk-testnet.aepps.com'
-export const COMPILER_URL = 'http://localhost:3080'
+export const NODE_URL = 'https://testnet.aeternity.io'
+export const NODE_INTERNAL_URL = 'https://testnet.aeternity.io'
+export const COMPILER_URL = 'https://compiler.aepps.com'
 
 // ## CHAIN
 export const PLAY_LIMIT = 10
@@ -65,9 +63,6 @@ export const PLAY_INTERVAL = 1000
 export const GAS = 1600000 - 21000 // MAX GAS
 export const DEPOSIT = 0
 export const GAS_PRICE = MIN_GAS_PRICE
-export const VM_VERSION = VM_VERSIONS.FATE
-export const ABI_VERSION = ABI_VERSIONS.FATE
-export const COMPILER_BACKEND = VM_TYPE.FATE
 export const ORACLE_VM_VERSION = 0
 export const AMOUNT = 0
 
@@ -75,10 +70,7 @@ export const AMOUNT = 0
 export const BUILD_ORACLE_TTL = (ttl) => { return { type: 'delta', value: ttl } }
 export const RESPONSE_TTL = 10
 
-// ## Default transaction build param's
-export const DEFAULT_CONTRACT_PARAMS = { vmVersion: VM_VERSION, amount: AMOUNT, deposit: DEPOSIT, gasPrice: GAS_PRICE, abiVersion: ABI_VERSION }
-
 // ## DEFAULT OUTPUT FORMAT
 export const OUTPUT_JSON = false
 // ## AMOUNT FORMAT
-export const DENOMINATION = AE_AMOUNT_FORMATS.AETTOS
+export const DENOMINATION = AmountFormatter.AE_AMOUNT_FORMATS.AETTOS

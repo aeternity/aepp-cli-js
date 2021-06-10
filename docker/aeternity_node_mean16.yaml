@@ -8,6 +8,8 @@ http:
     debug_endpoints: true
     port: 3113
     listen_address: 0.0.0.0
+  endpoints:
+    dry-run: true
 
 websocket:
   channel:
@@ -19,16 +21,15 @@ keys:
   dir: ./keys
 
 chain:
-  persist: true
+  persist: false
   hard_forks:
     "1": 0
-    "2": 2
-    "3": 4
-    "4": 5
+    "5": 1
 
 mining:
   autostart: true
   beneficiary: "ak_2iBPH7HUz3cSDVEUWiHg76MZJ6tZooVNBmmxcgVK6VV8KAE688"
+  beneficiary_reward_delay: 2
   expected_mine_rate: 4000
   micro_block_cycle: 1000
   cuckoo:

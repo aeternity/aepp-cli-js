@@ -23,9 +23,9 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-require = require('esm')(module/*, options*/) //use to handle es6 import/export
-const utils = require('./utils/index')
-const { Chain } = require('./commands')
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
+const utils = requireEsm('./utils/index')
+const { Chain } = requireEsm('./commands')
 
 // # Initialize `options`
 program
@@ -43,7 +43,7 @@ program
 program
   .command('top')
   .description('Get top of Chain')
-  .action(async (...arguments) => await Chain.top(utils.cli.getCmdFromArguments(arguments)))
+  .action(async (...args) => await Chain.top(utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `status` command
 //
@@ -53,7 +53,7 @@ program
 program
   .command('status')
   .description('Get node version')
-  .action(async (...arguments) => await Chain.version(utils.cli.getCmdFromArguments(arguments)))
+  .action(async (...args) => await Chain.version(utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `ttl` command
 //
@@ -63,7 +63,7 @@ program
 program
   .command('ttl <absoluteTtl>')
   .description('Get relative ttl')
-  .action(async (absoluteTtl, ...arguments) => await Chain.ttl(absoluteTtl, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (absoluteTtl, ...args) => await Chain.ttl(absoluteTtl, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `ttl` command
 //
@@ -73,7 +73,7 @@ program
 program
   .command('network_id')
   .description('Get network ID')
-  .action(async (...arguments) => await Chain.getNetworkId(utils.cli.getCmdFromArguments(arguments)))
+  .action(async (...args) => await Chain.getNetworkId(utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `play` command
 //
@@ -86,7 +86,7 @@ program
   .command('play')
   .option('-P --height [playToHeight]', 'Play to selected height')
   .description('Real-time block monitoring')
-  .action(async (...arguments) => await Chain.play(utils.cli.getCmdFromArguments(arguments)))
+  .action(async (...args) => await Chain.play(utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `broadcast` command
 //
@@ -98,12 +98,7 @@ program
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .option('--verify', 'Verify Transaction before broadcast.')
   .description('Send transaction to the chain')
-  .action(async (tx, ...arguments) => await Chain.broadcast(tx, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (tx, ...args) => await Chain.broadcast(tx, utils.cli.getCmdFromArguments(args)))
 
-
-// Handle unknown command's
-program.on('command:*', () => utils.errors.unknownCommandHandler(program)())
-
-// Parse arguments or show `help` if argument's is empty
+// Parse arguments
 program.parse(process.argv)
-if (program.args.length === 0) program.help()

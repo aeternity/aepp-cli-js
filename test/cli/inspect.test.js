@@ -16,10 +16,10 @@
  */
 
 import fs from 'fs'
-import { describe, it } from 'mocha'
+import { before, describe, it } from 'mocha'
 
-import { configure, BaseAe, execute, parseBlock, KEY_PAIR, ready } from './index'
-import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import { configure, execute, parseBlock, KEY_PAIR, ready } from './index'
+import { Crypto } from '@aeternity/aepp-sdk'
 
 // CONTRACT DESCRIPTOR
 const contractDescriptor = {
@@ -47,7 +47,7 @@ describe('CLI Inspect Module', function () {
     isEqual.should.equal(true)
   })
   it('Inspect Transaction', async () => {
-    const recipient = (generateKeyPair()).publicKey
+    const recipient = (Crypto.generateKeyPair()).publicKey
     const amount = 420
     // Create transaction to inspect
     const { hash } = await wallet.spend(amount, recipient)
@@ -70,7 +70,6 @@ describe('CLI Inspect Module', function () {
   })
   it.skip('Inspect Deploy', async () => {
     const fileName = 'test.deploy.json'
-    const wallet = await BaseAe()
 
     // create contract descriptor file
     fs.writeFileSync(fileName, JSON.stringify(contractDescriptor))
@@ -78,7 +77,6 @@ describe('CLI Inspect Module', function () {
     const descriptor = parseBlock(await execute(['inspect', 'deploy', fileName]))
     // remove contract descriptor file
     fs.unlinkSync(fileName)
-    // const transaction = await wallet.tx(descriptor.transaction)
     descriptor.source.should.equal(contractDescriptor.source)
     descriptor.bytecode.should.equal(contractDescriptor.bytecode)
     descriptor.address.should.equal(contractDescriptor.address)
@@ -91,7 +89,7 @@ describe('CLI Inspect Module', function () {
   it('Inspect Name', async () => {
     const invalidName = await execute(['inspect', 'asd', '--json'])
     const validName = JSON.parse(await execute(['inspect', 'nazdou2222222.chain', '--json']))
-    invalidName.indexOf('AENS: Invalid name domain').should.not.equal(-1)
+    invalidName.should.contain('Name should end with .chain')
     validName.status.should.be.equal('AVAILABLE')
   })
 })

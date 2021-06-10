@@ -17,11 +17,8 @@
 // # Utils `errors` Module
 // That script contains helper function for error handling
 
-import { printError, print } from './print'
-import { exit, isExecCommand } from './cli'
-
-// ## `API` errors logger
-export function logApiError (error) { printError('API ERROR: ', error) }
+import { printError } from './print'
+import { exit } from './cli'
 
 // ## `API` errors handler
 export async function handleApiError (fn) {
@@ -29,19 +26,7 @@ export async function handleApiError (fn) {
     return await fn()
   } catch (e) {
     const response = e.response
-    logApiError(response && response.data ? response.data.reason : e)
+    printError('API ERROR: ', response && response.data ? response.data.reason : e)
     exit(1)
-  }
-}
-
-// ## `COMMANDER` unknown commands handler
-export function unknownCommandHandler (program) {
-  return (execCommands = []) => {
-    const cmd = program.args[0]
-
-    if (isExecCommand(cmd, execCommands)) return
-
-    print('Invalid command: %s\nSee --help for a list of available commands.', cmd)
-    program.help()
   }
 }

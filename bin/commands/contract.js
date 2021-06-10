@@ -19,14 +19,12 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import * as R from 'ramda'
 import path from 'path'
-
-import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
+import * as R from 'ramda'
 import { exit, initClientByWalletFile, initCompiler } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
-import { printError, print, logContractDescriptor, printTransaction, printUnderscored } from '../utils/print'
-import { COMPILER_BACKEND } from '../utils/constant'
+import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
+import { logContractDescriptor, print, printError, printTransaction, printUnderscored } from '../utils/print'
 
 // ## Function which compile your `source` code
 export async function compile (file, options) {
@@ -75,26 +73,6 @@ export async function encodeData (source, fn, args = [], options) {
 }
 
 // ## Function which compile your `source` code
-export async function decodeData (data, type, options) {
-  try {
-    const client = await initCompiler(options)
-
-    await handleApiError(async () => {
-      // Call `node` API which return `compiled code`
-      const decodedData = await client.contractDecodeDataAPI(type, data)
-      if (options.json) {
-        print(JSON.stringify({ decodedData }))
-      } else {
-        print('Contract bytecode:')
-        print(decodedData)
-      }
-    })
-  } catch (e) {
-    printError(e.message)
-  }
-}
-
-// ## Function which compile your `source` code
 export async function decodeCallData (data, options) {
   const { sourcePath, code, fn, backend } = options
   let sourceCode
@@ -130,8 +108,8 @@ export async function decodeCallData (data, options) {
 }
 
 // ## Function which `deploy ` contract
-async function deploy (walletPath, contractPath, callData = "", options) {
-  const { json, gas, gasPrince, backend = COMPILER_BACKEND, ttl, nonce, fee } = options
+async function deploy (walletPath, contractPath, callData = '', options) {
+  const { json, gas, gasPrice, ttl, nonce, fee } = options
   // Deploy a contract to the chain and create a deploy descriptor
   // with the contract informations that can be use to invoke the contract
   // later on.
@@ -147,8 +125,8 @@ async function deploy (walletPath, contractPath, callData = "", options) {
     await handleApiError(
       async () => {
         const ownerId = await client.address()
-        const { bytecode: code } = await client.contractCompile(contractFile, { backend })
-        const opt = R.merge(client.Ae.defaults, { gas, gasPrince, backend, ttl, nonce, fee })
+        const { bytecode: code } = await client.contractCompile(contractFile)
+        const opt = R.merge(client.Ae.defaults, { gas, gasPrice, ttl, nonce, fee })
 
         // Prepare contract create transaction
         const { tx, contractId } = await client.contractCreateTx(R.merge(opt, {
@@ -199,10 +177,6 @@ async function deploy (walletPath, contractPath, callData = "", options) {
 // ## Function which `call` contract
 async function call (walletPath, fn, args, options) {
   const { callStatic, json, top } = options
-  if (!fn) {
-    program.outputHelp()
-    exit(1)
-  }
   try {
     // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
@@ -213,7 +187,7 @@ async function call (walletPath, fn, args, options) {
         // Call static or call
         const contract = await client.getContractInstance(params.source, { contractAddress: params.address })
         const callResult = await contract.call(fn, args, { ...params.options, callStatic, top })
-        // The execution result, if successful, will be an AEVM-encoded result
+        // The execution result, if successful, will be an FATE-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will
         // not be a hexadecimal string, anymore.
         json && print(callResult)
@@ -228,7 +202,6 @@ async function call (walletPath, fn, args, options) {
           const decoded = await callResult.decode()
           printUnderscored('Return value (decoded)', decoded)
         }
-
       }
     )
   } catch (e) {
@@ -242,6 +215,5 @@ export const Contract = {
   deploy,
   call,
   encodeData,
-  decodeData,
   decodeCallData
 }

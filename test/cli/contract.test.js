@@ -16,34 +16,33 @@
  */
 
 import fs from 'fs'
-import { before, describe, it } from 'mocha'
-
-import { configure, plan, ready, WALLET_NAME, execute as exec, parseBlock, KEY_PAIR } from './index'
+import { after, before, describe, it } from 'mocha'
+import { configure, execute as exec, KEY_PAIR, plan, ready, WALLET_NAME } from './index'
 
 // CONTRACT SOURCE
-const testContract = `contract Identity =
-  entrypoint main(x : int, y: int) = x + y
+const testContract = `
+@compiler >= 6
+
+contract Identity =
+  entrypoint test(x : int, y: int) = x + y
 `
 
-const encodedNumber3 = 'cb_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPJ9AW0'
-const CALL_DATA = 'cb_KxG4F37sKwIEFmEjaA=='
-const DECODED_CALL_DATA = { arguments: [{ type: 'int', value: 1 }, { type: 'int', value: 2 }], function: 'main' }
+const CALL_DATA = 'cb_KxGSiyA2KwIEFfUrtQ=='
+const DECODED_CALL_DATA = { arguments: [{ type: 'int', value: 1 }, { type: 'int', value: 2 }], function: 'test' }
 
 plan(1000000000)
 
 describe('CLI Contract Module', function () {
   configure(this)
   const contractFile = 'testContract'
-  let deployDescriptor
-  let wallet
-  let bytecode
-  let cAddress
+  let deployDescriptor, wallet, bytecode, cAddress
 
   before(async function () {
     // Spend tokens for wallet
     fs.writeFileSync(contractFile, testContract)
     wallet = await ready(this)
   })
+
   after(function () {
     // Remove wallet files
     if (fs.existsSync(WALLET_NAME)) { fs.unlinkSync(WALLET_NAME) }
@@ -57,27 +56,22 @@ describe('CLI Contract Module', function () {
   it('Compile Contract', async () => {
     // Create contract file
     // Compile contract
-    const compiled = await wallet.contractCompile(testContract)
+    const compiled = await wallet.contractCompile(testContract).catch(console.error)
     const compiledCLI = (await exec(['contract', 'compile', contractFile]))
     const bytecodeCLI = compiledCLI.split(':')[1].trim()
     bytecode = compiled.bytecode
 
-    bytecodeCLI.should.equal(compiled.bytecode)
+    bytecodeCLI.should.be.equal(compiled.bytecode)
   })
 
   it('Encode callData', async () => {
-    const { callData } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'main', '1', '2', '--json']))
+    const { callData } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'test', '1', '2', '--json']))
     callData.should.be.equal(CALL_DATA)
   })
 
   it('Decode callData', async () => {
     const { decoded } = JSON.parse(await exec(['contract', 'decodeCallData', CALL_DATA, '--code', bytecode, '--json']))
     return Promise.resolve(decoded).should.eventually.become(DECODED_CALL_DATA)
-  })
-
-  it('Decode Data', async () => {
-    const { decodedData } = JSON.parse(await exec(['contract', 'decodeData', encodedNumber3, 'int', '--json']))
-    decodedData.value.should.be.equal(3)
   })
 
   it('Deploy Contract', async () => {
@@ -92,38 +86,37 @@ describe('CLI Contract Module', function () {
     deployDescriptor = descPath
     const [name, pref, add] = deployDescriptor.split('.')
     cAddress = contractId
-    contractId.should.be.ok
-    transaction.should.be.ok
-    name.should.equal(contractFile)
-    pref.should.equal('deploy')
-    add.should.equal(KEY_PAIR.publicKey.split('_')[1])
+    contractId.should.be.a('string')
+    transaction.should.be.a('string')
+    name.should.be.equal(contractFile)
+    pref.should.be.equal('deploy')
+    add.should.be.equal(KEY_PAIR.publicKey.split('_')[1])
   })
 
   it('Call Contract by descriptor', async () => {
     // Call contract
-    const res = await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'main', '1', '2'])
+    const res = await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2'])
     const callResponse = JSON.parse(res)
-    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
-    callResponse.decodedResult.should.equal(3)
+    callResponse.result.returnValue.should.contain('cb_')
+    callResponse.decodedResult.should.be.equal(3)
   })
+
   it('Call Contract static by descriptor', async () => {
     // Call contract
-    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'main', '1', '2', '--callStatic'])))
-    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
+    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2', '--callStatic'])))
+    callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.equal(3)
   })
+
   it('Call Contract by contract address', async () => {
-    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'main', '1', '2'])))
-    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
+    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'test', '1', '2'])))
+    callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.equal(3)
   })
+
   it('Call Contract static by contract address', async () => {
-    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'main', '1', '2', '--callStatic'])))
-    const isValid = callResponse.result.returnValue.indexOf('cb_') !== -1
-    isValid.should.be.equal(true)
+    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'test', '1', '2', '--callStatic'])))
+    callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.equal(3)
   })
 })

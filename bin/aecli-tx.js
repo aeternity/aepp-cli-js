@@ -23,9 +23,9 @@
 // Also we need `esm` package to handle `ES imports`
 const program = require('commander')
 
-require = require('esm')(module/*, options*/) //use to handle es6 import/export
-const utils = require('./utils/index')
-const { Transaction } = require('./commands')
+const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
+const utils = requireEsm('./utils/index')
+const { Transaction } = requireEsm('./commands')
 
 // ## Initialize `options`
 program
@@ -46,7 +46,7 @@ program
   .command('spend <senderId> <recieverId> <amount> <nonce>')
   .option('--payload [payload]', 'Transaction payload.', '')
   .description('Build Spend Transaction')
-  .action(async (senderId, receiverId, amount, nonce, ...arguments) => await Transaction.spend(senderId, receiverId, amount, nonce, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (senderId, receiverId, amount, nonce, ...args) => await Transaction.spend(senderId, receiverId, amount, nonce, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `name-preclaim` command
 //
@@ -56,7 +56,7 @@ program
 program
   .command('name-preclaim <accountId> <domain> <nonce>')
   .description('Build name preclaim transaction.')
-  .action(async (accountId, domain, nonce, ...arguments) => await Transaction.namePreClaim(accountId, domain, nonce, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, domain, nonce, ...args) => await Transaction.namePreClaim(accountId, domain, nonce, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `name-update` command
 //
@@ -70,7 +70,7 @@ program
   .option('--nameTtl [nameTtl]', 'Validity of name.', utils.constant.NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
   .description('Build name update transaction.')
-  .action(async (accountId, domain, nonce, pointers, ...arguments) => await Transaction.nameUpdate(accountId, domain, nonce, pointers, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, domain, nonce, pointers, ...args) => await Transaction.nameUpdate(accountId, domain, nonce, pointers, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `name-claim` command
 //
@@ -83,7 +83,7 @@ program
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--nameFee [nameFee]', 'Name fee.', utils.constant.NAME_FEE)
   .description('Build name claim transaction.')
-  .action(async (accountId, salt, domain, nonce, ...arguments) => await Transaction.nameClaim(accountId, salt, domain, nonce, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, salt, domain, nonce, ...args) => await Transaction.nameClaim(accountId, salt, domain, nonce, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `name-transfer` command
 //
@@ -95,7 +95,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build name tansfer transaction.')
-  .action(async (accountId, transferId, domain, nonce, ...arguments) => await Transaction.nameTransfer(accountId, transferId, domain, nonce, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, transferId, domain, nonce, ...args) => await Transaction.nameTransfer(accountId, transferId, domain, nonce, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `name-revoke` command
 //
@@ -107,8 +107,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build name revoke transaction.')
-  .action(async (accountId, domain, nonce, ...arguments) => await Transaction.nameRevoke(accountId, domain, nonce, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (accountId, domain, nonce, ...args) => await Transaction.nameRevoke(accountId, domain, nonce, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `contract-deploy` command
 //
@@ -123,9 +122,8 @@ program
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS_PRICE)
   .option('--amount [amount]', 'Amount', utils.constant.AMOUNT)
   .option('--deposit [deposit]', 'Deposit', utils.constant.DEPOSIT)
-  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Build contract create transaction.')
-  .action(async (ownerId, contractBytecode, initCallData, nonce, ...arguments) => await Transaction.contractDeploy(ownerId, contractBytecode, initCallData, nonce, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (ownerId, contractBytecode, initCallData, nonce, ...args) => await Transaction.contractDeploy(ownerId, contractBytecode, initCallData, nonce, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `contract-call` command
 //
@@ -139,10 +137,8 @@ program
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS_PRICE)
   .option('--amount [amount]', 'Amount', utils.constant.AMOUNT)
-  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Build contract create transaction.')
-  .action(async (callerId, contractId, callData, nonce, ...arguments) => await Transaction.contractCall(callerId, contractId, callData, nonce, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (callerId, contractId, callData, nonce, ...args) => await Transaction.contractCall(callerId, contractId, callData, nonce, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `oracle-register` command
 //
@@ -156,8 +152,7 @@ program
   .option('--queryFee [queryFee]', 'Oracle Query fee.', utils.constant.QUERY_FEE)
   .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.ORACLE_TTL.value)
   .description('Build oracle register transaction.')
-  .action(async (accountId, queryFormat, responseFormat, nonce, ...arguments) => await Transaction.oracleRegister(accountId, queryFormat, responseFormat, nonce, utils.cli.getCmdFromArguments(arguments)))
-
+  .action(async (accountId, queryFormat, responseFormat, nonce, ...args) => await Transaction.oracleRegister(accountId, queryFormat, responseFormat, nonce, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `oracle-post-query` command
 //
@@ -172,7 +167,7 @@ program
   .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.QUERY_TTL.value)
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.RESPONSE_TTL)
   .description('Build oracle post query transaction.')
-  .action(async (accountId, oracleId, query, nonce, ...arguments) => await Transaction.oraclePostQuery(accountId, oracleId, query, nonce, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (accountId, oracleId, query, nonce, ...args) => await Transaction.oraclePostQuery(accountId, oracleId, query, nonce, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `oracle-extend` command
 //
@@ -184,7 +179,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', utils.constant.TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build oracle extend transaction.')
-  .action(async (callerId, oracleId, oracleTtl, nonce, ...arguments) => await Transaction.oracleExtend(callerId, oracleId, oracleTtl, nonce, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (callerId, oracleId, oracleTtl, nonce, ...args) => await Transaction.oracleExtend(callerId, oracleId, oracleTtl, nonce, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `oracle-respond` command
 //
@@ -197,7 +192,7 @@ program
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', utils.constant.RESPONSE_TTL)
   .description('Build oracle extend transaction.')
-  .action(async (callerId, oracleId, queryId, response, nonce, ...arguments) => await Transaction.oracleRespond(callerId, oracleId, queryId, response, nonce, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (callerId, oracleId, queryId, response, nonce, ...args) => await Transaction.oracleRespond(callerId, oracleId, queryId, response, nonce, utils.cli.getCmdFromArguments(args)))
 
 // ## Initialize `verify` command
 //
@@ -208,12 +203,7 @@ program
   .command('verify <tx>')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .description('Verify transaction')
-  .action(async (tx, ...arguments) => await Transaction.verify(tx, utils.cli.getCmdFromArguments(arguments)))
+  .action(async (tx, ...args) => await Transaction.verify(tx, utils.cli.getCmdFromArguments(args)))
 
-
-// Handle unknown command's
-program.on('command:*', () => utils.errors.unknownCommandHandler(program)())
-
-// Parse arguments or show `help` if argument's is empty
+// Parse arguments
 program.parse(process.argv)
-if (program.args.length === 0) program.help()

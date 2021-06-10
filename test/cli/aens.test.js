@@ -15,11 +15,17 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
+import { Crypto } from '@aeternity/aepp-sdk'
 import { before, describe, it } from 'mocha'
-
-import { configure, plan, ready, execute as exec, WALLET_NAME, randomString } from './index'
-import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
-import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
+import {
+  configure,
+  execute as exec,
+  genAccount,
+  plan,
+  randomString,
+  ready,
+  WALLET_NAME
+} from './index'
 
 plan(10000000000000)
 
@@ -31,14 +37,8 @@ function randomName (length, namespace = '.chain') {
 
 describe('CLI AENS Module', function () {
   configure(this)
-  const { publicKey } = generateKeyPair()
-  let wallet
-  let nameAuctionsSupported
-  let name
-  let name2
-  let name3
-  let name4
-  let salt
+  const { publicKey } = Crypto.generateKeyPair()
+  let wallet, nameAuctionsSupported, name, name2, name3, name4, salt
 
   before(async function () {
     // Spend tokens for wallet
@@ -46,7 +46,7 @@ describe('CLI AENS Module', function () {
       wallet = await ready(this)
       const { version } = wallet.getNodeInfo()
       const [majorVersion] = version.split('.')
-      nameAuctionsSupported = +majorVersion === 5 && version !== '5.0.0-rc.1'
+      nameAuctionsSupported = +majorVersion === 6 && version !== '5.0.0-rc.1'
       name = randomName(12, nameAuctionsSupported ? '.chain' : '.test')
       name2 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
       name3 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
@@ -57,15 +57,42 @@ describe('CLI AENS Module', function () {
   })
 
   it('Full claim', async () => {
-    const updateTx = JSON.parse(await execute(['name', 'full-claim', WALLET_NAME, '--password', 'test', name3, '--json']))
+    const updateTx = JSON.parse(
+      await execute([
+        'name',
+        'full-claim',
+        WALLET_NAME,
+        '--password',
+        'test',
+        name3,
+        '--json'
+      ])
+    )
     const address = await wallet.address()
 
     updateTx.blockHeight.should.be.gt(0)
     const isUpdated = !!updateTx.pointers.find(({ id }) => id === address)
     isUpdated.should.be.equal(true)
   })
+
   it('Full claim with options', async () => {
-    const updateTx = JSON.parse(await execute(['name', 'full-claim', WALLET_NAME, '--password', 'test', name4, '--json', '--nameTtl', 50, '--nameFee', '3865700000000000000', '--clientTtl', 50]))
+    const updateTx = JSON.parse(
+      await execute([
+        'name',
+        'full-claim',
+        WALLET_NAME,
+        '--password',
+        'test',
+        name4,
+        '--json',
+        '--nameTtl',
+        50,
+        '--nameFee',
+        '3865700000000000000',
+        '--clientTtl',
+        50
+      ])
+    )
     const address = await wallet.address()
 
     updateTx.blockHeight.should.be.gt(0)
@@ -76,93 +103,228 @@ describe('CLI AENS Module', function () {
   })
 
   it('Pre Claim Name', async () => {
-    const preClaim = JSON.parse(await execute(['name', 'pre-claim', WALLET_NAME, '--password', 'test', name2, '--json']))
-    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const preClaim = JSON.parse(
+      await execute([
+        'name',
+        'pre-claim',
+        WALLET_NAME,
+        '--password',
+        'test',
+        name2,
+        '--json'
+      ])
+    )
+    const nameResult = JSON.parse(await exec(['inspect', name2, '--json']))
     salt = preClaim.salt
 
     preClaim.blockHeight.should.be.gt(0)
     preClaim.salt.should.be.a('number')
-    preClaim.commitmentId.indexOf('cm').should.not.be.equal(-1)
+    preClaim.commitmentId.should.contain('cm')
     nameResult.name.should.be.equal(name2)
     nameResult.status.should.equal('AVAILABLE')
   })
 
   it('Claim Name', async () => {
-    const claim = JSON.parse(await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name2, salt, '--json']))
-    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const claim = JSON.parse(
+      await execute([
+        'name',
+        'claim',
+        WALLET_NAME,
+        '--password',
+        'test',
+        name2,
+        salt,
+        '--json'
+      ])
+    )
+    const nameResult = JSON.parse(await exec(['inspect', name2, '--json']))
 
     claim.blockHeight.should.be.gt(0)
     claim.pointers.length.should.be.equal(0)
     nameResult.status.should.equal('CLAIMED')
   })
+
   it('Update Name', async () => {
-    const updateTx = JSON.parse(await execute(['name', 'update', WALLET_NAME, name2, publicKey, '--password', 'test', '--json']))
-    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const updateTx = JSON.parse(
+      await execute([
+        'name',
+        'update',
+        WALLET_NAME,
+        name2,
+        publicKey,
+        '--password',
+        'test',
+        '--json'
+      ])
+    )
+    const nameResult = JSON.parse(await exec(['inspect', name2, '--json']))
 
     updateTx.blockHeight.should.be.gt(0)
-    const isUpdatedNode = !!nameResult.pointers.find(({ id }) => id === publicKey)
+    const isUpdatedNode = !!nameResult.pointers.find(
+      ({ id }) => id === publicKey
+    )
     isUpdatedNode.should.be.equal(true)
     nameResult.status.should.equal('CLAIMED')
   })
+
   it('extend name ttl', async () => {
     const height = await wallet.height()
-    const extendTx = JSON.parse(await execute(['name', 'extend', WALLET_NAME, name2, 50, '--password', 'test', '--json']))
-    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
-    const isExtended = (nameResult.ttl - 50) >= height
+    const extendTx = JSON.parse(
+      await execute([
+        'name',
+        'extend',
+        WALLET_NAME,
+        name2,
+        50,
+        '--password',
+        'test',
+        '--json'
+      ])
+    )
+
+    const nameResult = JSON.parse(await exec(['inspect', name2, '--json']))
+    const isExtended = nameResult.ttl - 50 >= height
     isExtended.should.be.equal(true)
     extendTx.blockHeight.should.be.gt(0)
     nameResult.status.should.equal('CLAIMED')
   })
+
   it('Fail spend by name on invalid input', async () => {
     const amount = 100000009
-    const error = await execute(['account', 'spend', WALLET_NAME, '--password', 'test', 'sdasdaasdas', amount, '--json'])
-    error.indexOf('AENS: Invalid name domain').should.not.be.equal(-1)
+    await execute([
+      'account',
+      'spend',
+      WALLET_NAME,
+      '--password',
+      'test',
+      'sdasdaasdas',
+      amount,
+      '--json'
+    ]).should.be.rejectedWith('Invalid name or address')
   })
+
   it('Spend by name', async () => {
     const amount = 100000009
-    const spendTx = JSON.parse(await execute(['account', 'spend', WALLET_NAME, '--password', 'test', name2, amount, '--json']))
+    const spendTx = JSON.parse(
+      await execute([
+        'account',
+        'spend',
+        WALLET_NAME,
+        '--password',
+        'test',
+        name2,
+        amount,
+        '--json'
+      ])
+    )
+
     const nameObject = await wallet.aensQuery(name2)
     spendTx.tx.tx.recipientId.should.be.equal(nameObject.id)
     const balance = await wallet.getBalance(publicKey)
     balance.should.be.equal(`${amount}`)
   })
-  it('Transfer name', async () => {
-    const keypair = generateKeyPair()
-    await wallet.addAccount(MemoryAccount({ keypair }))
 
-    const transferTx = JSON.parse(await execute(['name', 'transfer', WALLET_NAME, name2, keypair.publicKey, '--password', 'test', '--json']))
+  it('Transfer name', async () => {
+    const account = genAccount()
+    await wallet.addAccount(account)
+
+    const transferTx = JSON.parse(
+      await execute([
+        'name',
+        'transfer',
+        WALLET_NAME,
+        name2,
+        await account.address(),
+        '--password',
+        'test',
+        '--json'
+      ])
+    )
+
     transferTx.blockHeight.should.be.gt(0)
-    await wallet.spend(1, keypair.publicKey, { denomination: 'ae' })
+    await wallet.spend(1, await account.address(), { denomination: 'ae' })
     const claim2 = await wallet.aensQuery(name2)
-    const transferBack = await claim2.transfer(await wallet.address(), { onAccount: keypair.publicKey })
+    const transferBack = await claim2.transfer(await wallet.address(), {
+      onAccount: await account.address()
+    })
     transferBack.blockHeight.should.be.gt(0)
   })
+
   it('Revoke Name', async () => {
-    const revoke = JSON.parse(await execute(['name', 'revoke', WALLET_NAME, '--password', 'test', name2, '--json']))
-    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const revoke = JSON.parse(
+      await execute([
+        'name',
+        'revoke',
+        WALLET_NAME,
+        '--password',
+        'test',
+        name2,
+        '--json'
+      ])
+    )
+
+    const nameResult = JSON.parse(await exec(['inspect', name2, '--json']))
 
     revoke.blockHeight.should.be.gt(0)
     nameResult.status.should.equal('AVAILABLE')
   })
+
   describe('Name Auction', () => {
     const nameFee = '3665700000000000000'
+
     it('Open auction', async () => {
-      const account = MemoryAccount({ keypair: generateKeyPair() })
+      const account = genAccount()
       await wallet.addAccount(account)
       await wallet.spend('30000000000000000000000', await account.address())
-      const preclaim = await wallet.aensPreclaim(name, { onAccount: await account.address() })
-      const claim = await preclaim.claim({ onAccount: await account.address() })
+      const preclaim = await wallet.aensPreclaim(name, {
+        onAccount: await account.address()
+      })
+      const claim = await preclaim.claim({
+        onAccount: await account.address()
+      })
       claim.blockHeight.should.be.gt(0)
     })
+
     it('Make bid', async () => {
-      const bid = JSON.parse(await execute(['name', 'bid', WALLET_NAME, '--password', 'test', name, nameFee, '--json']))
+      const bid = JSON.parse(
+        await execute([
+          'name',
+          'bid',
+          WALLET_NAME,
+          '--password',
+          'test',
+          name,
+          nameFee,
+          '--json'
+        ])
+      )
+
       bid.tx.nameSalt.should.be.equal(0)
       bid.tx.nameFee.should.be.equal(nameFee)
     })
+
     it('Fail on open  again', async () => {
-      const preClaim = JSON.parse(await execute(['name', 'pre-claim', WALLET_NAME, '--password', 'test', name, '--json']))
-      const claim = await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name, preClaim.salt, '--json'])
-      claim.indexOf('Giving up after 10 blocks mined').should.not.be.equal(-1)
+      const preClaim = JSON.parse(
+        await execute([
+          'name',
+          'pre-claim',
+          WALLET_NAME,
+          '--password',
+          'test',
+          name,
+          '--json'
+        ])
+      )
+      await execute([
+        'name',
+        'claim',
+        WALLET_NAME,
+        '--password',
+        'test',
+        name,
+        preClaim.salt,
+        '--json'
+      ]).should.be.rejectedWith('Giving up after 10 blocks mined')
     })
   })
 })
