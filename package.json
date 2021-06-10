@@ -25,6 +25,7 @@
     "babel-plugin-ramda": "^2.0.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
+    "conventional-changelog-cli": "^2.1.1",
     "cz-conventional-changelog": "^3.3.0",
     "docco": "^0.8.1",
     "mocha": "^8.4.0",
