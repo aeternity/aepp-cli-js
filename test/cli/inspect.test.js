@@ -41,10 +41,10 @@ describe('CLI Inspect Module', function () {
     wallet = await ready(this)
   })
   it('Inspect Account', async () => {
-    const balance = await wallet.balance(KEY_PAIR.publicKey, { format: false })
-    const { account_balance } = parseBlock(await execute(['inspect', KEY_PAIR.publicKey]))
-
-    balance.should.equal(account_balance)
+    const balance = await wallet.balance(KEY_PAIR.publicKey)
+    const { balance: cliBalance } = JSON.parse(await execute(['inspect', KEY_PAIR.publicKey, '--json']))
+    const isEqual = `${balance}` === `${cliBalance}`
+    isEqual.should.equal(true)
   })
   it('Inspect Transaction', async () => {
     const recipient = (generateKeyPair()).publicKey
@@ -52,22 +52,21 @@ describe('CLI Inspect Module', function () {
     // Create transaction to inspect
     const { hash } = await wallet.spend(amount, recipient)
 
-    const res = parseBlock(await execute(['inspect', hash]))
-    res.recipient_account.should.equal(recipient)
-    res.sender_account.should.equal(KEY_PAIR.publicKey)
-    parseInt(res.amount).should.equal(amount)
+    const res = JSON.parse(await execute(['inspect', hash, '--json']))
+    res.tx.recipientId.should.equal(recipient)
+    res.tx.senderId.should.be.equal(KEY_PAIR.publicKey)
+    res.tx.amount.should.equal(amount)
   })
   it('Inspect Block', async () => {
-    const top = parseBlock(await execute(['chain', 'top']))
-    const inspectRes = parseBlock(await execute(['inspect', top.block_hash]))
-
-    top.block_hash.should.equal(inspectRes.block_hash)
+    const top = JSON.parse(await execute(['chain', 'top', '--json']))
+    const inspectRes = JSON.parse(await execute(['inspect', top.hash, '--json']))
+    top.hash.should.equal(inspectRes.hash)
   })
   it('Inspect Height', async () => {
-    const top = parseBlock(await execute(['chain', 'top']))
-    const inspectRes = parseBlock(await execute(['inspect', top.block_height]))
+    const top = JSON.parse(await execute(['chain', 'top', '--json']))
+    const inspectRes = JSON.parse(await execute(['inspect', top.hash, '--json']))
 
-    top.block_height.should.equal(inspectRes.block_height)
+    top.hash.should.equal(inspectRes.hash)
   })
   it.skip('Inspect Deploy', async () => {
     const fileName = 'test.deploy.json'
@@ -90,9 +89,9 @@ describe('CLI Inspect Module', function () {
     descriptor.api_error.should.equal('Transaction not found')
   })
   it('Inspect Name', async () => {
-    const invalidName = await execute(['inspect', 'asd'])
-    const validName = await execute(['inspect', 'nazdou2222222.aet'])
-    invalidName.indexOf('AENS TLDs must end in .test').should.not.equal(-1)
-    validName.indexOf('AVAILABLE').should.not.equal(-1)
+    const invalidName = await execute(['inspect', 'asd', '--json'])
+    const validName = JSON.parse(await execute(['inspect', 'nazdou2222222.chain', '--json']))
+    invalidName.indexOf('AENS: Invalid name domain').should.not.equal(-1)
+    validName.status.should.be.equal('AVAILABLE')
   })
 })

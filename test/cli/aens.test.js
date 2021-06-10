@@ -17,59 +17,152 @@
 
 import { before, describe, it } from 'mocha'
 
-import { configure, plan, ready, execute as exec, parseBlock, WALLET_NAME } from './index'
+import { configure, plan, ready, execute as exec, WALLET_NAME, randomString } from './index'
 import { generateKeyPair } from '@aeternity/aepp-sdk/es/utils/crypto'
+import MemoryAccount from '@aeternity/aepp-sdk/es/account/memory'
 
-plan(1000000000)
+plan(10000000000000)
 
 const execute = (arg) => exec(arg, { withNetworkId: true })
-function randomName () {
-  return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(36) + '.test'
+
+function randomName (length, namespace = '.chain') {
+  return randomString(length).toLowerCase() + namespace
 }
 
-describe.skip('CLI AENS Module', function () {
+describe('CLI AENS Module', function () {
   configure(this)
-  const name = randomName()
+  const { publicKey } = generateKeyPair()
   let wallet
+  let nameAuctionsSupported
+  let name
+  let name2
+  let name3
+  let name4
+  let salt
 
   before(async function () {
     // Spend tokens for wallet
     try {
       wallet = await ready(this)
+      const { version } = wallet.getNodeInfo()
+      const [majorVersion] = version.split('.')
+      nameAuctionsSupported = +majorVersion === 5 && version !== '5.0.0-rc.1'
+      name = randomName(12, nameAuctionsSupported ? '.chain' : '.test')
+      name2 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
+      name3 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
+      name4 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
     } catch (e) {
       console.log(e.toString())
     }
   })
 
+  it('Full claim', async () => {
+    const updateTx = JSON.parse(await execute(['name', 'full-claim', WALLET_NAME, '--password', 'test', name3, '--json']))
+    const address = await wallet.address()
+
+    updateTx.blockHeight.should.be.gt(0)
+    const isUpdated = !!updateTx.pointers.find(({ id }) => id === address)
+    isUpdated.should.be.equal(true)
+  })
+  it('Full claim with options', async () => {
+    const updateTx = JSON.parse(await execute(['name', 'full-claim', WALLET_NAME, '--password', 'test', name4, '--json', '--nameTtl', 50, '--nameFee', '3865700000000000000', '--clientTtl', 50]))
+    const address = await wallet.address()
+
+    updateTx.blockHeight.should.be.gt(0)
+    updateTx.tx.nameTtl.should.be.equal(50)
+    updateTx.tx.clientTtl.should.be.equal(50)
+    const isUpdated = !!updateTx.pointers.find(({ id }) => id === address)
+    isUpdated.should.be.equal(true)
+  })
+
+  it('Pre Claim Name', async () => {
+    const preClaim = JSON.parse(await execute(['name', 'pre-claim', WALLET_NAME, '--password', 'test', name2, '--json']))
+    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    salt = preClaim.salt
+
+    preClaim.blockHeight.should.be.gt(0)
+    preClaim.salt.should.be.a('number')
+    preClaim.commitmentId.indexOf('cm').should.not.be.equal(-1)
+    nameResult.name.should.be.equal(name2)
+    nameResult.status.should.equal('AVAILABLE')
+  })
+
   it('Claim Name', async () => {
-    await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name])
+    const claim = JSON.parse(await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name2, salt, '--json']))
+    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
 
-    const nameResult = parseBlock(await execute(['inspect', name]))
-    const isHash = nameResult.name_hash !== 'N/A'
-
+    claim.blockHeight.should.be.gt(0)
+    claim.pointers.length.should.be.equal(0)
     nameResult.status.should.equal('CLAIMED')
-    isHash.should.equal(true)
   })
   it('Update Name', async () => {
-    const { publicKey } = generateKeyPair()
-    await execute(['name', 'update', WALLET_NAME, '--password', 'test', name, publicKey])
+    const updateTx = JSON.parse(await execute(['name', 'update', WALLET_NAME, name2, publicKey, '--password', 'test', '--json']))
+    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
 
-    const nameResult = parseBlock(await execute(['inspect', name]))
-    const isHaveUpdatedPointer = !!(JSON.parse(nameResult.pointers).find(p => p.id === publicKey))
-
+    updateTx.blockHeight.should.be.gt(0)
+    const isUpdatedNode = !!nameResult.pointers.find(({ id }) => id === publicKey)
+    isUpdatedNode.should.be.equal(true)
     nameResult.status.should.equal('CLAIMED')
-    isHaveUpdatedPointer.should.equal(true)
+  })
+  it('extend name ttl', async () => {
+    const height = await wallet.height()
+    const extendTx = JSON.parse(await execute(['name', 'extend', WALLET_NAME, name2, 50, '--password', 'test', '--json']))
+    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
+    const isExtended = (nameResult.ttl - 50) >= height
+    isExtended.should.be.equal(true)
+    extendTx.blockHeight.should.be.gt(0)
+    nameResult.status.should.equal('CLAIMED')
+  })
+  it('Fail spend by name on invalid input', async () => {
+    const amount = 100000009
+    const error = await execute(['account', 'spend', WALLET_NAME, '--password', 'test', 'sdasdaasdas', amount, '--json'])
+    error.indexOf('AENS: Invalid name domain').should.not.be.equal(-1)
+  })
+  it('Spend by name', async () => {
+    const amount = 100000009
+    const spendTx = JSON.parse(await execute(['account', 'spend', WALLET_NAME, '--password', 'test', name2, amount, '--json']))
+    const nameObject = await wallet.aensQuery(name2)
+    spendTx.tx.tx.recipientId.should.be.equal(nameObject.id)
+    const balance = await wallet.getBalance(publicKey)
+    balance.should.be.equal(`${amount}`)
+  })
+  it('Transfer name', async () => {
+    const keypair = generateKeyPair()
+    await wallet.addAccount(MemoryAccount({ keypair }))
+
+    const transferTx = JSON.parse(await execute(['name', 'transfer', WALLET_NAME, name2, keypair.publicKey, '--password', 'test', '--json']))
+    transferTx.blockHeight.should.be.gt(0)
+    await wallet.spend(1, keypair.publicKey, { denomination: 'ae' })
+    const claim2 = await wallet.aensQuery(name2)
+    const transferBack = await claim2.transfer(await wallet.address(), { onAccount: keypair.publicKey })
+    transferBack.blockHeight.should.be.gt(0)
   })
   it('Revoke Name', async () => {
-    let nameResult = parseBlock(await execute(['inspect', name]))
-    nameResult.status.should.equal('CLAIMED')
+    const revoke = JSON.parse(await execute(['name', 'revoke', WALLET_NAME, '--password', 'test', name2, '--json']))
+    const nameResult = JSON.parse(await execute(['inspect', name2, '--json']))
 
-    await execute(['name', 'revoke', WALLET_NAME, '--password', 'test', name])
-
-    nameResult = parseBlock(await execute(['inspect', name]))
-
+    revoke.blockHeight.should.be.gt(0)
     nameResult.status.should.equal('AVAILABLE')
-    nameResult.name_hash.should.equal('N/A')
-    nameResult.pointers.should.equal('N/A')
+  })
+  describe('Name Auction', () => {
+    const nameFee = '3665700000000000000'
+    it('Open auction', async () => {
+      const account = MemoryAccount({ keypair: generateKeyPair() })
+      await wallet.addAccount(account)
+      await wallet.spend('30000000000000000000000', await account.address())
+      const preclaim = await wallet.aensPreclaim(name, { onAccount: await account.address() })
+      const claim = await preclaim.claim({ onAccount: await account.address() })
+      claim.blockHeight.should.be.gt(0)
+    })
+    it('Make bid', async () => {
+      const bid = JSON.parse(await execute(['name', 'bid', WALLET_NAME, '--password', 'test', name, nameFee, '--json']))
+      bid.tx.nameSalt.should.be.equal(0)
+      bid.tx.nameFee.should.be.equal(nameFee)
+    })
+    it('Fail on open  again', async () => {
+      const preClaim = JSON.parse(await execute(['name', 'pre-claim', WALLET_NAME, '--password', 'test', name, '--json']))
+      const claim = await execute(['name', 'claim', WALLET_NAME, '--password', 'test', name, preClaim.salt, '--json'])
+      claim.indexOf('Giving up after 10 blocks mined').should.not.be.equal(-1)
+    })
   })
 })

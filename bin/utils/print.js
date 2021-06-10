@@ -19,6 +19,7 @@
 import * as R from 'ramda'
 
 import { HASH_TYPES } from './constant'
+import { decodeBase64Check } from '@aeternity/aepp-sdk/es/utils/crypto';
 
 // ## CONSTANT
 const TX_TYPE_PRINT_MAP = {
@@ -33,7 +34,7 @@ const TX_TYPE_PRINT_MAP = {
   'OracleRegisterTx': printOracleRegisterTransaction,
   'OracleQueryTx': printOraclePostQueryTransaction,
   'OracleExtendTx': printOracleExtendTransaction,
-  'OracleResponseTx': printOracleResponseTransaction
+  'OracleRespondTx': printOracleResponseTransaction
 }
 // ## Row width
 const WIDTH = 40
@@ -64,7 +65,7 @@ export function printError (msg, obj) {
 
 // Print `underscored`
 export function printUnderscored (key, val) {
-  print(`${key}${R.repeat('_', WIDTH - key.length).reduce((a, b) => a += b, '')} ${typeof val !== 'object' ? val : JSON.stringify(val)}`)
+  print(`${key} ${R.repeat('_', WIDTH - key.length).reduce((a, b) => a += b, '')} ${typeof val !== 'object' ? val : JSON.stringify(val)}`)
 }
 
 // ## BLOCK
@@ -164,6 +165,7 @@ function printContractCreateTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'TTL', R.defaultTo('N/A', R.path(['tx', 'ttl'], tx)))
   printUnderscored(tabs + 'Version', R.defaultTo('N/A', R.path(['tx', 'version'], tx)))
   printUnderscored(tabs + 'VM Version', R.defaultTo('N/A', R.path(['tx', 'vmVersion'], tx)))
+  printUnderscored(tabs + 'ABI Version', R.defaultTo('N/A', R.path(['tx', 'abiVersion'], tx)))
 }
 
 // Print `contract_call_tx` info
@@ -181,7 +183,6 @@ function printContractCallTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'TTL', R.defaultTo(0, R.path(['tx', 'ttl'], tx)))
   printUnderscored(tabs + 'Version', R.defaultTo(0, R.path(['tx', 'version'], tx)))
   printUnderscored(tabs + 'ABI Version', R.defaultTo(0, R.path(['tx', 'abiVersion'], tx)))
-  printUnderscored(tabs + 'VM Version', R.defaultTo(0, R.path(['tx', 'vmVersion'], tx)))
 }
 
 // Print `spend_tx` info
@@ -202,6 +203,7 @@ function printSpendTransaction (tx = {}, tabs = '') {
 function printNamePreclaimTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'Account', R.defaultTo('N/A', R.path(['tx', 'accountId'], tx)))
   printUnderscored(tabs + 'Commitment', R.defaultTo('N/A', R.path(['tx', 'commitmentId'], tx)))
+  printUnderscored(tabs + 'Salt', R.defaultTo('N/A', R.path(['salt'], tx)))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
   printUnderscored(tabs + 'Nonce', R.defaultTo('N/A', R.path(['tx', 'nonce'], tx)))
@@ -214,6 +216,7 @@ function printNameClaimTransaction (tx = {}, tabs = '') {
 
   printUnderscored(tabs + 'Account', R.defaultTo('N/A', R.path(['tx', 'accountId'], tx)))
   printUnderscored(tabs + 'Name', R.defaultTo('N/A', R.path(['tx', 'name'], tx)))
+  printUnderscored(tabs + 'Name Fee', R.defaultTo('N/A', R.path(['tx', 'nameFee'], tx)))
   printUnderscored(tabs + 'Name Salt', R.defaultTo('N/A', R.path(['tx', 'nameSalt'], tx)))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
@@ -277,6 +280,7 @@ function printOracleRegisterTransaction (tx = {}, tabs = '') {
 function printOraclePostQueryTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'Account', R.defaultTo('N/A', R.path(['tx', 'senderId'], tx)))
   printUnderscored(tabs + 'Oracle ID', R.defaultTo('N/A', 'ok_' + R.path(['tx', 'oracleId'], tx).slice(3)))
+  printUnderscored(tabs + 'Query ID', R.defaultTo('N/A', 'oq' + R.path(['id'], tx).slice(3)))
   printUnderscored(tabs + 'Query', R.defaultTo('N/A', R.path(['tx', 'query'], tx)))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))
@@ -325,8 +329,8 @@ export function printTransaction (tx, json, tabs = 0, skipBase = false) {
     return
   }
   const tabsString = getTabs(tabs)
-  if (!skipBase) printTxBase(tx, tabsString)
-  printTxInfo(tx, tabsString)
+  if (!skipBase) printTxBase({ ...tx, ...tx.tx ? tx.tx : {}}, tabsString)
+  printTxInfo({ ...tx, ...tx.tx ? tx.tx : {}}, tabsString)
 }
 
 // ##OTHER
@@ -357,7 +361,9 @@ export function printQueries (queries = [], json) {
     printUnderscored('Query ID', R.defaultTo('N/A', R.prop('id', q)))
     printUnderscored('Fee', R.defaultTo('N/A', R.prop('fee', q)))
     printUnderscored('Query', R.defaultTo('N/A', R.prop('query', q)))
+    printUnderscored('Query decoded', R.defaultTo('N/A', decodeBase64Check(q.query.slice(3)).toString()))
     printUnderscored('Response', R.defaultTo('N/A', R.prop('response', q)))
+    printUnderscored('Response decoded', R.defaultTo('N/A', decodeBase64Check(q.response.slice(3)).toString()))
     printUnderscored('Response Ttl', R.defaultTo('N/A', R.prop('responseTtl', q)))
     printUnderscored('Sender Id', R.defaultTo('N/A', R.prop('senderId', q)))
     printUnderscored('Sender Nonce', R.defaultTo('N/A', R.prop('senderNonce', q)))

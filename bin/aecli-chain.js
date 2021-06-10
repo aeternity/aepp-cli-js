@@ -29,8 +29,8 @@ const { Chain } = require('./commands')
 
 // # Initialize `options`
 program
-  .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
-  .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
+  .option('-u --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+  .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
   .option('-L --limit [playlimit]', 'Limit for play command', utils.constant.PLAY_LIMIT)
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
@@ -95,7 +95,7 @@ program
 // Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
 program
   .command('broadcast <tx>')
-  .option('--waitMined', 'Transaction payload.')
+  .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .option('--verify', 'Verify Transaction before broadcast.')
   .description('Send transaction to the chain')
   .action(async (tx, ...arguments) => await Chain.broadcast(tx, utils.cli.getCmdFromArguments(arguments)))

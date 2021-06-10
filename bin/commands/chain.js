@@ -19,7 +19,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { initChain } from '../utils/cli'
+import { exit, initChain } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { printBlock, print, printError, printUnderscored, printTransaction, printValidation } from '../utils/print'
 import { getBlock } from '../utils/helpers'
@@ -33,24 +33,31 @@ async function version (options) {
     // Call `getStatus` API and print it
     await handleApiError(async () => {
       const status = await client.api.getStatus()
+      const { consensusProtocolVersion } = client.getNodeInfo()
       if (json) {
         print(status)
-        process.exit(0)
+        exit()
       }
-      printUnderscored(`Difficulty`, status.difficulty)
-      printUnderscored(`Node version`, status.nodeVersion)
-      printUnderscored(`Node revision`, status.nodeRevision)
-      printUnderscored(`Genesis hash`, status.genesisKeyBlockHash)
-      printUnderscored(`Network ID`, status.networkId)
-      printUnderscored(`Listening`, status.listening)
-      printUnderscored(`Peer count`, status.peerCount)
-      printUnderscored(`Pending transactions count`, status.pendingTransactionsCount)
-      printUnderscored(`Solutions`, status.solutions)
-      printUnderscored(`Syncing`, status.syncing)
+      const FORKS = {
+        3: 'Fortuna',
+        4: 'Lima'
+      }
+      printUnderscored('Difficulty', status.difficulty)
+      printUnderscored('Node version', status.nodeVersion)
+      printUnderscored('Consensus protocol version', `${FORKS[consensusProtocolVersion]}(${consensusProtocolVersion})`)
+      printUnderscored('Node revision', status.nodeRevision)
+      printUnderscored('Genesis hash', status.genesisKeyBlockHash)
+      printUnderscored('Network ID', status.networkId)
+      printUnderscored('Listening', status.listening)
+      printUnderscored('Peer count', status.peerCount)
+      printUnderscored('Pending transactions count', status.pendingTransactionsCount)
+      printUnderscored('Solutions', status.solutions)
+      printUnderscored('Syncing', status.syncing)
+      exit()
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -63,15 +70,12 @@ async function getNetworkId (options) {
     // Call `getStatus` API and print it
     await handleApiError(async () => {
       const { networkId } = await client.api.getStatus()
-      if (json) {
-        print({ networkId })
-        process.exit(0)
-      }
-      printUnderscored(`Network ID`, networkId)
+      json ? print({ networkId }) : printUnderscored('Network ID', networkId)
+      exit(0)
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -86,14 +90,15 @@ async function ttl (absoluteTtl, options) {
       const height = await client.height()
       if (json) {
         print({ absoluteTtl, relativeTtl: +height + +absoluteTtl })
-        process.exit(0)
+      } else {
+        printUnderscored('Absolute TTL', absoluteTtl)
+        printUnderscored('Relative TTL', +height + +absoluteTtl)
       }
-      printUnderscored('Absolute TTL', absoluteTtl)
-      printUnderscored('Relative TTL', +height + +absoluteTtl)
+      exit()
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -109,7 +114,7 @@ async function top (options) {
     )
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -127,7 +132,7 @@ async function play (options) {
 
       if (height && height > parseInt(top.height)) {
         printError('Height is bigger then height of top block')
-        process.exit(1)
+        exit(1)
       }
 
       printBlock(top, json)
@@ -136,10 +141,11 @@ async function play (options) {
       height
         ? await playWithHeight(height, top.prevHash)(client, json)
         : await playWithLimit(--limit, top.prevHash)(client, json)
+      exit()
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 
@@ -148,31 +154,35 @@ function playWithLimit (limit, blockHash) {
   return async (client, json) => {
     if (!limit) return
 
-    let block = await getBlock(blockHash)(client)
+    const block = await getBlock(blockHash)(client)
 
-    setTimeout(async () => {
-      printBlock(block, json)
-      await playWithLimit(--limit, block.prevHash)(client, json)
-    }, 1000)
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        printBlock(block, json)
+        resolve(await playWithLimit(--limit, block.prevHash)(client, json))
+      }, 1000)
+    })
   }
 }
 
 // # Play by `height`
 function playWithHeight (height, blockHash) {
   return async (client, json) => {
-    let block = await getBlock(blockHash)(client)
+    const block = await getBlock(blockHash)(client)
     if (parseInt(block.height) < height) return
 
-    setTimeout(async () => {
-      printBlock(block, json)
-      await playWithHeight(height, block.prevHash)(client, json)
-    }, 1000)
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        printBlock(block, json)
+        resolve(await playWithHeight(height, block.prevHash)(client, json))
+      }, 1000)
+    })
   }
 }
 
 // ## Send 'transaction' to the chain
 async function broadcast (signedTx, options) {
-  let { json, waitMined, verify } = options
+  const { json, waitMined, verify } = options
   try {
     // Initialize `Ae`
     const client = await initChain(options)
@@ -184,11 +194,13 @@ async function broadcast (signedTx, options) {
       } catch (e) {
         if (!!verify && e.errorData) printValidation(e.errorData)
         if (!verify) printValidation(await e.verifyTx())
+      } finally {
+        exit()
       }
     })
   } catch (e) {
     printError(e.message)
-    process.exit(1)
+    exit(1)
   }
 }
 

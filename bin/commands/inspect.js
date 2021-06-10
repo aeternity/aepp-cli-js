@@ -32,6 +32,7 @@ import {
   printUnderscored, printValidation
 } from '../utils/print'
 import { checkPref, getBlock, updateNameStatus, validateName } from '../utils/helpers'
+import { TxBuilder } from "@aeternity/aepp-sdk";
 
 // ## Inspect function
 // That function get the param(`hash`, `height` or `name`) and show you info about it
@@ -113,16 +114,15 @@ async function unpackTx (hash, options = {}) {
   const { json } = options
   try {
     checkPref(hash, HASH_TYPES.rawTransaction)
-    const client = await initChain(options)
     await handleApiError(
       async () => {
-        const { validation, tx, signatures = [], txType: type } = await client.unpackAndVerify(hash)
+        const { tx, txType: type } = TxBuilder.unpackTx(hash)
         if (json) {
-          print({ validation, tx: tx, signatures, type })
+          print({ tx: tx, type })
           process.exit(0)
         }
-        printValidation({ validation, tx: { ...tx, signatures: signatures.map(el => el.hash) }, txType: type })
-        if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')
+        printUnderscored('Tx Type', type)
+        Object.entries(tx).forEach(entry => printUnderscored(...entry))
       }
     )
   } catch (e) {
@@ -139,11 +139,21 @@ async function getAccountByHash (hash, options) {
       async () => {
         const { nonce } = await client.api.getAccountByPubkey(hash)
         const balance = await client.balance(hash)
-        printUnderscored('Account ID', hash)
-        printUnderscored('Account balance', balance)
-        printUnderscored('Account nonce', nonce)
-        print('Account Transactions: ')
-        printBlockTransactions((await client.api.getPendingAccountTransactionsByPubkey(hash)).transactions, json)
+        const transactions = (await client.api.getPendingAccountTransactionsByPubkey(hash)).transactions
+        if (json) {
+          print({
+            hash,
+            balance,
+            nonce,
+            transactions
+          })
+        } else {
+          printUnderscored('Account ID', hash)
+          printUnderscored('Account balance', balance)
+          printUnderscored('Account nonce', nonce)
+          print('Account Transactions: ')
+          printBlockTransactions(transactions)
+        }
       }
     )
   } catch (e) {

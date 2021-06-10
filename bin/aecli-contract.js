@@ -28,8 +28,8 @@ const { Contract } = require('./commands')
 
 // ## Initialize `options`
 program
-  .option('-u --url [hostname]', 'Node to connect to', utils.constant.EPOCH_URL)
-  .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.EPOCH_INTERNAL_URL)
+  .option('-u --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+  .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
   .option('--compilerUrl [compilerUrl]', 'Compiler URL', utils.constant.COMPILER_URL)
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format')
@@ -84,6 +84,63 @@ program
   .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
   .description('Decode contract call data')
   .action(async (data, ...arguments) => await Contract.decodeCallData(data, utils.cli.getCmdFromArguments(arguments)))
+
+
+// ## Initialize `call` command
+//
+// You can use this command to execute a function's of contract
+//
+// Example:
+//    `aecli contract call ./myWalletFile --password testpass sumFunc int 1 2 --descrPath ./contractDescriptorFile.json ` --> Using descriptor file
+//    `aecli contract call ./myWalletFile --password testpass sumFunc int 1 2 --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 ` --> Using contract address
+//
+// Also you have ability to make `static` call using `--callStatic` flag
+// Example:
+//    `aecli contract call ./myWalletFile --password testpass sumFunc int 1 2 --descrPath ./contractDescriptorFile.json --callStatic` --> Static call using descriptor
+//    `aecli contract call ./myWalletFile --password testpass sumFunc int 1 2 --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 --callStatic` --> Static call using contract address
+// You can preset gas, nonce and ttl for that call. If not set use default.
+// Example: `aecli contract call ./myWalletFile --password tstpass sumFunc int 1 2 --descrPath ./contractDescriptorFile.json  --gas 2222222 --nonce 4 --ttl 1243`
+program
+  .command('call <wallet_path> <fn> [args...]')
+  .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
+  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .option('-P, --password [password]', 'Wallet Password')
+  .option('-G --gas [gas]', 'Amount of gas to call the contract', utils.constant.GAS)
+  .option('-d --descrPath [descrPath]', 'Path to contract descriptor file')
+  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
+  .option('-s --callStatic', 'Call static', false)
+  .option('-t --topHash', 'Hash of block to make call')
+  .option('--contractAddress [contractAddress]', 'Contract address to call')
+  .option('--contractSource [contractSource]', 'Contract source code')
+  .option('-F, --fee [fee]', 'Spend transaction fee.')
+  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+  .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .description('Execute a function of the contract')
+  .action(async (walletPath, fn, args, ...arguments) => await Contract.call(walletPath, fn, args, utils.cli.getCmdFromArguments(arguments)))
+
+//
+// ## Initialize `deploy` command
+//
+// You can use this command to deploy contract on the chain
+//
+// Example: `aecli contract deploy ./myWalletFile --password testpass ./contractSourceCodeFile 1 2` -> "1 2" -> Init state params
+//
+// You can preset gas and initState for deploy
+//
+// Example: `aecli contract deploy ./myWalletFile --password tstpass ./contractSourceCodeFile --gas 2222222`
+program
+  .command('deploy <wallet_path> <contract_path> <callData>')
+  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
+  .option('-P, --password [password]', 'Wallet Password')
+  .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
+  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS_PRICE)
+  .option('--backend [backend]', 'Compiler backend("fate" | "aevm")', utils.constant.COMPILER_BACKEND)
+  .option('-F, --fee [fee]', 'Spend transaction fee.')
+  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+  .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+  .description('Deploy a contract on the chain')
+  .action(async (walletPath, path, callData, ...arguments) => await Contract.deploy(walletPath, path, callData, utils.cli.getCmdFromArguments(arguments)))
 
 
 // Handle unknown command's
