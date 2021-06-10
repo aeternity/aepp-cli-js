@@ -15,15 +15,17 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { describe, it, before, after } from 'mocha'
-
-import { configure, BaseAe, execute, parseBlock, ready, randomString } from './index'
 import { Crypto, MemoryAccount } from '@aeternity/aepp-sdk'
 import fs from 'fs'
+import { after, before, describe, it } from 'mocha'
+import { BaseAe, configure, execute, parseBlock, randomString, ready } from './index'
 
 const WALLET_NAME = 'txWallet'
-const testContract = `contract Identity =
-  entrypoint main(x : int, y: int) = x + y
+const testContract = `
+@compiler >= 6
+
+contract Identity =
+  entrypoint test(x : int, y: int) = x + y
 `
 
 function randomName (length = 18, namespace = '.chain') {
@@ -128,8 +130,7 @@ describe('CLI Transaction Module', function () {
   })
 
   it('Build contract call tx offline and send the chain', async () => {
-    const callData = await compilerCLI.contractEncodeCall(testContract, 'main', ['1', '2'])
-
+    const callData = await compilerCLI.contractEncodeCall(testContract, 'test', ['1', '2'])
     const { tx } = JSON.parse(await execute(['tx', 'contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
@@ -139,13 +140,13 @@ describe('CLI Transaction Module', function () {
 
   it('Build oracle register tx offline and send the chain', async () => {
     const result = await execute(['tx', 'oracle-register', TX_KEYS.publicKey, '{city: "str"}', '{tmp:""num}', nonce, '--json'], { withOutReject: true })
-    console.log(result)
     const { tx } = JSON.parse(result)
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
     isMined.should.be.equal(true)
     nonce += 1
   })
+
   it('Build oracle extend  tx offline and send the chain', async () => {
     const oracleCurrentTtl = await wallet.api.getOracleByPubkey(oracleId)
     const { tx } = JSON.parse(await execute(['tx', 'oracle-extend', TX_KEYS.publicKey, oracleId, 100, nonce, '--json'], { withOutReject: true }))
@@ -157,6 +158,7 @@ describe('CLI Transaction Module', function () {
     isMined.should.be.equal(true)
     nonce += 1
   })
+
   it('Build oracle post query tx offline and send the chain', async () => {
     const { tx } = JSON.parse(await execute(['tx', 'oracle-post-query', TX_KEYS.publicKey, oracleId, '{city: "Berlin"}', nonce, '--json'], { withOutReject: true }))
     const res = (parseBlock(await signAndPost(tx)))
@@ -168,6 +170,7 @@ describe('CLI Transaction Module', function () {
     hasQuery.should.be.equal(true)
     nonce += 1
   })
+
   it('Build oracle respond tx offline and send the chain', async () => {
     const response = '{tmp: 10}'
     const { tx } = JSON.parse(await execute(['tx', 'oracle-respond', TX_KEYS.publicKey, oracleId, queryId, response, nonce, '--json'], { withOutReject: true }))
