@@ -19,7 +19,6 @@ import { Crypto } from '@aeternity/aepp-sdk'
 import { before, describe, it } from 'mocha'
 import { configure, execute as exec, plan, ready, WALLET_NAME } from './index'
 
-
 plan(10000000000000)
 
 const execute = (arg) => exec(arg, { withNetworkId: true })
