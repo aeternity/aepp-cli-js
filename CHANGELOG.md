@@ -1,3 +1,26 @@
+# [3.0.0](https://github.com/aeternity/aepp-cli-js/compare/2.6.0...3.0.0) (2021-06-10)
+
+
+### Bug Fixes
+
+* **docker:** enable dry-run endpoints ([3afa3f5](https://github.com/aeternity/aepp-cli-js/commit/3afa3f52f724579019f2997139c19bc7fd69ea48))
+* **test:** aens suite ([0fe69eb](https://github.com/aeternity/aepp-cli-js/commit/0fe69eb64f84d51fab40f3fb0a619f80e7ed4218))
+* **test:** contract suite ([334f4dd](https://github.com/aeternity/aepp-cli-js/commit/334f4dd2f6145f3216b7e2674fa2524150cd039f))
+* **test:** oracle suite lint ([960bb4a](https://github.com/aeternity/aepp-cli-js/commit/960bb4a5c7d1ca45286d711aab3109667f6c2497))
+* **test:** tx suite ([64993ba](https://github.com/aeternity/aepp-cli-js/commit/64993ba6cbb21f5db773e793edf41719bb1e9f90))
+* exit code of get address command ([fddd2b0](https://github.com/aeternity/aepp-cli-js/commit/fddd2b070c1aafd0d985392ade95dc7f42b15771))
+* remove compiler decodeData commend that depends on unsupported api ([e198ea2](https://github.com/aeternity/aepp-cli-js/commit/e198ea229093cfcd9c4ebc49b5cd09a86a41f748))
+* typo in gasPrice ([347e733](https://github.com/aeternity/aepp-cli-js/commit/347e733e00317f40708ffbbf5e897e959d10837f))
+
+### Features
+
+* **ci:** add github actions workflow ([3e0589e](https://github.com/aeternity/aepp-cli-js/commit/3e0589e34385fcb6f1d5b045904b0c60bb62ca3f))
+* **env:** bump node and compiler version ([b5103e4](https://github.com/aeternity/aepp-cli-js/commit/b5103e4d01b6b6abadd66b24e9c694b5cc20225c))
+* **oracle:** implement Oracle Test's ([26e8820](https://github.com/aeternity/aepp-cli-js/commit/26e882018a5e7dd8e2aa4240432600d12204827a))
+* **oracle:** Implement Oracle Test's ([23296dd](https://github.com/aeternity/aepp-cli-js/commit/23296dd9193699eecc2d1b83e75e26ccb5371b04))
+* **oracle:** Implement Oracle Test's ([854ce61](https://github.com/aeternity/aepp-cli-js/commit/854ce61e288c76045011f4f714587c79d728c750))
+
+
 # [2.7.0](https://github.com/aeternity/aepp-cli-js/compare/2.6.0...2.7.0) (2020-06-10)
 
 
