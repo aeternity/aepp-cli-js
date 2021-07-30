@@ -40,11 +40,12 @@ async function version (options) {
       }
       const FORKS = {
         3: 'Fortuna',
-        4: 'Lima'
+        4: 'Lima',
+        5: 'Iris'
       }
       printUnderscored('Difficulty', status.difficulty)
       printUnderscored('Node version', status.nodeVersion)
-      printUnderscored('Consensus protocol version', `${FORKS[consensusProtocolVersion]}(${consensusProtocolVersion})`)
+      printUnderscored('Consensus protocol version', `${consensusProtocolVersion} (${FORKS[consensusProtocolVersion]})`)
       printUnderscored('Node revision', status.nodeRevision)
       printUnderscored('Genesis hash', status.genesisKeyBlockHash)
       printUnderscored('Network ID', status.networkId)
