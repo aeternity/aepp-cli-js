@@ -26,7 +26,7 @@ export async function handleApiError (fn) {
     return await fn()
   } catch (e) {
     const response = e.response
-    printError('API ERROR: ', response && response.data ? response.data.reason : e)
+    printError('API ERROR: ', response && response.data ? response.data : e)
     exit(1)
   }
 }
