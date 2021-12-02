@@ -25,6 +25,9 @@ const { prompt, PROMPT_TYPE } = requireEsm('./utils/prompt')
 const { Crypto } = requireEsm('@aeternity/aepp-sdk')
 const utils = requireEsm('./utils/index')
 
+program
+  .name('aecli crypto')
+
 // ## Key Extraction (from node nodes)
 async function extractReadableKeys (dir, options) {
   const pwd = options.input

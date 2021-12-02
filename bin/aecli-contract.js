@@ -26,6 +26,9 @@ const requireEsm = require('esm')(module/*, options */) // use to handle es6 imp
 const utils = requireEsm('./utils/index')
 const { Contract } = requireEsm('./commands')
 
+program
+  .name('aecli contract')
+
 // ## Initialize `options`
 program
   .option('-u --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
