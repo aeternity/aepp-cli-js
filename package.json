@@ -41,7 +41,7 @@
     "docs": "docco -t tooling/docs/markdown.jst -c /dev/null bin/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/commands/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/utils/*.js &&  rm -f docs/null && node rename-to-md.js",
     "lint": "commitlint --from 23f6888 && standard",
     "test:e2e": "mocha --recursive --require @babel/register",
-    "test": "npm run lint && npm run test:e2e",
+    "test": "npm run test:e2e",
     "test:watch": "mocha --recursive --require @babel/register --watch",
     "release": "standard-version --skip.tag",
     "prepublishOnly": "npm run docs"
