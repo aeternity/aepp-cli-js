@@ -13,18 +13,11 @@
     "ramda": "^0.27.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.14.3",
     "@babel/core": "^7.14.3",
-    "@babel/node": "^7.14.2",
-    "@babel/plugin-proposal-export-default-from": "^7.12.13",
-    "@babel/plugin-proposal-object-rest-spread": "^7.14.2",
-    "@babel/plugin-transform-runtime": "^7.14.3",
     "@babel/preset-env": "^7.14.2",
     "@babel/register": "^7.13.16",
-    "@babel/runtime": "^7.14.0",
     "@commitlint/cli": "^15.0.0",
     "@commitlint/config-conventional": "^15.0.0",
-    "babel-plugin-ramda": "^2.0.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "docco": "^0.8.1",
@@ -40,9 +33,8 @@
   "scripts": {
     "docs": "docco -t tooling/docs/markdown.jst -c /dev/null bin/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/commands/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/utils/*.js &&  rm -f docs/null && node rename-to-md.js",
     "lint": "commitlint --from 23f6888 && standard",
-    "test:e2e": "mocha --recursive --require @babel/register",
-    "test": "npm run test:e2e",
-    "test:watch": "mocha --recursive --require @babel/register --watch",
+    "test": "mocha --recursive",
+    "test:watch": "mocha --recursive --watch",
     "release": "standard-version --skip.tag",
     "prepublishOnly": "npm run docs"
   },
