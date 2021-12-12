@@ -98,25 +98,25 @@ describe('CLI Contract Module', function () {
     const res = await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2'])
     const callResponse = JSON.parse(res)
     callResponse.result.returnValue.should.contain('cb_')
-    callResponse.decodedResult.should.be.equal(3)
+    callResponse.decodedResult.should.be.equal('3')
   })
 
   it('Call Contract static by descriptor', async () => {
     // Call contract
     const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2', '--callStatic'])))
     callResponse.result.returnValue.should.contain('cb_')
-    callResponse.decodedResult.should.equal(3)
+    callResponse.decodedResult.should.equal('3')
   })
 
   it('Call Contract by contract address', async () => {
     const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'test', '1', '2'])))
     callResponse.result.returnValue.should.contain('cb_')
-    callResponse.decodedResult.should.equal(3)
+    callResponse.decodedResult.should.equal('3')
   })
 
   it('Call Contract static by contract address', async () => {
     const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'test', '1', '2', '--callStatic'])))
     callResponse.result.returnValue.should.contain('cb_')
-    callResponse.decodedResult.should.equal(3)
+    callResponse.decodedResult.should.equal('3')
   })
 })

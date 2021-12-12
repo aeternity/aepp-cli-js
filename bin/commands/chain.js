@@ -193,10 +193,18 @@ async function broadcast (signedTx, options) {
         const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify })
         waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx.hash)
       } catch (e) {
-        if (!!verify && e.errorData) printValidation(e.errorData)
-        if (!verify) printValidation(await e.verifyTx())
-      } finally {
-        exit()
+        if (e.verifyTx) {
+          const validation = await e.verifyTx()
+          if (validation.length) {
+            printValidation({ validation, transaction: signedTx })
+            return
+          }
+        }
+        if (e.code === 'TX_VERIFICATION_ERROR') {
+          printValidation(e)
+          return
+        }
+        throw e
       }
     })
   } catch (e) {

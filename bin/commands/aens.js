@@ -23,7 +23,7 @@ import { exit, initChain, initClientByWalletFile } from '../utils/cli'
 import { printError, print, printName, printTransaction } from '../utils/print'
 import { handleApiError } from '../utils/errors'
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
-import { Crypto } from '@aeternity/aepp-sdk'
+import { Crypto, getDefaultPointerKey } from '@aeternity/aepp-sdk'
 
 // ## Claim `name` function
 async function preClaim (walletPath, domain, options) {
@@ -119,7 +119,11 @@ async function updateName (walletPath, domain, addresses, options) {
       }
 
       // Create `updateName` transaction
-      const updateTx = await client.aensUpdate(domain, addresses, { ttl, fee, nonce, waitMined, nameTtl, clientTtl, extendPointers })
+      const updateTx = await client.aensUpdate(
+        domain,
+        Object.fromEntries(addresses.map(address => [getDefaultPointerKey(address), address])),
+        { ttl, fee, nonce, waitMined, nameTtl, clientTtl, extendPointers }
+      )
       if (waitMined) {
         printTransaction(
           updateTx,

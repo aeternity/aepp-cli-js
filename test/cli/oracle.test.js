@@ -82,7 +82,7 @@ describe('CLI Oracle Module', function () {
     await execute(['oracle', 'get', fakeOracleId, '--json'])
       .should.be.rejectedWith('API ERROR:')
     await execute(['oracle', 'get', 'oq_d1sadasdasda', '--json'])
-      .should.be.rejectedWith('Invalid oracleId')
+      .should.be.rejectedWith('Encoded string have a wrong type: oq (expected: ok)')
   })
 
   it('Get existed Oracle', async () => {

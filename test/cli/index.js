@@ -38,7 +38,7 @@ export const WALLET_NAME = 'mywallet'
 
 export const genAccount = () => MemoryAccount({ keypair: Crypto.generateKeyPair() })
 
-export const BaseAe = async (params = {}) => await Universal.waitMined(true)({
+export const BaseAe = async (params = {}) => await Universal({
   ignoreVersion,
   compilerUrl,
   nodes: [{ name: 'test', instance: await Node({ url, internalUrl }) }],

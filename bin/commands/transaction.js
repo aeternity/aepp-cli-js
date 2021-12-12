@@ -19,8 +19,8 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { Crypto, SCHEMA, TxBuilderHelper } from '@aeternity/aepp-sdk'
-import { exit, initChain, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
+import { Crypto, SCHEMA, TxBuilder, TxBuilderHelper, verifyTransaction, Node } from '@aeternity/aepp-sdk'
+import { exit, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
 import { handleApiError } from '../utils/errors'
 import { print, printBuilderTransaction, printError, printUnderscored, printValidation } from '../utils/print'
 import { validateName } from '../utils/helpers'
@@ -241,7 +241,7 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
         ...options,
         code: contractByteCode,
         ownerId,
-        nonce,
+        nonce: +nonce, // TODO: remove after fixing https://github.com/aeternity/aepp-sdk-js/issues/1370
         callData: initCallData
       })
 
@@ -416,21 +416,20 @@ async function oracleRespond (callerId, oracleId, queryId, response, nonce, opti
 }
 
 // ## Verify 'transaction'
-async function verify (txHash, options) {
-  const { json, networkId } = options
+async function verify (transaction, options) {
+  const { json } = options
   try {
     // Validate input
-    if (!Crypto.assertedType(txHash, 'tx')) throw new Error('Invalid transaction, must be lik \'tx_23didf2+f3sd...\'')
-    // Initialize `Ae`
-    const client = await initChain(options)
+    TxBuilderHelper.decode(transaction, 'tx')
     // Call `getStatus` API and print it
     await handleApiError(async () => {
-      const { validation, tx, signatures = [], txType: type } = await client.unpackAndVerify(txHash, { networkId })
+      const validation = await verifyTransaction(transaction, await Node(options))
+      const { tx, txType: type } = TxBuilder.unpackTx(transaction)
       if (json) {
-        print({ validation, tx: tx, signatures, type })
+        print({ validation, tx, type })
         exit(0)
       }
-      printValidation({ validation, tx: { ...tx, signatures: signatures.map(el => el.hash) }, txType: type })
+      printValidation({ validation, transaction })
       if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')
     })
   } catch (e) {
