@@ -34,16 +34,7 @@ export const WALLET_NAME = 'mywallet'
 
 export const genAccount = () => MemoryAccount({ keypair: Crypto.generateKeyPair() })
 
-export const BaseAe = async (params = {}) => await Universal.compose({
-  deepProps: {
-    Ae: {
-      defaults: {
-        _expectedMineRate: 1000,
-        _microBlockCycle: 300
-      }
-    }
-  }
-})({
+export const BaseAe = async (params = {}) => await Universal({
   ignoreVersion,
   compilerUrl,
   nodes: [{ name: 'test', instance: await Node({ url, internalUrl }) }],

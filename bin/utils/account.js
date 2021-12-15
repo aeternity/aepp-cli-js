@@ -17,24 +17,9 @@
 *  PERFORMANCE OF THIS SOFTWARE.
 */
 import path from 'path'
-import { Crypto, Keystore as SdkKeystore } from '@aeternity/aepp-sdk'
+import { Crypto, Keystore } from '@aeternity/aepp-sdk'
 import { isFileExist, readJSONFile, writeFile } from './helpers'
 import { PROMPT_TYPE, prompt } from './prompt'
-
-const Keystore = process.env.E2E_TESTS
-  ? {
-      dump: (name, password, secretKey) => Promise.resolve({
-        description: 'Lightweight and unencrypted version of keystore file specially for end to end tests of cli',
-        name,
-        password,
-        secretKey: Buffer.from(secretKey).toString('hex')
-      }),
-      recover: (password, keyFile) => {
-        if (password !== keyFile.password) throw new Error('Invalid password')
-        return Promise.resolve(keyFile.secretKey)
-      }
-    }
-  : SdkKeystore
 
 // Helper function which check if `account file` exist and `ask for overwriting`
 export async function askForOverwrite (name, output) {

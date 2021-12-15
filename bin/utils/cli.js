@@ -26,22 +26,9 @@ export function getCmdFromArguments ([options, commander]) {
   return { ...options, ...commander.parent.opts() }
 }
 
-const configStamp = process.env.E2E_TESTS
-  ? {
-      deepProps: {
-        Ae: {
-          defaults: {
-            _expectedMineRate: 1000,
-            _microBlockCycle: 300
-          }
-        }
-      }
-    }
-  : {}
-
 // Create `Universal` client
 async function initClient ({ url, keypair, internalUrl, compilerUrl, force: ignoreVersion, native: nativeMode = true, networkId, accounts = [] }) {
-  return Universal.compose(configStamp)({
+  return Universal({
     nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, ignoreVersion }) }],
     process,
     internalUrl,
@@ -53,7 +40,7 @@ async function initClient ({ url, keypair, internalUrl, compilerUrl, force: igno
 }
 // Create `TxBuilder` client
 export async function initTxBuilder ({ url, internalUrl, force: ignoreVersion, native: nativeMode = true, showWarning = true }) {
-  return Transaction.compose(configStamp)({
+  return Transaction({
     nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, ignoreVersion }) }],
     nativeMode,
     ignoreVersion,
@@ -66,7 +53,7 @@ export function initOfflineTxBuilder () {
 }
 // Create `ChainNode` client
 export async function initChain ({ url, internalUrl, force: ignoreVersion }) {
-  return ChainNode.compose(configStamp)({
+  return ChainNode({
     nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, ignoreVersion }) }],
     ignoreVersion
   })
