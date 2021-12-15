@@ -1,10 +1,7 @@
 #!/usr/bin/env node
-// # æternity CLI `inspect` file
-//
-// This script initialize all `inspect` commands
 /*
  * ISC License (ISC)
- * Copyright (c) 2018 aeternity developers
+ * Copyright (c) 2021 aeternity developers
  *
  *  Permission to use, copy, modify, and/or distribute this software for any
  *  purpose with or without fee is hereby granted, provided that the above
@@ -18,44 +15,7 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
-// We'll use `commander` for parsing options
-//
-// Also we need `esm` package to handle `ES imports`
-const program = require('commander')
+const requireEsm = require('esm')(module)
+const genProgram = requireEsm('./commands/inspect')
 
-const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
-const utils = requireEsm('./utils/index')
-const { Inspect } = requireEsm('./actions')
-
-program
-  .name('aecli inspect')
-
-// ## Initialize `options`
-program
-  .option('-u --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
-  .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
-  .option('-f --force', 'Ignore node version compatibility check')
-  .option('--json', 'Print result in json format')
-
-// ## Initialize `inspect` command
-//
-// You can use this command to get info about account, block, transaction or name
-//
-// Example: `aecli inspect testName.test` --> get info about AENS `name`
-//
-// Example: `aecli inspect ak_134defawsgf34gfq4f` --> get info about `account`
-//
-// Example: `aecli inspect kh_134defawsgf34gfq4f` --> get info about `key block` by block `hash`
-//
-// Example: `aecli inspect mh_134defawsgf34gfq4f` --> get info about `micro block` by block `hash`
-//
-// Example: `aecli inspect 1234` --> get info about `block` by block `height`
-//
-// Example: `aecli inspect th_asfwegfj34234t34t` --> get info about `transaction` by transaction `hash`
-program
-  .arguments('<hash>')
-  .description('Hash or Name to inspect (eg: ak_..., mk_..., name.test)')
-  .action(async (hash, cmd) => Inspect.inspect(hash, cmd))
-
-// Parse arguments
-program.parseAsync()
+genProgram().parseAsync()

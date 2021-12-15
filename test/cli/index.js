@@ -15,13 +15,11 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { spawn } from 'child_process'
 import * as R from 'ramda'
 // Workaround until fighting with babel7
 const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
 const { Universal, MemoryAccount, Node, Crypto } = requireEsm('@aeternity/aepp-sdk')
-
-const cliCommand = './bin/aecli.js'
+const accountProgramFactory = requireEsm('../../bin/commands/account').default
 
 const url = process.env.TEST_URL || 'http://localhost:3013'
 const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
@@ -76,28 +74,30 @@ export async function ready (mocha) {
     networkId,
     accounts: [MemoryAccount({ keypair: KEY_PAIR })]
   })
-  await execute(['account', 'save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
+  await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
   return client
 }
 
-export async function execute (args, { withNetworkId = false } = {}) {
-  return new Promise((resolve, reject) => {
-    let result = ''
-    const child = spawn(cliCommand, [...args, '--url', url, '--internalUrl', internalUrl, ...withNetworkId ? ['--networkId', networkId] : [], ...(args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [])])
-    child.stdin.setEncoding('utf-8')
-    child.stdout.on('data', (data) => {
-      result += data.toString()
-    })
-
-    child.stderr.on('data', (data) => {
-      result += data.toString()
-    })
-
-    child.on('close', (code) => {
-      if (code) reject(new Error(result.toString()))
-      else resolve(result.toString())
-    })
-  })
+export async function executeProgram (programFactory, args, { withNetworkId } = {}) {
+  let result = ''
+  const program = programFactory()
+  program
+    .configureOutput({ writeOut: (str) => { result += str } })
+    .exitOverride()
+  const log = console.log
+  console.log = (...data) => {
+    if (result) result += '\n'
+    result += data.join(' ')
+  }
+  await program.parseAsync([
+    ...args,
+    '--url', url,
+    '--internalUrl', internalUrl,
+    ...withNetworkId ? ['--networkId', networkId] : [],
+    ...args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : []
+  ], { from: 'user' })
+  console.log = log
+  return result
 }
 
 export function parseBlock (res) {
