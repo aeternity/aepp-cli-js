@@ -29,7 +29,7 @@
     "url": "https://github.com/aeternity/aepp-cli-js"
   },
   "scripts": {
-    "docs": "scripts/js-to-md.js bin/*.js bin/commands/*.js bin/utils/*.js",
+    "docs": "scripts/js-to-md.js bin/*.js bin/actions/*.js bin/utils/*.js",
     "lint": "commitlint --from 23f6888 && standard",
     "test": "mocha --recursive",
     "test:watch": "mocha --recursive --watch",

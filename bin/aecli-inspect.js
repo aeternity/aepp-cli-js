@@ -25,7 +25,7 @@ const program = require('commander')
 
 const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
 const utils = requireEsm('./utils/index')
-const { Inspect } = requireEsm('./commands')
+const { Inspect } = requireEsm('./actions')
 
 program
   .name('aecli inspect')
