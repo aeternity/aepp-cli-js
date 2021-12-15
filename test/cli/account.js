@@ -76,13 +76,9 @@ describe('CLI Account Module', function () {
     secretKey.should.equal(KEY_PAIR.secretKey)
   })
   it('Check Wallet Balance', async () => {
-    try {
-      const balance = await wallet.balance(await wallet.address())
-      const { balance: cliBalance } = JSON.parse(await execute(['account', 'balance', WALLET_NAME, '--password', 'test', '--json'], { withOutReject: true }))
-      cliBalance.should.equal(balance)
-    } catch (e) {
-      console.log(e)
-    }
+    const balance = await wallet.balance(await wallet.address())
+    const { balance: cliBalance } = JSON.parse(await execute(['account', 'balance', WALLET_NAME, '--password', 'test', '--json'], { withOutReject: true }))
+    cliBalance.should.equal(balance)
   })
   it('Spend coins to another wallet', async () => {
     const amount = 100

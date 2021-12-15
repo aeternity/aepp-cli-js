@@ -42,18 +42,14 @@ describe('CLI AENS Module', function () {
 
   before(async function () {
     // Spend tokens for wallet
-    try {
-      wallet = await ready(this)
-      const { version } = wallet.getNodeInfo()
-      const [majorVersion] = version.split('.')
-      nameAuctionsSupported = +majorVersion === 6 && version !== '5.0.0-rc.1'
-      name = randomName(12, nameAuctionsSupported ? '.chain' : '.test')
-      name2 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
-      name3 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
-      name4 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
-    } catch (e) {
-      console.log(e.toString())
-    }
+    wallet = await ready(this)
+    const { version } = wallet.getNodeInfo()
+    const [majorVersion] = version.split('.')
+    nameAuctionsSupported = +majorVersion === 6 && version !== '5.0.0-rc.1'
+    name = randomName(12, nameAuctionsSupported ? '.chain' : '.test')
+    name2 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
+    name3 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
+    name4 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
   })
 
   it('Full claim', async () => {

@@ -159,10 +159,9 @@ async function getBlockByHeight (height, options) {
 
 async function getName (name, options) {
   const { json } = options
+  validateName(name)
+  const client = await initChain(options)
   try {
-    validateName(name)
-    const client = await initChain(options)
-
     printName(
       await updateNameStatus(name)(client),
       json
@@ -170,9 +169,8 @@ async function getName (name, options) {
   } catch (e) {
     if (e.response && e.response.status === 404) {
       printName({ status: 'AVAILABLE' }, json)
-    } else {
-      printError(e.message)
     }
+    throw e
   }
 }
 

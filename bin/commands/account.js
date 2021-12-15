@@ -24,7 +24,7 @@ import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
 import { HASH_TYPES } from '../utils/constant'
 import { exit, initClientByWalletFile } from '../utils/cli'
-import { print, printError, printTransaction, printUnderscored } from '../utils/print'
+import { print, printTransaction, printUnderscored } from '../utils/print'
 import { checkPref, readFile } from '../utils/helpers'
 import { PROMPT_TYPE, prompt } from '../utils/prompt'
 
@@ -33,30 +33,24 @@ import { PROMPT_TYPE, prompt } from '../utils/prompt'
 async function signMessage (walletPath, data = [], options) {
   const { json, filePath } = options
   const dataForSign = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
-    if (dataForSign.length >= 0xFD) throw new Error('Message too long!')
-    const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
-    const signedMessage = await client.signMessage(dataForSign)
-    const address = await client.address()
-    const result = {
-      data: typeof dataForSign !== 'string' ? Array.from(dataForSign) : dataForSign,
-      address,
-      signature: Array.from(signedMessage),
-      signatureHex: Buffer.from(signedMessage).toString('hex')
-    }
-    if (json) {
-      print(result)
-    } else {
-      printUnderscored('Unsigned', result.data)
-      printUnderscored('Signing account address', result.address)
-      printUnderscored('Signature', result.signature)
-      printUnderscored('Signature Hex', result.signatureHex)
-    }
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
+  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+  if (dataForSign.length >= 0xFD) throw new Error('Message too long!')
+  const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
+  const signedMessage = await client.signMessage(dataForSign)
+  const address = await client.address()
+  const result = {
+    data: typeof dataForSign !== 'string' ? Array.from(dataForSign) : dataForSign,
+    address,
+    signature: Array.from(signedMessage),
+    signatureHex: Buffer.from(signedMessage).toString('hex')
+  }
+  if (json) {
+    print(result)
+  } else {
+    printUnderscored('Unsigned', result.data)
+    printUnderscored('Signing account address', result.address)
+    printUnderscored('Signature', result.signature)
+    printUnderscored('Signature Hex', result.signatureHex)
   }
 }
 
@@ -65,25 +59,19 @@ async function signMessage (walletPath, data = [], options) {
 async function verifyMessage (walletPath, hexSignature, data = [], options) {
   const { json, filePath } = options
   const dataForVerify = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
-    if (dataForVerify.length >= 0xFD) throw new Error('Message too long!')
-    const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
-    const isCorrect = await client.verifyMessage(dataForVerify, hexSignature)
-    const result = {
-      data: typeof dataForVerify !== 'string' ? Array.from(dataForVerify) : dataForVerify,
-      isCorrect
-    }
-    if (json) {
-      print(result)
-    } else {
-      printUnderscored('Valid signature', isCorrect)
-      printUnderscored('Data', dataForVerify)
-    }
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
+  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+  if (dataForVerify.length >= 0xFD) throw new Error('Message too long!')
+  const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
+  const isCorrect = await client.verifyMessage(dataForVerify, hexSignature)
+  const result = {
+    data: typeof dataForVerify !== 'string' ? Array.from(dataForVerify) : dataForVerify,
+    isCorrect
+  }
+  if (json) {
+    print(result)
+  } else {
+    printUnderscored('Valid signature', isCorrect)
+    printUnderscored('Data', dataForVerify)
   }
 }
 
@@ -91,28 +79,22 @@ async function verifyMessage (walletPath, hexSignature, data = [], options) {
 // this function allow you to `sign` transaction's
 async function sign (walletPath, tx, options) {
   const { json } = options
-  try {
-    // Validate `tx` hash
-    if (tx.slice(0, 2) !== 'tx') { throw new Error('Invalid transaction hash') }
+  // Validate `tx` hash
+  if (tx.slice(0, 2) !== 'tx') { throw new Error('Invalid transaction hash') }
 
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
-    const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
+  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+  const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
 
-    const signedTx = await client.signTransaction(tx)
-    const address = await client.address()
-    const networkId = client.getNetworkId()
-    if (json) {
-      print({ signedTx, address, networkId })
-    } else {
-      printUnderscored('Signing account address', address)
-      printUnderscored('Network ID', networkId)
-      printUnderscored('Unsigned', tx)
-      printUnderscored('Signed', signedTx)
-    }
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
+  const signedTx = await client.signTransaction(tx)
+  const address = await client.address()
+  const networkId = client.getNetworkId()
+  if (json) {
+    print({ signedTx, address, networkId })
+  } else {
+    printUnderscored('Signing account address', address)
+    printUnderscored('Network ID', networkId)
+    printUnderscored('Unsigned', tx)
+    printUnderscored('Signed', signedTx)
   }
 }
 
@@ -120,25 +102,19 @@ async function sign (walletPath, tx, options) {
 // this function allow you to `send` token's to another `account`
 async function spend (walletPath, receiverNameOrAddress, amount, options) {
   const { ttl, json, nonce, fee, payload = '', denomination = AmountFormatter.AE_AMOUNT_FORMATS.AETTOS } = options
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const client = await initClientByWalletFile(walletPath, options)
+  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+  const client = await initClientByWalletFile(walletPath, options)
 
-    let tx = await client.spend(amount, receiverNameOrAddress, { ttl, nonce, payload, fee, denomination })
-    // if waitMined false
-    if (typeof tx !== 'object') {
-      tx = await client.tx(tx)
-    } else {
-      !json && print('Transaction mined')
-    }
-    json
-      ? print({ tx })
-      : printTransaction(tx, json)
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
+  let tx = await client.spend(amount, receiverNameOrAddress, { ttl, nonce, payload, fee, denomination })
+  // if waitMined false
+  if (typeof tx !== 'object') {
+    tx = await client.tx(tx)
+  } else {
+    !json && print('Transaction mined')
   }
+  json
+    ? print({ tx })
+    : printTransaction(tx, json)
 }
 
 // ## `Transfer` function
@@ -146,27 +122,21 @@ async function spend (walletPath, receiverNameOrAddress, amount, options) {
 async function transferFunds (walletPath, receiver, percentage, options) {
   const { ttl, json, nonce, fee, payload = '', excludeFee } = options
   percentage = parseFloat(percentage)
-  try {
-    checkPref(receiver, HASH_TYPES.account)
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const client = await initClientByWalletFile(walletPath, options)
+  checkPref(receiver, HASH_TYPES.account)
+  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+  const client = await initClientByWalletFile(walletPath, options)
 
-    let tx = await client.transferFunds(percentage, receiver, { ttl, nonce, payload, fee, excludeFee })
-    // if waitMined false
-    if (typeof tx !== 'object') {
-      tx = await client.tx(tx)
-    } else {
-      !json && print('Transaction mined')
-    }
-    if (json) {
-      print({ tx })
-    } else {
-      printTransaction(tx, json)
-    }
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
+  let tx = await client.transferFunds(percentage, receiver, { ttl, nonce, payload, fee, excludeFee })
+  // if waitMined false
+  if (typeof tx !== 'object') {
+    tx = await client.tx(tx)
+  } else {
+    !json && print('Transaction mined')
+  }
+  if (json) {
+    print({ tx })
+  } else {
+    printTransaction(tx, json)
   }
 }
 
@@ -174,23 +144,17 @@ async function transferFunds (walletPath, receiver, percentage, options) {
 // This function allow you retrieve account `balance`
 async function getBalance (walletPath, options) {
   const { height, hash, json } = options
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
-    const nonce = await client.getAccountNonce(keypair.publicKey)
-    const balance = await client.balance(keypair.publicKey, { height: +height, hash })
-    const address = await client.address()
-    if (json) {
-      print({ address, nonce, balance })
-    } else {
-      printUnderscored('Balance', balance)
-      printUnderscored('ID', address)
-      printUnderscored('Nonce', nonce)
-    }
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
+  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+  const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
+  const nonce = await client.getAccountNonce(keypair.publicKey)
+  const balance = await client.balance(keypair.publicKey, { height: +height, hash })
+  const address = await client.address()
+  if (json) {
+    print({ address, nonce, balance })
+  } else {
+    printUnderscored('Balance', balance)
+    printUnderscored('ID', address)
+    printUnderscored('Nonce', nonce)
   }
 }
 
@@ -198,30 +162,24 @@ async function getBalance (walletPath, options) {
 // This function allow you retrieve account `public` and `private` keys
 async function getAddress (walletPath, options) {
   const { privateKey, forcePrompt = false, json } = options
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const { client, keypair } = await initClientByWalletFile(walletPath, { ...options, accountOnly: true }, true)
+  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+  const { client, keypair } = await initClientByWalletFile(walletPath, { ...options, accountOnly: true }, true)
 
-    if (json) {
-      if (privateKey) {
-        if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-          print({ publicKey: await client.address(), secretKey: keypair.secretKey })
-        }
-      } else {
-        print({ publicKey: await client.address() })
+  if (json) {
+    if (privateKey) {
+      if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
+        print({ publicKey: await client.address(), secretKey: keypair.secretKey })
       }
     } else {
-      printUnderscored('Address', await client.address())
-      if (privateKey) {
-        if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-          printUnderscored('Secret Key', keypair.secretKey)
-        }
+      print({ publicKey: await client.address() })
+    }
+  } else {
+    printUnderscored('Address', await client.address())
+    if (privateKey) {
+      if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
+        printUnderscored('Secret Key', keypair.secretKey)
       }
     }
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
   }
 }
 
@@ -229,97 +187,73 @@ async function getAddress (walletPath, options) {
 // This function allow you retrieve account `nonce`
 async function getAccountNonce (walletPath, options) {
   const { json } = options
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
+  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
+  const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
 
-    const nonce = await client.getAccountNonce(keypair.publicKey)
-    if (json) {
-      print({
-        id: keypair.publicKey,
-        nonce: nonce - 1,
-        nextNonce: nonce
-      })
-    } else {
-      printUnderscored('ID', keypair.publicKey)
-      printUnderscored('Nonce', nonce - 1)
-      printUnderscored('Next Nonce', nonce)
-    }
-    process.exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
+  const nonce = await client.getAccountNonce(keypair.publicKey)
+  if (json) {
+    print({
+      id: keypair.publicKey,
+      nonce: nonce - 1,
+      nextNonce: nonce
+    })
+  } else {
+    printUnderscored('ID', keypair.publicKey)
+    printUnderscored('Nonce', nonce - 1)
+    printUnderscored('Next Nonce', nonce)
   }
 }
 
 // ## Create secure `wallet` file
 // This function allow you to generate `keypair` and write it to secure `ethereum` like key-file
 async function createSecureWallet (walletPath, { output, password, overwrite, json }) {
-  try {
-    const { publicKey, path } = await generateSecureWallet(walletPath, { output, password, overwrite })
-    if (json) {
-      print({
-        publicKey,
-        path
-      })
-    } else {
-      printUnderscored('Address', publicKey)
-      printUnderscored('Path', path)
-    }
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
+  const { publicKey, path } = await generateSecureWallet(walletPath, { output, password, overwrite })
+  if (json) {
+    print({
+      publicKey,
+      path
+    })
+  } else {
+    printUnderscored('Address', publicKey)
+    printUnderscored('Path', path)
   }
 }
 
 // ## Create secure `wallet` file from `private-key`
 // This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
 async function createSecureWalletByPrivKey (walletPath, priv, { output, password, overwrite, json }) {
-  try {
-    const { publicKey, path } = await generateSecureWalletFromPrivKey(walletPath, priv, { output, password, overwrite })
-    if (json) {
-      print({
-        publicKey,
-        path
-      })
-    } else {
-      printUnderscored('Address', publicKey)
-      printUnderscored('Path', path)
-    }
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
+  const { publicKey, path } = await generateSecureWalletFromPrivKey(walletPath, priv, { output, password, overwrite })
+  if (json) {
+    print({
+      publicKey,
+      path
+    })
+  } else {
+    printUnderscored('Address', publicKey)
+    printUnderscored('Path', path)
   }
 }
 
 // ## Create secure `wallet` file from `private-key`
 // This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
 async function generateKeyPairs (count = 1, { forcePrompt, json }) {
-  try {
-    if (!Number.isInteger(+count)) {
-      throw new Error('Count must be an Number')
-    }
-    if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-      const accounts = Array.from(Array(parseInt(count))).map(_ => Crypto.generateKeyPair(false))
-      if (json) {
-        print(JSON.stringify(accounts, null, 2))
-      } else {
-        accounts.forEach((acc, i) => {
-          printUnderscored('Account index', i)
-          printUnderscored('Public Key', acc.publicKey)
-          printUnderscored('Secret Key', acc.secretKey)
-          print('')
-        })
-      }
+  if (!Number.isInteger(+count)) {
+    throw new Error('Count must be an Number')
+  }
+  if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
+    const accounts = Array.from(Array(parseInt(count))).map(_ => Crypto.generateKeyPair(false))
+    if (json) {
+      print(JSON.stringify(accounts, null, 2))
     } else {
-      exit()
+      accounts.forEach((acc, i) => {
+        printUnderscored('Account index', i)
+        printUnderscored('Public Key', acc.publicKey)
+        printUnderscored('Secret Key', acc.secretKey)
+        print('')
+      })
     }
+  } else {
     exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
   }
 }
 

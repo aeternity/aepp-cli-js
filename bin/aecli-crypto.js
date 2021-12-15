@@ -32,22 +32,17 @@ program
 async function extractReadableKeys (dir, options) {
   const pwd = options.input
   const password = await prompt(PROMPT_TYPE.askPassword)
-  try {
-    const key = fs.readFileSync(path.join(pwd, dir, 'sign_key'))
-    const pubKey = fs.readFileSync(path.join(pwd, dir, 'sign_key.pub'))
+  const key = fs.readFileSync(path.join(pwd, dir, 'sign_key'))
+  const pubKey = fs.readFileSync(path.join(pwd, dir, 'sign_key.pub'))
 
-    const decrypted = Crypto.decryptPrivateKey(password, key)
+  const decrypted = Crypto.decryptPrivateKey(password, key)
 
-    const privateHex = Buffer.from(decrypted).toString('hex')
-    const decryptedPub = Crypto.decryptPubKey(password, pubKey)
+  const privateHex = Buffer.from(decrypted).toString('hex')
+  const decryptedPub = Crypto.decryptPubKey(password, pubKey)
 
-    console.log(`Private key (hex): ${privateHex}`)
-    console.log(`Public key (base check): ak_${Crypto.encodeBase58Check(decryptedPub)}`)
-    console.log(`Public key (hex): ${decryptedPub.toString('hex')}`)
-  } catch (e) {
-    console.log(e.message)
-    process.exit(1)
-  }
+  console.log(`Private key (hex): ${privateHex}`)
+  console.log(`Public key (base check): ak_${Crypto.encodeBase58Check(decryptedPub)}`)
+  console.log(`Public key (hex): ${decryptedPub.toString('hex')}`)
 }
 
 // ## Key Pair Generation
