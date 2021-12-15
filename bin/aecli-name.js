@@ -166,4 +166,4 @@ program
   .action(async (name, ...args) => await AENS.lookUp(name, utils.cli.getCmdFromArguments(args)))
 
 // Parse arguments
-program.parse(process.argv)
+program.parseAsync()

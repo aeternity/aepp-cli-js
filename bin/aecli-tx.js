@@ -209,4 +209,4 @@ program
   .action(async (tx, ...args) => await Transaction.verify(tx, utils.cli.getCmdFromArguments(args)))
 
 // Parse arguments
-program.parse(process.argv)
+program.parseAsync()

@@ -123,4 +123,4 @@ program
   .action(async (oracleId, ...args) => await Oracle.queryOracle(oracleId, utils.cli.getCmdFromArguments(args)))
 
 // Parse arguments
-program.parse(process.argv)
+program.parseAsync()

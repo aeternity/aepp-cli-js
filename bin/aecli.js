@@ -53,4 +53,4 @@ program
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc))
 
 // Parse arguments
-program.parse(process.argv)
+program.parseAsync()

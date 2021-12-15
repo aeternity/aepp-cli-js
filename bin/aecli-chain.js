@@ -104,4 +104,4 @@ program
   .action(async (tx, ...args) => await Chain.broadcast(tx, utils.cli.getCmdFromArguments(args)))
 
 // Parse arguments
-program.parse(process.argv)
+program.parseAsync()

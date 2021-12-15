@@ -126,4 +126,4 @@ program
   .action(async (walletPath, path, callData, ...args) => await Contract.deploy(walletPath, path, callData, utils.cli.getCmdFromArguments(args)))
 
 // Parse arguments
-program.parse(process.argv)
+program.parseAsync()

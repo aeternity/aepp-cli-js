@@ -58,4 +58,4 @@ program
   .action(async (hash, cmd) => Inspect.inspect(hash, cmd))
 
 // Parse arguments
-program.parse(process.argv)
+program.parseAsync()

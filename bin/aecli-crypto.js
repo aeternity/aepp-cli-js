@@ -139,4 +139,4 @@ program
   .command('unpack <tx>')
   .action(unpackTx)
 
-program.parse(process.argv)
+program.parseAsync()

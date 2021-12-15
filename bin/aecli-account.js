@@ -196,4 +196,4 @@ program
   .action(async (count, ...args) => await Account.generateKeyPairs(count, utils.cli.getCmdFromArguments(args)))
 
 // Parse arguments
-program.parse(process.argv)
+program.parseAsync()
