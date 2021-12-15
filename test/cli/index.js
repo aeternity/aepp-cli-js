@@ -16,10 +16,8 @@
  */
 
 import * as R from 'ramda'
-// Workaround until fighting with babel7
-const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
-const { Universal, MemoryAccount, Node, Crypto } = requireEsm('@aeternity/aepp-sdk')
-const accountProgramFactory = requireEsm('../../bin/commands/account').default
+import { Universal, MemoryAccount, Node, Crypto } from '@aeternity/aepp-sdk'
+import accountProgramFactory from '../../bin/commands/account'
 
 const url = process.env.TEST_URL || 'http://localhost:3013'
 const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
