@@ -24,7 +24,6 @@ import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
 import { HASH_TYPES } from '../utils/constant'
 import { exit, initClientByWalletFile } from '../utils/cli'
-import { handleApiError } from '../utils/errors'
 import { print, printError, printTransaction, printUnderscored } from '../utils/print'
 import { checkPref, readFile } from '../utils/helpers'
 import { PROMPT_TYPE, prompt } from '../utils/prompt'
@@ -38,25 +37,23 @@ async function signMessage (walletPath, data = [], options) {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
     if (dataForSign.length >= 0xFD) throw new Error('Message too long!')
     const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
-    await handleApiError(async () => {
-      const signedMessage = await client.signMessage(dataForSign)
-      const address = await client.address()
-      const result = {
-        data: typeof dataForSign !== 'string' ? Array.from(dataForSign) : dataForSign,
-        address,
-        signature: Array.from(signedMessage),
-        signatureHex: Buffer.from(signedMessage).toString('hex')
-      }
-      if (json) {
-        print(result)
-      } else {
-        printUnderscored('Unsigned', result.data)
-        printUnderscored('Signing account address', result.address)
-        printUnderscored('Signature', result.signature)
-        printUnderscored('Signature Hex', result.signatureHex)
-      }
-      exit()
-    })
+    const signedMessage = await client.signMessage(dataForSign)
+    const address = await client.address()
+    const result = {
+      data: typeof dataForSign !== 'string' ? Array.from(dataForSign) : dataForSign,
+      address,
+      signature: Array.from(signedMessage),
+      signatureHex: Buffer.from(signedMessage).toString('hex')
+    }
+    if (json) {
+      print(result)
+    } else {
+      printUnderscored('Unsigned', result.data)
+      printUnderscored('Signing account address', result.address)
+      printUnderscored('Signature', result.signature)
+      printUnderscored('Signature Hex', result.signatureHex)
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -72,20 +69,18 @@ async function verifyMessage (walletPath, hexSignature, data = [], options) {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
     if (dataForVerify.length >= 0xFD) throw new Error('Message too long!')
     const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
-    await handleApiError(async () => {
-      const isCorrect = await client.verifyMessage(dataForVerify, hexSignature)
-      const result = {
-        data: typeof dataForVerify !== 'string' ? Array.from(dataForVerify) : dataForVerify,
-        isCorrect
-      }
-      if (json) {
-        print(result)
-      } else {
-        printUnderscored('Valid signature', isCorrect)
-        printUnderscored('Data', dataForVerify)
-      }
-      exit()
-    })
+    const isCorrect = await client.verifyMessage(dataForVerify, hexSignature)
+    const result = {
+      data: typeof dataForVerify !== 'string' ? Array.from(dataForVerify) : dataForVerify,
+      isCorrect
+    }
+    if (json) {
+      print(result)
+    } else {
+      printUnderscored('Valid signature', isCorrect)
+      printUnderscored('Data', dataForVerify)
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -103,20 +98,18 @@ async function sign (walletPath, tx, options) {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
     const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
 
-    await handleApiError(async () => {
-      const signedTx = await client.signTransaction(tx)
-      const address = await client.address()
-      const networkId = client.getNetworkId()
-      if (json) {
-        print({ signedTx, address, networkId })
-      } else {
-        printUnderscored('Signing account address', address)
-        printUnderscored('Network ID', networkId)
-        printUnderscored('Unsigned', tx)
-        printUnderscored('Signed', signedTx)
-      }
-      exit()
-    })
+    const signedTx = await client.signTransaction(tx)
+    const address = await client.address()
+    const networkId = client.getNetworkId()
+    if (json) {
+      print({ signedTx, address, networkId })
+    } else {
+      printUnderscored('Signing account address', address)
+      printUnderscored('Network ID', networkId)
+      printUnderscored('Unsigned', tx)
+      printUnderscored('Signed', signedTx)
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -131,19 +124,17 @@ async function spend (walletPath, receiverNameOrAddress, amount, options) {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
 
-    await handleApiError(async () => {
-      let tx = await client.spend(amount, receiverNameOrAddress, { ttl, nonce, payload, fee, denomination })
-      // if waitMined false
-      if (typeof tx !== 'object') {
-        tx = await client.tx(tx)
-      } else {
-        !json && print('Transaction mined')
-      }
-      json
-        ? print({ tx })
-        : printTransaction(tx, json)
-      exit()
-    })
+    let tx = await client.spend(amount, receiverNameOrAddress, { ttl, nonce, payload, fee, denomination })
+    // if waitMined false
+    if (typeof tx !== 'object') {
+      tx = await client.tx(tx)
+    } else {
+      !json && print('Transaction mined')
+    }
+    json
+      ? print({ tx })
+      : printTransaction(tx, json)
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -160,21 +151,19 @@ async function transferFunds (walletPath, receiver, percentage, options) {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const client = await initClientByWalletFile(walletPath, options)
 
-    await handleApiError(async () => {
-      let tx = await client.transferFunds(percentage, receiver, { ttl, nonce, payload, fee, excludeFee })
-      // if waitMined false
-      if (typeof tx !== 'object') {
-        tx = await client.tx(tx)
-      } else {
-        !json && print('Transaction mined')
-      }
-      if (json) {
-        print({ tx })
-      } else {
-        printTransaction(tx, json)
-      }
-      exit()
-    })
+    let tx = await client.transferFunds(percentage, receiver, { ttl, nonce, payload, fee, excludeFee })
+    // if waitMined false
+    if (typeof tx !== 'object') {
+      tx = await client.tx(tx)
+    } else {
+      !json && print('Transaction mined')
+    }
+    if (json) {
+      print({ tx })
+    } else {
+      printTransaction(tx, json)
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -188,21 +177,17 @@ async function getBalance (walletPath, options) {
   try {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
-    await handleApiError(
-      async () => {
-        const nonce = await client.getAccountNonce(keypair.publicKey)
-        const balance = await client.balance(keypair.publicKey, { height: +height, hash })
-        const address = await client.address()
-        if (json) {
-          print({ address, nonce, balance })
-        } else {
-          printUnderscored('Balance', balance)
-          printUnderscored('ID', address)
-          printUnderscored('Nonce', nonce)
-        }
-        exit()
-      }
-    )
+    const nonce = await client.getAccountNonce(keypair.publicKey)
+    const balance = await client.balance(keypair.publicKey, { height: +height, hash })
+    const address = await client.address()
+    if (json) {
+      print({ address, nonce, balance })
+    } else {
+      printUnderscored('Balance', balance)
+      printUnderscored('ID', address)
+      printUnderscored('Nonce', nonce)
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -217,27 +202,23 @@ async function getAddress (walletPath, options) {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const { client, keypair } = await initClientByWalletFile(walletPath, { ...options, accountOnly: true }, true)
 
-    await handleApiError(
-      async () => {
-        if (json) {
-          if (privateKey) {
-            if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-              print({ publicKey: await client.address(), secretKey: keypair.secretKey })
-            }
-          } else {
-            print({ publicKey: await client.address() })
-          }
-        } else {
-          printUnderscored('Address', await client.address())
-          if (privateKey) {
-            if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-              printUnderscored('Secret Key', keypair.secretKey)
-            }
-          }
+    if (json) {
+      if (privateKey) {
+        if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
+          print({ publicKey: await client.address(), secretKey: keypair.secretKey })
         }
-        exit()
+      } else {
+        print({ publicKey: await client.address() })
       }
-    )
+    } else {
+      printUnderscored('Address', await client.address())
+      if (privateKey) {
+        if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
+          printUnderscored('Secret Key', keypair.secretKey)
+        }
+      }
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -252,23 +233,19 @@ async function getAccountNonce (walletPath, options) {
     // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
     const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
 
-    await handleApiError(
-      async () => {
-        const nonce = await client.getAccountNonce(keypair.publicKey)
-        if (json) {
-          print({
-            id: keypair.publicKey,
-            nonce: nonce - 1,
-            nextNonce: nonce
-          })
-        } else {
-          printUnderscored('ID', keypair.publicKey)
-          printUnderscored('Nonce', nonce - 1)
-          printUnderscored('Next Nonce', nonce)
-        }
-        process.exit()
-      }
-    )
+    const nonce = await client.getAccountNonce(keypair.publicKey)
+    if (json) {
+      print({
+        id: keypair.publicKey,
+        nonce: nonce - 1,
+        nextNonce: nonce
+      })
+    } else {
+      printUnderscored('ID', keypair.publicKey)
+      printUnderscored('Nonce', nonce - 1)
+      printUnderscored('Next Nonce', nonce)
+    }
+    process.exit()
   } catch (e) {
     printError(e.message)
     exit(1)

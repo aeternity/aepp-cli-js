@@ -21,7 +21,6 @@
 
 import { Crypto, SCHEMA, TxBuilder, TxBuilderHelper, verifyTransaction, Node } from '@aeternity/aepp-sdk'
 import { exit, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
-import { handleApiError } from '../utils/errors'
 import { print, printBuilderTransaction, printError, printUnderscored, printValidation } from '../utils/print'
 import { validateName } from '../utils/helpers'
 import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION } from '../utils/constant'
@@ -235,23 +234,21 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
     // Initialize `Ae`
     const txBuilder = await initTxBuilder(options)
     // Build `deploy` transaction's
-    await handleApiError(async () => {
-      // Create `contract-deploy` transaction
-      const { tx, contractId, txObject } = await txBuilder.contractCreateTx({
-        ...options,
-        code: contractByteCode,
-        ownerId,
-        nonce: +nonce, // TODO: remove after fixing https://github.com/aeternity/aepp-sdk-js/issues/1370
-        callData: initCallData
-      })
-
-      if (json) {
-        print({ tx, contractId, txObject })
-      } else {
-        printUnderscored('Unsigned Contract Deploy TX', tx)
-        printUnderscored('Contract ID', contractId)
-      }
+    // Create `contract-deploy` transaction
+    const { tx, contractId, txObject } = await txBuilder.contractCreateTx({
+      ...options,
+      code: contractByteCode,
+      ownerId,
+      nonce: +nonce, // TODO: remove after fixing https://github.com/aeternity/aepp-sdk-js/issues/1370
+      callData: initCallData
     })
+
+    if (json) {
+      print({ tx, contractId, txObject })
+    } else {
+      printUnderscored('Unsigned Contract Deploy TX', tx)
+      printUnderscored('Contract ID', contractId)
+    }
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -263,22 +260,20 @@ async function contractCall (callerId, contractId, callData, nonce, options) {
   const { json } = options
   try {
     // Build `call` transaction's
-    await handleApiError(async () => {
-      // Initialize `Ae`
-      const txBuilder = await initTxBuilder(options)
-      // Create `contract-call` transaction
-      const tx = await txBuilder.contractCallTx({
-        ...options,
-        callerId,
-        nonce,
-        callData,
-        contractId
-      })
-
-      json
-        ? print({ tx })
-        : printUnderscored('Unsigned Contract Call TX', tx)
+    // Initialize `Ae`
+    const txBuilder = await initTxBuilder(options)
+    // Create `contract-call` transaction
+    const tx = await txBuilder.contractCallTx({
+      ...options,
+      callerId,
+      nonce,
+      callData,
+      contractId
     })
+
+    json
+      ? print({ tx })
+      : printUnderscored('Unsigned Contract Call TX', tx)
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -422,16 +417,14 @@ async function verify (transaction, options) {
     // Validate input
     TxBuilderHelper.decode(transaction, 'tx')
     // Call `getStatus` API and print it
-    await handleApiError(async () => {
-      const validation = await verifyTransaction(transaction, await Node(options))
-      const { tx, txType: type } = TxBuilder.unpackTx(transaction)
-      if (json) {
-        print({ validation, tx, type })
-        exit(0)
-      }
-      printValidation({ validation, transaction })
-      if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')
-    })
+    const validation = await verifyTransaction(transaction, await Node(options))
+    const { tx, txType: type } = TxBuilder.unpackTx(transaction)
+    if (json) {
+      print({ validation, tx, type })
+      exit(0)
+    }
+    printValidation({ validation, transaction })
+    if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')
   } catch (e) {
     printError(e.message)
     exit(1)

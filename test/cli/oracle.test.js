@@ -80,7 +80,7 @@ describe('CLI Oracle Module', function () {
   it('Get non existed Oracle', async () => {
     const fakeOracleId = Crypto.generateKeyPair().publicKey.replace('ak_', 'ok_')
     await execute(['oracle', 'get', fakeOracleId, '--json'])
-      .should.be.rejectedWith('API ERROR:')
+      .should.be.rejectedWith('error: Oracle not found')
     await execute(['oracle', 'get', 'oq_d1sadasdasda', '--json'])
       .should.be.rejectedWith('Encoded string have a wrong type: oq (expected: ok)')
   })

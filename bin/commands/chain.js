@@ -20,7 +20,6 @@
  */
 
 import { exit, initChain } from '../utils/cli'
-import { handleApiError } from '../utils/errors'
 import { printBlock, print, printError, printUnderscored, printTransaction, printValidation } from '../utils/print'
 import { getBlock } from '../utils/helpers'
 
@@ -31,31 +30,29 @@ async function version (options) {
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getStatus` API and print it
-    await handleApiError(async () => {
-      const status = await client.api.getStatus()
-      const { consensusProtocolVersion } = client.getNodeInfo()
-      if (json) {
-        print(status)
-        exit()
-      }
-      const FORKS = {
-        3: 'Fortuna',
-        4: 'Lima',
-        5: 'Iris'
-      }
-      printUnderscored('Difficulty', status.difficulty)
-      printUnderscored('Node version', status.nodeVersion)
-      printUnderscored('Consensus protocol version', `${consensusProtocolVersion} (${FORKS[consensusProtocolVersion]})`)
-      printUnderscored('Node revision', status.nodeRevision)
-      printUnderscored('Genesis hash', status.genesisKeyBlockHash)
-      printUnderscored('Network ID', status.networkId)
-      printUnderscored('Listening', status.listening)
-      printUnderscored('Peer count', status.peerCount)
-      printUnderscored('Pending transactions count', status.pendingTransactionsCount)
-      printUnderscored('Solutions', status.solutions)
-      printUnderscored('Syncing', status.syncing)
+    const status = await client.api.getStatus()
+    const { consensusProtocolVersion } = client.getNodeInfo()
+    if (json) {
+      print(status)
       exit()
-    })
+    }
+    const FORKS = {
+      3: 'Fortuna',
+      4: 'Lima',
+      5: 'Iris'
+    }
+    printUnderscored('Difficulty', status.difficulty)
+    printUnderscored('Node version', status.nodeVersion)
+    printUnderscored('Consensus protocol version', `${consensusProtocolVersion} (${FORKS[consensusProtocolVersion]})`)
+    printUnderscored('Node revision', status.nodeRevision)
+    printUnderscored('Genesis hash', status.genesisKeyBlockHash)
+    printUnderscored('Network ID', status.networkId)
+    printUnderscored('Listening', status.listening)
+    printUnderscored('Peer count', status.peerCount)
+    printUnderscored('Pending transactions count', status.pendingTransactionsCount)
+    printUnderscored('Solutions', status.solutions)
+    printUnderscored('Syncing', status.syncing)
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -69,11 +66,9 @@ async function getNetworkId (options) {
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getStatus` API and print it
-    await handleApiError(async () => {
-      const { networkId } = await client.api.getStatus()
-      json ? print({ networkId }) : printUnderscored('Network ID', networkId)
-      exit(0)
-    })
+    const { networkId } = await client.api.getStatus()
+    json ? print({ networkId }) : printUnderscored('Network ID', networkId)
+    exit(0)
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -87,16 +82,14 @@ async function ttl (absoluteTtl, options) {
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `topBlock` API and calculate relative `ttl`
-    await handleApiError(async () => {
-      const height = await client.height()
-      if (json) {
-        print({ absoluteTtl, relativeTtl: +height + +absoluteTtl })
-      } else {
-        printUnderscored('Absolute TTL', absoluteTtl)
-        printUnderscored('Relative TTL', +height + +absoluteTtl)
-      }
-      exit()
-    })
+    const height = await client.height()
+    if (json) {
+      print({ absoluteTtl, relativeTtl: +height + +absoluteTtl })
+    } else {
+      printUnderscored('Absolute TTL', absoluteTtl)
+      printUnderscored('Relative TTL', +height + +absoluteTtl)
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -110,9 +103,7 @@ async function top (options) {
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getTopBlock` API and print it
-    await handleApiError(
-      async () => printBlock(await client.topBlock(), json)
-    )
+    printBlock(await client.topBlock(), json)
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -127,23 +118,21 @@ async function play (options) {
   try {
     const client = await initChain(options)
 
-    await handleApiError(async () => {
-      // Get top block from `node`. It is a start point for play.
-      const top = await client.topBlock()
+    // Get top block from `node`. It is a start point for play.
+    const top = await client.topBlock()
 
-      if (height && height > parseInt(top.height)) {
-        printError('Height is bigger then height of top block')
-        exit(1)
-      }
+    if (height && height > parseInt(top.height)) {
+      printError('Height is bigger then height of top block')
+      exit(1)
+    }
 
-      printBlock(top, json)
+    printBlock(top, json)
 
-      // Play by `height` or by `limit` using `top` block as start point
-      height
-        ? await playWithHeight(height, top.prevHash)(client, json)
-        : await playWithLimit(--limit, top.prevHash)(client, json)
-      exit()
-    })
+    // Play by `height` or by `limit` using `top` block as start point
+    height
+      ? await playWithHeight(height, top.prevHash)(client, json)
+      : await playWithLimit(--limit, top.prevHash)(client, json)
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -188,25 +177,23 @@ async function broadcast (signedTx, options) {
     // Initialize `Ae`
     const client = await initChain(options)
     // Call `getStatus` API and print it
-    await handleApiError(async () => {
-      try {
-        const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify })
-        waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx.hash)
-      } catch (e) {
-        if (e.verifyTx) {
-          const validation = await e.verifyTx()
-          if (validation.length) {
-            printValidation({ validation, transaction: signedTx })
-            return
-          }
-        }
-        if (e.code === 'TX_VERIFICATION_ERROR') {
-          printValidation(e)
+    try {
+      const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify })
+      waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx.hash)
+    } catch (e) {
+      if (e.verifyTx) {
+        const validation = await e.verifyTx()
+        if (validation.length) {
+          printValidation({ validation, transaction: signedTx })
           return
         }
-        throw e
       }
-    })
+      if (e.code === 'TX_VERIFICATION_ERROR') {
+        printValidation(e)
+        return
+      }
+      throw e
+    }
   } catch (e) {
     printError(e.message)
     exit(1)

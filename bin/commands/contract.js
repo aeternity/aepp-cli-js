@@ -22,7 +22,6 @@
 import path from 'path'
 import * as R from 'ramda'
 import { exit, initClientByWalletFile, initCompiler } from '../utils/cli'
-import { handleApiError } from '../utils/errors'
 import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
 import { logContractDescriptor, print, printError, printTransaction, printUnderscored } from '../utils/print'
 
@@ -35,15 +34,13 @@ export async function compile (file, options) {
 
     const client = await initCompiler(options)
 
-    await handleApiError(async () => {
-      // Call `node` API which return `compiled code`
-      const contract = await client.compileContractAPI(code, { backend })
-      if (json) {
-        print({ bytecode: contract })
-      } else {
-        print(`Contract bytecode: ${contract}`)
-      }
-    })
+    // Call `node` API which return `compiled code`
+    const contract = await client.compileContractAPI(code, { backend })
+    if (json) {
+      print({ bytecode: contract })
+    } else {
+      print(`Contract bytecode: ${contract}`)
+    }
   } catch (e) {
     printError(e.message)
   }
@@ -58,15 +55,13 @@ export async function encodeData (source, fn, args = [], options) {
 
     const client = await initCompiler(options)
 
-    await handleApiError(async () => {
-      // Call `node` API which return `compiled code`
-      const callData = await client.contractEncodeCallDataAPI(sourceCode, fn, args, { backend })
-      if (options.json) {
-        print(JSON.stringify({ callData }))
-      } else {
-        print(`Contract encoded call data: ${callData}`)
-      }
-    })
+    // Call `node` API which return `compiled code`
+    const callData = await client.contractEncodeCallDataAPI(sourceCode, fn, args, { backend })
+    if (options.json) {
+      print(JSON.stringify({ callData }))
+    } else {
+      print(`Contract encoded call data: ${callData}`)
+    }
   } catch (e) {
     printError(e.message)
   }
@@ -89,19 +84,17 @@ export async function decodeCallData (data, options) {
   try {
     const client = await initCompiler(options)
 
-    await handleApiError(async () => {
-      // Call `node` API which return `compiled code`
-      const decoded = code
-        ? await client.contractDecodeCallDataByCodeAPI(code, data, backend)
-        : await client.contractDecodeCallDataBySourceAPI(sourceCode, fn, data, { backend })
+    // Call `node` API which return `compiled code`
+    const decoded = code
+      ? await client.contractDecodeCallDataByCodeAPI(code, data, backend)
+      : await client.contractDecodeCallDataBySourceAPI(sourceCode, fn, data, { backend })
 
-      if (options.json) {
-        print(JSON.stringify({ decoded }))
-      } else {
-        print('Decoded Call Data:')
-        print(decoded)
-      }
-    })
+    if (options.json) {
+      print(JSON.stringify({ decoded }))
+    } else {
+      print('Decoded Call Data:')
+      print(decoded)
+    }
   } catch (e) {
     printError(e.message)
   }
@@ -122,52 +115,48 @@ async function deploy (walletPath, contractPath, callData = '', options) {
     const client = await initClientByWalletFile(walletPath, options)
     const contractFile = readFile(path.resolve(process.cwd(), contractPath), 'utf-8')
 
-    await handleApiError(
-      async () => {
-        const ownerId = await client.address()
-        const { bytecode: code } = await client.contractCompile(contractFile)
-        const opt = R.merge(client.Ae.defaults, { gas, gasPrice, ttl, nonce, fee })
+    const ownerId = await client.address()
+    const { bytecode: code } = await client.contractCompile(contractFile)
+    const opt = R.merge(client.Ae.defaults, { gas, gasPrice, ttl, nonce, fee })
 
-        // Prepare contract create transaction
-        const { tx, contractId } = await client.contractCreateTx(R.merge(opt, {
-          callData,
-          code,
-          ownerId
-        }))
-        // Broadcast transaction
-        const { hash } = await client.send(tx, opt)
-        const result = await client.getTxInfo(hash)
+    // Prepare contract create transaction
+    const { tx, contractId } = await client.contractCreateTx(R.merge(opt, {
+      callData,
+      code,
+      ownerId
+    }))
+    // Broadcast transaction
+    const { hash } = await client.send(tx, opt)
+    const result = await client.getTxInfo(hash)
 
-        if (result.returnType === 'ok') {
-          const deployDescriptor = Object.freeze({
-            result,
-            owner: ownerId,
-            transaction: hash,
-            address: contractId,
-            createdAt: new Date()
-          })
-          // Prepare contract descriptor
-          const descPath = `${R.last(contractPath.split('/'))}.deploy.${ownerId.slice(3)}.json`
-          const contractDescriptor = R.merge({
-            descPath,
-            source: contractFile,
-            bytecode: code
-          }, deployDescriptor)
-          // Write to file
-          writeFile(
-            descPath,
-            JSON.stringify(contractDescriptor)
-          )
-          // Log contract descriptor
-          json
-            ? print({ descPath, ...deployDescriptor })
-            : logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json)
-          exit()
-        } else {
-          await this.handleCallError(result)
-        }
-      }
-    )
+    if (result.returnType === 'ok') {
+      const deployDescriptor = Object.freeze({
+        result,
+        owner: ownerId,
+        transaction: hash,
+        address: contractId,
+        createdAt: new Date()
+      })
+      // Prepare contract descriptor
+      const descPath = `${R.last(contractPath.split('/'))}.deploy.${ownerId.slice(3)}.json`
+      const contractDescriptor = R.merge({
+        descPath,
+        source: contractFile,
+        bytecode: code
+      }, deployDescriptor)
+      // Write to file
+      writeFile(
+        descPath,
+        JSON.stringify(contractDescriptor)
+      )
+      // Log contract descriptor
+      json
+        ? print({ descPath, ...deployDescriptor })
+        : logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json)
+      exit()
+    } else {
+      await this.handleCallError(result)
+    }
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -182,30 +171,26 @@ async function call (walletPath, fn, args, options) {
     const client = await initClientByWalletFile(walletPath, options)
     const params = await prepareCallParams(fn, options)
 
-    await handleApiError(
-      async () => {
-        // Call static or call
-        const contract = await client.getContractInstance({
-          source: params.source, contractAddress: params.address
-        })
-        const callResult = await contract.call(fn, args, { ...params.options, callStatic, top })
-        // The execution result, if successful, will be an FATE-encoded result
-        // value. Once type decoding will be implemented in the SDK, this value will
-        // not be a hexadecimal string, anymore.
-        json && print(callResult)
-        if (!json) {
-          if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json)
-          print('----------------------Transaction info-----------------------')
-          printUnderscored('Contract address', params.address)
-          printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
-          printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
-          printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
-          // Decode result
-          const decoded = await callResult.decode()
-          printUnderscored('Return value (decoded)', decoded)
-        }
-      }
-    )
+    // Call static or call
+    const contract = await client.getContractInstance({
+      source: params.source, contractAddress: params.address
+    })
+    const callResult = await contract.call(fn, args, { ...params.options, callStatic, top })
+    // The execution result, if successful, will be an FATE-encoded result
+    // value. Once type decoding will be implemented in the SDK, this value will
+    // not be a hexadecimal string, anymore.
+    json && print(callResult)
+    if (!json) {
+      if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json)
+      print('----------------------Transaction info-----------------------')
+      printUnderscored('Contract address', params.address)
+      printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
+      printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
+      printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
+      // Decode result
+      const decoded = await callResult.decode()
+      printUnderscored('Return value (decoded)', decoded)
+    }
   } catch (e) {
     printError(e.message)
     process.exit(1)

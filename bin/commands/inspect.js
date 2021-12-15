@@ -21,7 +21,6 @@
 
 import { HASH_TYPES } from '../utils/constant'
 import { initChain } from '../utils/cli'
-import { handleApiError } from '../utils/errors'
 import {
   print,
   printBlock,
@@ -86,12 +85,7 @@ async function getBlockByHash (hash, options) {
   try {
     checkPref(hash, [HASH_TYPES.block, HASH_TYPES.micro_block])
     const client = await initChain(options)
-    await handleApiError(
-      async () => printBlock(
-        await getBlock(hash)(client),
-        json
-      )
-    )
+    printBlock(await getBlock(hash)(client), json)
   } catch (e) {
     printError(e.message)
   }
@@ -102,9 +96,7 @@ async function getTransactionByHash (hash, options) {
   try {
     checkPref(hash, HASH_TYPES.transaction)
     const client = await initChain(options)
-    await handleApiError(
-      async () => printTransaction(await client.tx(hash), json)
-    )
+    printTransaction(await client.tx(hash), json)
   } catch (e) {
     printError(e.message)
   }
@@ -114,17 +106,13 @@ async function unpackTx (hash, options = {}) {
   const { json } = options
   try {
     checkPref(hash, HASH_TYPES.rawTransaction)
-    await handleApiError(
-      async () => {
-        const { tx, txType: type } = TxBuilder.unpackTx(hash)
-        if (json) {
-          print({ tx: tx, type })
-          process.exit(0)
-        }
-        printUnderscored('Tx Type', type)
-        Object.entries(tx).forEach(entry => printUnderscored(...entry))
-      }
-    )
+    const { tx, txType: type } = TxBuilder.unpackTx(hash)
+    if (json) {
+      print({ tx: tx, type })
+      process.exit(0)
+    }
+    printUnderscored('Tx Type', type)
+    Object.entries(tx).forEach(entry => printUnderscored(...entry))
   } catch (e) {
     printError(e.message)
   }
@@ -135,27 +123,23 @@ async function getAccountByHash (hash, options) {
   try {
     checkPref(hash, HASH_TYPES.account)
     const client = await initChain(options)
-    await handleApiError(
-      async () => {
-        const { nonce } = await client.api.getAccountByPubkey(hash)
-        const balance = await client.balance(hash)
-        const transactions = (await client.api.getPendingAccountTransactionsByPubkey(hash)).transactions
-        if (json) {
-          print({
-            hash,
-            balance,
-            nonce,
-            transactions
-          })
-        } else {
-          printUnderscored('Account ID', hash)
-          printUnderscored('Account balance', balance)
-          printUnderscored('Account nonce', nonce)
-          print('Account Transactions: ')
-          printBlockTransactions(transactions)
-        }
-      }
-    )
+    const { nonce } = await client.api.getAccountByPubkey(hash)
+    const balance = await client.balance(hash)
+    const transactions = (await client.api.getPendingAccountTransactionsByPubkey(hash)).transactions
+    if (json) {
+      print({
+        hash,
+        balance,
+        nonce,
+        transactions
+      })
+    } else {
+      printUnderscored('Account ID', hash)
+      printUnderscored('Account balance', balance)
+      printUnderscored('Account nonce', nonce)
+      print('Account Transactions: ')
+      printBlockTransactions(transactions)
+    }
   } catch (e) {
     printError(e.message)
   }
@@ -167,9 +151,7 @@ async function getBlockByHeight (height, options) {
   try {
     const client = await initChain(options)
 
-    await handleApiError(
-      async () => printBlock(await client.api.getKeyBlockByHeight(height), json)
-    )
+    printBlock(await client.api.getKeyBlockByHeight(height), json)
   } catch (e) {
     printError(e.message)
   }
@@ -199,11 +181,7 @@ async function getContract (contractId, options) {
   try {
     const client = await initChain(options)
 
-    await handleApiError(
-      async () => {
-        printTransaction(await client.api.getContract(contractId), json)
-      }
-    )
+    printTransaction(await client.api.getContract(contractId), json)
   } catch (e) {
     printError(e.message)
   }
@@ -214,14 +192,10 @@ async function getOracle (oracleId, options) {
   try {
     const client = await initChain(options)
 
-    await handleApiError(
-      async () => {
-        // printTransaction(await client.api.getContract(contractId), json)
-        printOracle(await client.api.getOracleByPubkey(oracleId), json)
-        const { oracleQueries: queries } = await client.api.getOracleQueriesByPubkey(oracleId)
-        if (queries) printQueries(queries, json)
-      }
-    )
+    // printTransaction(await client.api.getContract(contractId), json)
+    printOracle(await client.api.getOracleByPubkey(oracleId), json)
+    const { oracleQueries: queries } = await client.api.getOracleQueriesByPubkey(oracleId)
+    if (queries) printQueries(queries, json)
   } catch (e) {
     printError(e.message)
   }

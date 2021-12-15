@@ -22,7 +22,6 @@
 import { TxBuilderHelper } from '@aeternity/aepp-sdk'
 import { exit, initChain, initClientByWalletFile } from '../utils/cli'
 import { BUILD_ORACLE_TTL } from '../utils/constant'
-import { handleApiError } from '../utils/errors'
 import {
   print, printError,
   printOracle,
@@ -35,25 +34,23 @@ async function createOracle (walletPath, queryFormat, responseFormat, options) {
 
   try {
     const client = await initClientByWalletFile(walletPath, options)
-    await handleApiError(async () => {
-      // Register Oracle
-      const oracle = await client.registerOracle(queryFormat, responseFormat, {
-        ttl,
-        waitMined,
-        nonce,
-        fee,
-        oracleTtl: isNaN(parseInt(oracleTtl))
-          ? oracleTtl
-          : BUILD_ORACLE_TTL(oracleTtl),
-        queryFee
-      })
-      if (waitMined) {
-        printTransaction(oracle, json)
-      } else {
-        print('Transaction send to the chain. Tx hash: ', oracle)
-      }
-      exit()
+    // Register Oracle
+    const oracle = await client.registerOracle(queryFormat, responseFormat, {
+      ttl,
+      waitMined,
+      nonce,
+      fee,
+      oracleTtl: isNaN(parseInt(oracleTtl))
+        ? oracleTtl
+        : BUILD_ORACLE_TTL(oracleTtl),
+      queryFee
     })
+    if (waitMined) {
+      printTransaction(oracle, json)
+    } else {
+      print('Transaction send to the chain. Tx hash: ', oracle)
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -68,21 +65,19 @@ async function extendOracle (walletPath, oracleId, oracleTtl, options) {
     if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number')
     TxBuilderHelper.decode(oracleId, 'ok')
     const client = await initClientByWalletFile(walletPath, options)
-    await handleApiError(async () => {
-      const oracle = await client.getOracleObject(oracleId)
-      const extended = await oracle.extendOracle(BUILD_ORACLE_TTL(oracleTtl), {
-        ttl,
-        waitMined,
-        nonce,
-        fee
-      })
-      if (waitMined) {
-        printTransaction(extended, json)
-      } else {
-        print('Transaction send to the chain. Tx hash: ', extended)
-      }
-      exit()
+    const oracle = await client.getOracleObject(oracleId)
+    const extended = await oracle.extendOracle(BUILD_ORACLE_TTL(oracleTtl), {
+      ttl,
+      waitMined,
+      nonce,
+      fee
     })
+    if (waitMined) {
+      printTransaction(extended, json)
+    } else {
+      print('Transaction send to the chain. Tx hash: ', extended)
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -98,28 +93,26 @@ async function createOracleQuery (walletPath, oracleId, query, options) {
     TxBuilderHelper.decode(oracleId, 'ok')
     const client = await initClientByWalletFile(walletPath, options)
 
-    await handleApiError(async () => {
-      const oracle = await client.getOracleObject(oracleId)
-      const oracleQuery = await oracle.postQuery(query, {
-        ttl,
-        waitMined,
-        nonce,
-        fee,
-        queryTll: isNaN(parseInt(queryTll))
-          ? queryTll
-          : BUILD_ORACLE_TTL(queryTll),
-        responseTtl: isNaN(parseInt(responseTtl))
-          ? responseTtl
-          : BUILD_ORACLE_TTL(responseTtl),
-        queryFee
-      })
-      if (waitMined) {
-        printTransaction(oracleQuery, json)
-      } else {
-        print('Transaction send to the chain. Tx hash: ', oracleQuery)
-      }
-      exit()
+    const oracle = await client.getOracleObject(oracleId)
+    const oracleQuery = await oracle.postQuery(query, {
+      ttl,
+      waitMined,
+      nonce,
+      fee,
+      queryTll: isNaN(parseInt(queryTll))
+        ? queryTll
+        : BUILD_ORACLE_TTL(queryTll),
+      responseTtl: isNaN(parseInt(responseTtl))
+        ? responseTtl
+        : BUILD_ORACLE_TTL(responseTtl),
+      queryFee
     })
+    if (waitMined) {
+      printTransaction(oracleQuery, json)
+    } else {
+      print('Transaction send to the chain. Tx hash: ', oracleQuery)
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -141,24 +134,22 @@ async function respondToQuery (
     TxBuilderHelper.decode(queryId, 'oq')
     const client = await initClientByWalletFile(walletPath, options)
 
-    await handleApiError(async () => {
-      const oracle = await client.getOracleObject(oracleId)
-      const queryResponse = await oracle.respondToQuery(queryId, response, {
-        ttl,
-        waitMined,
-        nonce,
-        fee,
-        responseTtl: isNaN(parseInt(responseTtl))
-          ? responseTtl
-          : BUILD_ORACLE_TTL(responseTtl)
-      })
-      if (waitMined) {
-        printTransaction(queryResponse, json)
-      } else {
-        print('Transaction send to the chain. Tx hash: ', queryResponse)
-      }
-      exit()
+    const oracle = await client.getOracleObject(oracleId)
+    const queryResponse = await oracle.respondToQuery(queryId, response, {
+      ttl,
+      waitMined,
+      nonce,
+      fee,
+      responseTtl: isNaN(parseInt(responseTtl))
+        ? responseTtl
+        : BUILD_ORACLE_TTL(responseTtl)
     })
+    if (waitMined) {
+      printTransaction(queryResponse, json)
+    } else {
+      print('Transaction send to the chain. Tx hash: ', queryResponse)
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
@@ -170,18 +161,16 @@ async function queryOracle (oracleId, options) {
   try {
     TxBuilderHelper.decode(oracleId, 'ok')
     const client = await initChain(options)
-    await handleApiError(async () => {
-      const oracle = await client.api.getOracleByPubkey(oracleId)
-      const { oracleQueries: queries } =
+    const oracle = await client.api.getOracleByPubkey(oracleId)
+    const { oracleQueries: queries } =
         await client.api.getOracleQueriesByPubkey(oracleId)
-      if (options.json) {
-        console.log(JSON.stringify({ ...oracle, queries }))
-      } else {
-        printOracle(oracle, options.json)
-        printQueries(queries, options.json)
-      }
-      exit()
-    })
+    if (options.json) {
+      console.log(JSON.stringify({ ...oracle, queries }))
+    } else {
+      printOracle(oracle, options.json)
+      printQueries(queries, options.json)
+    }
+    exit()
   } catch (e) {
     printError(e.message)
     exit(1)
