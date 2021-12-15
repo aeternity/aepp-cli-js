@@ -25,8 +25,8 @@ chain:
 mining:
   autostart: true
   beneficiary: "ak_2iBPH7HUz3cSDVEUWiHg76MZJ6tZooVNBmmxcgVK6VV8KAE688"
-  expected_mine_rate: 4000
-  micro_block_cycle: 1000
+  expected_mine_rate: 1000
+  micro_block_cycle: 300
   strictly_follow_top: true
   cuckoo:
     miner:
