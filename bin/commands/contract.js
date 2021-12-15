@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // # æternity CLI `contract` file
 //
 // This script initialize all `contract` function

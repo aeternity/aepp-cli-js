@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // # æternity CLI `transaction` file
 //
 // This script initialize all `transaction` function

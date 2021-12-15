@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // # æternity CLI `chain` file
 //
 // This script initialize all `chain` function

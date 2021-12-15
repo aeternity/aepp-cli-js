@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // # æternity CLI `AENS` file
 //
 // This script initialize all `AENS` function

@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // # æternity CLI `inspect` file
 //
 // This script initialize all `inspect` function
