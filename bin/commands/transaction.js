@@ -20,7 +20,7 @@
  */
 
 import { Crypto, SCHEMA, TxBuilder, TxBuilderHelper, verifyTransaction, Node } from '@aeternity/aepp-sdk'
-import { exit, initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
+import { initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
 import { print, printBuilderTransaction, printUnderscored, printValidation } from '../utils/print'
 import { validateName } from '../utils/helpers'
 import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION } from '../utils/constant'
@@ -360,7 +360,7 @@ async function verify (transaction, options) {
   const { tx, txType: type } = TxBuilder.unpackTx(transaction)
   if (json) {
     print({ validation, tx, type })
-    exit(0)
+    return
   }
   printValidation({ validation, transaction })
   if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')

@@ -23,7 +23,7 @@ import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
 
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
 import { HASH_TYPES } from '../utils/constant'
-import { exit, initClientByWalletFile } from '../utils/cli'
+import { initClientByWalletFile } from '../utils/cli'
 import { print, printTransaction, printUnderscored } from '../utils/print'
 import { checkPref, readFile } from '../utils/helpers'
 import { PROMPT_TYPE, prompt } from '../utils/prompt'
@@ -252,8 +252,6 @@ async function generateKeyPairs (count = 1, { forcePrompt, json }) {
         print('')
       })
     }
-  } else {
-    exit()
   }
 }
 

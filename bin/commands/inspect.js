@@ -109,7 +109,7 @@ async function unpackTx (hash, options = {}) {
     const { tx, txType: type } = TxBuilder.unpackTx(hash)
     if (json) {
       print({ tx: tx, type })
-      process.exit(0)
+      return
     }
     printUnderscored('Tx Type', type)
     Object.entries(tx).forEach(entry => printUnderscored(...entry))

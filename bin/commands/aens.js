@@ -19,7 +19,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { exit, initChain, initClientByWalletFile } from '../utils/cli'
+import { initChain, initClientByWalletFile } from '../utils/cli'
 import { print, printName, printTransaction } from '../utils/print'
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
 import { Crypto, getDefaultPointerKey } from '@aeternity/aepp-sdk'
@@ -37,8 +37,7 @@ async function preClaim (walletPath, domain, options) {
   // Check if that `name' available
   const name = await updateNameStatus(domain)(client)
   if (!isAvailable(name)) {
-    print('Domain not available')
-    exit(1)
+    throw new Error('Domain not available')
   }
   // Create `pre-claim` transaction
   const preClaimTx = await client.aensPreclaim(domain, { ttl, fee, nonce, waitMined })
@@ -64,8 +63,7 @@ async function claim (walletPath, domain, salt, options) {
   // Check if that `name' available
   const name = await updateNameStatus(domain)(client)
   if (!isAvailable(name)) {
-    print('Domain not available')
-    exit(1)
+    throw new Error('Domain not available')
   }
 
   // Wait for next block and create `claimName` transaction
@@ -95,8 +93,7 @@ async function updateName (walletPath, domain, addresses, options) {
   // Check if that `name` is unavailable and we can update it
   const name = await updateNameStatus(domain)(client)
   if (isAvailable(name)) {
-    print(`Domain is ${name.status} and cannot be updated`)
-    exit(1)
+    throw new Error(`Domain is ${name.status} and cannot be updated`)
   }
 
   // Create `updateName` transaction
@@ -127,8 +124,7 @@ async function extendName (walletPath, domain, nameTtl, options) {
   // Check if that `name` is unavailable and we can update it
   const name = await updateNameStatus(domain)(client)
   if (isAvailable(name)) {
-    print(`Domain is ${name.status} and cannot be extended`)
-    exit(1)
+    throw new Error(`Domain is ${name.status} and cannot be extended`)
   }
 
   // Create `updateName` transaction
@@ -157,8 +153,7 @@ async function transferName (walletPath, domain, address, options) {
   // Check if that `name` is unavailable and we can transfer it
   const name = await updateNameStatus(domain)(client)
   if (isAvailable(name)) {
-    print('Domain is available, nothing to transfer')
-    process.exit(1)
+    throw new Error('Domain is available, nothing to transfer')
   }
 
   // Create `transferName` transaction
@@ -185,8 +180,7 @@ async function revokeName (walletPath, domain, options) {
   // Check if `name` is unavailable and we can revoke it
   const name = await updateNameStatus(domain)(client)
   if (isAvailable(name)) {
-    print('Domain is available, nothing to revoke')
-    exit(1)
+    throw new Error('Domain is available, nothing to revoke')
   }
 
   // Create `revokeName` transaction
@@ -212,8 +206,7 @@ async function nameBid (walletPath, domain, nameFee, options) {
   // Check if that `name' available
   const name = await updateNameStatus(domain)(client)
   if (!isAvailable(name)) {
-    print('Auction do not start or already end')
-    exit(1)
+    throw new Error('Auction do not start or already end')
   }
 
   // Wait for next block and create `claimName` transaction
@@ -241,8 +234,7 @@ async function fullClaim (walletPath, domain, options) {
   // Check if that `name' available
   const name = await updateNameStatus(domain)(client)
   if (!isAvailable(name)) {
-    print('Domain not available')
-    exit(1)
+    throw new Error('Domain not available')
   }
 
   // Wait for next block and create `claimName` transaction

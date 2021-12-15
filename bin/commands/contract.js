@@ -21,7 +21,7 @@
 
 import path from 'path'
 import * as R from 'ramda'
-import { exit, initClientByWalletFile, initCompiler } from '../utils/cli'
+import { initClientByWalletFile, initCompiler } from '../utils/cli'
 import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
 import { logContractDescriptor, print, printTransaction, printUnderscored } from '../utils/print'
 
@@ -140,7 +140,6 @@ async function deploy (walletPath, contractPath, callData = '', options) {
     json
       ? print({ descPath, ...deployDescriptor })
       : logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json)
-    exit()
   } else {
     await this.handleCallError(result)
   }

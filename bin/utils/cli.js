@@ -81,7 +81,3 @@ export async function initClientByWalletFile (walletPath, options, returnKeyPair
   }
   return client
 }
-
-export function exit (error = 0) {
-  process.exit(error)
-}

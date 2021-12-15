@@ -19,8 +19,8 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { exit, initChain } from '../utils/cli'
-import { printBlock, print, printError, printUnderscored, printTransaction, printValidation } from '../utils/print'
+import { initChain } from '../utils/cli'
+import { printBlock, print, printUnderscored, printTransaction, printValidation } from '../utils/print'
 import { getBlock } from '../utils/helpers'
 
 // ## Retrieve `node` version
@@ -33,7 +33,7 @@ async function version (options) {
   const { consensusProtocolVersion } = client.getNodeInfo()
   if (json) {
     print(status)
-    exit()
+    return
   }
   const FORKS = {
     3: 'Fortuna',
@@ -98,8 +98,7 @@ async function play (options) {
   const top = await client.topBlock()
 
   if (height && height > parseInt(top.height)) {
-    printError('Height is bigger then height of top block')
-    exit(1)
+    throw new Error('Height is bigger then height of top block')
   }
 
   printBlock(top, json)
