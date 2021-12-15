@@ -55,10 +55,10 @@ export async function generateSecureWalletFromPrivKey (name, priv, { output = ''
 }
 
 // Get account file by path, decrypt it using password and return `keypair`
-export async function getWalletByPathAndDecrypt (walletPath, { password } = {}) {
+export async function getWalletByPathAndDecrypt (walletPath, password) {
   const keyFile = readJSONFile(path.resolve(process.cwd(), walletPath))
 
-  if (!password || typeof password !== 'string' || !password.length) password = await prompt(PROMPT_TYPE.askPassword)
+  password ||= await prompt(PROMPT_TYPE.askPassword)
 
   const privKey = await Keystore.recover(password, keyFile)
 

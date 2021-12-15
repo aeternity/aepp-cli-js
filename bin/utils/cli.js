@@ -68,9 +68,9 @@ export async function initCompiler ({ url, internalUrl, compilerUrl, ignoreVersi
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
-  const { password, privateKey, accountOnly = false, networkId, debug = true } = options
+  const { password, accountOnly = false, networkId, debug = true } = options
 
-  const keypair = await getWalletByPathAndDecrypt(walletPath, { password, privateKey })
+  const keypair = await getWalletByPathAndDecrypt(walletPath, password)
   const accounts = [MemoryAccount(R.merge(options, { keypair, networkId }))]
 
   const client = accountOnly
