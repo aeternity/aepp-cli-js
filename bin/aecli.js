@@ -18,13 +18,10 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
-'use strict'
 // We'll use `commander` for parsing options
-// Also we need `esm` package to handle `ES imports`
-const { Command } = require('commander')
-
-const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
-const utils = requireEsm('./utils/index')
+import { Command } from 'commander'
+import utils from './utils/index'
+import pkg from '../package.json'
 
 const program = new Command()
 
@@ -42,8 +39,7 @@ const EXECUTABLE_CMD = [
 // ##Get version from `package.json`
 //
 // You get get CLI version by exec `aecli version`
-program
-  .version(requireEsm('../package.json').version)
+program.version(pkg.version)
 
 // ## Initialize `config` command
 program

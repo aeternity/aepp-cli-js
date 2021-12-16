@@ -15,7 +15,6 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
-const requireEsm = require('esm')(module)
-const genProgram = requireEsm('./commands/oracle')
+import genProgram from './commands/oracle'
 
 genProgram().parseAsync()
