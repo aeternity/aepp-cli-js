@@ -24,7 +24,7 @@ import { BUILD_ORACLE_TTL } from '../utils/constant'
 import { print, printOracle, printQueries, printTransaction } from '../utils/print'
 
 // ## Create Oracle
-async function createOracle (walletPath, queryFormat, responseFormat, options) {
+export async function createOracle (walletPath, queryFormat, responseFormat, options) {
   const { ttl, fee, nonce, waitMined, json, oracleTtl, queryFee } = options
 
   const client = await initClientByWalletFile(walletPath, options)
@@ -47,7 +47,7 @@ async function createOracle (walletPath, queryFormat, responseFormat, options) {
 }
 
 // ## Extend Oracle
-async function extendOracle (walletPath, oracleId, oracleTtl, options) {
+export async function extendOracle (walletPath, oracleId, oracleTtl, options) {
   const { ttl, fee, nonce, waitMined, json } = options
 
   if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number')
@@ -68,7 +68,7 @@ async function extendOracle (walletPath, oracleId, oracleTtl, options) {
 }
 
 // ## Create Oracle Query
-async function createOracleQuery (walletPath, oracleId, query, options) {
+export async function createOracleQuery (walletPath, oracleId, query, options) {
   const { ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl } =
     options
 
@@ -97,7 +97,7 @@ async function createOracleQuery (walletPath, oracleId, query, options) {
 }
 
 // ## Respond to Oracle Query
-async function respondToQuery (
+export async function respondToQuery (
   walletPath,
   oracleId,
   queryId,
@@ -128,7 +128,7 @@ async function respondToQuery (
 }
 
 // ## Get oracle
-async function queryOracle (oracleId, options) {
+export async function queryOracle (oracleId, options) {
   TxBuilderHelper.decode(oracleId, 'ok')
   const client = await initChain(options)
   const oracle = await client.api.getOracleByPubkey(oracleId)
@@ -140,12 +140,4 @@ async function queryOracle (oracleId, options) {
     printOracle(oracle, options.json)
     printQueries(queries, options.json)
   }
-}
-
-export const Oracle = {
-  createOracle,
-  extendOracle,
-  queryOracle,
-  createOracleQuery,
-  respondToQuery
 }

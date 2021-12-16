@@ -20,7 +20,7 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
 import * as utils from '../utils'
-import { Account } from '../actions'
+import * as Account from '../actions/account'
 
 export default function () {
   const program = new Command().name('aecli account')

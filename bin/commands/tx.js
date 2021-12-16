@@ -22,7 +22,7 @@
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander'
 import * as utils from '../utils'
-import { Transaction } from '../actions'
+import * as Transaction from '../actions/transaction'
 
 export default function () {
   const program = new Command().name('aecli tx')

@@ -24,7 +24,7 @@ import { isAvailable, updateNameStatus, validateName } from '../utils/helpers'
 import { Crypto, getDefaultPointerKey } from '@aeternity/aepp-sdk'
 
 // ## Claim `name` function
-async function preClaim (walletPath, domain, options) {
+export async function preClaim (walletPath, domain, options) {
   const { ttl, fee, nonce, waitMined, json } = options
 
   // Validate `name`(check if `name` end on `.test`)
@@ -51,7 +51,7 @@ async function preClaim (walletPath, domain, options) {
 }
 
 // ## Claim `name` function
-async function claim (walletPath, domain, salt, options) {
+export async function claim (walletPath, domain, salt, options) {
   const { ttl, fee, nonce, waitMined, json, nameFee } = options
   // Validate `name`
   // validateName(domain)
@@ -78,7 +78,7 @@ async function claim (walletPath, domain, salt, options) {
 }
 
 // ##Update `name` function
-async function updateName (walletPath, domain, addresses, options) {
+export async function updateName (walletPath, domain, addresses, options) {
   const { ttl, fee, nonce, waitMined, json, nameTtl, clientTtl, extendPointers = false } = options
 
   // Validate `address`
@@ -112,7 +112,7 @@ async function updateName (walletPath, domain, addresses, options) {
 }
 
 // ##Extend `name` ttl  function
-async function extendName (walletPath, domain, nameTtl, options) {
+export async function extendName (walletPath, domain, nameTtl, options) {
   const { ttl, fee, nonce, waitMined, json } = options
 
   // Validate `name`
@@ -139,7 +139,7 @@ async function extendName (walletPath, domain, nameTtl, options) {
 }
 
 // ##Transfer `name` function
-async function transferName (walletPath, domain, address, options) {
+export async function transferName (walletPath, domain, address, options) {
   const { ttl, fee, nonce, waitMined, json } = options
 
   // Validate `address`
@@ -168,7 +168,7 @@ async function transferName (walletPath, domain, address, options) {
 }
 
 // ## Revoke `name` function
-async function revokeName (walletPath, domain, options) {
+export async function revokeName (walletPath, domain, options) {
   const { ttl, fee, nonce, waitMined, json } = options
 
   // Validate `name`
@@ -194,7 +194,7 @@ async function revokeName (walletPath, domain, options) {
   }
 }
 
-async function nameBid (walletPath, domain, nameFee, options) {
+export async function nameBid (walletPath, domain, nameFee, options) {
   const { ttl, fee, nonce, waitMined, json } = options
   // Validate `name`
   validateName(domain)
@@ -220,7 +220,7 @@ async function nameBid (walletPath, domain, nameFee, options) {
   }
 }
 
-async function fullClaim (walletPath, domain, options) {
+export async function fullClaim (walletPath, domain, options) {
   let { ttl, fee, nonce, nameFee, json, nameTtl, clientTtl } = options
   // Validate `name`
   validateName(domain)
@@ -253,7 +253,7 @@ async function fullClaim (walletPath, domain, options) {
   )
 }
 
-async function lookUp (domain, options) {
+export async function lookUp (domain, options) {
   const { json } = options
   validateName(domain)
   // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
@@ -264,16 +264,4 @@ async function lookUp (domain, options) {
     await updateNameStatus(domain)(client),
     json
   )
-}
-
-export const AENS = {
-  preClaim,
-  revokeName,
-  updateName,
-  extendName,
-  claim,
-  transferName,
-  nameBid,
-  fullClaim,
-  lookUp
 }

@@ -20,7 +20,7 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
 import * as utils from '../utils'
-import { Oracle } from '../actions'
+import * as Oracle from '../actions/oracle'
 
 export default function () {
   const program = new Command().name('aecli oracle')

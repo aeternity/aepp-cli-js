@@ -23,7 +23,7 @@ import { printBlock, print, printUnderscored, printTransaction, printValidation 
 import { getBlock } from '../utils/helpers'
 
 // ## Retrieve `node` version
-async function version (options) {
+export async function version (options) {
   const { json } = options
   // Initialize `Ae`
   const client = await initChain(options)
@@ -53,7 +53,7 @@ async function version (options) {
 }
 
 // ## Retrieve `node` version
-async function getNetworkId (options) {
+export async function getNetworkId (options) {
   const { json } = options
   // Initialize `Ae`
   const client = await initChain(options)
@@ -63,7 +63,7 @@ async function getNetworkId (options) {
 }
 
 // ## Retrieve `ttl` version
-async function ttl (absoluteTtl, options) {
+export async function ttl (absoluteTtl, options) {
   const { json } = options
   // Initialize `Ae`
   const client = await initChain(options)
@@ -78,7 +78,7 @@ async function ttl (absoluteTtl, options) {
 }
 
 // ## Retrieve `TOP` block
-async function top (options) {
+export async function top (options) {
   const { json } = options
   // Initialize `Ae`
   const client = await initChain(options)
@@ -87,7 +87,7 @@ async function top (options) {
 }
 
 // ## This function `Play`(print all block) from `top` block to some condition(reach some `height` or `limit`)
-async function play (options) {
+export async function play (options) {
   let { height, limit, json } = options
   limit = parseInt(limit)
   height = parseInt(height)
@@ -140,7 +140,7 @@ function playWithHeight (height, blockHash) {
 }
 
 // ## Send 'transaction' to the chain
-async function broadcast (signedTx, options) {
+export async function broadcast (signedTx, options) {
   const { json, waitMined, verify } = options
   // Initialize `Ae`
   const client = await initChain(options)
@@ -162,13 +162,4 @@ async function broadcast (signedTx, options) {
     }
     throw e
   }
-}
-
-export const Chain = {
-  top,
-  version,
-  play,
-  ttl,
-  getNetworkId,
-  broadcast
 }

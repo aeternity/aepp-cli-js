@@ -88,7 +88,7 @@ export async function decodeCallData (data, options) {
 }
 
 // ## Function which `deploy ` contract
-async function deploy (walletPath, contractPath, callData = '', options) {
+export async function deploy (walletPath, contractPath, callData = '', options) {
   const { json, gas, gasPrice, ttl, nonce, fee } = options
   // Deploy a contract to the chain and create a deploy descriptor
   // with the contract informations that can be use to invoke the contract
@@ -145,7 +145,7 @@ async function deploy (walletPath, contractPath, callData = '', options) {
 }
 
 // ## Function which `call` contract
-async function call (walletPath, fn, args, options) {
+export async function call (walletPath, fn, args, options) {
   const { callStatic, json, top } = options
   // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options)
@@ -171,12 +171,4 @@ async function call (walletPath, fn, args, options) {
     const decoded = await callResult.decode()
     printUnderscored('Return value (decoded)', decoded)
   }
-}
-
-export const Contract = {
-  compile,
-  deploy,
-  call,
-  encodeData,
-  decodeCallData
 }

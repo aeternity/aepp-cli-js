@@ -34,7 +34,7 @@ import { TxBuilder } from '@aeternity/aepp-sdk'
 
 // ## Inspect function
 // That function get the param(`hash`, `height` or `name`) and show you info about it
-async function inspect (hash, option) {
+export async function inspect (hash, option) {
   if (!hash) throw new Error('Hash required')
 
   // Get `block` by `height`
@@ -196,8 +196,4 @@ async function getOracle (oracleId, options) {
   } catch (e) {
     printError(e.message)
   }
-}
-
-export const Inspect = {
-  inspect
 }

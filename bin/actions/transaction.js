@@ -29,7 +29,7 @@ import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION } from '../utils/constant'
 const { TX_TYPE } = SCHEMA
 
 // ## Build `spend` transaction
-async function spend (senderId, recipientId, amount, nonce, options) {
+export async function spend (senderId, recipientId, amount, nonce, options) {
   let { ttl, json, fee, payload } = options
   ttl = parseInt(ttl)
   nonce = parseInt(nonce)
@@ -56,7 +56,7 @@ async function spend (senderId, recipientId, amount, nonce, options) {
 }
 
 // ## Build `namePreClaim` transaction
-async function namePreClaim (accountId, domain, nonce, options) {
+export async function namePreClaim (accountId, domain, nonce, options) {
   let { ttl, json, fee } = options
 
   // Validate `name`(check if `name` end on `.test`)
@@ -84,7 +84,7 @@ async function namePreClaim (accountId, domain, nonce, options) {
 }
 
 // ## Build `nameClaim` transaction
-async function nameClaim (accountId, nameSalt, domain, nonce, options) {
+export async function nameClaim (accountId, nameSalt, domain, nonce, options) {
   const vsn = 2
   let { ttl, json, fee, nameFee } = options
   const nameHash = `nm_${Crypto.encodeBase58Check(Buffer.from(domain))}`
@@ -112,7 +112,7 @@ async function nameClaim (accountId, nameSalt, domain, nonce, options) {
 }
 
 // ## Build `nameUpdate` transaction
-async function nameUpdate (accountId, nameId, nonce, pointers, options) {
+export async function nameUpdate (accountId, nameId, nonce, pointers, options) {
   let { ttl, json, fee, nameTtl, clientTtl } = options
   // Initialize `Ae`
   const txBuilder = initOfflineTxBuilder()
@@ -137,7 +137,7 @@ async function nameUpdate (accountId, nameId, nonce, pointers, options) {
 }
 
 // ## Build `nameTransfer` transaction
-async function nameTransfer (accountId, recipientId, nameId, nonce, options) {
+export async function nameTransfer (accountId, recipientId, nameId, nonce, options) {
   let { ttl, json, fee } = options
   // Initialize `Ae`
   const txBuilder = initOfflineTxBuilder()
@@ -159,7 +159,7 @@ async function nameTransfer (accountId, recipientId, nameId, nonce, options) {
 }
 
 // ## Build `nameRevoke` transaction
-async function nameRevoke (accountId, nameId, nonce, options) {
+export async function nameRevoke (accountId, nameId, nonce, options) {
   let { ttl, json, fee } = options
   // Initialize `Ae`
   const txBuilder = initOfflineTxBuilder()
@@ -180,7 +180,7 @@ async function nameRevoke (accountId, nameId, nonce, options) {
 }
 
 // ## Build `contractDeploy` transaction
-async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, options) {
+export async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, options) {
   const { json } = options
   // Initialize `Ae`
   const txBuilder = await initTxBuilder(options)
@@ -203,7 +203,7 @@ async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, o
 }
 
 // ## Build `contractCall` transaction
-async function contractCall (callerId, contractId, callData, nonce, options) {
+export async function contractCall (callerId, contractId, callData, nonce, options) {
   const { json } = options
   // Build `call` transaction's
   // Initialize `Ae`
@@ -223,7 +223,7 @@ async function contractCall (callerId, contractId, callData, nonce, options) {
 }
 
 // ## Build `oracleRegister` transaction
-async function oracleRegister (accountId, queryFormat, responseFormat, nonce, options) {
+export async function oracleRegister (accountId, queryFormat, responseFormat, nonce, options) {
   let { ttl, json, fee, queryFee, oracleTtl } = options
   queryFee = parseInt(queryFee)
   oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl))
@@ -251,7 +251,7 @@ async function oracleRegister (accountId, queryFormat, responseFormat, nonce, op
 }
 
 // ## Build `oraclePostQuery` transaction
-async function oraclePostQuery (senderId, oracleId, query, nonce, options) {
+export async function oraclePostQuery (senderId, oracleId, query, nonce, options) {
   let { ttl, json, fee, queryFee, queryTtl, responseTtl } = options
   queryFee = parseInt(queryFee)
   queryTtl = BUILD_ORACLE_TTL(parseInt(queryTtl))
@@ -281,7 +281,7 @@ async function oraclePostQuery (senderId, oracleId, query, nonce, options) {
 }
 
 // ## Build `oracleExtend` transaction
-async function oracleExtend (callerId, oracleId, oracleTtl, nonce, options) {
+export async function oracleExtend (callerId, oracleId, oracleTtl, nonce, options) {
   let { ttl, json, fee } = options
   oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl))
   nonce = parseInt(nonce)
@@ -306,7 +306,7 @@ async function oracleExtend (callerId, oracleId, oracleTtl, nonce, options) {
 }
 
 // ## Build `oracleRespond` transaction
-async function oracleRespond (callerId, oracleId, queryId, response, nonce, options) {
+export async function oracleRespond (callerId, oracleId, queryId, response, nonce, options) {
   let { ttl, json, fee, responseTtl } = options
   responseTtl = BUILD_ORACLE_TTL(parseInt(responseTtl))
   nonce = parseInt(nonce)
@@ -333,7 +333,7 @@ async function oracleRespond (callerId, oracleId, queryId, response, nonce, opti
 }
 
 // ## Verify 'transaction'
-async function verify (transaction, options) {
+export async function verify (transaction, options) {
   const { json } = options
   // Validate input
   TxBuilderHelper.decode(transaction, 'tx')
@@ -346,20 +346,4 @@ async function verify (transaction, options) {
   }
   printValidation({ validation, transaction })
   if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')
-}
-
-export const Transaction = {
-  spend,
-  namePreClaim,
-  nameClaim,
-  nameUpdate,
-  nameRevoke,
-  nameTransfer,
-  contractDeploy,
-  contractCall,
-  oracleRegister,
-  oraclePostQuery,
-  oracleExtend,
-  oracleRespond,
-  verify
 }

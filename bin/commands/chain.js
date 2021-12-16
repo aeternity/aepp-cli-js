@@ -20,7 +20,7 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
 import * as utils from '../utils'
-import { Chain } from '../actions'
+import * as Chain from '../actions/chain'
 
 export default function () {
   const program = new Command().name('aecli chain')

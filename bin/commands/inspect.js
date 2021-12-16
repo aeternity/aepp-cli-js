@@ -20,7 +20,7 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
 import * as utils from '../utils'
-import { Inspect } from '../actions'
+import { inspect } from '../actions/inspect'
 
 export default function () {
   const program = new Command().name('aecli inspect')
@@ -50,7 +50,7 @@ export default function () {
   program
     .arguments('<hash>')
     .description('Hash or Name to inspect (eg: ak_..., mk_..., name.test)')
-    .action(async (hash, cmd) => Inspect.inspect(hash, cmd))
+    .action(async (hash, cmd) => inspect(hash, cmd))
 
   return program
 }

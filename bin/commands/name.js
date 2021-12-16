@@ -22,7 +22,7 @@
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander'
 import * as utils from '../utils'
-import { AENS } from '../actions'
+import * as AENS from '../actions/aens'
 
 export default function () {
   const program = new Command().name('aecli name')

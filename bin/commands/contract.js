@@ -20,7 +20,7 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
 import * as utils from '../utils'
-import { Contract } from '../actions'
+import * as Contract from '../actions/contract'
 
 export default function () {
   const program = new Command().name('aecli contract')

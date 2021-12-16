@@ -29,7 +29,7 @@ import { PROMPT_TYPE, prompt } from '../utils/prompt'
 
 // ## `Sign message` function
 // this function allow you to `sign` arbitrary data
-async function signMessage (walletPath, data = [], options) {
+export async function signMessage (walletPath, data = [], options) {
   const { json, filePath } = options
   const dataForSign = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
   // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
@@ -55,7 +55,7 @@ async function signMessage (walletPath, data = [], options) {
 
 // ## `Verify` function
 // this function allow you to `verify` signed data
-async function verifyMessage (walletPath, hexSignature, data = [], options) {
+export async function verifyMessage (walletPath, hexSignature, data = [], options) {
   const { json, filePath } = options
   const dataForVerify = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
   // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
@@ -76,7 +76,7 @@ async function verifyMessage (walletPath, hexSignature, data = [], options) {
 
 // ## `Sign` function
 // this function allow you to `sign` transaction's
-async function sign (walletPath, tx, options) {
+export async function sign (walletPath, tx, options) {
   const { json } = options
   // Validate `tx` hash
   if (tx.slice(0, 2) !== 'tx') { throw new Error('Invalid transaction hash') }
@@ -99,7 +99,7 @@ async function sign (walletPath, tx, options) {
 
 // ## `Spend` function
 // this function allow you to `send` token's to another `account`
-async function spend (walletPath, receiverNameOrAddress, amount, options) {
+export async function spend (walletPath, receiverNameOrAddress, amount, options) {
   const { ttl, json, nonce, fee, payload = '', denomination = AmountFormatter.AE_AMOUNT_FORMATS.AETTOS } = options
   // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options)
@@ -118,7 +118,7 @@ async function spend (walletPath, receiverNameOrAddress, amount, options) {
 
 // ## `Transfer` function
 // this function allow you to `send` % of balance to another `account`
-async function transferFunds (walletPath, receiver, percentage, options) {
+export async function transferFunds (walletPath, receiver, percentage, options) {
   const { ttl, json, nonce, fee, payload = '', excludeFee } = options
   percentage = parseFloat(percentage)
   checkPref(receiver, HASH_TYPES.account)
@@ -141,7 +141,7 @@ async function transferFunds (walletPath, receiver, percentage, options) {
 
 // ## Get `balance` function
 // This function allow you retrieve account `balance`
-async function getBalance (walletPath, options) {
+export async function getBalance (walletPath, options) {
   const { height, hash, json } = options
   // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
@@ -159,7 +159,7 @@ async function getBalance (walletPath, options) {
 
 // ## Get `address` function
 // This function allow you retrieve account `public` and `private` keys
-async function getAddress (walletPath, options) {
+export async function getAddress (walletPath, options) {
   const { privateKey, forcePrompt = false, json } = options
   // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const { client, keypair } = await initClientByWalletFile(walletPath, { ...options, accountOnly: true }, true)
@@ -184,7 +184,7 @@ async function getAddress (walletPath, options) {
 
 // ## Get `nonce` function
 // This function allow you retrieve account `nonce`
-async function getAccountNonce (walletPath, options) {
+export async function getAccountNonce (walletPath, options) {
   const { json } = options
   // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
@@ -205,7 +205,7 @@ async function getAccountNonce (walletPath, options) {
 
 // ## Create secure `wallet` file
 // This function allow you to generate `keypair` and write it to secure `ethereum` like key-file
-async function createSecureWallet (walletPath, { output, password, overwrite, json }) {
+export async function createSecureWallet (walletPath, { output, password, overwrite, json }) {
   const { publicKey, path } = await generateSecureWallet(walletPath, { output, password, overwrite })
   if (json) {
     print({
@@ -220,7 +220,7 @@ async function createSecureWallet (walletPath, { output, password, overwrite, js
 
 // ## Create secure `wallet` file from `private-key`
 // This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
-async function createSecureWalletByPrivKey (walletPath, priv, { output, password, overwrite, json }) {
+export async function createSecureWalletByPrivKey (walletPath, priv, { output, password, overwrite, json }) {
   const { publicKey, path } = await generateSecureWalletFromPrivKey(walletPath, priv, { output, password, overwrite })
   if (json) {
     print({
@@ -235,7 +235,7 @@ async function createSecureWalletByPrivKey (walletPath, priv, { output, password
 
 // ## Create secure `wallet` file from `private-key`
 // This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
-async function generateKeyPairs (count = 1, { forcePrompt, json }) {
+export async function generateKeyPairs (count = 1, { forcePrompt, json }) {
   if (!Number.isInteger(+count)) {
     throw new Error('Count must be an Number')
   }
@@ -252,18 +252,4 @@ async function generateKeyPairs (count = 1, { forcePrompt, json }) {
       })
     }
   }
-}
-
-export const Account = {
-  spend,
-  getBalance,
-  getAddress,
-  getAccountNonce,
-  createSecureWallet,
-  createSecureWalletByPrivKey,
-  sign,
-  transferFunds,
-  generateKeyPairs,
-  signMessage,
-  verifyMessage
 }
