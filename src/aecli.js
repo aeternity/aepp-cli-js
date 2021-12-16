@@ -20,7 +20,6 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
-import utils from './utils/index'
 import pkg from '../package.json'
 
 const program = new Command()
@@ -45,7 +44,7 @@ program.version(pkg.version)
 program
   .command('config')
   .description('Print the client configuration')
-  .action((cmd) => utils.print.printConfig(cmd))
+  .action(async (cmd) => (await import('./utils/index')).print.printConfig(cmd))
 
 // ## Initialize `child` command's
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc))
