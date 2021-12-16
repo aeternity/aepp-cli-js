@@ -11,6 +11,7 @@
     "prompts": "^2.4.2"
   },
   "devDependencies": {
+    "@babel/cli": "^7.16.0",
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.4",
     "@babel/register": "^7.16.0",
@@ -28,6 +29,8 @@
     "url": "https://github.com/aeternity/aepp-cli-js"
   },
   "scripts": {
+    "build": "babel src --out-dir bin",
+    "prepare": "npm run build",
     "docs": "scripts/js-to-md.js src/*.js src/commands/*.js src/actions/*.js src/utils/*.js",
     "lint": "commitlint --from 23f6888 && standard",
     "test": "mocha --recursive",
