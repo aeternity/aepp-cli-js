@@ -16,7 +16,7 @@
  */
 
 import { Universal, MemoryAccount, Node, Crypto } from '@aeternity/aepp-sdk'
-import accountProgramFactory from '../../bin/commands/account'
+import accountProgramFactory from '../../src/commands/account'
 
 const url = process.env.TEST_URL || 'http://localhost:3013'
 const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'

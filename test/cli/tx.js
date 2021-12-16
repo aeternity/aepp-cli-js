@@ -19,9 +19,9 @@ import { Crypto, MemoryAccount } from '@aeternity/aepp-sdk'
 import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
 import { BaseAe, configure, executeProgram, parseBlock, randomString, ready } from './index'
-import txProgramFactory from '../../bin/commands/tx'
-import accountProgramFactory from '../../bin/commands/account'
-import chainProgramFactory from '../../bin/commands/chain'
+import txProgramFactory from '../../src/commands/tx'
+import accountProgramFactory from '../../src/commands/account'
+import chainProgramFactory from '../../src/commands/chain'
 
 const executeTx = (...args) => executeProgram(txProgramFactory, ...args)
 
