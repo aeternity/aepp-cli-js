@@ -79,7 +79,7 @@ describe('CLI Account Module', function () {
   })
   it('Check Wallet Balance', async () => {
     const balance = await wallet.balance(await wallet.address())
-    const { balance: cliBalance } = JSON.parse(await executeAccount(['balance', WALLET_NAME, '--password', 'test', '--json'], { withOutReject: true }))
+    const { balance: cliBalance } = JSON.parse(await executeAccount(['balance', WALLET_NAME, '--password', 'test', '--json']))
     cliBalance.should.equal(balance)
   })
   it('Spend coins to another wallet', async () => {
@@ -88,7 +88,7 @@ describe('CLI Account Module', function () {
     await receiver.addAccount(genAccount(), { select: true })
 
     // send coins
-    await executeAccount(['spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount], { withOutReject: true, withNetworkId: true })
+    await executeAccount(['spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount], { withNetworkId: true })
     const receiverBalance = await receiver.getBalance(await receiver.address())
     await parseInt(receiverBalance).should.equal(amount)
   })
@@ -98,21 +98,21 @@ describe('CLI Account Module', function () {
     const receiverKeys = Crypto.generateKeyPair()
     const receiver = await BaseAe()
     // send coins
-    await executeAccount(['spend', WALLET_NAME, '--password', 'test', '-D', denomination, receiverKeys.publicKey, amount], { withOutReject: true, withNetworkId: true })
+    await executeAccount(['spend', WALLET_NAME, '--password', 'test', '-D', denomination, receiverKeys.publicKey, amount], { withNetworkId: true })
     const receiverBalance = await receiver.getBalance(receiverKeys.publicKey)
     receiverBalance.should.equal(AmountFormatter.formatAmount(amount, { denomination: AmountFormatter.AE_AMOUNT_FORMATS.AE }))
   })
   it('Get account nonce', async () => {
     const nonce = await wallet.getAccountNonce(await wallet.address())
-    JSON.parse(await executeAccount(['nonce', WALLET_NAME, '--password', 'test', '--json'], { withOutReject: true })).nextNonce.should.equal(nonce)
+    JSON.parse(await executeAccount(['nonce', WALLET_NAME, '--password', 'test', '--json'])).nextNonce.should.equal(nonce)
   })
   it('Generate accounts', async () => {
-    const accounts = JSON.parse(await executeAccount(['generate', 2, '--forcePrompt', '--json'], { withOutReject: true }))
+    const accounts = JSON.parse(await executeAccount(['generate', 2, '--forcePrompt', '--json']))
     accounts.length.should.be.equal(2)
   })
   it('Sign message', async () => {
     const data = 'Hello world'
-    const signedMessage = JSON.parse(await executeAccount(['sign-message', WALLET_NAME, data, '--json', '--password', 'test'], { withOutReject: false }))
+    const signedMessage = JSON.parse(await executeAccount(['sign-message', WALLET_NAME, data, '--json', '--password', 'test']))
     const signedUsingSDK = Array.from(await wallet.signMessage(data))
     sig = signedMessage.signatureHex
     signedMessage.data.should.be.equal(data)
@@ -133,9 +133,9 @@ describe('CLI Account Module', function () {
   })
   it('verify message', async () => {
     const data = 'Hello world'
-    const verify = JSON.parse(await executeAccount(['verify-message', WALLET_NAME, sig, data, '--json', '--password', 'test'], { withOutReject: false }))
+    const verify = JSON.parse(await executeAccount(['verify-message', WALLET_NAME, sig, data, '--json', '--password', 'test']))
     verify.isCorrect.should.be.equal(true)
-    const verifyFromFile = JSON.parse(await executeAccount(['verify-message', WALLET_NAME, sigFromFile, '--json', '--password', 'test', '--filePath', fileName], { withOutReject: false }))
+    const verifyFromFile = JSON.parse(await executeAccount(['verify-message', WALLET_NAME, sigFromFile, '--json', '--password', 'test', '--filePath', fileName]))
     verifyFromFile.isCorrect.should.be.equal(true)
   })
 })

@@ -144,7 +144,7 @@ describe('CLI Transaction Module', function () {
   })
 
   it('Build oracle register tx offline and send on-chain', async () => {
-    const result = await executeTx(['oracle-register', TX_KEYS.publicKey, '{city: "str"}', '{tmp:""num}', nonce, '--json'], { withOutReject: true })
+    const result = await executeTx(['oracle-register', TX_KEYS.publicKey, '{city: "str"}', '{tmp:""num}', nonce, '--json'])
     const { tx } = JSON.parse(result)
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)
@@ -154,7 +154,7 @@ describe('CLI Transaction Module', function () {
 
   it('Build oracle extend  tx offline and send on-chain', async () => {
     const oracleCurrentTtl = await wallet.api.getOracleByPubkey(oracleId)
-    const { tx } = JSON.parse(await executeTx(['oracle-extend', TX_KEYS.publicKey, oracleId, 100, nonce, '--json'], { withOutReject: true }))
+    const { tx } = JSON.parse(await executeTx(['oracle-extend', TX_KEYS.publicKey, oracleId, 100, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const oracleTtl = await wallet.api.getOracleByPubkey(oracleId)
     const isExtended = +oracleTtl.ttl === +oracleCurrentTtl.ttl + 100
@@ -165,7 +165,7 @@ describe('CLI Transaction Module', function () {
   })
 
   it('Build oracle post query tx offline and send on-chain', async () => {
-    const { tx } = JSON.parse(await executeTx(['oracle-post-query', TX_KEYS.publicKey, oracleId, '{city: "Berlin"}', nonce, '--json'], { withOutReject: true }))
+    const { tx } = JSON.parse(await executeTx(['oracle-post-query', TX_KEYS.publicKey, oracleId, '{city: "Berlin"}', nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const { oracleQueries: queries } = await wallet.api.getOracleQueriesByPubkey(oracleId)
     queryId = queries[0].id
@@ -178,7 +178,7 @@ describe('CLI Transaction Module', function () {
 
   it('Build oracle respond tx offline and send on-chain', async () => {
     const response = '{tmp: 10}'
-    const { tx } = JSON.parse(await executeTx(['oracle-respond', TX_KEYS.publicKey, oracleId, queryId, response, nonce, '--json'], { withOutReject: true }))
+    const { tx } = JSON.parse(await executeTx(['oracle-respond', TX_KEYS.publicKey, oracleId, queryId, response, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const { oracleQueries: queries } = await wallet.api.getOracleQueriesByPubkey(oracleId)
     const responseQuery = Crypto.decodeBase64Check(queries[0].response.slice(3)).toString()
