@@ -18,7 +18,9 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { Crypto, SCHEMA, TxBuilder, TxBuilderHelper, verifyTransaction, Node } from '@aeternity/aepp-sdk'
+import {
+  Crypto, SCHEMA, TxBuilder, TxBuilderHelper, verifyTransaction, Node, getDefaultPointerKey
+} from '@aeternity/aepp-sdk'
 import { initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
 import { print, printBuilderTransaction, printUnderscored, printValidation } from '../utils/print'
 import { validateName } from '../utils/helpers'
@@ -109,32 +111,13 @@ async function nameClaim (accountId, nameSalt, domain, nonce, options) {
     : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameClaim)
 }
 
-function classify (s) {
-  const keys = {
-    ak: 'account_pubkey',
-    ok: 'oracle_pubkey',
-    ct: 'contract_pubkey'
-  }
-
-  if (!s.match(/^[a-z]{2}_.+/)) {
-    throw Error('Not a valid hash')
-  }
-
-  const klass = s.substr(0, 2)
-  if (klass in keys) {
-    return keys[klass]
-  } else {
-    throw Error(`Unknown class ${klass}`)
-  }
-}
-
 // ## Build `nameUpdate` transaction
 async function nameUpdate (accountId, nameId, nonce, pointers, options) {
   let { ttl, json, fee, nameTtl, clientTtl } = options
   // Initialize `Ae`
   const txBuilder = initOfflineTxBuilder()
   // Create `update` transaction
-  pointers = pointers.map(id => Object.assign({}, { id, key: classify(id) }))
+  pointers = pointers.map(id => Object.assign({}, { id, key: getDefaultPointerKey(id) }))
   const params = {
     nameId,
     accountId,
