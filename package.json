@@ -9,8 +9,7 @@
     "@aeternity/aepp-sdk": "github:aeternity/aepp-sdk-js#feature/poll-intervals",
     "commander": "^8.3.0",
     "esm": "^3.2.25",
-    "prompts": "^2.4.2",
-    "ramda": "^0.27.1"
+    "prompts": "^2.4.2"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",

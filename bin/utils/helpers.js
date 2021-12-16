@@ -17,7 +17,6 @@
 // # Utils `helpers` Module
 // That script contains base helper function
 
-import * as R from 'ramda'
 import fs from 'fs'
 import path from 'path'
 
@@ -63,10 +62,10 @@ export function getBlock (hash) {
       return client.api.getKeyBlockByHash(hash)
     }
     if (hash.indexOf(HASH_TYPES.micro_block + '_') !== -1) {
-      return R.merge(
-        await client.api.getMicroBlockHeaderByHash(hash),
-        await client.api.getMicroBlockTransactionsByHash(hash)
-      )
+      return {
+        ...await client.api.getMicroBlockHeaderByHash(hash),
+        ...await client.api.getMicroBlockTransactionsByHash(hash)
+      }
     }
   }
 }

@@ -16,8 +16,6 @@
 *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 *  PERFORMANCE OF THIS SOFTWARE.
 */
-import * as R from 'ramda'
-
 import { Universal, Node, Transaction, TxBuilder, ChainNode, MemoryAccount, ContractCompilerAPI } from '@aeternity/aepp-sdk'
 import { getWalletByPathAndDecrypt } from './account'
 
@@ -71,11 +69,11 @@ export async function initClientByWalletFile (walletPath, options, returnKeyPair
   const { password, accountOnly = false, networkId, debug = true } = options
 
   const keypair = await getWalletByPathAndDecrypt(walletPath, password)
-  const accounts = [MemoryAccount(R.merge(options, { keypair, networkId }))]
+  const accounts = [MemoryAccount({ ...options, keypair, networkId })]
 
   const client = accountOnly
     ? accounts[0]
-    : await initClient(R.merge(options, { accounts, debug }))
+    : await initClient({ ...options, accounts, debug })
   if (returnKeyPair) {
     return { client, keypair }
   }
