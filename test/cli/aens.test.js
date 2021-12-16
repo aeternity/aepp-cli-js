@@ -57,16 +57,14 @@ describe('CLI AENS Module', function () {
   })
 
   it('Full claim', async () => {
-    const updateTx = JSON.parse(
-      await executeName([
-        'full-claim',
-        WALLET_NAME,
-        '--password',
-        'test',
-        name3,
-        '--json'
-      ])
-    )
+    const updateTx = await executeName([
+      'full-claim',
+      WALLET_NAME,
+      '--password',
+      'test',
+      name3,
+      '--json'
+    ])
     const address = await wallet.address()
 
     updateTx.blockHeight.should.be.gt(0)
@@ -75,22 +73,20 @@ describe('CLI AENS Module', function () {
   })
 
   it('Full claim with options', async () => {
-    const updateTx = JSON.parse(
-      await executeName([
-        'full-claim',
-        WALLET_NAME,
-        '--password',
-        'test',
-        name4,
-        '--json',
-        '--nameTtl',
-        50,
-        '--nameFee',
-        '3865700000000000000',
-        '--clientTtl',
-        50
-      ])
-    )
+    const updateTx = await executeName([
+      'full-claim',
+      WALLET_NAME,
+      '--password',
+      'test',
+      name4,
+      '--json',
+      '--nameTtl',
+      50,
+      '--nameFee',
+      '3865700000000000000',
+      '--clientTtl',
+      50
+    ])
     const address = await wallet.address()
 
     updateTx.blockHeight.should.be.gt(0)
@@ -101,17 +97,15 @@ describe('CLI AENS Module', function () {
   })
 
   it('Pre Claim Name', async () => {
-    const preClaim = JSON.parse(
-      await executeName([
-        'pre-claim',
-        WALLET_NAME,
-        '--password',
-        'test',
-        name2,
-        '--json'
-      ])
-    )
-    const nameResult = JSON.parse(await executeInspect([name2, '--json']))
+    const preClaim = await executeName([
+      'pre-claim',
+      WALLET_NAME,
+      '--password',
+      'test',
+      name2,
+      '--json'
+    ])
+    const nameResult = await executeInspect([name2, '--json'])
     salt = preClaim.salt
 
     preClaim.blockHeight.should.be.gt(0)
@@ -122,18 +116,16 @@ describe('CLI AENS Module', function () {
   })
 
   it('Claim Name', async () => {
-    const claim = JSON.parse(
-      await executeName([
-        'claim',
-        WALLET_NAME,
-        '--password',
-        'test',
-        name2,
-        salt,
-        '--json'
-      ])
-    )
-    const nameResult = JSON.parse(await executeInspect([name2, '--json']))
+    const claim = await executeName([
+      'claim',
+      WALLET_NAME,
+      '--password',
+      'test',
+      name2,
+      salt,
+      '--json'
+    ])
+    const nameResult = await executeInspect([name2, '--json'])
 
     claim.blockHeight.should.be.gt(0)
     claim.pointers.length.should.be.equal(0)
@@ -141,18 +133,16 @@ describe('CLI AENS Module', function () {
   })
 
   it('Update Name', async () => {
-    const updateTx = JSON.parse(
-      await executeName([
-        'update',
-        WALLET_NAME,
-        name2,
-        publicKey,
-        '--password',
-        'test',
-        '--json'
-      ])
-    )
-    const nameResult = JSON.parse(await executeInspect([name2, '--json']))
+    const updateTx = await executeName([
+      'update',
+      WALLET_NAME,
+      name2,
+      publicKey,
+      '--password',
+      'test',
+      '--json'
+    ])
+    const nameResult = await executeInspect([name2, '--json'])
 
     updateTx.blockHeight.should.be.gt(0)
     const isUpdatedNode = !!nameResult.pointers.find(
@@ -164,19 +154,17 @@ describe('CLI AENS Module', function () {
 
   it('extend name ttl', async () => {
     const height = await wallet.height()
-    const extendTx = JSON.parse(
-      await executeName([
-        'extend',
-        WALLET_NAME,
-        name2,
-        50,
-        '--password',
-        'test',
-        '--json'
-      ])
-    )
+    const extendTx = await executeName([
+      'extend',
+      WALLET_NAME,
+      name2,
+      50,
+      '--password',
+      'test',
+      '--json'
+    ])
 
-    const nameResult = JSON.parse(await executeInspect([name2, '--json']))
+    const nameResult = await executeInspect([name2, '--json'])
     const isExtended = nameResult.ttl - 50 >= height
     isExtended.should.be.equal(true)
     extendTx.blockHeight.should.be.gt(0)
@@ -198,17 +186,15 @@ describe('CLI AENS Module', function () {
 
   it('Spend by name', async () => {
     const amount = 100000009
-    const spendTx = JSON.parse(
-      await executeAccount([
-        'spend',
-        WALLET_NAME,
-        '--password',
-        'test',
-        name2,
-        amount,
-        '--json'
-      ])
-    )
+    const spendTx = await executeAccount([
+      'spend',
+      WALLET_NAME,
+      '--password',
+      'test',
+      name2,
+      amount,
+      '--json'
+    ])
 
     const nameObject = await wallet.aensQuery(name2)
     spendTx.tx.tx.recipientId.should.be.equal(nameObject.id)
@@ -220,17 +206,15 @@ describe('CLI AENS Module', function () {
     const account = genAccount()
     await wallet.addAccount(account)
 
-    const transferTx = JSON.parse(
-      await executeName([
-        'transfer',
-        WALLET_NAME,
-        name2,
-        await account.address(),
-        '--password',
-        'test',
-        '--json'
-      ])
-    )
+    const transferTx = await executeName([
+      'transfer',
+      WALLET_NAME,
+      name2,
+      await account.address(),
+      '--password',
+      'test',
+      '--json'
+    ])
 
     transferTx.blockHeight.should.be.gt(0)
     await wallet.spend(1, await account.address(), { denomination: 'ae' })
@@ -242,18 +226,16 @@ describe('CLI AENS Module', function () {
   })
 
   it('Revoke Name', async () => {
-    const revoke = JSON.parse(
-      await executeName([
-        'revoke',
-        WALLET_NAME,
-        '--password',
-        'test',
-        name2,
-        '--json'
-      ])
-    )
+    const revoke = await executeName([
+      'revoke',
+      WALLET_NAME,
+      '--password',
+      'test',
+      name2,
+      '--json'
+    ])
 
-    const nameResult = JSON.parse(await executeInspect([name2, '--json']))
+    const nameResult = await executeInspect([name2, '--json'])
 
     revoke.blockHeight.should.be.gt(0)
     nameResult.status.should.equal('AVAILABLE')
@@ -276,33 +258,29 @@ describe('CLI AENS Module', function () {
     })
 
     it('Make bid', async () => {
-      const bid = JSON.parse(
-        await executeName([
-          'bid',
-          WALLET_NAME,
-          '--password',
-          'test',
-          name,
-          nameFee,
-          '--json'
-        ])
-      )
+      const bid = await executeName([
+        'bid',
+        WALLET_NAME,
+        '--password',
+        'test',
+        name,
+        nameFee,
+        '--json'
+      ])
 
       bid.tx.nameSalt.should.be.equal(0)
       bid.tx.nameFee.should.be.equal(nameFee)
     })
 
     it('Fail on open  again', async () => {
-      const preClaim = JSON.parse(
-        await executeName([
-          'pre-claim',
-          WALLET_NAME,
-          '--password',
-          'test',
-          name,
-          '--json'
-        ])
-      )
+      const preClaim = await executeName([
+        'pre-claim',
+        WALLET_NAME,
+        '--password',
+        'test',
+        name,
+        '--json'
+      ])
       await executeName([
         'claim',
         WALLET_NAME,

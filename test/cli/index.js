@@ -82,6 +82,7 @@ export async function executeProgram (programFactory, args, { withNetworkId } = 
   program
     .configureOutput({ writeOut: (str) => { result += str } })
     .exitOverride()
+
   const log = console.log
   console.log = (...data) => {
     if (result) result += '\n'
@@ -95,7 +96,13 @@ export async function executeProgram (programFactory, args, { withNetworkId } = 
     ...args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : []
   ], { from: 'user' })
   console.log = log
-  return result
+
+  if (!args.includes('--json')) return result
+  try {
+    return JSON.parse(result)
+  } catch (error) {
+    throw new Error(`Can't parse as JSON:\n${result}`)
+  }
 }
 
 export function parseBlock (res) {

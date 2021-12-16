@@ -37,9 +37,9 @@ describe('CLI Oracle Module', function () {
   })
 
   it('Oracle create', async () => {
-    const oracleCreate = JSON.parse(await executeOracle([
+    const oracleCreate = await executeOracle([
       'create', WALLET_NAME, '--password', 'test', oracleFormat, responseFormat, '--json'
-    ]))
+    ])
     oracleCreate.blockHeight.should.be.gt(0)
     oracleCreate.queryFormat.should.be.equal(oracleFormat)
     oracleCreate.responseFormat.should.be.equal(responseFormat)
@@ -48,17 +48,17 @@ describe('CLI Oracle Module', function () {
 
   it('Oracle extend', async () => {
     const oracle = await wallet.getOracleObject(oracleId)
-    const oracleExtend = JSON.parse(await executeOracle([
+    const oracleExtend = await executeOracle([
       'extend', WALLET_NAME, '--password', 'test', oracleId, 100, '--json'
-    ]))
+    ])
     oracleExtend.blockHeight.should.be.gt(0)
     oracleExtend.ttl.should.be.gte(oracle.ttl + 100)
   })
 
   it('Oracle create query', async () => {
-    const oracleQuery = JSON.parse(await executeOracle([
+    const oracleQuery = await executeOracle([
       'create-query', WALLET_NAME, '--password', 'test', oracleId, 'Hello?', '--json'
-    ]))
+    ])
     oracleQuery.blockHeight.should.be.gt(0)
     oracleQuery.decodedQuery.should.be.equal('Hello?')
     oracleQuery.id.split('_')[0].should.be.equal('oq')
@@ -68,9 +68,9 @@ describe('CLI Oracle Module', function () {
   })
 
   it('Oracle respond to query', async () => {
-    const oracleQueryResponse = JSON.parse(await executeOracle([
+    const oracleQueryResponse = await executeOracle([
       'respond-query', WALLET_NAME, '--password', 'test', oracleId, queryId, 'Hi!', '--json'
-    ]))
+    ])
     oracleQueryResponse.blockHeight.should.be.gt(0)
     const oracle = await wallet.getOracleObject(oracleId)
     const query = await oracle.getQuery(queryId)
@@ -86,7 +86,7 @@ describe('CLI Oracle Module', function () {
   })
 
   it('Get existed Oracle', async () => {
-    const oracle = JSON.parse(await executeOracle(['get', oracleId, '--json']))
+    const oracle = await executeOracle(['get', oracleId, '--json'])
     oracle.id.should.be.a('string')
     oracle.id.split('_')[0].should.be.equal('ok')
   })

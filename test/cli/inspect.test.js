@@ -48,7 +48,7 @@ describe('CLI Inspect Module', function () {
   })
   it('Inspect Account', async () => {
     const balance = await wallet.balance(KEY_PAIR.publicKey)
-    const { balance: cliBalance } = JSON.parse(await executeInspect([KEY_PAIR.publicKey, '--json']))
+    const { balance: cliBalance } = await executeInspect([KEY_PAIR.publicKey, '--json'])
     const isEqual = `${balance}` === `${cliBalance}`
     isEqual.should.equal(true)
   })
@@ -58,19 +58,19 @@ describe('CLI Inspect Module', function () {
     // Create transaction to inspect
     const { hash } = await wallet.spend(amount, recipient)
 
-    const res = JSON.parse(await executeInspect([hash, '--json']))
+    const res = await executeInspect([hash, '--json'])
     res.tx.recipientId.should.equal(recipient)
     res.tx.senderId.should.be.equal(KEY_PAIR.publicKey)
     res.tx.amount.should.equal(amount)
   })
   it('Inspect Block', async () => {
-    const top = JSON.parse(await executeChain(['top', '--json']))
-    const inspectRes = JSON.parse(await executeInspect([top.hash, '--json']))
+    const top = await executeChain(['top', '--json'])
+    const inspectRes = await executeInspect([top.hash, '--json'])
     top.hash.should.equal(inspectRes.hash)
   })
   it('Inspect Height', async () => {
-    const top = JSON.parse(await executeChain(['top', '--json']))
-    const inspectRes = JSON.parse(await executeInspect([top.hash, '--json']))
+    const top = await executeChain(['top', '--json'])
+    const inspectRes = await executeInspect([top.hash, '--json'])
 
     top.hash.should.equal(inspectRes.hash)
   })
@@ -94,7 +94,7 @@ describe('CLI Inspect Module', function () {
   })
   it('Inspect Name', async () => {
     expect(executeInspect(['asd', '--json'])).to.be.rejectedWith('Name should end with .chain')
-    const validName = JSON.parse(await executeInspect(['nazdou2222222.chain', '--json']))
+    const validName = await executeInspect(['nazdou2222222.chain', '--json'])
     validName.status.should.be.equal('AVAILABLE')
   })
 })
