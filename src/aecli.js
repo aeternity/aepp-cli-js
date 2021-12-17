@@ -20,7 +20,6 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
-import pkg from '../package.json'
 
 const program = new Command()
 
@@ -35,10 +34,8 @@ const EXECUTABLE_CMD = [
   { name: 'oracle', desc: 'Interact with oracles' },
   { name: 'crypto', desc: 'Crypto helpers' }
 ]
-// ##Get version from `package.json`
-//
 // You get get CLI version by exec `aecli version`
-program.version(pkg.version)
+program.version(process.env.npm_package_version)
 
 // ## Initialize `config` command
 program
