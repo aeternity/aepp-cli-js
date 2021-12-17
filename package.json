@@ -3,10 +3,10 @@
   "version": "3.0.0",
   "description": "Aeternity command line interface",
   "bin": {
-    "aecli": "src/aecli.js"
+    "aecli": "bin/aecli.mjs"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "github:aeternity/aepp-sdk-js#feature/poll-intervals",
+    "@aeternity/aepp-sdk": "github:aeternity/aepp-sdk-js#feature/es-node-compat",
     "commander": "^8.3.0",
     "prompts": "^2.4.2"
   },
@@ -17,6 +17,7 @@
     "@babel/register": "^7.16.0",
     "@commitlint/cli": "^15.0.0",
     "@commitlint/config-conventional": "^15.0.0",
+    "babel-plugin-add-import-extension": "^1.6.0",
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "chai": "^4.3.4",
@@ -30,7 +31,7 @@
     "url": "https://github.com/aeternity/aepp-cli-js"
   },
   "scripts": {
-    "build": "babel src --out-dir bin",
+    "build": "babel src --out-dir bin --out-file-extension .mjs",
     "prepare": "npm run build",
     "docs": "scripts/js-to-md.js src/*.js src/commands/*.js src/actions/*.js src/utils/*.js",
     "lint": "commitlint --from 23f6888 && standard",

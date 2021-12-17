@@ -18,9 +18,9 @@ So [GP] indicates that a feature is only available in Go and Python.
 6. [The name group](#the-name-group)
 7. [The contracts group](#the-contracts-group)
 
-## Overview 
+## Overview
 
-The command-line interface is invoked using the command `aecli`. Depending on where it's installed on your system, you may have to give a path when you invoke it. 
+The command-line interface is invoked using the command `aecli`. Depending on where it's installed on your system, you may have to give a path when you invoke it.
 
 
 ## General usage
@@ -28,7 +28,7 @@ The command-line interface is invoked using the command `aecli`. Depending on wh
 
 If you invoke `aecli` with no arguments, it shows basic usage:
 ```
-$ ./aecli 
+$ ./aecli
 The command line client for the Aeternity blockchain
 
 Usage:
@@ -51,7 +51,7 @@ Flags:
   -h, --help            help for aecli
       --json            print output in json format
       --version         version for aecli
-  -u, --epoch-url,      show URL of epoch   
+  -u, --epoch-url,      show URL of epoch
 
 Use "aecli [command] --help" for more information about a command.
 ```
@@ -127,7 +127,7 @@ Version___________________________________________ 23
     Amount________________________________________ 10000000
     Fee___________________________________________ 1
     Nonce_________________________________________ 61
-    Payload_______________________________________ hello Naz! 
+    Payload_______________________________________ hello Naz!
     RecipientID___________________________________ ak_XeSuxD8wZ1eDWYu71pWVMJTDopUKrSxZAuiQtNT6bgmNWe9D3
     SenderID______________________________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
     TTL___________________________________________ 1182
@@ -138,7 +138,7 @@ The account (wallet) commands are those which create and report on key pairs, an
 #### create
 
 Use this command to create a new wallet.
-``` 
+```
 $ aecli account create test --password test
  ```
 You can specify a password for accessing your wallet or just press Enter if you do not want to set a password.
@@ -154,55 +154,55 @@ Wallet address is your public key. Wallet path is the directory where the wallet
 #### address
 
 View the address (public key) of your wallet using the following command:
-```  
+```
 $ aecli account address test
-``` 
+```
 You will get the following:
-``` 
+```
 Your address is: ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
  ```
 #### save
 
 Using this command, you can pass the private key to generate a wallet with a key pair.
 
-``` 
+```
 $ aecli account save test <your_private_key>
  ```
 You will get the following:
-``` 
+```
 Wallet saved
 Wallet address________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
 Wallet path___________________ /Users/spushkar/Desktop/aepp-sdk-js-develop/bin/test
  ```
 #### balance
- 
+
 This command is used to check the balance of your wallet.
-``` 
+```
 $ aecli account balance test
-```  
+```
 You will get the account balance:
-``` 
+```
 Your balance is: 998547
- ``` 
+ ```
 #### spend
 
 Using this command, you can send coins to another wallet. Just indicate another account's address and an amount which should be sent.
-```  
+```
 $ aecli account spend test --password test ak$94TQqDjzwKQYPcCdEAfxcGb3mHq2s9Rm4dybMbDWwiVRwg8RK 10
-```  
+```
 As an option, you can set _--ttl_ parameter, which limits the lifespan of this transaction.
 
 
-## The name group 
+## The name group
 
 With the aeternity naming system (AENS), you can assign and register a name to your account or oracle. This way, instead of a complex hash, you can use a name you choose.
 These names have an expiration period, after which they can be transferred to another account.
-For more information, see [The Æternity Naming System (AENS)](https://dev.aepps.com/aepp-sdk-docs/AENS-Python.html) and [Aeternity Naming System](https://github.com/aeternity/protocol/blob/master/AENS.md) docs.  
+For more information, see [The Æternity Naming System (AENS)](https://dev.aepps.com/aepp-sdk-docs/AENS-Python.html) and [Aeternity Naming System](https://github.com/aeternity/protocol/blob/master/AENS.md) docs.
 
 The name group consists of the following commands and options:
-``` 
-$ ./aecli.js name
-``` 
+```
+$ ./aecli.mjs name
+```
   Usage: aecli-name [options] [command]
 
   Options:
@@ -225,39 +225,39 @@ $ ./aecli.js name
 #### claim
 
 Create and register a name for your account (public key):
-``` 
+```
 $ aecli name claim test --password test testname.test
-``` 
+```
 
 #### revoke
 
 You can delete your name using the following command:
-``` 
+```
 $ aecli name revoke test --password test testname.test
-``` 
+```
 
 #### transfer
 
 You can transfer a name to another account or contract, just indicate another account's address. You will pass all rights regarding the name to another account:
-``` 
+```
 $ aecli name transfer test --password test testname.test ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
-``` 
+```
 
 #### update
 
 Use this command to update a name. For example, you can assign it to another account, but still you will have rights to do other operations with this name:
-``` 
+```
 $ aecli name update test --password test testname.test ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
-``` 
+```
 
-## The contracts group 
+## The contracts group
 
-A smart contract is a computer protocol intended to digitally facilitate, verify, or enforce the negotiation or performance of a contract. Smart contracts allow the performance of credible transactions without third parties. These transactions are trackable and irreversible. Smart contracts aim to provide security that is superior to traditional contract law and to reduce other transaction costs associated with contracting. 
+A smart contract is a computer protocol intended to digitally facilitate, verify, or enforce the negotiation or performance of a contract. Smart contracts allow the performance of credible transactions without third parties. These transactions are trackable and irreversible. Smart contracts aim to provide security that is superior to traditional contract law and to reduce other transaction costs associated with contracting.
 
 The contracts group consists of the following commands and options:
-``` 
-$ ./aecli.js  contract
-``` 
+```
+$ ./aecli.mjs  contract
+```
   Usage: aecli-contract [options] [command]
 
   Options:
@@ -277,48 +277,48 @@ $ ./aecli.js  contract
 
 The `deploy` command has its options:
 
-   
-    -P, --password [password]    Wallet Password        
+
+    -P, --password [password]    Wallet Password
     -I, --init [state]           Deploying contract arguments for constructor function
     -G --gas [gas]               Amount of gas to deploy the contract
 
 The `call` command also has its option:
-   
-    -P, --password [password]    Wallet Password    
+
+    -P, --password [password]    Wallet Password
 
 #### compile
 
 To compile a contract, run the following command adding a file which should be compiled. The file should be stored in `aepp-sdk-js-develop/bin`:
-``` 
+```
 $ aecli contract compile file1
-``` 
+```
 
 #### deploy
 
 To deploy a contract, run the following command adding the contract name:
-``` 
+```
 $ aecli contract deploy test --password test testContract
-``` 
+```
 You will get the following:
-``` 
+```
 Contract was successfully deployed
 Contract address________________ ct_2HpbSPdiA2csizgKxt8VUE5z2uRvvrE3MPM9VuLNkc5g6wKKHS
 Transaction hash________________ th_2sfW2c8GxJvZK3xzPagjziX9gVYFcJnywcL8vn8wWM5HCWnykE
 Deploy descriptor_______________ testContract.deploy.2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi.json
-``` 
+```
 #### call
 
 To execute a function of the contract, run the following command. Json file is stored in `aepp-sdk-js-develop/bin`. `Main` is a function which is executed by this contract, `int 1 2` are numerical values :
 
-``` 
+```
 $ aecli contract call test --password test testContract.deploy.2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi.json main int 1 2
-``` 
+```
 You will get the following, where return value is a result of contract execution - it is a sum of values 1 and 2:
-``` 
+```
 Contract address_________ ct_2HpbSPdiA2csizgKxt8VUE5z2uRvvrE3MPM9VuLNkc5g6wKKHS
 Gas price________________ 1
 Gas used_________________ 555
 Return value (encoded)___ 0x0000000000000000000000000000000000000000000000000000000000000003
 Return value (decoded)___ 3
 Return remote type_______ word
-``` 
+```
