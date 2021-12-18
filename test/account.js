@@ -39,9 +39,9 @@ describe('CLI Account Module', function () {
   })
 
   after(function () {
+    sdk.removeWallet()
     if (fs.existsSync(fileName)) fs.unlinkSync(fileName)
     if (fs.existsSync(walletName)) fs.unlinkSync(walletName)
-    if (fs.existsSync(`${walletName}.pub`)) fs.unlinkSync(`${walletName}.pub`)
   })
 
   it('Create Wallet', async () => {

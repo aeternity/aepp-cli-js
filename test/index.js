@@ -17,6 +17,7 @@
 
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+import fs from 'fs'
 import { Universal, MemoryAccount, Node, Crypto } from '@aeternity/aepp-sdk'
 import accountProgramFactory from '../src/commands/account'
 
@@ -53,6 +54,9 @@ export async function getSdk () {
     accounts: [MemoryAccount({ keypair })]
   })
   await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', keypair.secretKey, '--overwrite'])
+  sdk.removeWallet = () => {
+    if (fs.existsSync(WALLET_NAME)) fs.unlinkSync(WALLET_NAME)
+  }
   return sdk
 }
 

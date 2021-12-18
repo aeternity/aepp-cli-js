@@ -51,7 +51,8 @@ describe('CLI Transaction Module', function () {
     await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite'])
   })
 
-  after(async function () {
+  after(function () {
+    sdk.removeWallet()
     if (fs.existsSync(WALLET_NAME)) fs.unlinkSync(WALLET_NAME)
   })
 

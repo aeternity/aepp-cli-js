@@ -42,13 +42,9 @@ describe('CLI Contract Module', function () {
   })
 
   after(function () {
-    // Remove wallet files
-    if (fs.existsSync(WALLET_NAME)) { fs.unlinkSync(WALLET_NAME) }
-    if (fs.existsSync(`${WALLET_NAME}.pub`)) { fs.unlinkSync(`${WALLET_NAME}.pub`) }
-
-    // Remove contract files
-    if (fs.existsSync(deployDescriptor)) { fs.unlinkSync(deployDescriptor) }
-    if (fs.existsSync(contractFile)) { fs.unlinkSync(contractFile) }
+    sdk.removeWallet()
+    if (fs.existsSync(deployDescriptor)) fs.unlinkSync(deployDescriptor)
+    if (fs.existsSync(contractFile)) fs.unlinkSync(contractFile)
   })
 
   it('Compile Contract', async () => {

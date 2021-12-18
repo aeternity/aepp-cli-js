@@ -16,7 +16,7 @@
  */
 
 import { Crypto } from '@aeternity/aepp-sdk'
-import { before, describe, it } from 'mocha'
+import { after, before, describe, it } from 'mocha'
 import { executeProgram, getSdk, WALLET_NAME } from './index'
 import oracleProgramFactory from '../src/commands/oracle'
 
@@ -32,6 +32,8 @@ describe('CLI Oracle Module', function () {
   before(async function () {
     sdk = await getSdk()
   })
+
+  after(() => sdk.removeWallet())
 
   it('Oracle create', async () => {
     const oracleCreate = await executeOracle([

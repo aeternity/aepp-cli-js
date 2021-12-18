@@ -16,7 +16,7 @@
  */
 
 import { Crypto } from '@aeternity/aepp-sdk'
-import { before, describe, it } from 'mocha'
+import { after, before, describe, it } from 'mocha'
 import { executeProgram, randomName, getSdk, WALLET_NAME } from './index'
 import nameProgramFactory from '../src/commands/name'
 import inspectProgramFactory from '../src/commands/inspect'
@@ -35,6 +35,8 @@ describe('CLI AENS Module', function () {
   before(async function () {
     sdk = await getSdk()
   })
+
+  after(() => sdk.removeWallet())
 
   it('Full claim', async function () {
     this.timeout(10000)
