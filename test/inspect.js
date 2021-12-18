@@ -92,7 +92,7 @@ describe('CLI Inspect Module', function () {
     descriptor.apiError.should.equal('Transaction not found')
   })
   it('Inspect Name', async () => {
-    expect(executeInspect(['asd', '--json'])).to.be.rejectedWith('Name should end with .chain')
+    await expect(executeInspect(['asd', '--json'])).to.be.rejectedWith('Name should end with .chain')
     const validName = await executeInspect(['nazdou2222222.chain', '--json'])
     validName.status.should.be.equal('AVAILABLE')
   })

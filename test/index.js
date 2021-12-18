@@ -70,7 +70,10 @@ export async function ready () {
   return client
 }
 
+let isProgramExecuting = false
 export async function executeProgram (programFactory, args) {
+  if (isProgramExecuting) throw new Error('Another program is already running')
+  isProgramExecuting = true
   let result = ''
   const program = programFactory()
   program
@@ -82,12 +85,16 @@ export async function executeProgram (programFactory, args) {
     if (result) result += '\n'
     result += data.join(' ')
   }
-  await program.parseAsync([
-    ...args,
-    '--url', url,
-    ...args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : []
-  ], { from: 'user' })
-  console.log = log
+  try {
+    await program.parseAsync([
+      ...args,
+      '--url', url,
+      ...args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : []
+    ], { from: 'user' })
+  } finally {
+    console.log = log
+    isProgramExecuting = false
+  }
 
   if (!args.includes('--json')) return result
   try {
