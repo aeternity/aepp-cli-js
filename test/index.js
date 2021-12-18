@@ -32,7 +32,7 @@ const ignoreVersion = process.env.IGNORE_VERSION || false
 const keypair = Crypto.generateKeyPair()
 export const WALLET_NAME = 'mywallet'
 
-export const BaseAe = async (params = {}) => await Universal({
+const Sdk = async (params = {}) => await Universal({
   ignoreVersion,
   compilerUrl,
   nodes: [{ name: 'test', instance: await Node({ url }) }],
@@ -41,15 +41,15 @@ export const BaseAe = async (params = {}) => await Universal({
 })
 
 const spendPromise = (async () => {
-  const ae = await BaseAe()
-  await ae.awaitHeight(2)
-  await ae.spend(1e26, keypair.publicKey)
+  const sdk = await Sdk()
+  await sdk.awaitHeight(2)
+  await sdk.spend(1e26, keypair.publicKey)
 })()
 
 export async function getSdk () {
   await spendPromise
 
-  const sdk = await BaseAe({
+  const sdk = await Sdk({
     accounts: [MemoryAccount({ keypair })]
   })
   await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', keypair.secretKey, '--overwrite'])

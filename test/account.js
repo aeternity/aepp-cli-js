@@ -19,7 +19,7 @@ import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
 import { expect } from 'chai'
 
-import { getSdk, executeProgram, BaseAe, WALLET_NAME } from './index'
+import { getSdk, executeProgram, WALLET_NAME } from './index'
 import accountProgramFactory from '../src/commands/account'
 import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
 
@@ -93,10 +93,9 @@ describe('CLI Account Module', function () {
     const amount = 1 // 1 AE
     const denomination = AmountFormatter.AE_AMOUNT_FORMATS.AE
     const receiverKeys = Crypto.generateKeyPair()
-    const receiver = await BaseAe()
     // send coins
     await executeAccount(['spend', WALLET_NAME, '--password', 'test', '-D', denomination, receiverKeys.publicKey, amount])
-    const receiverBalance = await receiver.getBalance(receiverKeys.publicKey)
+    const receiverBalance = await wallet.getBalance(receiverKeys.publicKey)
     receiverBalance.should.equal(AmountFormatter.formatAmount(amount, { denomination: AmountFormatter.AE_AMOUNT_FORMATS.AE }))
   })
   it('Get account nonce', async () => {
