@@ -124,16 +124,14 @@ export function readFile (path, encoding = null, errTitle = 'READ FILE ERR') {
 // ## AENS helpers methods
 
 // Get `name` status
-export function updateNameStatus (name) {
-  return async (client) => {
-    try {
-      return { ...(await client.getName(name)), status: 'CLAIMED' }
-    } catch (e) {
-      if (e.response && e.response.status === 404) {
-        return { name, status: 'AVAILABLE' }
-      }
-      throw e
+export async function updateNameStatus (name, client) {
+  try {
+    return { ...await client.getName(name), status: 'CLAIMED' }
+  } catch (e) {
+    if (e.response && e.response.status === 404) {
+      return { name, status: 'AVAILABLE' }
     }
+    throw e
   }
 }
 

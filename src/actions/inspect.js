@@ -162,7 +162,7 @@ async function getName (name, options) {
   const client = await initChain(options)
   try {
     printName(
-      await updateNameStatus(name)(client),
+      await updateNameStatus(name, client),
       json
     )
   } catch (e) {

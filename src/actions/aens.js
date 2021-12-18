@@ -34,7 +34,7 @@ export async function preClaim (walletPath, domain, options) {
   const client = await initClientByWalletFile(walletPath, options)
 
   // Check if that `name' available
-  const name = await updateNameStatus(domain)(client)
+  const name = await updateNameStatus(domain, client)
   if (!isAvailable(name)) {
     throw new Error('Domain not available')
   }
@@ -60,7 +60,7 @@ export async function claim (walletPath, domain, salt, options) {
   const client = await initClientByWalletFile(walletPath, options)
 
   // Check if that `name' available
-  const name = await updateNameStatus(domain)(client)
+  const name = await updateNameStatus(domain, client)
   if (!isAvailable(name)) {
     throw new Error('Domain not available')
   }
@@ -90,7 +90,7 @@ export async function updateName (walletPath, domain, addresses, options) {
   const client = await initClientByWalletFile(walletPath, options)
 
   // Check if that `name` is unavailable and we can update it
-  const name = await updateNameStatus(domain)(client)
+  const name = await updateNameStatus(domain, client)
   if (isAvailable(name)) {
     throw new Error(`Domain is ${name.status} and cannot be updated`)
   }
@@ -121,7 +121,7 @@ export async function extendName (walletPath, domain, nameTtl, options) {
   const client = await initClientByWalletFile(walletPath, options)
 
   // Check if that `name` is unavailable and we can update it
-  const name = await updateNameStatus(domain)(client)
+  const name = await updateNameStatus(domain, client)
   if (isAvailable(name)) {
     throw new Error(`Domain is ${name.status} and cannot be extended`)
   }
@@ -150,7 +150,7 @@ export async function transferName (walletPath, domain, address, options) {
   const client = await initClientByWalletFile(walletPath, options)
 
   // Check if that `name` is unavailable and we can transfer it
-  const name = await updateNameStatus(domain)(client)
+  const name = await updateNameStatus(domain, client)
   if (isAvailable(name)) {
     throw new Error('Domain is available, nothing to transfer')
   }
@@ -177,7 +177,7 @@ export async function revokeName (walletPath, domain, options) {
   const client = await initClientByWalletFile(walletPath, options)
 
   // Check if `name` is unavailable and we can revoke it
-  const name = await updateNameStatus(domain)(client)
+  const name = await updateNameStatus(domain, client)
   if (isAvailable(name)) {
     throw new Error('Domain is available, nothing to revoke')
   }
@@ -203,7 +203,7 @@ export async function nameBid (walletPath, domain, nameFee, options) {
   const client = await initClientByWalletFile(walletPath, options)
 
   // Check if that `name' available
-  const name = await updateNameStatus(domain)(client)
+  const name = await updateNameStatus(domain, client)
   if (!isAvailable(name)) {
     throw new Error('Auction do not start or already end')
   }
@@ -231,7 +231,7 @@ export async function fullClaim (walletPath, domain, options) {
   const client = await initClientByWalletFile(walletPath, options)
 
   // Check if that `name' available
-  const name = await updateNameStatus(domain)(client)
+  const name = await updateNameStatus(domain, client)
   if (!isAvailable(name)) {
     throw new Error('Domain not available')
   }
@@ -261,7 +261,7 @@ export async function lookUp (domain, options) {
 
   // Check if `name` is unavailable and we can revoke it
   printName(
-    await updateNameStatus(domain)(client),
+    await updateNameStatus(domain, client),
     json
   )
 }
