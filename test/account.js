@@ -19,7 +19,7 @@ import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
 import { expect } from 'chai'
 
-import { getSdk, executeProgram, BaseAe, KEY_PAIR, WALLET_NAME, genAccount } from './index'
+import { getSdk, executeProgram, BaseAe, WALLET_NAME } from './index'
 import accountProgramFactory from '../src/commands/account'
 import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
 
@@ -31,6 +31,7 @@ describe('CLI Account Module', function () {
   let sigFromFile
   const fileName = 'testData'
   const fileData = 'Hello world!'
+  const keypair = Crypto.generateKeyPair()
   let wallet
 
   before(async function () {
@@ -59,22 +60,22 @@ describe('CLI Account Module', function () {
   })
   it('Create Wallet From Private Key', async () => {
     // create wallet
-    await executeAccount(['save', walletName, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
+    await executeAccount(['save', walletName, '--password', 'test', keypair.secretKey, '--overwrite'])
 
     // check for wallet files
     fs.existsSync(walletName).should.equal(true)
 
     // check if wallet valid
     expect((await executeAccount(['address', walletName, '--password', 'test', '--json'])).publicKey)
-      .to.equal(KEY_PAIR.publicKey)
+      .to.equal(keypair.publicKey)
   })
   it('Check Wallet Address', async () => {
     expect((await executeAccount(['address', WALLET_NAME, '--password', 'test', '--json'])).publicKey)
-      .to.equal(KEY_PAIR.publicKey)
+      .to.equal(await wallet.address())
   })
   it('Check Wallet Address with Private Key', async () => {
-    expect((await executeAccount(['address', WALLET_NAME, '--password', 'test', '--privateKey', '--forcePrompt', '--json'])).secretKey)
-      .to.equal(KEY_PAIR.secretKey)
+    expect((await executeAccount(['address', walletName, '--password', 'test', '--privateKey', '--forcePrompt', '--json'])).secretKey)
+      .to.equal(keypair.secretKey)
   })
   it('Check Wallet Balance', async () => {
     const balance = await wallet.balance(await wallet.address())
@@ -83,13 +84,10 @@ describe('CLI Account Module', function () {
   })
   it('Spend coins to another wallet', async () => {
     const amount = 100
-    const receiver = await BaseAe()
-    await receiver.addAccount(genAccount(), { select: true })
-
-    // send coins
-    await executeAccount(['spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount])
-    const receiverBalance = await receiver.getBalance(await receiver.address())
-    await parseInt(receiverBalance).should.equal(amount)
+    const { publicKey } = Crypto.generateKeyPair()
+    await executeAccount(['spend', WALLET_NAME, '--password', 'test', publicKey, amount])
+    const receiverBalance = await wallet.getBalance(publicKey)
+    parseInt(receiverBalance).should.equal(amount)
   })
   it('Spend coins to another wallet using denomination', async () => {
     const amount = 1 // 1 AE

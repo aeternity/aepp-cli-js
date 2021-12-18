@@ -16,7 +16,7 @@
  */
 
 import { before, describe, it } from 'mocha'
-import { BaseAe, executeProgram, parseBlock, getSdk, genAccount } from './index'
+import { executeProgram, parseBlock, getSdk } from './index'
 import chainProgramFactory from '../src/commands/chain'
 
 const executeChain = args => executeProgram(chainProgramFactory, args)
@@ -35,12 +35,8 @@ describe('CLI Chain Module', function () {
     res.height.should.be.a('number')
   })
   it('STATUS', async () => {
-    const wallet = await BaseAe()
-    await wallet.addAccount(genAccount(), { select: true })
-
-    const { nodeVersion } = await wallet.api.getStatus()
     const res = await executeChain(['status', '--json'])
-    res.nodeVersion.should.equal(nodeVersion)
+    res.nodeVersion.should.equal((await wallet.api.getStatus()).nodeVersion)
   })
   it('PLAY', async function () {
     this.timeout(10000)

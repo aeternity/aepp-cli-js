@@ -17,7 +17,7 @@
 
 import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
-import { executeProgram, KEY_PAIR, getSdk, WALLET_NAME } from './index'
+import { executeProgram, getSdk, WALLET_NAME } from './index'
 import contractProgramFactory from '../src/commands/contract'
 
 const executeContract = args => executeProgram(contractProgramFactory, args)
@@ -89,7 +89,7 @@ describe('CLI Contract Module', function () {
     transaction.should.be.a('string')
     name.should.be.equal(contractFile)
     pref.should.be.equal('deploy')
-    add.should.be.equal(KEY_PAIR.publicKey.split('_')[1])
+    add.should.be.equal((await wallet.address()).split('_')[1])
   })
 
   it('Call Contract by descriptor', async () => {

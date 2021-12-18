@@ -29,11 +29,8 @@ const publicKey = process.env.PUBLIC_KEY || 'ak_2dATVcZ9KJU5a8hdsVtTv21pYiGWiPbm
 const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876bb84e3cdf71efb12f56c7335fad54d5cf08400e988222f26eb4b02c8f89077457467211a6e6d955edb70749c6a33b'
 export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
 const ignoreVersion = process.env.IGNORE_VERSION || false
-
-export const KEY_PAIR = Crypto.generateKeyPair()
+const keypair = Crypto.generateKeyPair()
 export const WALLET_NAME = 'mywallet'
-
-export const genAccount = () => MemoryAccount({ keypair: Crypto.generateKeyPair() })
 
 export const BaseAe = async (params = {}) => await Universal({
   ignoreVersion,
@@ -46,16 +43,16 @@ export const BaseAe = async (params = {}) => await Universal({
 const spendPromise = (async () => {
   const ae = await BaseAe()
   await ae.awaitHeight(2)
-  await ae.spend(1e26, KEY_PAIR.publicKey)
+  await ae.spend(1e26, keypair.publicKey)
 })()
 
 export async function getSdk () {
   await spendPromise
 
   const sdk = await BaseAe({
-    accounts: [MemoryAccount({ keypair: KEY_PAIR })]
+    accounts: [MemoryAccount({ keypair })]
   })
-  await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
+  await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', keypair.secretKey, '--overwrite'])
   return sdk
 }
 

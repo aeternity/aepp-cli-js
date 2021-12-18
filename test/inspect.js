@@ -19,7 +19,7 @@ import fs from 'fs'
 import { before, describe, it } from 'mocha'
 import { expect } from 'chai'
 
-import { executeProgram, parseBlock, KEY_PAIR, getSdk } from './index'
+import { executeProgram, parseBlock, getSdk } from './index'
 import { Crypto } from '@aeternity/aepp-sdk'
 import inspectProgramFactory from '../src/commands/inspect'
 import chainProgramFactory from '../src/commands/chain'
@@ -46,8 +46,9 @@ describe('CLI Inspect Module', function () {
     wallet = await getSdk()
   })
   it('Inspect Account', async () => {
-    const balance = await wallet.balance(KEY_PAIR.publicKey)
-    const { balance: cliBalance } = await executeInspect([KEY_PAIR.publicKey, '--json'])
+    const address = await wallet.address()
+    const balance = await wallet.balance(address)
+    const { balance: cliBalance } = await executeInspect([address, '--json'])
     const isEqual = `${balance}` === `${cliBalance}`
     isEqual.should.equal(true)
   })
@@ -59,7 +60,7 @@ describe('CLI Inspect Module', function () {
 
     const res = await executeInspect([hash, '--json'])
     res.tx.recipientId.should.equal(recipient)
-    res.tx.senderId.should.be.equal(KEY_PAIR.publicKey)
+    res.tx.senderId.should.be.equal(await wallet.address())
     res.tx.amount.should.equal(amount)
   })
   it('Inspect Block', async () => {

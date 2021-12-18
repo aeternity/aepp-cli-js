@@ -17,7 +17,7 @@
 
 import { Crypto } from '@aeternity/aepp-sdk'
 import { before, describe, it } from 'mocha'
-import { executeProgram, genAccount, randomName, getSdk, WALLET_NAME } from './index'
+import { executeProgram, randomName, getSdk, WALLET_NAME } from './index'
 import nameProgramFactory from '../src/commands/name'
 import inspectProgramFactory from '../src/commands/inspect'
 import accountProgramFactory from '../src/commands/account'
@@ -187,25 +187,22 @@ describe('CLI AENS Module', function () {
   })
 
   it('Transfer name', async () => {
-    const account = genAccount()
-    await wallet.addAccount(account)
+    const keypair = Crypto.generateKeyPair()
 
     const transferTx = await executeName([
       'transfer',
       WALLET_NAME,
       name2,
-      await account.address(),
+      keypair.publicKey,
       '--password',
       'test',
       '--json'
     ])
 
     transferTx.blockHeight.should.be.gt(0)
-    await wallet.spend(1, await account.address(), { denomination: 'ae' })
+    await wallet.spend(1, keypair.publicKey, { denomination: 'ae' })
     const claim2 = await wallet.aensQuery(name2)
-    const transferBack = await claim2.transfer(await wallet.address(), {
-      onAccount: await account.address()
-    })
+    const transferBack = await claim2.transfer(await wallet.address(), { onAccount: keypair })
     transferBack.blockHeight.should.be.gt(0)
   })
 
@@ -230,15 +227,10 @@ describe('CLI AENS Module', function () {
 
     it('Open auction', async function () {
       this.timeout(10000)
-      const account = genAccount()
-      await wallet.addAccount(account)
-      await wallet.spend('30000000000000000000000', await account.address())
-      const preclaim = await wallet.aensPreclaim(name, {
-        onAccount: await account.address()
-      })
-      const claim = await preclaim.claim({
-        onAccount: await account.address()
-      })
+      const keypair = Crypto.generateKeyPair()
+      await wallet.spend('30000000000000000000000', keypair.publicKey)
+      const preclaim = await wallet.aensPreclaim(name, { onAccount: keypair })
+      const claim = await preclaim.claim({ onAccount: keypair })
       claim.blockHeight.should.be.gt(0)
     })
 
