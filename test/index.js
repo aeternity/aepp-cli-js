@@ -28,7 +28,7 @@ const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
 const internalUrl = process.env.TEST_INTERNAL_URL || 'http://localhost:3113'
 const publicKey = process.env.PUBLIC_KEY || 'ak_2dATVcZ9KJU5a8hdsVtTv21pYiGWiPbmVcU1Pz72FFqpk9pSRR'
 const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876bb84e3cdf71efb12f56c7335fad54d5cf08400e988222f26eb4b02c8f89077457467211a6e6d955edb70749c6a33b'
-const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
+export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
 export const ignoreVersion = process.env.IGNORE_VERSION || false
 
 const TIMEOUT = 18000000
@@ -60,7 +60,7 @@ export function plan (amount) {
 export async function ready (mocha) {
   configure(mocha)
 
-  const ae = await BaseAe({ networkId })
+  const ae = await BaseAe()
   await ae.awaitHeight(3)
 
   if (!charged && planned > 0) {
@@ -73,14 +73,13 @@ export async function ready (mocha) {
   }
 
   const client = await BaseAe({
-    networkId,
     accounts: [MemoryAccount({ keypair: KEY_PAIR })]
   })
   await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
   return client
 }
 
-export async function executeProgram (programFactory, args, { withNetworkId } = {}) {
+export async function executeProgram (programFactory, args) {
   let result = ''
   const program = programFactory()
   program
@@ -96,7 +95,6 @@ export async function executeProgram (programFactory, args, { withNetworkId } = 
     ...args,
     '--url', url,
     '--internalUrl', internalUrl,
-    ...withNetworkId ? ['--networkId', networkId] : [],
     ...args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : []
   ], { from: 'user' })
   console.log = log

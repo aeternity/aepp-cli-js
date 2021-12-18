@@ -23,7 +23,7 @@ import { configure, plan, ready, executeProgram, BaseAe, KEY_PAIR, WALLET_NAME, 
 import accountProgramFactory from '../src/commands/account'
 import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
 
-const executeAccount = (...args) => executeProgram(accountProgramFactory, ...args)
+const executeAccount = (args) => executeProgram(accountProgramFactory, args)
 const walletName = 'test.wallet'
 
 plan(1000000000)
@@ -90,7 +90,7 @@ describe('CLI Account Module', function () {
     await receiver.addAccount(genAccount(), { select: true })
 
     // send coins
-    await executeAccount(['spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount], { withNetworkId: true })
+    await executeAccount(['spend', WALLET_NAME, '--password', 'test', await receiver.address(), amount])
     const receiverBalance = await receiver.getBalance(await receiver.address())
     await parseInt(receiverBalance).should.equal(amount)
   })
@@ -100,7 +100,7 @@ describe('CLI Account Module', function () {
     const receiverKeys = Crypto.generateKeyPair()
     const receiver = await BaseAe()
     // send coins
-    await executeAccount(['spend', WALLET_NAME, '--password', 'test', '-D', denomination, receiverKeys.publicKey, amount], { withNetworkId: true })
+    await executeAccount(['spend', WALLET_NAME, '--password', 'test', '-D', denomination, receiverKeys.publicKey, amount])
     const receiverBalance = await receiver.getBalance(receiverKeys.publicKey)
     receiverBalance.should.equal(AmountFormatter.formatAmount(amount, { denomination: AmountFormatter.AE_AMOUNT_FORMATS.AE }))
   })

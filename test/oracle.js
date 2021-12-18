@@ -20,7 +20,7 @@ import { before, describe, it } from 'mocha'
 import { configure, executeProgram, plan, ready, WALLET_NAME } from './index'
 import oracleProgramFactory from '../src/commands/oracle'
 
-const executeOracle = args => executeProgram(oracleProgramFactory, args, { withNetworkId: true })
+const executeOracle = args => executeProgram(oracleProgramFactory, args)
 plan(10000000000000)
 
 describe('CLI Oracle Module', function () {

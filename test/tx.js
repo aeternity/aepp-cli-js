@@ -18,12 +18,12 @@
 import { Crypto, MemoryAccount } from '@aeternity/aepp-sdk'
 import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
-import { BaseAe, configure, executeProgram, parseBlock, randomString, ready } from './index'
+import { BaseAe, configure, executeProgram, parseBlock, randomString, ready, networkId } from './index'
 import txProgramFactory from '../src/commands/tx'
 import accountProgramFactory from '../src/commands/account'
 import chainProgramFactory from '../src/commands/chain'
 
-const executeTx = (...args) => executeProgram(txProgramFactory, ...args)
+const executeTx = (args) => executeProgram(txProgramFactory, args)
 
 const WALLET_NAME = 'txWallet'
 const testContract = `
@@ -38,7 +38,10 @@ function randomName (length = 18, namespace = '.chain') {
 }
 
 async function signAndPost (tx, assert) {
-  const { signedTx } = await executeProgram(accountProgramFactory, ['sign', WALLET_NAME, tx, '--password', 'test', '--json'], { withNetworkId: true })
+  const { signedTx } = await executeProgram(
+    accountProgramFactory,
+    ['sign', WALLET_NAME, tx, '--password', 'test', '--json', '--networkId', networkId]
+  )
   return assert
     ? (await executeProgram(chainProgramFactory, ['broadcast', signedTx, '--no-waitMined'])).should.contain('Transaction send to the chain')
     : executeProgram(chainProgramFactory, ['broadcast', signedTx])

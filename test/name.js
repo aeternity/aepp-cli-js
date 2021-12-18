@@ -30,7 +30,7 @@ import nameProgramFactory from '../src/commands/name'
 import inspectProgramFactory from '../src/commands/inspect'
 import accountProgramFactory from '../src/commands/account'
 
-const executeName = (args) => executeProgram(nameProgramFactory, args, { withNetworkId: true })
+const executeName = (args) => executeProgram(nameProgramFactory, args)
 const executeInspect = (args) => executeProgram(inspectProgramFactory, args)
 const executeAccount = (args) => executeProgram(accountProgramFactory, args)
 plan(10000000000000)
