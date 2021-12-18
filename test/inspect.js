@@ -40,14 +40,14 @@ const contractDescriptor = {
 }
 
 describe('CLI Inspect Module', function () {
-  let wallet
+  let sdk
 
   before(async function () {
-    wallet = await getSdk()
+    sdk = await getSdk()
   })
   it('Inspect Account', async () => {
-    const address = await wallet.address()
-    const balance = await wallet.balance(address)
+    const address = await sdk.address()
+    const balance = await sdk.balance(address)
     const { balance: cliBalance } = await executeInspect([address, '--json'])
     const isEqual = `${balance}` === `${cliBalance}`
     isEqual.should.equal(true)
@@ -56,11 +56,11 @@ describe('CLI Inspect Module', function () {
     const recipient = (Crypto.generateKeyPair()).publicKey
     const amount = 420
     // Create transaction to inspect
-    const { hash } = await wallet.spend(amount, recipient)
+    const { hash } = await sdk.spend(amount, recipient)
 
     const res = await executeInspect([hash, '--json'])
     res.tx.recipientId.should.equal(recipient)
-    res.tx.senderId.should.be.equal(await wallet.address())
+    res.tx.senderId.should.be.equal(await sdk.address())
     res.tx.amount.should.equal(amount)
   })
   it('Inspect Block', async () => {

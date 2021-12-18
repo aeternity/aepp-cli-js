@@ -25,13 +25,12 @@ const executeOracle = args => executeProgram(oracleProgramFactory, args)
 describe('CLI Oracle Module', function () {
   const oracleFormat = 'string'
   const responseFormat = 'string'
-  let wallet
+  let sdk
   let oracleId
   let queryId
 
   before(async function () {
-    // Spend tokens for wallet
-    wallet = await getSdk()
+    sdk = await getSdk()
   })
 
   it('Oracle create', async () => {
@@ -45,7 +44,7 @@ describe('CLI Oracle Module', function () {
   })
 
   it('Oracle extend', async () => {
-    const oracle = await wallet.getOracleObject(oracleId)
+    const oracle = await sdk.getOracleObject(oracleId)
     const oracleExtend = await executeOracle([
       'extend', WALLET_NAME, '--password', 'test', oracleId, 100, '--json'
     ])
@@ -61,7 +60,7 @@ describe('CLI Oracle Module', function () {
     oracleQuery.decodedQuery.should.be.equal('Hello?')
     oracleQuery.id.split('_')[0].should.be.equal('oq')
     queryId = oracleQuery.id
-    const oracle = await wallet.getOracleObject(oracleId)
+    const oracle = await sdk.getOracleObject(oracleId)
     oracle.queries.length.should.be.equal(1)
   })
 
@@ -70,7 +69,7 @@ describe('CLI Oracle Module', function () {
       'respond-query', WALLET_NAME, '--password', 'test', oracleId, queryId, 'Hi!', '--json'
     ])
     oracleQueryResponse.blockHeight.should.be.gt(0)
-    const oracle = await wallet.getOracleObject(oracleId)
+    const oracle = await sdk.getOracleObject(oracleId)
     const query = await oracle.getQuery(queryId)
     query.decodedResponse.should.be.equal('Hi!')
   })

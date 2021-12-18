@@ -35,12 +35,11 @@ const DECODED_CALL_DATA = { arguments: [{ type: 'int', value: 1 }, { type: 'int'
 
 describe('CLI Contract Module', function () {
   const contractFile = 'testContract'
-  let deployDescriptor, wallet, bytecode, cAddress
+  let deployDescriptor, sdk, bytecode, cAddress
 
   before(async function () {
-    // Spend tokens for wallet
     fs.writeFileSync(contractFile, testContract)
-    wallet = await getSdk()
+    sdk = await getSdk()
   })
 
   after(function () {
@@ -56,7 +55,7 @@ describe('CLI Contract Module', function () {
   it('Compile Contract', async () => {
     // Create contract file
     // Compile contract
-    const compiled = await wallet.contractCompile(testContract).catch(console.error)
+    const compiled = await sdk.contractCompile(testContract).catch(console.error)
     const compiledCLI = (await executeContract(['compile', contractFile]))
     const bytecodeCLI = compiledCLI.split(':')[1].trim()
     bytecode = compiled.bytecode
@@ -89,7 +88,7 @@ describe('CLI Contract Module', function () {
     transaction.should.be.a('string')
     name.should.be.equal(contractFile)
     pref.should.be.equal('deploy')
-    add.should.be.equal((await wallet.address()).split('_')[1])
+    add.should.be.equal((await sdk.address()).split('_')[1])
   })
 
   it('Call Contract by descriptor', async () => {

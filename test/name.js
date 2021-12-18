@@ -30,11 +30,10 @@ describe('CLI AENS Module', function () {
   const { publicKey } = Crypto.generateKeyPair()
   const name = randomName(12)
   const name2 = randomName(13)
-  let wallet, salt
+  let sdk, salt
 
   before(async function () {
-    // Spend tokens for wallet
-    wallet = await getSdk()
+    sdk = await getSdk()
   })
 
   it('Full claim', async function () {
@@ -47,7 +46,7 @@ describe('CLI AENS Module', function () {
       randomName(13),
       '--json'
     ])
-    const address = await wallet.address()
+    const address = await sdk.address()
 
     updateTx.blockHeight.should.be.gt(0)
     const isUpdated = !!updateTx.pointers.find(({ id }) => id === address)
@@ -70,7 +69,7 @@ describe('CLI AENS Module', function () {
       '--clientTtl',
       50
     ])
-    const address = await wallet.address()
+    const address = await sdk.address()
 
     updateTx.blockHeight.should.be.gt(0)
     updateTx.tx.nameTtl.should.be.equal(50)
@@ -137,7 +136,7 @@ describe('CLI AENS Module', function () {
   })
 
   it('extend name ttl', async () => {
-    const height = await wallet.height()
+    const height = await sdk.height()
     const extendTx = await executeName([
       'extend',
       WALLET_NAME,
@@ -180,9 +179,9 @@ describe('CLI AENS Module', function () {
       '--json'
     ])
 
-    const nameObject = await wallet.aensQuery(name2)
+    const nameObject = await sdk.aensQuery(name2)
     spendTx.tx.tx.recipientId.should.be.equal(nameObject.id)
-    const balance = await wallet.getBalance(publicKey)
+    const balance = await sdk.getBalance(publicKey)
     balance.should.be.equal(`${amount}`)
   })
 
@@ -200,9 +199,9 @@ describe('CLI AENS Module', function () {
     ])
 
     transferTx.blockHeight.should.be.gt(0)
-    await wallet.spend(1, keypair.publicKey, { denomination: 'ae' })
-    const claim2 = await wallet.aensQuery(name2)
-    const transferBack = await claim2.transfer(await wallet.address(), { onAccount: keypair })
+    await sdk.spend(1, keypair.publicKey, { denomination: 'ae' })
+    const claim2 = await sdk.aensQuery(name2)
+    const transferBack = await claim2.transfer(await sdk.address(), { onAccount: keypair })
     transferBack.blockHeight.should.be.gt(0)
   })
 
@@ -228,8 +227,8 @@ describe('CLI AENS Module', function () {
     it('Open auction', async function () {
       this.timeout(10000)
       const keypair = Crypto.generateKeyPair()
-      await wallet.spend('30000000000000000000000', keypair.publicKey)
-      const preclaim = await wallet.aensPreclaim(name, { onAccount: keypair })
+      await sdk.spend('30000000000000000000000', keypair.publicKey)
+      const preclaim = await sdk.aensPreclaim(name, { onAccount: keypair })
       const claim = await preclaim.claim({ onAccount: keypair })
       claim.blockHeight.should.be.gt(0)
     })

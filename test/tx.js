@@ -37,7 +37,7 @@ contract Identity =
 describe('CLI Transaction Module', function () {
   const TX_KEYS = Crypto.generateKeyPair()
   const oracleId = 'ok_' + TX_KEYS.publicKey.slice(3)
-  let wallet
+  let sdk
   let salt
   let queryId
   let contractId
@@ -46,8 +46,8 @@ describe('CLI Transaction Module', function () {
   let nameId
 
   before(async function () {
-    wallet = await getSdk()
-    await wallet.spend(1e24, TX_KEYS.publicKey)
+    sdk = await getSdk()
+    await sdk.spend(1e24, TX_KEYS.publicKey)
     await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite'])
   })
 
@@ -81,7 +81,7 @@ describe('CLI Transaction Module', function () {
     this.timeout(10000)
     const { tx } = await executeTx(['name-claim', TX_KEYS.publicKey, salt, name, nonce, '--json'])
     await signAndPost(tx)
-    nameId = (await wallet.aensQuery(name)).id
+    nameId = (await sdk.aensQuery(name)).id
   })
 
   it('Build update tx offline and send on-chain', async () => {
@@ -100,15 +100,15 @@ describe('CLI Transaction Module', function () {
   })
 
   it('Build contract create tx offline and send on-chain', async () => {
-    const { bytecode } = await wallet.contractCompile(testContract)
-    const callData = await wallet.contractEncodeCallDataAPI(testContract, 'init', [])
+    const { bytecode } = await sdk.contractCompile(testContract)
+    const callData = await sdk.contractEncodeCallDataAPI(testContract, 'init', [])
     const { tx, contractId: cId } = await executeTx(['contract-deploy', TX_KEYS.publicKey, bytecode, callData, nonce, '--json'])
     contractId = cId
     await signAndPost(tx)
   })
 
   it('Build contract call tx offline and send on-chain', async () => {
-    const callData = await wallet.contractEncodeCallDataAPI(testContract, 'test', ['1', '2'])
+    const callData = await sdk.contractEncodeCallDataAPI(testContract, 'test', ['1', '2'])
     const { tx } = await executeTx(['contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json'])
     await signAndPost(tx)
   })
@@ -119,10 +119,10 @@ describe('CLI Transaction Module', function () {
   })
 
   it('Build oracle extend  tx offline and send on-chain', async () => {
-    const oracleCurrentTtl = await wallet.api.getOracleByPubkey(oracleId)
+    const oracleCurrentTtl = await sdk.api.getOracleByPubkey(oracleId)
     const { tx } = await executeTx(['oracle-extend', TX_KEYS.publicKey, oracleId, 100, nonce, '--json'])
     await signAndPost(tx)
-    const oracleTtl = await wallet.api.getOracleByPubkey(oracleId)
+    const oracleTtl = await sdk.api.getOracleByPubkey(oracleId)
     const isExtended = +oracleTtl.ttl === +oracleCurrentTtl.ttl + 100
     isExtended.should.be.equal(true)
   })
@@ -130,7 +130,7 @@ describe('CLI Transaction Module', function () {
   it('Build oracle post query tx offline and send on-chain', async () => {
     const { tx } = await executeTx(['oracle-post-query', TX_KEYS.publicKey, oracleId, '{city: "Berlin"}', nonce, '--json'])
     await signAndPost(tx)
-    const { oracleQueries: queries } = await wallet.api.getOracleQueriesByPubkey(oracleId)
+    const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId)
     queryId = queries[0].id
     const hasQuery = !!queries.length
     hasQuery.should.be.equal(true)
@@ -140,7 +140,7 @@ describe('CLI Transaction Module', function () {
     const response = '{tmp: 10}'
     const { tx } = await executeTx(['oracle-respond', TX_KEYS.publicKey, oracleId, queryId, response, nonce, '--json'])
     await signAndPost(tx)
-    const { oracleQueries: queries } = await wallet.api.getOracleQueriesByPubkey(oracleId)
+    const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId)
     const responseQuery = Crypto.decodeBase64Check(queries[0].response.slice(3)).toString()
     const hasQuery = !!queries.length
     hasQuery.should.be.equal(true)

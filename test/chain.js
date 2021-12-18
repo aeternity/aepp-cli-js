@@ -22,11 +22,10 @@ import chainProgramFactory from '../src/commands/chain'
 const executeChain = args => executeProgram(chainProgramFactory, args)
 
 describe('CLI Chain Module', function () {
-  let wallet
+  let sdk
 
   before(async function () {
-    // Spend tokens for wallet
-    wallet = await getSdk()
+    sdk = await getSdk()
   })
   it('TOP', async () => {
     const res = await executeChain(['top', '--json'])
@@ -36,7 +35,7 @@ describe('CLI Chain Module', function () {
   })
   it('STATUS', async () => {
     const res = await executeChain(['status', '--json'])
-    res.nodeVersion.should.equal((await wallet.api.getStatus()).nodeVersion)
+    res.nodeVersion.should.equal((await sdk.api.getStatus()).nodeVersion)
   })
   it('PLAY', async function () {
     this.timeout(10000)
@@ -50,12 +49,12 @@ describe('CLI Chain Module', function () {
   })
   it('TTL', async () => {
     const { relativeTtl } = await executeChain(['ttl', 10, '--json'])
-    const height = await wallet.height()
+    const height = await sdk.height()
     const isValid = [relativeTtl + 1, relativeTtl, relativeTtl - 1].includes(height + 10)
     isValid.should.equal(true)
   })
   it('NETWORK ID', async () => {
-    const nodeNetworkId = wallet.getNetworkId()
+    const nodeNetworkId = sdk.getNetworkId()
     const { networkId } = await executeChain(['network_id', '--json'])
     nodeNetworkId.should.equal(networkId)
   })
