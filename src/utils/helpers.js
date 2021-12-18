@@ -56,17 +56,18 @@ export async function prepareCallParams (name, { descrPath, contractAddress, con
 // if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`
 //
 // if it's `BLOCK` call `getKeyBlockByHash`
-export function getBlock (hash) {
-  return async (client) => {
-    if (hash.indexOf(HASH_TYPES.block + '_') !== -1) {
+export async function getBlock (hash, client) {
+  const type = hash.split('_')[0]
+  switch (type) {
+    case HASH_TYPES.block:
       return client.api.getKeyBlockByHash(hash)
-    }
-    if (hash.indexOf(HASH_TYPES.micro_block + '_') !== -1) {
+    case HASH_TYPES.micro_block:
       return {
         ...await client.api.getMicroBlockHeaderByHash(hash),
         ...await client.api.getMicroBlockTransactionsByHash(hash)
       }
-    }
+    default:
+      throw new Error(`Unknown block hash type: ${type}`)
   }
 }
 

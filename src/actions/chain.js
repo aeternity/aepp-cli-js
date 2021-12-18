@@ -113,7 +113,7 @@ function playWithLimit (limit, blockHash) {
   return async (client, json) => {
     if (!limit) return
 
-    const block = await getBlock(blockHash)(client)
+    const block = await getBlock(blockHash, client)
 
     return new Promise((resolve, reject) => {
       setTimeout(async () => {
@@ -127,7 +127,7 @@ function playWithLimit (limit, blockHash) {
 // # Play by `height`
 function playWithHeight (height, blockHash) {
   return async (client, json) => {
-    const block = await getBlock(blockHash)(client)
+    const block = await getBlock(blockHash, client)
     if (parseInt(block.height) < height) return
 
     return new Promise((resolve, reject) => {

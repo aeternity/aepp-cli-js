@@ -84,7 +84,7 @@ async function getBlockByHash (hash, options) {
   try {
     checkPref(hash, [HASH_TYPES.block, HASH_TYPES.micro_block])
     const client = await initChain(options)
-    printBlock(await getBlock(hash)(client), json)
+    printBlock(await getBlock(hash, client), json)
   } catch (e) {
     printError(e.message)
   }
