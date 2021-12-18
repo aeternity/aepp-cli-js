@@ -104,14 +104,6 @@ export function readJSONFile (filePath) {
   return JSON.parse(readFile(filePath))
 }
 
-// Write file to filesystem
-export function writeFile (name, data) {
-  fs.writeFileSync(
-    name,
-    data
-  )
-}
-
 // Read file from filesystem
 export function readFile (path, encoding = null, errTitle = 'READ FILE ERR') {
   try {

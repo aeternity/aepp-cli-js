@@ -19,7 +19,7 @@
 import fs from 'fs'
 import path from 'path'
 import { Crypto, Keystore } from '@aeternity/aepp-sdk'
-import { readJSONFile, writeFile } from './helpers'
+import { readJSONFile } from './helpers'
 import { PROMPT_TYPE, prompt } from './prompt'
 
 // Helper function which check if `account file` exist and `ask for overwriting`
@@ -35,7 +35,7 @@ export async function generateSecureWallet (name, { output = '', password, overw
   password = password || await prompt(PROMPT_TYPE.askPassword)
   const { secretKey, publicKey } = Crypto.generateKeyPair(true)
 
-  writeFile(path.join(output, name), JSON.stringify(await Keystore.dump(name, password, secretKey)))
+  fs.writeFileSync(path.join(output, name), JSON.stringify(await Keystore.dump(name, password, secretKey)))
 
   return { publicKey: Crypto.aeEncodeKey(publicKey), path: path.resolve(process.cwd(), path.join(output, name)) }
 }
@@ -50,7 +50,7 @@ export async function generateSecureWalletFromPrivKey (name, priv, { output = ''
 
   const encryptedKeyPair = await Keystore.dump(name, password, keys.secretKey)
 
-  writeFile(path.join(output, name), JSON.stringify(encryptedKeyPair))
+  fs.writeFileSync(path.join(output, name), JSON.stringify(encryptedKeyPair))
 
   return { publicKey: Crypto.aeEncodeKey(keys.publicKey), path: path.resolve(process.cwd(), path.join(output, name)) }
 }

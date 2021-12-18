@@ -18,9 +18,10 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
+import fs from 'fs'
 import path from 'path'
 import { initClientByWalletFile, initCompiler } from '../utils/cli'
-import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
+import { prepareCallParams, readFile } from '../utils/helpers'
 import { logContractDescriptor, print, printTransaction, printUnderscored } from '../utils/print'
 
 // ## Function which compile your `source` code
@@ -132,7 +133,7 @@ export async function deploy (walletPath, contractPath, callData = '', options) 
       ...deployDescriptor
     }
     // Write to file
-    writeFile(
+    fs.writeFileSync(
       descPath,
       JSON.stringify(contractDescriptor)
     )
