@@ -377,20 +377,6 @@ export function printName (name, json) {
   printUnderscored('TTL', name.ttl ?? 0)
 }
 
-// Print `contract_descriptor` file
-export function printContractDescr (descriptor, json) {
-  if (json) {
-    print(descriptor)
-    return
-  }
-  printUnderscored('Source ' + descriptor.source)
-  printUnderscored('Bytecode ' + descriptor.bytecode)
-  printUnderscored('Address ' + descriptor.address)
-  printUnderscored('Transaction ' + descriptor.transaction)
-  printUnderscored('Owner ' + descriptor.owner)
-  printUnderscored('CreatedAt ' + descriptor.createdAt)
-}
-
 // Print `contract_descriptor` file base info
 export function logContractDescriptor (desc, title = '', json) {
   if (json) {
