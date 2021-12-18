@@ -18,7 +18,7 @@
 import { Crypto, MemoryAccount } from '@aeternity/aepp-sdk'
 import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
-import { BaseAe, configure, executeProgram, parseBlock, randomString, ready, networkId } from './index'
+import { BaseAe, executeProgram, parseBlock, randomString, ready, networkId } from './index'
 import txProgramFactory from '../src/commands/tx'
 import accountProgramFactory from '../src/commands/account'
 import chainProgramFactory from '../src/commands/chain'
@@ -48,7 +48,6 @@ async function signAndPost (tx, assert) {
 }
 
 describe('CLI Transaction Module', function () {
-  configure(this)
   const TX_KEYS = Crypto.generateKeyPair()
   const oracleId = 'ok_' + TX_KEYS.publicKey.slice(3)
   let wallet
@@ -61,7 +60,7 @@ describe('CLI Transaction Module', function () {
   let compilerCLI
 
   before(async function () {
-    compilerCLI = await ready(this)
+    compilerCLI = await ready()
     const GENESIS = await BaseAe()
     await GENESIS.spend('100000000000000000000000000', TX_KEYS.publicKey)
     await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite'])
@@ -92,7 +91,8 @@ describe('CLI Transaction Module', function () {
     nonce += 1
   })
 
-  it('Build claim tx offline and send on-chain', async () => {
+  it('Build claim tx offline and send on-chain', async function () {
+    this.timeout(10000)
     const { tx } = await executeTx(['name-claim', TX_KEYS.publicKey, salt, name, nonce, '--json'])
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)

@@ -19,7 +19,7 @@ import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
 import { expect } from 'chai'
 
-import { configure, plan, ready, executeProgram, BaseAe, KEY_PAIR, WALLET_NAME, genAccount } from './index'
+import { plan, ready, executeProgram, BaseAe, KEY_PAIR, WALLET_NAME, genAccount } from './index'
 import accountProgramFactory from '../src/commands/account'
 import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
 
@@ -29,7 +29,6 @@ const walletName = 'test.wallet'
 plan(1000000000)
 
 describe('CLI Account Module', function () {
-  configure(this)
   let sig
   let sigFromFile
   const fileName = 'testData'
@@ -39,7 +38,7 @@ describe('CLI Account Module', function () {
   before(async function () {
     // Spend tokens for wallet
     fs.writeFileSync(fileName, fileData)
-    wallet = await ready(this)
+    wallet = await ready()
   })
   after(function () {
     // Remove wallet files

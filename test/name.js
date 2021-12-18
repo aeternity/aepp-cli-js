@@ -18,7 +18,6 @@
 import { Crypto } from '@aeternity/aepp-sdk'
 import { before, describe, it } from 'mocha'
 import {
-  configure,
   executeProgram,
   genAccount,
   plan,
@@ -40,13 +39,12 @@ function randomName (length, namespace = '.chain') {
 }
 
 describe('CLI AENS Module', function () {
-  configure(this)
   const { publicKey } = Crypto.generateKeyPair()
   let wallet, nameAuctionsSupported, name, name2, name3, name4, salt
 
   before(async function () {
     // Spend tokens for wallet
-    wallet = await ready(this)
+    wallet = await ready()
     const { version } = wallet.getNodeInfo()
     const [majorVersion] = version.split('.')
     nameAuctionsSupported = +majorVersion === 6 && version !== '5.0.0-rc.1'
@@ -56,7 +54,8 @@ describe('CLI AENS Module', function () {
     name4 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
   })
 
-  it('Full claim', async () => {
+  it('Full claim', async function () {
+    this.timeout(10000)
     const updateTx = await executeName([
       'full-claim',
       WALLET_NAME,
@@ -72,7 +71,8 @@ describe('CLI AENS Module', function () {
     isUpdated.should.be.equal(true)
   })
 
-  it('Full claim with options', async () => {
+  it('Full claim with options', async function () {
+    this.timeout(10000)
     const updateTx = await executeName([
       'full-claim',
       WALLET_NAME,
@@ -115,7 +115,8 @@ describe('CLI AENS Module', function () {
     nameResult.status.should.equal('AVAILABLE')
   })
 
-  it('Claim Name', async () => {
+  it('Claim Name', async function () {
+    this.timeout(10000)
     const claim = await executeName([
       'claim',
       WALLET_NAME,
@@ -244,7 +245,8 @@ describe('CLI AENS Module', function () {
   describe('Name Auction', () => {
     const nameFee = '3665700000000000000'
 
-    it('Open auction', async () => {
+    it('Open auction', async function () {
+      this.timeout(10000)
       const account = genAccount()
       await wallet.addAccount(account)
       await wallet.spend('30000000000000000000000', await account.address())
@@ -272,7 +274,8 @@ describe('CLI AENS Module', function () {
       bid.tx.nameFee.should.be.equal(nameFee)
     })
 
-    it('Fail on open  again', async () => {
+    it('Fail on open again', async function () {
+      this.timeout(30000)
       const preClaim = await executeName([
         'pre-claim',
         WALLET_NAME,

@@ -30,8 +30,6 @@ const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876
 export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
 export const ignoreVersion = process.env.IGNORE_VERSION || false
 
-const TIMEOUT = 18000000
-
 export const KEY_PAIR = Crypto.generateKeyPair()
 export const WALLET_NAME = 'mywallet'
 
@@ -45,10 +43,6 @@ export const BaseAe = async (params = {}) => await Universal({
   ...params
 })
 
-export function configure (mocha) {
-  mocha.timeout(TIMEOUT)
-}
-
 let planned = 0
 let charged = false
 
@@ -56,9 +50,7 @@ export function plan (amount) {
   planned += amount
 }
 
-export async function ready (mocha) {
-  configure(mocha)
-
+export async function ready () {
   const ae = await BaseAe()
   await ae.awaitHeight(3)
 

@@ -16,18 +16,17 @@
  */
 
 import { before, describe, it } from 'mocha'
-import { configure, BaseAe, executeProgram, parseBlock, ready, genAccount } from './index'
+import { BaseAe, executeProgram, parseBlock, ready, genAccount } from './index'
 import chainProgramFactory from '../src/commands/chain'
 
 const executeChain = args => executeProgram(chainProgramFactory, args)
 
 describe('CLI Chain Module', function () {
   let wallet
-  configure(this)
 
   before(async function () {
     // Spend tokens for wallet
-    wallet = await ready(this)
+    wallet = await ready()
   })
   it('TOP', async () => {
     const res = await executeChain(['top', '--json'])
@@ -43,7 +42,8 @@ describe('CLI Chain Module', function () {
     const res = await executeChain(['status', '--json'])
     res.nodeVersion.should.equal(nodeVersion)
   })
-  it('PLAY', async () => {
+  it('PLAY', async function () {
+    this.timeout(10000)
     const res = await executeChain(['play', '--limit', '4'])
     res.split('<<------------------------------------->>').length.should.equal(5)
 

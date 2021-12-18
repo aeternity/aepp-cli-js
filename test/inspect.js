@@ -19,7 +19,7 @@ import fs from 'fs'
 import { before, describe, it } from 'mocha'
 import { expect } from 'chai'
 
-import { configure, executeProgram, parseBlock, KEY_PAIR, ready } from './index'
+import { executeProgram, parseBlock, KEY_PAIR, ready } from './index'
 import { Crypto } from '@aeternity/aepp-sdk'
 import inspectProgramFactory from '../src/commands/inspect'
 import chainProgramFactory from '../src/commands/chain'
@@ -40,11 +40,10 @@ const contractDescriptor = {
 }
 
 describe('CLI Inspect Module', function () {
-  configure(this)
   let wallet
 
   before(async function () {
-    wallet = await ready(this)
+    wallet = await ready()
   })
   it('Inspect Account', async () => {
     const balance = await wallet.balance(KEY_PAIR.publicKey)
