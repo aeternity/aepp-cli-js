@@ -27,7 +27,7 @@ import { Crypto, getDefaultPointerKey } from '@aeternity/aepp-sdk'
 export async function preClaim (walletPath, domain, options) {
   const { ttl, fee, nonce, waitMined, json } = options
 
-  // Validate `name`(check if `name` end on `.test`)
+  // Validate `name`(check if `name` end on `.chain`)
   // validateName(domain)
 
   // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`

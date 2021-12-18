@@ -59,7 +59,7 @@ export async function spend (senderId, recipientId, amount, nonce, options) {
 export async function namePreClaim (accountId, domain, nonce, options) {
   let { ttl, json, fee } = options
 
-  // Validate `name`(check if `name` end on `.test`)
+  // Validate `name`(check if `name` end on `.chain`)
   validateName(domain)
   // Initialize `Ae`
   const txBuilder = initOfflineTxBuilder()
@@ -89,7 +89,7 @@ export async function nameClaim (accountId, nameSalt, domain, nonce, options) {
   let { ttl, json, fee, nameFee } = options
   const nameHash = `nm_${Crypto.encodeBase58Check(Buffer.from(domain))}`
 
-  // Validate `name`(check if `name` end on `.test`)
+  // Validate `name`(check if `name` end on `.chain`)
   validateName(domain)
   // Initialize `Ae`
   const txBuilder = initOfflineTxBuilder()

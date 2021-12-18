@@ -133,7 +133,7 @@ export default function () {
   //
   // You can use this command to `destroy` AENS name.
   //
-  // Example: `aecli name revoke ./myWalletKeyFile --password testpass testname.test`
+  // Example: `aecli name revoke ./myWalletKeyFile --password testpass testname.chain`
   program
     .command('revoke  <wallet_path> <name>')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
@@ -144,7 +144,7 @@ export default function () {
   //
   // You can use this command to `transfer` AENS name to another account.
   //
-  // Example: `aecli name transfer ./myWalletKeyFile --password testpass testname.test ak_qqwemjgflewgkj349gjdslksd`
+  // Example: `aecli name transfer ./myWalletKeyFile --password testpass testname.chain ak_qqwemjgflewgkj349gjdslksd`
   program
     .command('transfer <wallet_path> <name> <address>')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
@@ -155,7 +155,7 @@ export default function () {
   //
   // You can use this command to `update` pointer of AENS name.
   //
-  // Example: `aecli lookup name.test`
+  // Example: `aecli lookup name.chain`
   program
     .command('lookup <name>')
     .description('Look up name')
