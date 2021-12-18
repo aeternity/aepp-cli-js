@@ -20,7 +20,7 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
-import { NODE_URL, NODE_INTERNAL_URL, COMPILER_URL } from './utils/constant'
+import { NODE_URL, COMPILER_URL } from './utils/constant'
 
 const program = new Command()
 
@@ -45,7 +45,6 @@ program
   .action(() => {
     // TODO: show these values https://github.com/aeternity/aepp-cli-js/issues/174
     console.log('NODE_URL', NODE_URL)
-    console.log('NODE_INTERNAL_URL', NODE_INTERNAL_URL)
     console.log('COMPILER_URL', COMPILER_URL)
   })
 

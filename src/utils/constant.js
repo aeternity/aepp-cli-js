@@ -52,7 +52,6 @@ export const HASH_TYPES = {
 
 // ## CONNECTION
 export const NODE_URL = 'https://testnet.aeternity.io'
-export const NODE_INTERNAL_URL = 'https://testnet.aeternity.io'
 export const COMPILER_URL = 'https://compiler.aepps.com'
 
 // ## CHAIN

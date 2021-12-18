@@ -25,7 +25,6 @@ chai.should()
 
 const url = process.env.TEST_URL || 'http://localhost:3013'
 const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
-const internalUrl = process.env.TEST_INTERNAL_URL || 'http://localhost:3113'
 const publicKey = process.env.PUBLIC_KEY || 'ak_2dATVcZ9KJU5a8hdsVtTv21pYiGWiPbmVcU1Pz72FFqpk9pSRR'
 const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876bb84e3cdf71efb12f56c7335fad54d5cf08400e988222f26eb4b02c8f89077457467211a6e6d955edb70749c6a33b'
 export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
@@ -41,7 +40,7 @@ export const genAccount = () => MemoryAccount({ keypair: Crypto.generateKeyPair(
 export const BaseAe = async (params = {}) => await Universal({
   ignoreVersion,
   compilerUrl,
-  nodes: [{ name: 'test', instance: await Node({ url, internalUrl }) }],
+  nodes: [{ name: 'test', instance: await Node({ url }) }],
   accounts: [MemoryAccount({ keypair: { publicKey, secretKey } })],
   ...params
 })
@@ -94,7 +93,6 @@ export async function executeProgram (programFactory, args) {
   await program.parseAsync([
     ...args,
     '--url', url,
-    '--internalUrl', internalUrl,
     ...args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : []
   ], { from: 'user' })
   console.log = log

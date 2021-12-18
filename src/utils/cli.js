@@ -25,11 +25,9 @@ export function getCmdFromArguments ([options, commander]) {
 }
 
 // Create `Universal` client
-async function initClient ({ url, keypair, internalUrl, compilerUrl, force: ignoreVersion, native: nativeMode = true, networkId, accounts = [] }) {
+async function initClient ({ url, keypair, compilerUrl, force: ignoreVersion, native: nativeMode = true, networkId, accounts = [] }) {
   return Universal({
-    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, ignoreVersion }) }],
-    process,
-    internalUrl,
+    nodes: [{ name: 'test-node', instance: await Node({ url, ignoreVersion }) }],
     compilerUrl,
     nativeMode,
     networkId,
@@ -37,9 +35,9 @@ async function initClient ({ url, keypair, internalUrl, compilerUrl, force: igno
   })
 }
 // Create `TxBuilder` client
-export async function initTxBuilder ({ url, internalUrl, force: ignoreVersion, native: nativeMode = true, showWarning = true }) {
+export async function initTxBuilder ({ url, force: ignoreVersion, native: nativeMode = true, showWarning = true }) {
   return Transaction({
-    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, ignoreVersion }) }],
+    nodes: [{ name: 'test-node', instance: await Node({ url, ignoreVersion }) }],
     nativeMode,
     ignoreVersion,
     showWarning
@@ -50,14 +48,14 @@ export function initOfflineTxBuilder () {
   return TxBuilder
 }
 // Create `ChainNode` client
-export async function initChain ({ url, internalUrl, force: ignoreVersion }) {
+export async function initChain ({ url, force: ignoreVersion }) {
   return ChainNode({
-    nodes: [{ name: 'test-node', instance: await Node({ url, internalUrl, ignoreVersion }) }],
+    nodes: [{ name: 'test-node', instance: await Node({ url, ignoreVersion }) }],
     ignoreVersion
   })
 }
 
-export async function initCompiler ({ url, internalUrl, compilerUrl, ignoreVersion }) {
+export async function initCompiler ({ compilerUrl, ignoreVersion }) {
   return ContractCompilerAPI({ compilerUrl, ignoreVersion })
 }
 

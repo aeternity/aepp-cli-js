@@ -208,7 +208,6 @@ $ ./aecli.mjs name
   Options:
 
     -H, --host [hostname]             Node to connect to (default: https://localhost:3013)
-    -U, --internalUrl [internal]      Node to connect to(internal)
     -P, --password [password]                Wallet Password
     -N, --nameTtl [nameTtl]                  Name life Ttl (default: 500)
     -T, --ttl [ttl]                          Life Ttl (default: 50000)
@@ -263,7 +262,6 @@ $ ./aecli.mjs  contract
   Options:
 
     -H, --host [hostname]             Node to connect to (default: https://localhost:3013)
-    -U, --internalUrl [internal]      Node to connect to(internal)
     -T, --ttl [ttl]                   Validity of the transaction in number of blocks (default forever) (default: 50000)
     -f --force                        Ignore epoch version compatibility check
     --json [json]                     Print result in json format
