@@ -16,7 +16,7 @@
  */
 
 import { before, describe, it } from 'mocha'
-import { BaseAe, executeProgram, parseBlock, ready, genAccount } from './index'
+import { BaseAe, executeProgram, parseBlock, getSdk, genAccount } from './index'
 import chainProgramFactory from '../src/commands/chain'
 
 const executeChain = args => executeProgram(chainProgramFactory, args)
@@ -26,7 +26,7 @@ describe('CLI Chain Module', function () {
 
   before(async function () {
     // Spend tokens for wallet
-    wallet = await ready()
+    wallet = await getSdk()
   })
   it('TOP', async () => {
     const res = await executeChain(['top', '--json'])

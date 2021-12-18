@@ -17,11 +17,10 @@
 
 import { Crypto } from '@aeternity/aepp-sdk'
 import { before, describe, it } from 'mocha'
-import { executeProgram, plan, ready, WALLET_NAME } from './index'
+import { executeProgram, getSdk, WALLET_NAME } from './index'
 import oracleProgramFactory from '../src/commands/oracle'
 
 const executeOracle = args => executeProgram(oracleProgramFactory, args)
-plan(10000000000000)
 
 describe('CLI Oracle Module', function () {
   const oracleFormat = 'string'
@@ -32,7 +31,7 @@ describe('CLI Oracle Module', function () {
 
   before(async function () {
     // Spend tokens for wallet
-    wallet = await ready()
+    wallet = await getSdk()
   })
 
   it('Oracle create', async () => {

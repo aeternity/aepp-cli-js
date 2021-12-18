@@ -18,7 +18,7 @@
 import { Crypto, MemoryAccount } from '@aeternity/aepp-sdk'
 import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
-import { BaseAe, executeProgram, parseBlock, randomName, ready, networkId } from './index'
+import { BaseAe, executeProgram, parseBlock, randomName, getSdk, networkId } from './index'
 import txProgramFactory from '../src/commands/tx'
 import accountProgramFactory from '../src/commands/account'
 import chainProgramFactory from '../src/commands/chain'
@@ -56,7 +56,7 @@ describe('CLI Transaction Module', function () {
   let compilerCLI
 
   before(async function () {
-    compilerCLI = await ready()
+    compilerCLI = await getSdk()
     const GENESIS = await BaseAe()
     await GENESIS.spend('100000000000000000000000000', TX_KEYS.publicKey)
     await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite'])

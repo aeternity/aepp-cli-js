@@ -17,7 +17,7 @@
 
 import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
-import { executeProgram, KEY_PAIR, plan, ready, WALLET_NAME } from './index'
+import { executeProgram, KEY_PAIR, getSdk, WALLET_NAME } from './index'
 import contractProgramFactory from '../src/commands/contract'
 
 const executeContract = args => executeProgram(contractProgramFactory, args)
@@ -33,8 +33,6 @@ contract Identity =
 const CALL_DATA = 'cb_KxGSiyA2KwIEFfUrtQ=='
 const DECODED_CALL_DATA = { arguments: [{ type: 'int', value: 1 }, { type: 'int', value: 2 }], function: 'test' }
 
-plan(1000000000)
-
 describe('CLI Contract Module', function () {
   const contractFile = 'testContract'
   let deployDescriptor, wallet, bytecode, cAddress
@@ -42,7 +40,7 @@ describe('CLI Contract Module', function () {
   before(async function () {
     // Spend tokens for wallet
     fs.writeFileSync(contractFile, testContract)
-    wallet = await ready()
+    wallet = await getSdk()
   })
 
   after(function () {

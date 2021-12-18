@@ -17,14 +17,7 @@
 
 import { Crypto } from '@aeternity/aepp-sdk'
 import { before, describe, it } from 'mocha'
-import {
-  executeProgram,
-  genAccount,
-  plan,
-  randomName,
-  ready,
-  WALLET_NAME
-} from './index'
+import { executeProgram, genAccount, randomName, getSdk, WALLET_NAME } from './index'
 import nameProgramFactory from '../src/commands/name'
 import inspectProgramFactory from '../src/commands/inspect'
 import accountProgramFactory from '../src/commands/account'
@@ -32,7 +25,6 @@ import accountProgramFactory from '../src/commands/account'
 const executeName = (args) => executeProgram(nameProgramFactory, args)
 const executeInspect = (args) => executeProgram(inspectProgramFactory, args)
 const executeAccount = (args) => executeProgram(accountProgramFactory, args)
-plan(10000000000000)
 
 describe('CLI AENS Module', function () {
   const { publicKey } = Crypto.generateKeyPair()
@@ -42,7 +34,7 @@ describe('CLI AENS Module', function () {
 
   before(async function () {
     // Spend tokens for wallet
-    wallet = await ready()
+    wallet = await getSdk()
   })
 
   it('Full claim', async function () {

@@ -28,7 +28,7 @@ const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
 const publicKey = process.env.PUBLIC_KEY || 'ak_2dATVcZ9KJU5a8hdsVtTv21pYiGWiPbmVcU1Pz72FFqpk9pSRR'
 const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876bb84e3cdf71efb12f56c7335fad54d5cf08400e988222f26eb4b02c8f89077457467211a6e6d955edb70749c6a33b'
 export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet'
-export const ignoreVersion = process.env.IGNORE_VERSION || false
+const ignoreVersion = process.env.IGNORE_VERSION || false
 
 export const KEY_PAIR = Crypto.generateKeyPair()
 export const WALLET_NAME = 'mywallet'
@@ -43,31 +43,20 @@ export const BaseAe = async (params = {}) => await Universal({
   ...params
 })
 
-let planned = 0
-let charged = false
-
-export function plan (amount) {
-  planned += amount
-}
-
-export async function ready () {
+const spendPromise = (async () => {
   const ae = await BaseAe()
-  await ae.awaitHeight(3)
+  await ae.awaitHeight(2)
+  await ae.spend(1e26, KEY_PAIR.publicKey)
+})()
 
-  if (!charged && planned > 0) {
-    console.log(`Charging new wallet ${KEY_PAIR.publicKey} with ${'100000000000000000000000'}`)
-    await ae.spend('100000000000000000000000', KEY_PAIR.publicKey).catch(async e => {
-      console.log(e)
-      console.log(await e.verifyTx())
-    })
-    charged = true
-  }
+export async function getSdk () {
+  await spendPromise
 
-  const client = await BaseAe({
+  const sdk = await BaseAe({
     accounts: [MemoryAccount({ keypair: KEY_PAIR })]
   })
   await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', KEY_PAIR.secretKey, '--overwrite'])
-  return client
+  return sdk
 }
 
 let isProgramExecuting = false
