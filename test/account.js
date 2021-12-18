@@ -20,7 +20,7 @@ import { after, before, describe, it } from 'mocha'
 import { expect } from 'chai'
 
 import { configure, plan, ready, executeProgram, BaseAe, KEY_PAIR, WALLET_NAME, genAccount } from './index'
-import accountProgramFactory from '../../src/commands/account'
+import accountProgramFactory from '../src/commands/account'
 import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
 
 const executeAccount = (...args) => executeProgram(accountProgramFactory, ...args)

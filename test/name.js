@@ -26,9 +26,9 @@ import {
   ready,
   WALLET_NAME
 } from './index'
-import nameProgramFactory from '../../src/commands/name'
-import inspectProgramFactory from '../../src/commands/inspect'
-import accountProgramFactory from '../../src/commands/account'
+import nameProgramFactory from '../src/commands/name'
+import inspectProgramFactory from '../src/commands/inspect'
+import accountProgramFactory from '../src/commands/account'
 
 const executeName = (args) => executeProgram(nameProgramFactory, args, { withNetworkId: true })
 const executeInspect = (args) => executeProgram(inspectProgramFactory, args)

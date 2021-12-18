@@ -21,8 +21,8 @@ import { expect } from 'chai'
 
 import { configure, executeProgram, parseBlock, KEY_PAIR, ready } from './index'
 import { Crypto } from '@aeternity/aepp-sdk'
-import inspectProgramFactory from '../../src/commands/inspect'
-import chainProgramFactory from '../../src/commands/chain'
+import inspectProgramFactory from '../src/commands/inspect'
+import chainProgramFactory from '../src/commands/chain'
 
 const executeInspect = args => executeProgram(inspectProgramFactory, args)
 const executeChain = args => executeProgram(chainProgramFactory, args)

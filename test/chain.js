@@ -17,7 +17,7 @@
 
 import { before, describe, it } from 'mocha'
 import { configure, BaseAe, executeProgram, parseBlock, ready, genAccount } from './index'
-import chainProgramFactory from '../../src/commands/chain'
+import chainProgramFactory from '../src/commands/chain'
 
 const executeChain = args => executeProgram(chainProgramFactory, args)
 

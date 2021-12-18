@@ -18,7 +18,7 @@
 import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
 import { configure, executeProgram, KEY_PAIR, plan, ready, WALLET_NAME } from './index'
-import contractProgramFactory from '../../src/commands/contract'
+import contractProgramFactory from '../src/commands/contract'
 
 const executeContract = args => executeProgram(contractProgramFactory, args)
 
