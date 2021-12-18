@@ -16,14 +16,15 @@
 *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 *  PERFORMANCE OF THIS SOFTWARE.
 */
+import fs from 'fs'
 import path from 'path'
 import { Crypto, Keystore } from '@aeternity/aepp-sdk'
-import { isFileExist, readJSONFile, writeFile } from './helpers'
+import { readJSONFile, writeFile } from './helpers'
 import { PROMPT_TYPE, prompt } from './prompt'
 
 // Helper function which check if `account file` exist and `ask for overwriting`
 export async function askForOverwrite (name, output) {
-  return isFileExist(path.join(name, output))
+  return fs.existsSync(path.join(name, output))
     ? prompt(PROMPT_TYPE.askOverwrite)
     : true
 }
