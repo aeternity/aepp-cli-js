@@ -403,12 +403,6 @@ export function logContractDescriptor (desc, title = '', json) {
   printUnderscored('Deploy descriptor', desc.descPath)
 }
 
-// Print `config`
-export function printConfig ({ host }) {
-  print('WALLET_PUB' + process.env.WALLET_PUB)
-  print('EPOCH_URL' + host)
-}
-
 // Print `Buider Transaction`
 export function printBuilderTransaction ({ tx, txObject }, type) {
   printUnderscored('Transaction type', type)
