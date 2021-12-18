@@ -86,10 +86,10 @@ describe('CLI Inspect Module', function () {
     descriptor.bytecode.should.equal(contractDescriptor.bytecode)
     descriptor.address.should.equal(contractDescriptor.address)
     descriptor.transaction.should.equal(contractDescriptor.transaction)
-    descriptor.created_at.should.equal(contractDescriptor.createdAt)
+    descriptor.createdAt.should.equal(contractDescriptor.createdAt)
     descriptor.owner.should.equal(contractDescriptor.owner)
     // CLI try to get transaction which doest exist
-    descriptor.api_error.should.equal('Transaction not found')
+    descriptor.apiError.should.equal('Transaction not found')
   })
   it('Inspect Name', async () => {
     expect(executeInspect(['asd', '--json'])).to.be.rejectedWith('Name should end with .chain')

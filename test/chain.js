@@ -48,9 +48,9 @@ describe('CLI Chain Module', function () {
     res.split('<<------------------------------------->>').length.should.equal(5)
 
     const parsed = res.split('<<------------------------------------->>').map(parseBlock)
-    parsed[0].previous_block_hash_.should.equal(parsed[1].block_hash_)
-    parsed[1].previous_block_hash_.should.equal(parsed[2].block_hash_)
-    parsed[2].previous_block_hash_.should.equal(parsed[3].block_hash_)
+    parsed[0].previousBlockHash.should.equal(parsed[1].blockHash)
+    parsed[1].previousBlockHash.should.equal(parsed[2].blockHash)
+    parsed[2].previousBlockHash.should.equal(parsed[3].blockHash)
   })
   it('TTL', async () => {
     const { relativeTtl } = await executeChain(['ttl', 10, '--json'])

@@ -97,18 +97,20 @@ export async function executeProgram (programFactory, args) {
   }
 }
 
-export function parseBlock (res) {
-  return res
-    .split('\n')
-    .reduce((acc, val) => {
-      let v = val.split(/__/)
-      if (v.length < 2) { v = val.split(':') }
-      return Object.assign(acc, {
-        [v[0].replace(' ', '_').replace(' ', '_').replace(' ', '_').toLowerCase()]:
-          v[v.length - 1].split(/_ /).pop().trim()
-      })
-    }, {})
-}
+export const parseBlock = (res) => Object.fromEntries(res
+  .trim()
+  .split('\n')
+  .map(a => a.trim())
+  .filter(a => !a.startsWith('<<--') && !a.startsWith('--'))
+  .map(a => a.split(/ [_]+ /))
+  .map(([key, value]) => [
+    key
+      .toLowerCase()
+      .split(' ')
+      .map((el, i) => i === 0 ? el : el[0].toUpperCase() + el.slice(1))
+      .join(''),
+    value
+  ]))
 
 export function randomString (len, charSet) {
   charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
