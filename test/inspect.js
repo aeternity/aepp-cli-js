@@ -18,16 +18,14 @@
 import fs from 'fs'
 import { before, describe, it } from 'mocha'
 import { expect } from 'chai'
-
-import { executeProgram, parseBlock, getSdk } from './index'
 import { Crypto } from '@aeternity/aepp-sdk'
+import { executeProgram, parseBlock, getSdk } from './index'
 import inspectProgramFactory from '../src/commands/inspect'
 import chainProgramFactory from '../src/commands/chain'
 
 const executeInspect = args => executeProgram(inspectProgramFactory, args)
 const executeChain = args => executeProgram(chainProgramFactory, args)
 
-// CONTRACT DESCRIPTOR
 const contractDescriptor = {
   descPath: 'testc.deploy.MA8Qe8ac7e9EARYK7fQxEqFufRGrG1i6qFvHA21eXXMDcnmuc.json',
   source: 'contract Identity =\\n  type state = ()\\n  function mainx(x : int, y: int) = x + y\\n',
@@ -45,6 +43,7 @@ describe('CLI Inspect Module', function () {
   before(async function () {
     sdk = await getSdk()
   })
+
   it('Inspect Account', async () => {
     const address = await sdk.address()
     const balance = await sdk.balance(address)
@@ -52,10 +51,10 @@ describe('CLI Inspect Module', function () {
     const isEqual = `${balance}` === `${cliBalance}`
     isEqual.should.equal(true)
   })
+
   it('Inspect Transaction', async () => {
     const recipient = (Crypto.generateKeyPair()).publicKey
     const amount = 420
-    // Create transaction to inspect
     const { hash } = await sdk.spend(amount, recipient)
 
     const res = await executeInspect([hash, '--json'])
@@ -63,25 +62,23 @@ describe('CLI Inspect Module', function () {
     res.tx.senderId.should.be.equal(await sdk.address())
     res.tx.amount.should.equal(amount)
   })
+
   it('Inspect Block', async () => {
     const top = await executeChain(['top', '--json'])
     const inspectRes = await executeInspect([top.hash, '--json'])
     top.hash.should.equal(inspectRes.hash)
   })
+
   it('Inspect Height', async () => {
     const top = await executeChain(['top', '--json'])
     const inspectRes = await executeInspect([top.hash, '--json'])
-
     top.hash.should.equal(inspectRes.hash)
   })
+
   it.skip('Inspect Deploy', async () => {
     const fileName = 'test.deploy.json'
-
-    // create contract descriptor file
     fs.writeFileSync(fileName, JSON.stringify(contractDescriptor))
-
     const descriptor = parseBlock(await executeInspect(['deploy', fileName]))
-    // remove contract descriptor file
     fs.unlinkSync(fileName)
     descriptor.source.should.equal(contractDescriptor.source)
     descriptor.bytecode.should.equal(contractDescriptor.bytecode)
@@ -92,6 +89,7 @@ describe('CLI Inspect Module', function () {
     // CLI try to get transaction which doest exist
     descriptor.apiError.should.equal('Transaction not found')
   })
+
   it('Inspect Name', async () => {
     await expect(executeInspect(['asd', '--json'])).to.be.rejectedWith('Name should end with .chain')
     const validName = await executeInspect(['nazdou2222222.chain', '--json'])

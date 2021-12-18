@@ -22,8 +22,7 @@ import contractProgramFactory from '../src/commands/contract'
 
 const executeContract = args => executeProgram(contractProgramFactory, args)
 
-// CONTRACT SOURCE
-const testContract = `
+const testContractSource = `
 @compiler >= 6
 
 contract Identity =
@@ -38,7 +37,7 @@ describe('CLI Contract Module', function () {
   let deployDescriptor, sdk, bytecode, cAddress
 
   before(async function () {
-    fs.writeFileSync(contractFile, testContract)
+    fs.writeFileSync(contractFile, testContractSource)
     sdk = await getSdk()
   })
 
@@ -53,10 +52,8 @@ describe('CLI Contract Module', function () {
   })
 
   it('Compile Contract', async () => {
-    // Create contract file
-    // Compile contract
-    const compiled = await sdk.contractCompile(testContract).catch(console.error)
-    const compiledCLI = (await executeContract(['compile', contractFile]))
+    const compiled = await sdk.contractCompile(testContractSource).catch(console.error)
+    const compiledCLI = await executeContract(['compile', contractFile])
     const bytecodeCLI = compiledCLI.split(':')[1].trim()
     bytecode = compiled.bytecode
 
@@ -74,10 +71,6 @@ describe('CLI Contract Module', function () {
   })
 
   it('Deploy Contract', async () => {
-    // Create contract file
-    fs.writeFileSync(contractFile, testContract)
-
-    // Deploy contract
     const { callData } = await executeContract(['encodeData', contractFile, 'init', '--json'])
     const res = await executeContract(['deploy', WALLET_NAME, '--password', 'test', contractFile, callData, '--json'])
     const { result: { contractId }, transaction, descPath } = res
@@ -92,14 +85,12 @@ describe('CLI Contract Module', function () {
   })
 
   it('Call Contract by descriptor', async () => {
-    // Call contract
     const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2'])
     callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.be.equal('3')
   })
 
   it('Call Contract static by descriptor', async () => {
-    // Call contract
     const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2', '--callStatic'])
     callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.equal('3')

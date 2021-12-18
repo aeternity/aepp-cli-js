@@ -27,16 +27,19 @@ describe('CLI Chain Module', function () {
   before(async function () {
     sdk = await getSdk()
   })
+
   it('TOP', async () => {
     const res = await executeChain(['top', '--json'])
     res.should.be.a('object')
     res.hash.should.be.a('string')
     res.height.should.be.a('number')
   })
+
   it('STATUS', async () => {
     const res = await executeChain(['status', '--json'])
     res.nodeVersion.should.equal((await sdk.api.getStatus()).nodeVersion)
   })
+
   it('PLAY', async function () {
     this.timeout(10000)
     const res = await executeChain(['play', '--limit', '4'])
@@ -47,12 +50,14 @@ describe('CLI Chain Module', function () {
     parsed[1].previousBlockHash.should.equal(parsed[2].blockHash)
     parsed[2].previousBlockHash.should.equal(parsed[3].blockHash)
   })
+
   it('TTL', async () => {
     const { relativeTtl } = await executeChain(['ttl', 10, '--json'])
     const height = await sdk.height()
     const isValid = [relativeTtl + 1, relativeTtl, relativeTtl - 1].includes(height + 10)
     isValid.should.equal(true)
   })
+
   it('NETWORK ID', async () => {
     const nodeNetworkId = sdk.getNetworkId()
     const { networkId } = await executeChain(['network_id', '--json'])
