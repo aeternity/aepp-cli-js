@@ -21,7 +21,7 @@ import {
   executeProgram,
   genAccount,
   plan,
-  randomString,
+  randomName,
   ready,
   WALLET_NAME
 } from './index'
@@ -34,24 +34,15 @@ const executeInspect = (args) => executeProgram(inspectProgramFactory, args)
 const executeAccount = (args) => executeProgram(accountProgramFactory, args)
 plan(10000000000000)
 
-function randomName (length, namespace = '.chain') {
-  return randomString(length).toLowerCase() + namespace
-}
-
 describe('CLI AENS Module', function () {
   const { publicKey } = Crypto.generateKeyPair()
-  let wallet, nameAuctionsSupported, name, name2, name3, name4, salt
+  const name = randomName(12)
+  const name2 = randomName(13)
+  let wallet, salt
 
   before(async function () {
     // Spend tokens for wallet
     wallet = await ready()
-    const { version } = wallet.getNodeInfo()
-    const [majorVersion] = version.split('.')
-    nameAuctionsSupported = +majorVersion === 6 && version !== '5.0.0-rc.1'
-    name = randomName(12, nameAuctionsSupported ? '.chain' : '.test')
-    name2 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
-    name3 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
-    name4 = randomName(13, nameAuctionsSupported ? '.chain' : '.test')
   })
 
   it('Full claim', async function () {
@@ -61,7 +52,7 @@ describe('CLI AENS Module', function () {
       WALLET_NAME,
       '--password',
       'test',
-      name3,
+      randomName(13),
       '--json'
     ])
     const address = await wallet.address()
@@ -78,7 +69,7 @@ describe('CLI AENS Module', function () {
       WALLET_NAME,
       '--password',
       'test',
-      name4,
+      randomName(13),
       '--json',
       '--nameTtl',
       50,

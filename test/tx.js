@@ -18,7 +18,7 @@
 import { Crypto, MemoryAccount } from '@aeternity/aepp-sdk'
 import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
-import { BaseAe, executeProgram, parseBlock, randomString, ready, networkId } from './index'
+import { BaseAe, executeProgram, parseBlock, randomName, ready, networkId } from './index'
 import txProgramFactory from '../src/commands/tx'
 import accountProgramFactory from '../src/commands/account'
 import chainProgramFactory from '../src/commands/chain'
@@ -32,10 +32,6 @@ const testContract = `
 contract Identity =
   entrypoint test(x : int, y: int) = x + y
 `
-
-function randomName (length = 18, namespace = '.chain') {
-  return randomString(length).toLowerCase() + namespace
-}
 
 async function signAndPost (tx, assert) {
   const { signedTx } = await executeProgram(
@@ -54,7 +50,7 @@ describe('CLI Transaction Module', function () {
   let salt
   let queryId
   let contractId
-  const name = randomName().toLowerCase()
+  const name = randomName()
   let nonce
   let nameId
   let compilerCLI
