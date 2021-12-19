@@ -3,7 +3,7 @@
 * Copyright (c) 2018 aeternity developers
 *
 *  Permission to use, copy, modify, and/or distribute this software for any
-                                                                        *  purpose with or without fee is hereby granted, provided that the above
+*  purpose with or without fee is hereby granted, provided that the above
 *  copyright notice and this permission notice appear in all copies.
 *
 *  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
@@ -19,21 +19,6 @@
 import { Crypto, TxBuilder } from '@aeternity/aepp-sdk';
 import { HASH_TYPES } from './constant';
 
-// ## CONSTANT
-const TX_TYPE_PRINT_MAP = {
-  SpendTx: printSpendTransaction,
-  ContractCreateTx: printContractCreateTransaction,
-  ContractCallTx: printContractCallTransaction,
-  NamePreclaimTx: printNamePreclaimTransaction,
-  NameClaimTx: printNameClaimTransaction,
-  NameTransferTx: printNameTransferTransaction,
-  NameUpdateTx: printNameUpdateTransaction,
-  NameRevokeTx: printNameRevokeTransaction,
-  OracleRegisterTx: printOracleRegisterTransaction,
-  OracleQueryTx: printOraclePostQueryTransaction,
-  OracleExtendTx: printOracleExtendTransaction,
-  OracleRespondTx: printOracleResponseTransaction,
-};
 // ## Row width
 const WIDTH = 40;
 
@@ -53,7 +38,10 @@ const JsonStringifyBigInt = (object, replacer, space) => JSON.stringify(
 
 // Print helper
 export function print(msg, obj) {
-  if (typeof msg === 'object') return console.log(JsonStringifyBigInt(msg));
+  if (typeof msg === 'object') {
+    console.log(JsonStringifyBigInt(msg));
+    return;
+  }
   if (obj) {
     console.log(msg);
     console.log(JSON.stringify(obj));
@@ -76,55 +64,7 @@ export function printUnderscored(key, val) {
   ].join(' '));
 }
 
-// ## BLOCK
-//
-// Print block
-export function printBlock(block, json) {
-  if (json) {
-    print(block);
-    return;
-  }
-  const type = Object.keys(HASH_TYPES).find((t) => block.hash.split('_')[0] === HASH_TYPES[t]);
-  const tabs = type === 'MICRO_BLOCK' ? 1 : 0;
-  const tabString = getTabs(tabs);
-
-  print(`${tabString}<<--------------- ${type.toUpperCase()} --------------->>`);
-
-  printUnderscored(`${tabString}Block hash`, block.hash);
-  printUnderscored(`${tabString}Block height`, block.height);
-  printUnderscored(`${tabString}State hash`, block.stateHash);
-  printUnderscored(`${tabString}Nonce`, block.nonce ?? 'N/A');
-  printUnderscored(`${tabString}Miner`, block.miner ?? 'N/A');
-  printUnderscored(`${tabString}Time`, new Date(block.time));
-  printUnderscored(`${tabString}Previous block hash`, block.prevHash);
-  printUnderscored(`${tabString}Previous key block hash`, block.prevKeyHash);
-  printUnderscored(`${tabString}Version`, block.version);
-  printUnderscored(`${tabString}Target`, block.target ?? 'N/A');
-  const txCount = block?.transactions?.length ?? 0;
-  printUnderscored(`${tabString}Transactions`, txCount);
-  if (txCount) printBlockTransactions(block.transactions, false, tabs + 1);
-
-  print('<<------------------------------------->>');
-}
-
-// Print block `transactions`
-export function printBlockTransactions(ts, json, tabs = 0) {
-  if (json) {
-    print(ts);
-    return;
-  }
-  const tabsString = getTabs(tabs);
-  ts.forEach(
-    (tx, i) => {
-      print(`${tabsString}----------------  TX  ----------------`);
-      printTransaction(tx, false, tabs + 1);
-      print(`${tabsString}--------------------------------------`);
-    },
-  );
-}
-
 // ## TX
-
 export function printValidation({ validation, transaction }) {
   print('---------------------------------------- TX DATA ↓↓↓ \n');
   const { tx, txType: type } = TxBuilder.unpackTx(transaction);
@@ -306,6 +246,23 @@ function printOracleResponseTransaction(tx = {}, tabs = '') {
   printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
 }
 
+const TX_TYPE_PRINT_MAP = {
+  SpendTx: printSpendTransaction,
+  ContractCreateTx: printContractCreateTransaction,
+  ContractCallTx: printContractCallTransaction,
+  NamePreclaimTx: printNamePreclaimTransaction,
+  NameClaimTx: printNameClaimTransaction,
+  NameTransferTx: printNameTransferTransaction,
+  NameUpdateTx: printNameUpdateTransaction,
+  NameRevokeTx: printNameRevokeTransaction,
+  OracleRegisterTx: printOracleRegisterTransaction,
+  OracleQueryTx: printOraclePostQueryTransaction,
+  OracleExtendTx: printOracleExtendTransaction,
+  OracleRespondTx: printOracleResponseTransaction,
+};
+
+// ## BLOCK
+
 function replaceAt(str, index, replacement) {
   return str.substr(0, index) + replacement + str.substr(index + replacement.length);
 }
@@ -314,6 +271,7 @@ function printTxInfo(tx, tabs) {
   const type = tx?.tx?.type;
   TX_TYPE_PRINT_MAP[replaceAt(type, 0, type[0].toUpperCase())](tx, tabs);
 }
+
 // Function which print `tx`
 // Get type of `tx` to now which `print` method to use
 export function printTransaction(tx, json, tabs = 0, skipBase = false) {
@@ -324,6 +282,49 @@ export function printTransaction(tx, json, tabs = 0, skipBase = false) {
   const tabsString = getTabs(tabs);
   if (!skipBase) printTxBase({ ...tx, ...tx.tx ? tx.tx : {} }, tabsString);
   printTxInfo({ ...tx, ...tx.tx ? tx.tx : {} }, tabsString);
+}
+
+export function printBlockTransactions(ts, json, tabs = 0) {
+  if (json) {
+    print(ts);
+    return;
+  }
+  const tabsString = getTabs(tabs);
+  ts.forEach(
+    (tx) => {
+      print(`${tabsString}----------------  TX  ----------------`);
+      printTransaction(tx, false, tabs + 1);
+      print(`${tabsString}--------------------------------------`);
+    },
+  );
+}
+
+export function printBlock(block, json) {
+  if (json) {
+    print(block);
+    return;
+  }
+  const type = Object.keys(HASH_TYPES).find((t) => block.hash.split('_')[0] === HASH_TYPES[t]);
+  const tabs = type === 'MICRO_BLOCK' ? 1 : 0;
+  const tabString = getTabs(tabs);
+
+  print(`${tabString}<<--------------- ${type.toUpperCase()} --------------->>`);
+
+  printUnderscored(`${tabString}Block hash`, block.hash);
+  printUnderscored(`${tabString}Block height`, block.height);
+  printUnderscored(`${tabString}State hash`, block.stateHash);
+  printUnderscored(`${tabString}Nonce`, block.nonce ?? 'N/A');
+  printUnderscored(`${tabString}Miner`, block.miner ?? 'N/A');
+  printUnderscored(`${tabString}Time`, new Date(block.time));
+  printUnderscored(`${tabString}Previous block hash`, block.prevHash);
+  printUnderscored(`${tabString}Previous key block hash`, block.prevKeyHash);
+  printUnderscored(`${tabString}Version`, block.version);
+  printUnderscored(`${tabString}Target`, block.target ?? 'N/A');
+  const txCount = block?.transactions?.length ?? 0;
+  printUnderscored(`${tabString}Transactions`, txCount);
+  if (txCount) printBlockTransactions(block.transactions, false, tabs + 1);
+
+  print('<<------------------------------------->>');
 }
 
 // ##OTHER
@@ -378,12 +379,12 @@ export function printName(name, json) {
 }
 
 // Print `contract_descriptor` file base info
-export function logContractDescriptor(desc, title = '', json) {
+export function logContractDescriptor(desc, title, json) {
   if (json) {
     print(desc);
     return;
   }
-  print(`${title}`);
+  print(title);
   printUnderscored('Contract address', desc.address);
   printUnderscored('Transaction hash', desc.transaction);
   printUnderscored('Deploy descriptor', desc.descPath);

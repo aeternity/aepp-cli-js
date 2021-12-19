@@ -3,7 +3,7 @@
 * Copyright (c) 2018 aeternity developers
 *
 *  Permission to use, copy, modify, and/or distribute this software for any
-                                                                        *  purpose with or without fee is hereby granted, provided that the above
+*  purpose with or without fee is hereby granted, provided that the above
 *  copyright notice and this permission notice appear in all copies.
 *
 *  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
@@ -22,6 +22,29 @@ import path from 'path';
 
 import { TxBuilderHelper, SCHEMA } from '@aeternity/aepp-sdk';
 import { HASH_TYPES } from './constant';
+
+export function readFile(filePath, encoding = null) {
+  try {
+    return fs.readFileSync(
+      filePath,
+      encoding,
+    );
+  } catch (e) {
+    switch (e.code) {
+      case 'ENOENT':
+        throw new Error('File not found');
+      default:
+        throw e;
+    }
+  }
+}
+
+export function readJSONFile(filePath) {
+  return JSON.parse(readFile(filePath));
+}
+
+// Grab contract descriptor by path
+const grabDesc = async (descrPath) => descrPath && readJSONFile(path.resolve(process.cwd(), descrPath));
 
 // ## Method which build arguments for call call/deploy contracts
 export async function prepareCallParams(name, {
@@ -86,45 +109,16 @@ export function checkPref(hash, hashType) {
   /* block and micro block check */
   if (Array.isArray(hashType)) {
     const res = hashType.find((ht) => hash.slice(0, 3) === `${ht}_`);
-    if (res) { return res; }
+    if (res) return;
     throw new Error('Invalid block hash, it should be like: mh_.... or kh._...');
   }
 
   if (hash.slice(0, 3) !== `${hashType}_`) {
-    let msg;
-    switch (hashType) {
-      case HASH_TYPES.transaction:
-        msg = 'Invalid transaction hash, it should be like: th_....';
-        break;
-      case HASH_TYPES.account:
-        msg = 'Invalid account address, it should be like: ak_....';
-        break;
-    }
+    const msg = {
+      [HASH_TYPES.transaction]: 'Invalid transaction hash, it should be like: th_....',
+      [HASH_TYPES.account]: 'Invalid account address, it should be like: ak_....',
+    }[hashType] || `Invalid hash, it should be like: ${hashType}_....`;
     throw new Error(msg);
-  }
-}
-
-// ## FILE I/O
-
-// Read JSON file
-export function readJSONFile(filePath) {
-  return JSON.parse(readFile(filePath));
-}
-
-// Read file from filesystem
-export function readFile(path, encoding = null, errTitle = 'READ FILE ERR') {
-  try {
-    return fs.readFileSync(
-      path,
-      encoding,
-    );
-  } catch (e) {
-    switch (e.code) {
-      case 'ENOENT':
-        throw new Error('File not found');
-      default:
-        throw e;
-    }
   }
 }
 
@@ -149,6 +143,3 @@ export function isAvailable(name) { return name.status === 'AVAILABLE'; }
 export function validateName(name) {
   TxBuilderHelper.ensureNameValid(name);
 }
-
-// Grab contract descriptor by path
-export const grabDesc = async (descrPath) => descrPath && readJSONFile(path.resolve(process.cwd(), descrPath));

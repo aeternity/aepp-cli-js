@@ -26,7 +26,7 @@ import * as constant from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Transaction from '../actions/transaction';
 
-export default function () {
+export default () => {
   const program = new Command().name('aecli tx');
 
   // ## Initialize `options`
@@ -47,7 +47,7 @@ export default function () {
     .command('spend <senderId> <recieverId> <amount> <nonce>')
     .option('--payload [payload]', 'Transaction payload.', '')
     .description('Build Spend Transaction')
-    .action(async (senderId, receiverId, amount, nonce, ...args) => await Transaction.spend(senderId, receiverId, amount, nonce, getCmdFromArguments(args)));
+    .action((senderId, receiverId, amount, nonce, ...args) => Transaction.spend(senderId, receiverId, amount, nonce, getCmdFromArguments(args)));
 
   // ## Initialize `name-preclaim` command
   //
@@ -57,7 +57,7 @@ export default function () {
   program
     .command('name-preclaim <accountId> <domain> <nonce>')
     .description('Build name preclaim transaction.')
-    .action(async (accountId, domain, nonce, ...args) => await Transaction.namePreClaim(accountId, domain, nonce, getCmdFromArguments(args)));
+    .action((accountId, domain, nonce, ...args) => Transaction.namePreClaim(accountId, domain, nonce, getCmdFromArguments(args)));
 
   // ## Initialize `name-update` command
   //
@@ -71,7 +71,7 @@ export default function () {
     .option('--nameTtl [nameTtl]', 'Validity of name.', SCHEMA.NAME_TTL)
     .option('--clientTtl [clientTtl]', 'Client ttl.', SCHEMA.CLIENT_TTL)
     .description('Build name update transaction.')
-    .action(async (accountId, domain, nonce, pointers, ...args) => await Transaction.nameUpdate(accountId, domain, nonce, pointers, getCmdFromArguments(args)));
+    .action((accountId, domain, nonce, pointers, ...args) => Transaction.nameUpdate(accountId, domain, nonce, pointers, getCmdFromArguments(args)));
 
   // ## Initialize `name-claim` command
   //
@@ -84,7 +84,7 @@ export default function () {
     .option('-F, --fee [fee]', 'Transaction fee.')
     .option('--nameFee [nameFee]', 'Name fee.', SCHEMA.NAME_FEE)
     .description('Build name claim transaction.')
-    .action(async (accountId, salt, domain, nonce, ...args) => await Transaction.nameClaim(accountId, salt, domain, nonce, getCmdFromArguments(args)));
+    .action((accountId, salt, domain, nonce, ...args) => Transaction.nameClaim(accountId, salt, domain, nonce, getCmdFromArguments(args)));
 
   // ## Initialize `name-transfer` command
   //
@@ -96,7 +96,7 @@ export default function () {
     .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-F, --fee [fee]', 'Transaction fee.')
     .description('Build name tansfer transaction.')
-    .action(async (accountId, transferId, domain, nonce, ...args) => await Transaction.nameTransfer(accountId, transferId, domain, nonce, getCmdFromArguments(args)));
+    .action((accountId, transferId, domain, nonce, ...args) => Transaction.nameTransfer(accountId, transferId, domain, nonce, getCmdFromArguments(args)));
 
   // ## Initialize `name-revoke` command
   //
@@ -108,7 +108,7 @@ export default function () {
     .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-F, --fee [fee]', 'Transaction fee.')
     .description('Build name revoke transaction.')
-    .action(async (accountId, domain, nonce, ...args) => await Transaction.nameRevoke(accountId, domain, nonce, getCmdFromArguments(args)));
+    .action((accountId, domain, nonce, ...args) => Transaction.nameRevoke(accountId, domain, nonce, getCmdFromArguments(args)));
 
   // ## Initialize `contract-deploy` command
   //
@@ -124,7 +124,7 @@ export default function () {
     .option('--amount [amount]', 'Amount', constant.AMOUNT)
     .option('--deposit [deposit]', 'Deposit', constant.DEPOSIT)
     .description('Build contract create transaction.')
-    .action(async (ownerId, contractBytecode, initCallData, nonce, ...args) => await Transaction.contractDeploy(ownerId, contractBytecode, initCallData, nonce, getCmdFromArguments(args)));
+    .action((ownerId, contractBytecode, initCallData, nonce, ...args) => Transaction.contractDeploy(ownerId, contractBytecode, initCallData, nonce, getCmdFromArguments(args)));
 
   // ## Initialize `contract-call` command
   //
@@ -139,7 +139,7 @@ export default function () {
     .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', SCHEMA.MIN_GAS_PRICE)
     .option('--amount [amount]', 'Amount', constant.AMOUNT)
     .description('Build contract create transaction.')
-    .action(async (callerId, contractId, callData, nonce, ...args) => await Transaction.contractCall(callerId, contractId, callData, nonce, getCmdFromArguments(args)));
+    .action((callerId, contractId, callData, nonce, ...args) => Transaction.contractCall(callerId, contractId, callData, nonce, getCmdFromArguments(args)));
 
   // ## Initialize `oracle-register` command
   //
@@ -153,7 +153,7 @@ export default function () {
     .option('--queryFee [queryFee]', 'Oracle Query fee.', SCHEMA.QUERY_FEE)
     .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', SCHEMA.ORACLE_TTL.value)
     .description('Build oracle register transaction.')
-    .action(async (accountId, queryFormat, responseFormat, nonce, ...args) => await Transaction.oracleRegister(accountId, queryFormat, responseFormat, nonce, getCmdFromArguments(args)));
+    .action((accountId, queryFormat, responseFormat, nonce, ...args) => Transaction.oracleRegister(accountId, queryFormat, responseFormat, nonce, getCmdFromArguments(args)));
 
   // ## Initialize `oracle-post-query` command
   //
@@ -168,7 +168,7 @@ export default function () {
     .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', SCHEMA.QUERY_TTL.value)
     .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', constant.RESPONSE_TTL)
     .description('Build oracle post query transaction.')
-    .action(async (accountId, oracleId, query, nonce, ...args) => await Transaction.oraclePostQuery(accountId, oracleId, query, nonce, getCmdFromArguments(args)));
+    .action((accountId, oracleId, query, nonce, ...args) => Transaction.oraclePostQuery(accountId, oracleId, query, nonce, getCmdFromArguments(args)));
 
   // ## Initialize `oracle-extend` command
   //
@@ -180,7 +180,7 @@ export default function () {
     .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-F, --fee [fee]', 'Transaction fee.')
     .description('Build oracle extend transaction.')
-    .action(async (callerId, oracleId, oracleTtl, nonce, ...args) => await Transaction.oracleExtend(callerId, oracleId, oracleTtl, nonce, getCmdFromArguments(args)));
+    .action((callerId, oracleId, oracleTtl, nonce, ...args) => Transaction.oracleExtend(callerId, oracleId, oracleTtl, nonce, getCmdFromArguments(args)));
 
   // ## Initialize `oracle-respond` command
   //
@@ -193,7 +193,7 @@ export default function () {
     .option('-F, --fee [fee]', 'Transaction fee.')
     .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', constant.RESPONSE_TTL)
     .description('Build oracle extend transaction.')
-    .action(async (callerId, oracleId, queryId, response, nonce, ...args) => await Transaction.oracleRespond(callerId, oracleId, queryId, response, nonce, getCmdFromArguments(args)));
+    .action((callerId, oracleId, queryId, response, nonce, ...args) => Transaction.oracleRespond(callerId, oracleId, queryId, response, nonce, getCmdFromArguments(args)));
 
   // ## Initialize `verify` command
   //
@@ -204,7 +204,7 @@ export default function () {
     .command('verify <tx>')
     .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
     .description('Verify transaction')
-    .action(async (tx, ...args) => await Transaction.verify(tx, getCmdFromArguments(args)));
+    .action((tx, ...args) => Transaction.verify(tx, getCmdFromArguments(args)));
 
   return program;
-}
+};

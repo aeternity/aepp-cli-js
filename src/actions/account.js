@@ -30,8 +30,7 @@ import { PROMPT_TYPE, prompt } from '../utils/prompt';
 // this function allow you to `sign` arbitrary data
 export async function signMessage(walletPath, data = [], options) {
   const { json, filePath } = options;
-  const dataForSign = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ` ${el}`}`, '');
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+  const dataForSign = filePath ? readFile(filePath) : data.join(' ');
   if (dataForSign.length >= 0xFD) throw new Error('Message too long!');
   const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true });
   const signedMessage = await client.signMessage(dataForSign);
@@ -56,8 +55,7 @@ export async function signMessage(walletPath, data = [], options) {
 // this function allow you to `verify` signed data
 export async function verifyMessage(walletPath, hexSignature, data = [], options) {
   const { json, filePath } = options;
-  const dataForVerify = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ` ${el}`}`, '');
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
+  const dataForVerify = filePath ? readFile(filePath) : data.join(' ');
   if (dataForVerify.length >= 0xFD) throw new Error('Message too long!');
   const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true });
   const isCorrect = await client.verifyMessage(dataForVerify, hexSignature);
@@ -80,7 +78,6 @@ export async function sign(walletPath, tx, options) {
   // Validate `tx` hash
   if (tx.slice(0, 2) !== 'tx') { throw new Error('Invalid transaction hash'); }
 
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
   const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true });
 
   const signedTx = await client.signTransaction(tx);
@@ -102,7 +99,6 @@ export async function spend(walletPath, receiverNameOrAddress, amount, options) 
   const {
     ttl, json, nonce, fee, payload = '', denomination = AmountFormatter.AE_AMOUNT_FORMATS.AETTOS,
   } = options;
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
 
   let tx = await client.spend(amount, receiverNameOrAddress, {
@@ -111,12 +107,11 @@ export async function spend(walletPath, receiverNameOrAddress, amount, options) 
   // if waitMined false
   if (typeof tx !== 'object') {
     tx = await client.tx(tx);
-  } else {
-    !json && print('Transaction mined');
+  } else if (!json) {
+    print('Transaction mined');
   }
-  json
-    ? print({ tx })
-    : printTransaction(tx, json);
+  if (json) print({ tx });
+  else printTransaction(tx, json);
 }
 
 // ## `Transfer` function
@@ -125,7 +120,6 @@ export async function transferFunds(walletPath, receiver, fraction, options) {
   const {
     ttl, json, nonce, fee, payload = '',
   } = options;
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
 
   let tx = await client.transferFunds(fraction, receiver, {
@@ -134,8 +128,8 @@ export async function transferFunds(walletPath, receiver, fraction, options) {
   // if waitMined false
   if (typeof tx !== 'object') {
     tx = await client.tx(tx);
-  } else {
-    !json && print('Transaction mined');
+  } else if (!json) {
+    print('Transaction mined');
   }
   if (json) {
     print({ tx });
@@ -148,7 +142,6 @@ export async function transferFunds(walletPath, receiver, fraction, options) {
 // This function allow you retrieve account `balance`
 export async function getBalance(walletPath, options) {
   const { height, hash, json } = options;
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const { client, keypair } = await initClientByWalletFile(walletPath, options, true);
   const nonce = await client.getAccountNonce(keypair.publicKey);
   const balance = await client.balance(keypair.publicKey, { height: +height, hash });
@@ -166,7 +159,6 @@ export async function getBalance(walletPath, options) {
 // This function allow you retrieve account `public` and `private` keys
 export async function getAddress(walletPath, options) {
   const { privateKey, forcePrompt = false, json } = options;
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const { client, keypair } = await initClientByWalletFile(walletPath, { ...options, accountOnly: true }, true);
 
   if (json) {
@@ -191,7 +183,6 @@ export async function getAddress(walletPath, options) {
 // This function allow you retrieve account `nonce`
 export async function getAccountNonce(walletPath, options) {
   const { json } = options;
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const { client, keypair } = await initClientByWalletFile(walletPath, options, true);
 
   const nonce = await client.getAccountNonce(keypair.publicKey);
@@ -249,7 +240,7 @@ export async function generateKeyPairs(count = 1, { forcePrompt, json }) {
     throw new Error('Count must be an Number');
   }
   if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-    const accounts = Array.from(Array(parseInt(count))).map((_) => Crypto.generateKeyPair(false));
+    const accounts = Array.from(Array(parseInt(count))).map(() => Crypto.generateKeyPair(false));
     if (json) {
       print(JSON.stringify(accounts, null, 2));
     } else {

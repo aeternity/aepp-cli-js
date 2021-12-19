@@ -24,7 +24,7 @@ import { NODE_URL, OUTPUT_JSON, RESPONSE_TTL } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Oracle from '../actions/oracle';
 
-export default function () {
+export default () => {
   const program = new Command().name('aecli oracle');
 
   // ## Initialize `options`
@@ -53,7 +53,7 @@ export default function () {
     .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', SCHEMA.ORACLE_TTL)
     .option('--queryFee [queryFee]', 'Oracle query fee', SCHEMA.QUERY_FEE)
     .description('Register Oracle')
-    .action(async (walletPath, queryFormat, responseFormat, ...args) => await Oracle.createOracle(walletPath, queryFormat, responseFormat, getCmdFromArguments(args)));
+    .action((walletPath, queryFormat, responseFormat, ...args) => Oracle.createOracle(walletPath, queryFormat, responseFormat, getCmdFromArguments(args)));
 
   // ## Initialize `extend oracle` command
   //
@@ -68,7 +68,7 @@ export default function () {
     .command('extend <wallet_path> <oracleId> <oracleTtl>')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
     .description('Extend Oracle')
-    .action(async (walletPath, oracleId, oracleTtl, ...args) => await Oracle.extendOracle(walletPath, oracleId, oracleTtl, getCmdFromArguments(args)));
+    .action((walletPath, oracleId, oracleTtl, ...args) => Oracle.extendOracle(walletPath, oracleId, oracleTtl, getCmdFromArguments(args)));
 
   // ## Initialize `create oracle query` command
   //
@@ -86,7 +86,7 @@ export default function () {
     .option('--queryTtl [queryTtl]', 'Query time to leave', SCHEMA.QUERY_TTL)
     .option('--queryFee [queryFee]', 'Oracle query fee', SCHEMA.QUERY_FEE)
     .description('Create Oracle query')
-    .action(async (walletPath, oracleId, query, ...args) => await Oracle.createOracleQuery(walletPath, oracleId, query, getCmdFromArguments(args)));
+    .action((walletPath, oracleId, query, ...args) => Oracle.createOracleQuery(walletPath, oracleId, query, getCmdFromArguments(args)));
 
   // ## Initialize `respond query` command
   //
@@ -102,7 +102,7 @@ export default function () {
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
     .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL)
     .description('Respond to  Oracle Query')
-    .action(async (walletPath, oracleId, queryId, response, ...args) => await Oracle.respondToQuery(walletPath, oracleId, queryId, response, getCmdFromArguments(args)));
+    .action((walletPath, oracleId, queryId, response, ...args) => Oracle.respondToQuery(walletPath, oracleId, queryId, response, getCmdFromArguments(args)));
 
   // ## Initialize `get oracle` command
   //
@@ -116,7 +116,7 @@ export default function () {
   program
     .command('get <oracleId>')
     .description('Get Oracle')
-    .action(async (oracleId, ...args) => await Oracle.queryOracle(oracleId, getCmdFromArguments(args)));
+    .action((oracleId, ...args) => Oracle.queryOracle(oracleId, getCmdFromArguments(args)));
 
   return program;
-}
+};

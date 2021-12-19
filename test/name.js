@@ -44,7 +44,7 @@ describe('CLI AENS Module', () => {
 
   after(() => sdk.removeWallet());
 
-  it('Full claim', async function () {
+  it('Full claim', async function test() {
     this.timeout(10000);
     const updateTx = await executeName([
       'full-claim',
@@ -61,7 +61,7 @@ describe('CLI AENS Module', () => {
     expect(pointer).to.be.eql({ id: address, key: 'account_pubkey' });
   });
 
-  it('Full claim with options', async function () {
+  it('Full claim with options', async function test() {
     this.timeout(10000);
     const updateTx = await executeName([
       'full-claim',
@@ -105,7 +105,7 @@ describe('CLI AENS Module', () => {
     nameResult.status.should.equal('AVAILABLE');
   });
 
-  it('Claim Name', async function () {
+  it('Claim Name', async function test() {
     this.timeout(10000);
     const claim = await executeName([
       'claim',
@@ -232,7 +232,7 @@ describe('CLI AENS Module', () => {
   describe('Name Auction', () => {
     const nameFee = '3665700000000000000';
 
-    it('Open auction', async function () {
+    it('Open auction', async function test() {
       this.timeout(10000);
       const keypair = Crypto.generateKeyPair();
       await sdk.spend('30000000000000000000000', keypair.publicKey);
@@ -256,7 +256,7 @@ describe('CLI AENS Module', () => {
       bid.tx.nameFee.should.be.equal(nameFee);
     });
 
-    it('Fail on open again', async function () {
+    it('Fail on open again', async function test() {
       this.timeout(30000);
       const preClaim = await executeName([
         'pre-claim',

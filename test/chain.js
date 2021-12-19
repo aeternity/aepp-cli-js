@@ -44,7 +44,7 @@ describe('CLI Chain Module', () => {
     res.nodeVersion.should.equal((await sdk.api.getStatus()).nodeVersion);
   });
 
-  it('PLAY', async function () {
+  it('PLAY', async function test() {
     this.timeout(10000);
     const res = await executeChain(['play', '--limit', '4']);
     res.split('<<------------------------------------->>').length.should.equal(5);

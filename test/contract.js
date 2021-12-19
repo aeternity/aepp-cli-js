@@ -51,7 +51,7 @@ describe('CLI Contract Module', () => {
   });
 
   it('Compile Contract', async () => {
-    const compiled = await sdk.contractCompile(testContractSource).catch(console.error);
+    const compiled = await sdk.contractCompile(testContractSource);
     const compiledCLI = await executeContract(['compile', contractFile]);
     const bytecodeCLI = compiledCLI.split(':')[1].trim();
     bytecode = compiled.bytecode;

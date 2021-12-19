@@ -61,7 +61,8 @@ export async function getNetworkId(options) {
   const client = await initChain(options);
   // Call `getStatus` API and print it
   const { networkId } = await client.api.getStatus();
-  json ? print({ networkId }) : printUnderscored('Network ID', networkId);
+  if (json) print({ networkId });
+  else printUnderscored('Network ID', networkId);
 }
 
 // ## Retrieve `ttl` version
@@ -88,6 +89,26 @@ export async function top(options) {
   printBlock(await client.topBlock(), json);
 }
 
+// # Play by `limit`
+async function playWithLimit(limit, blockHash, client, json) {
+  if (!limit) return;
+  const block = await getBlock(blockHash, client);
+
+  await new Promise((resolve) => { setTimeout(resolve, 1000); });
+  printBlock(block, json);
+  await playWithLimit(limit - 1, block.prevHash, client, json);
+}
+
+// # Play by `height`
+async function playWithHeight(height, blockHash, client, json) {
+  const block = await getBlock(blockHash, client);
+  if (parseInt(block.height) < height) return;
+
+  await new Promise((resolve) => { setTimeout(resolve, 1000); });
+  printBlock(block, json);
+  await playWithHeight(height, block.prevHash, client, json);
+}
+
 // ## This function `Play`(print all block) from `top` block to some condition(reach some `height` or `limit`)
 export async function play(options) {
   let { height, limit, json } = options;
@@ -96,49 +117,17 @@ export async function play(options) {
   const client = await initChain(options);
 
   // Get top block from `node`. It is a start point for play.
-  const top = await client.topBlock();
+  const topBlock = await client.topBlock();
 
-  if (height && height > parseInt(top.height)) {
+  if (height && height > parseInt(topBlock.height)) {
     throw new Error('Height is bigger then height of top block');
   }
 
-  printBlock(top, json);
+  printBlock(topBlock, json);
 
   // Play by `height` or by `limit` using `top` block as start point
-  height
-    ? await playWithHeight(height, top.prevHash)(client, json)
-    : await playWithLimit(--limit, top.prevHash)(client, json);
-}
-
-// # Play by `limit`
-function playWithLimit(limit, blockHash) {
-  return async (client, json) => {
-    if (!limit) return;
-
-    const block = await getBlock(blockHash, client);
-
-    return new Promise((resolve, reject) => {
-      setTimeout(async () => {
-        printBlock(block, json);
-        resolve(await playWithLimit(--limit, block.prevHash)(client, json));
-      }, 1000);
-    });
-  };
-}
-
-// # Play by `height`
-function playWithHeight(height, blockHash) {
-  return async (client, json) => {
-    const block = await getBlock(blockHash, client);
-    if (parseInt(block.height) < height) return;
-
-    return new Promise((resolve, reject) => {
-      setTimeout(async () => {
-        printBlock(block, json);
-        resolve(await playWithHeight(height, block.prevHash)(client, json));
-      }, 1000);
-    });
-  };
+  if (height) await playWithHeight(height, topBlock.prevHash, client, json);
+  else await playWithLimit(limit - 1, topBlock.prevHash, client, json);
 }
 
 // ## Send 'transaction' to the chain
@@ -149,7 +138,8 @@ export async function broadcast(signedTx, options) {
   // Call `getStatus` API and print it
   try {
     const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify });
-    waitMined ? printTransaction(tx, json) : print(`Transaction send to the chain. Tx hash: ${tx.hash}`);
+    if (waitMined) printTransaction(tx, json);
+    else print(`Transaction send to the chain. Tx hash: ${tx.hash}`);
   } catch (e) {
     if (e.verifyTx) {
       const validation = await e.verifyTx();

@@ -61,7 +61,7 @@ function decodeAddress(address) {
   console.log(`Decoded address (hex): ${decoded}`);
 }
 
-export default function () {
+export default () => {
   const program = new Command().name('aecli crypto');
 
   // ## Transaction Signing
@@ -112,14 +112,14 @@ export default function () {
     .command('decrypt <directory>')
     .description('Decrypts public and private key to readable formats for testing purposes')
     .option('-i, --input [directory]', 'Directory where to look for keys', '.')
-    .action(async (dir, ...args) => await extractReadableKeys(dir, getCmdFromArguments(args)));
+    .action((dir, ...args) => extractReadableKeys(dir, getCmdFromArguments(args)));
 
   program
     .command('genkey <keyname>')
     .description('Generate keypair')
     .option('-o, --output [directory]', 'Output directory for the keys', '.')
     .option('-p, --password [directory]', 'Password for keypair', '.')
-    .action(async (keyname, ...args) => await generateKeyPair(keyname, getCmdFromArguments(args)));
+    .action((keyname, ...args) => generateKeyPair(keyname, getCmdFromArguments(args)));
 
   program
     .command('sign <tx> [privkey]')
@@ -132,4 +132,4 @@ export default function () {
     .action(unpackTx);
 
   return program;
-}
+};

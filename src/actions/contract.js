@@ -101,7 +101,6 @@ export async function deploy(walletPath, contractPath, callData = '', options) {
   // source file. Multiple deploy of the same contract file will generate different
   // deploy descriptor
   if (callData.split('_')[0] !== 'cb') throw new Error('"callData" should be a string with "cb" prefix');
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
   const contractFile = readFile(path.resolve(process.cwd(), contractPath), 'utf-8');
 
@@ -144,9 +143,8 @@ export async function deploy(walletPath, contractPath, callData = '', options) {
       JSON.stringify(contractDescriptor),
     );
     // Log contract descriptor
-    json
-      ? print({ descPath, ...deployDescriptor })
-      : logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json);
+    if (json) print({ descPath, ...deployDescriptor });
+    else logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json);
   } else {
     await this.handleCallError(result);
   }
@@ -167,8 +165,8 @@ export async function call(walletPath, fn, args, options) {
   // The execution result, if successful, will be an FATE-encoded result
   // value. Once type decoding will be implemented in the SDK, this value will
   // not be a hexadecimal string, anymore.
-  json && print(callResult);
-  if (!json) {
+  if (json) print(callResult);
+  else {
     if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json);
     print('----------------------Transaction info-----------------------');
     printUnderscored('Contract address', params.address);

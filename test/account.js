@@ -81,7 +81,7 @@ describe('CLI Account Module', () => {
     const { publicKey } = Crypto.generateKeyPair();
     await executeAccount(['spend', WALLET_NAME, '--password', 'test', publicKey, amount]);
     const receiverBalance = await sdk.getBalance(publicKey);
-    parseInt(receiverBalance).should.equal(amount);
+    (+receiverBalance).should.equal(amount);
   });
 
   it('Spend coins to another wallet using denomination', async () => {
@@ -90,7 +90,9 @@ describe('CLI Account Module', () => {
     const receiverKeys = Crypto.generateKeyPair();
     await executeAccount(['spend', WALLET_NAME, '--password', 'test', '-D', denomination, receiverKeys.publicKey, amount]);
     const receiverBalance = await sdk.getBalance(receiverKeys.publicKey);
-    receiverBalance.should.equal(AmountFormatter.formatAmount(amount, { denomination: AmountFormatter.AE_AMOUNT_FORMATS.AE }));
+    receiverBalance.should.equal(
+      AmountFormatter.formatAmount(amount, { denomination: AmountFormatter.AE_AMOUNT_FORMATS.AE }),
+    );
   });
 
   it('Spend fraction of coins to account by name', async () => {

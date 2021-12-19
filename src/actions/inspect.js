@@ -34,52 +34,6 @@ import {
   checkPref, getBlock, updateNameStatus, validateName,
 } from '../utils/helpers';
 
-// ## Inspect function
-// That function get the param(`hash`, `height` or `name`) and show you info about it
-export async function inspect(hash, option) {
-  if (!hash) throw new Error('Hash required');
-
-  // Get `block` by `height`
-  if (!isNaN(hash)) {
-    await getBlockByHeight(hash, option);
-    return;
-  }
-
-  const [pref] = hash.split('_');
-  switch (pref) {
-    // Get `block` by `hash`
-    case HASH_TYPES.block:
-      await getBlockByHash(hash, option);
-      break;
-    // Get `micro_block` by `hash`
-    case HASH_TYPES.micro_block:
-      await getBlockByHash(hash, option);
-      break;
-    // Get `account` by `hash`
-    case HASH_TYPES.account:
-      await getAccountByHash(hash, option);
-      break;
-    // Get `transaction` by `hash`
-    case HASH_TYPES.transaction:
-      await getTransactionByHash(hash, option);
-      break;
-    case HASH_TYPES.rawTransaction:
-      await unpackTx(hash, option);
-      break;
-    // Get `contract` by `contractId`
-    case HASH_TYPES.contract:
-      await getContract(hash, option);
-      break;
-    case HASH_TYPES.oracle:
-      await getOracle(hash, option);
-      break;
-    // Get `name`
-    default:
-      await getName(hash, option);
-      break;
-  }
-}
-
 // ## Inspect helper function's
 async function getBlockByHash(hash, options) {
   const { json } = options;
@@ -103,7 +57,7 @@ async function getTransactionByHash(hash, options) {
   }
 }
 
-async function unpackTx(hash, options = {}) {
+async function unpackTx(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, HASH_TYPES.rawTransaction);
@@ -197,5 +151,51 @@ async function getOracle(oracleId, options) {
     if (queries) printQueries(queries, json);
   } catch (e) {
     printError(e.message);
+  }
+}
+
+// ## Inspect function
+// That function get the param(`hash`, `height` or `name`) and show you info about it
+export default async function inspect(hash, option) {
+  if (!hash) throw new Error('Hash required');
+
+  // Get `block` by `height`
+  if (!isNaN(hash)) {
+    await getBlockByHeight(hash, option);
+    return;
+  }
+
+  const [pref] = hash.split('_');
+  switch (pref) {
+    // Get `block` by `hash`
+    case HASH_TYPES.block:
+      await getBlockByHash(hash, option);
+      break;
+    // Get `micro_block` by `hash`
+    case HASH_TYPES.micro_block:
+      await getBlockByHash(hash, option);
+      break;
+    // Get `account` by `hash`
+    case HASH_TYPES.account:
+      await getAccountByHash(hash, option);
+      break;
+    // Get `transaction` by `hash`
+    case HASH_TYPES.transaction:
+      await getTransactionByHash(hash, option);
+      break;
+    case HASH_TYPES.rawTransaction:
+      await unpackTx(hash, option);
+      break;
+    // Get `contract` by `contractId`
+    case HASH_TYPES.contract:
+      await getContract(hash, option);
+      break;
+    case HASH_TYPES.oracle:
+      await getOracle(hash, option);
+      break;
+    // Get `name`
+    default:
+      await getName(hash, option);
+      break;
   }
 }

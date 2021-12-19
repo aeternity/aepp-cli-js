@@ -26,7 +26,7 @@ import { NODE_URL, OUTPUT_JSON } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as AENS from '../actions/aens';
 
-export default function () {
+export default () => {
   const program = new Command().name('aecli name');
 
   // ## Initialize `options`
@@ -56,7 +56,7 @@ export default function () {
     .option('--nameTtl [nameTtl]', 'Validity of name.', SCHEMA.NAME_TTL)
     .option('--clientTtl [clientTtl]', 'Client ttl.', SCHEMA.CLIENT_TTL)
     .description('Claim a domain name')
-    .action(async (walletPath, name, ...args) => await AENS.fullClaim(walletPath, name, getCmdFromArguments(args)));
+    .action((walletPath, name, ...args) => AENS.fullClaim(walletPath, name, getCmdFromArguments(args)));
 
   // ## Initialize `pre-claim` command
   //
@@ -72,7 +72,7 @@ export default function () {
     .command('pre-claim <wallet_path> <name>')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
     .description('Pre-Claim a domain name')
-    .action(async (walletPath, name, ...args) => await AENS.preClaim(walletPath, name, getCmdFromArguments(args)));
+    .action((walletPath, name, ...args) => AENS.preClaim(walletPath, name, getCmdFromArguments(args)));
 
   // ## Initialize `claim` command
   //
@@ -88,7 +88,7 @@ export default function () {
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
     .option('--nameFee [nameFee]', 'Wait until transaction will be mined', SCHEMA.NAME_FEE)
     .description('Claim a domain name')
-    .action(async (walletPath, name, salt, ...args) => await AENS.claim(walletPath, name, salt, getCmdFromArguments(args)));
+    .action((walletPath, name, salt, ...args) => AENS.claim(walletPath, name, salt, getCmdFromArguments(args)));
 
   // ## Initialize `claim` command
   //
@@ -103,7 +103,7 @@ export default function () {
     .command('bid <wallet_path> <name> <nameFee>')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
     .description('Bid on name')
-    .action(async (walletPath, name, nameFee, ...args) => await AENS.nameBid(walletPath, name, nameFee, getCmdFromArguments(args)));
+    .action((walletPath, name, nameFee, ...args) => AENS.nameBid(walletPath, name, nameFee, getCmdFromArguments(args)));
 
   // ## Initialize `update` command
   //
@@ -117,7 +117,7 @@ export default function () {
     .option('--nameTtl [nameTtl]', 'Validity of name.', SCHEMA.NAME_TTL)
     .option('--clientTtl [clientTtl]', 'Client ttl.', SCHEMA.CLIENT_TTL)
     .description('Update a name pointer')
-    .action(async (walletPath, name, addresses, ...args) => await AENS.updateName(walletPath, name, addresses, getCmdFromArguments(args)));
+    .action((walletPath, name, addresses, ...args) => AENS.updateName(walletPath, name, addresses, getCmdFromArguments(args)));
 
   // ## Initialize `extend` command
   //
@@ -129,7 +129,7 @@ export default function () {
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
     .option('--clientTtl [clientTtl]', 'Client ttl.', SCHEMA.CLIENT_TTL)
     .description('Extend name ttl')
-    .action(async (walletPath, name, nameTtl, ...args) => await AENS.extendName(walletPath, name, nameTtl, getCmdFromArguments(args)));
+    .action((walletPath, name, nameTtl, ...args) => AENS.extendName(walletPath, name, nameTtl, getCmdFromArguments(args)));
 
   // ## Initialize `revoke` command
   //
@@ -140,7 +140,7 @@ export default function () {
     .command('revoke  <wallet_path> <name>')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
     .description('Revoke a domain name')
-    .action(async (walletPath, name, ...args) => await AENS.revokeName(walletPath, name, getCmdFromArguments(args)));
+    .action((walletPath, name, ...args) => AENS.revokeName(walletPath, name, getCmdFromArguments(args)));
 
   // ## Initialize `transfer` command
   //
@@ -151,7 +151,7 @@ export default function () {
     .command('transfer <wallet_path> <name> <address>')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
     .description('Transfer a name to another account')
-    .action(async (walletPath, name, address, ...args) => await AENS.transferName(walletPath, name, address, getCmdFromArguments(args)));
+    .action((walletPath, name, address, ...args) => AENS.transferName(walletPath, name, address, getCmdFromArguments(args)));
 
   // ## Initialize `lookup` command
   //
@@ -161,7 +161,7 @@ export default function () {
   program
     .command('lookup <name>')
     .description('Look up name')
-    .action(async (name, ...args) => await AENS.lookUp(name, getCmdFromArguments(args)));
+    .action((name, ...args) => AENS.lookUp(name, getCmdFromArguments(args)));
 
   return program;
-}
+};

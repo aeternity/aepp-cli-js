@@ -24,7 +24,7 @@ import { NODE_URL, COMPILER_URL, GAS } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Contract from '../actions/contract';
 
-export default function () {
+export default () => {
   const program = new Command().name('aecli contract');
 
   // ## Initialize `options`
@@ -42,7 +42,7 @@ export default function () {
   program
     .command('compile <file>')
     .description('Compile a contract')
-    .action(async (file, ...args) => await Contract.compile(file, getCmdFromArguments(args)));
+    .action((file, ...args) => Contract.compile(file, getCmdFromArguments(args)));
 
   // ## Initialize `encode callData` command
   //
@@ -52,7 +52,7 @@ export default function () {
   program
     .command('encodeData <source> <fn> [args...]')
     .description('Encode contract call data')
-    .action(async (source, fn, args, ...otherArgs) => await Contract.encodeData(source, fn, args, getCmdFromArguments(otherArgs)));
+    .action((source, fn, args, ...otherArgs) => Contract.encodeData(source, fn, args, getCmdFromArguments(otherArgs)));
 
   // ## Initialize `decode call data` command
   //
@@ -66,7 +66,7 @@ export default function () {
     .option('--code [code]', 'Compiler contract code')
     .option('--fn [fn]', 'Function name')
     .description('Decode contract call data')
-    .action(async (data, ...args) => await Contract.decodeCallData(data, getCmdFromArguments(args)));
+    .action((data, ...args) => Contract.decodeCallData(data, getCmdFromArguments(args)));
 
   // ## Initialize `call` command
   //
@@ -97,7 +97,7 @@ export default function () {
     .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
     .description('Execute a function of the contract')
-    .action(async (walletPath, fn, args, ...otherArgs) => await Contract.call(walletPath, fn, args, getCmdFromArguments(otherArgs)));
+    .action((walletPath, fn, args, ...otherArgs) => Contract.call(walletPath, fn, args, getCmdFromArguments(otherArgs)));
 
   //
   // ## Initialize `deploy` command
@@ -120,7 +120,7 @@ export default function () {
     .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
     .description('Deploy a contract on the chain')
-    .action(async (walletPath, path, callData, ...args) => await Contract.deploy(walletPath, path, callData, getCmdFromArguments(args)));
+    .action((walletPath, path, callData, ...args) => Contract.deploy(walletPath, path, callData, getCmdFromArguments(args)));
 
   return program;
-}
+};

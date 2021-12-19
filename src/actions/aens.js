@@ -32,7 +32,6 @@ export async function preClaim(walletPath, domain, options) {
   // Validate `name`(check if `name` end on `.chain`)
   // validateName(domain)
 
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
 
   // Check if that `name' available
@@ -62,7 +61,6 @@ export async function claim(walletPath, domain, salt, options) {
   // Validate `name`
   // validateName(domain)
 
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
 
   // Check if that `name' available
@@ -96,7 +94,6 @@ export async function updateName(walletPath, domain, addresses, options) {
   if (invalidAddresses.length) throw new Error(`Addresses "[${invalidAddresses}]" is not valid`);
   // Validate `name`
   validateName(domain);
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
 
   // Check if that `name` is unavailable and we can update it
@@ -131,7 +128,6 @@ export async function extendName(walletPath, domain, nameTtl, options) {
 
   // Validate `name`
   validateName(domain);
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
 
   // Check if that `name` is unavailable and we can update it
@@ -164,7 +160,6 @@ export async function transferName(walletPath, domain, address, options) {
   if (!Crypto.isAddressValid(address)) throw new Error(`Address "${address}" is not valid`);
   // Validate `name`
   validateName(domain);
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
 
   // Check if that `name` is unavailable and we can transfer it
@@ -195,7 +190,6 @@ export async function revokeName(walletPath, domain, options) {
 
   // Validate `name`
   validateName(domain);
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
 
   // Check if `name` is unavailable and we can revoke it
@@ -225,7 +219,6 @@ export async function nameBid(walletPath, domain, nameFee, options) {
   // Validate `name`
   validateName(domain);
 
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
 
   // Check if that `name' available
@@ -255,7 +248,6 @@ export async function fullClaim(walletPath, domain, options) {
   validateName(domain);
   if (domain.split('.')[0] < 13) throw new Error('Full name claiming works only with name longer then 12 symbol (not trigger auction)');
 
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
 
   // Check if that `name' available
@@ -270,11 +262,11 @@ export async function fullClaim(walletPath, domain, options) {
   }
   const preclaim = await client.aensPreclaim(domain, { nonce, ttl, fee });
   nonce += 1;
-  const claim = await preclaim.claim({
+  const nameInstance = await preclaim.claim({
     nonce, ttl, fee, nameFee,
   });
   nonce += 1;
-  const updateTx = await claim.update(
+  const updateTx = await nameInstance.update(
     { account_pubkey: await client.address() },
     {
       nonce, ttl, fee, nameTtl, clientTtl,
@@ -290,7 +282,6 @@ export async function fullClaim(walletPath, domain, options) {
 export async function lookUp(domain, options) {
   const { json } = options;
   validateName(domain);
-  // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initChain(options);
 
   // Check if `name` is unavailable and we can revoke it

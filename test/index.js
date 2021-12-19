@@ -35,7 +35,7 @@ const ignoreVersion = process.env.IGNORE_VERSION || false;
 const keypair = Crypto.generateKeyPair();
 export const WALLET_NAME = 'mywallet';
 
-const Sdk = async (params = {}) => await Universal({
+const Sdk = async (params) => Universal({
   ignoreVersion,
   compilerUrl,
   nodes: [{ name: 'test', instance: await Node({ url }) }],
@@ -48,19 +48,6 @@ const spendPromise = (async () => {
   await sdk.awaitHeight(2);
   await sdk.spend(1e26, keypair.publicKey);
 })();
-
-export async function getSdk() {
-  await spendPromise;
-
-  const sdk = await Sdk({
-    accounts: [MemoryAccount({ keypair })],
-  });
-  await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', keypair.secretKey, '--overwrite']);
-  sdk.removeWallet = () => {
-    if (fs.existsSync(WALLET_NAME)) fs.unlinkSync(WALLET_NAME);
-  };
-  return sdk;
-}
 
 let isProgramExecuting = false;
 export async function executeProgram(programFactory, args) {
@@ -94,6 +81,19 @@ export async function executeProgram(programFactory, args) {
   } catch (error) {
     throw new Error(`Can't parse as JSON:\n${result}`);
   }
+}
+
+export async function getSdk() {
+  await spendPromise;
+
+  const sdk = await Sdk({
+    accounts: [MemoryAccount({ keypair })],
+  });
+  await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', keypair.secretKey, '--overwrite']);
+  sdk.removeWallet = () => {
+    if (fs.existsSync(WALLET_NAME)) fs.unlinkSync(WALLET_NAME);
+  };
+  return sdk;
 }
 
 export const parseBlock = (res) => Object.fromEntries(res
