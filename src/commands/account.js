@@ -19,6 +19,7 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
+import { AmountFormatter, SCHEMA } from '@aeternity/aepp-sdk'
 import * as utils from '../utils'
 import * as Account from '../actions/account'
 
@@ -48,9 +49,9 @@ export default function () {
     .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
     .option('--payload [payload]', 'Transaction payload.', '')
     .option('-F, --fee [fee]', 'Spend transaction fee.')
-    .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+    .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-    .option('-D, --denomination [denomination]', 'Denomination of amount', utils.constant.DENOMINATION)
+    .option('-D, --denomination [denomination]', 'Denomination of amount', AmountFormatter.AE_AMOUNT_FORMATS.AETTOS)
     .action(async (walletPath, receiverIdOrName, amount, ...args) => await Account.spend(walletPath, receiverIdOrName, amount, utils.cli.getCmdFromArguments(args)))
 
   // ## Initialize `transfer` command
@@ -69,7 +70,7 @@ export default function () {
     .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
     .option('--payload [payload]', 'Transaction payload.', '')
     .option('-F, --fee [fee]', 'Spend transaction fee.')
-    .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+    .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
     .action(async (walletPath, receiver, percentage, ...args) => await Account.transferFunds(walletPath, receiver, percentage, utils.cli.getCmdFromArguments(args)))
 

@@ -17,25 +17,6 @@
 // # Utils `constant` Module
 // That script contains default configuration for `CLI`
 
-import { SCHEMA, AmountFormatter } from '@aeternity/aepp-sdk'
-
-const { MIN_GAS_PRICE } = SCHEMA
-
-export const {
-  // ## AENS
-  NAME_TTL,
-  NAME_FEE,
-  CLIENT_TTL,
-  AENS_NAME_DOMAINS,
-  // ## TRANSACTION
-  TX_TTL,
-  // # CONTRACT
-  VM_TYPE,
-  ORACLE_TTL,
-  QUERY_TTL,
-  QUERY_FEE
-} = SCHEMA
-
 // ## HAST TYPES
 export const HASH_TYPES = {
   transaction: 'th',
@@ -60,15 +41,12 @@ export const PLAY_LIMIT = 10
 // ## CONTRACT
 export const GAS = 1600000 - 21000 // MAX GAS
 export const DEPOSIT = 0
-export const GAS_PRICE = MIN_GAS_PRICE
 export const ORACLE_VM_VERSION = 0
 export const AMOUNT = 0
 
 // ## ORACLE
-export const BUILD_ORACLE_TTL = (ttl) => { return { type: 'delta', value: ttl } }
+export const BUILD_ORACLE_TTL = (ttl) => ({ type: 'delta', value: ttl })
 export const RESPONSE_TTL = 10
 
 // ## DEFAULT OUTPUT FORMAT
 export const OUTPUT_JSON = false
-// ## AMOUNT FORMAT
-export const DENOMINATION = AmountFormatter.AE_AMOUNT_FORMATS.AETTOS

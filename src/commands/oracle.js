@@ -19,6 +19,7 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
+import { SCHEMA } from '@aeternity/aepp-sdk'
 import * as utils from '../utils'
 import * as Oracle from '../actions/oracle'
 
@@ -28,7 +29,7 @@ export default function () {
   // ## Initialize `options`
   program
     .option('-u, --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
-    .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', utils.constant.TX_TTL)
+    .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', SCHEMA.TX_TTL)
     .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
     .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
     .option('-P, --password [password]', 'Wallet Password')
@@ -48,8 +49,8 @@ export default function () {
   program
     .command('create <wallet_path> <queryFormat> <responseFormat>')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-    .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', utils.constant.ORACLE_TTL)
-    .option('--queryFee [queryFee]', 'Oracle query fee', utils.constant.QUERY_FEE)
+    .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', SCHEMA.ORACLE_TTL)
+    .option('--queryFee [queryFee]', 'Oracle query fee', SCHEMA.QUERY_FEE)
     .description('Register Oracle')
     .action(async (walletPath, queryFormat, responseFormat, ...args) => await Oracle.createOracle(walletPath, queryFormat, responseFormat, utils.cli.getCmdFromArguments(args)))
 
@@ -81,8 +82,8 @@ export default function () {
     .command('create-query <wallet_path> <oracleId> <query>')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
     .option('--responseTtl [responseTtl]', 'Query response time to leave', utils.constant.RESPONSE_TTL)
-    .option('--queryTtl [queryTtl]', 'Query time to leave', utils.constant.QUERY_TTL)
-    .option('--queryFee [queryFee]', 'Oracle query fee', utils.constant.QUERY_FEE)
+    .option('--queryTtl [queryTtl]', 'Query time to leave', SCHEMA.QUERY_TTL)
+    .option('--queryFee [queryFee]', 'Oracle query fee', SCHEMA.QUERY_FEE)
     .description('Create Oracle query')
     .action(async (walletPath, oracleId, query, ...args) => await Oracle.createOracleQuery(walletPath, oracleId, query, utils.cli.getCmdFromArguments(args)))
 

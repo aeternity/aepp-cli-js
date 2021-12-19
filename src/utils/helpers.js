@@ -20,8 +20,8 @@
 import fs from 'fs'
 import path from 'path'
 
-import { GAS_PRICE, HASH_TYPES } from './constant'
-import { TxBuilderHelper } from '@aeternity/aepp-sdk'
+import { HASH_TYPES } from './constant'
+import { TxBuilderHelper, SCHEMA } from '@aeternity/aepp-sdk'
 
 // ## Method which build arguments for call call/deploy contracts
 export async function prepareCallParams (name, { descrPath, contractAddress, contractSource, gas, ttl, nonce }) {
@@ -37,7 +37,7 @@ export async function prepareCallParams (name, { descrPath, contractAddress, con
       source: contractFile,
       address: contractAddress,
       name,
-      options: { ttl, gas, nonce, gasPrice: GAS_PRICE }
+      options: { ttl, gas, nonce, gasPrice: SCHEMA.MIN_GAS_PRICE }
     }
   }
 
@@ -48,7 +48,7 @@ export async function prepareCallParams (name, { descrPath, contractAddress, con
     source: descr.source,
     name: name,
     address: descr.address,
-    options: { ttl, nonce, gas, gasPrice: GAS_PRICE }
+    options: { ttl, nonce, gas, gasPrice: SCHEMA.MIN_GAS_PRICE }
   }
 }
 

@@ -19,6 +19,7 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
+import { SCHEMA } from '@aeternity/aepp-sdk'
 import * as utils from '../utils'
 import * as Contract from '../actions/contract'
 
@@ -92,7 +93,7 @@ export default function () {
     .option('--contractAddress [contractAddress]', 'Contract address to call')
     .option('--contractSource [contractSource]', 'Contract source code')
     .option('-F, --fee [fee]', 'Spend transaction fee.')
-    .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+    .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
     .description('Execute a function of the contract')
     .action(async (walletPath, fn, args, ...otherArgs) => await Contract.call(walletPath, fn, args, utils.cli.getCmdFromArguments(otherArgs)))
@@ -113,9 +114,9 @@ export default function () {
     .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
     .option('-P, --password [password]', 'Wallet Password')
     .option('-G --gas [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS)
-    .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', utils.constant.GAS_PRICE)
+    .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', SCHEMA.MIN_GAS_PRICE)
     .option('-F, --fee [fee]', 'Spend transaction fee.')
-    .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+    .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
     .description('Deploy a contract on the chain')
     .action(async (walletPath, path, callData, ...args) => await Contract.deploy(walletPath, path, callData, utils.cli.getCmdFromArguments(args)))

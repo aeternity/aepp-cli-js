@@ -21,6 +21,7 @@
 //
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander'
+import { SCHEMA } from '@aeternity/aepp-sdk'
 import * as utils from '../utils'
 import * as AENS from '../actions/aens'
 
@@ -30,7 +31,7 @@ export default function () {
   // ## Initialize `options`
   program
     .option('-u, --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
-    .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', utils.constant.TX_TTL)
+    .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', SCHEMA.TX_TTL)
     .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
     .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
     .option('-P, --password [password]', 'Wallet Password')
@@ -50,9 +51,9 @@ export default function () {
   program
     .command('full-claim <wallet_path> <name>')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-    .option('--nameFee [nameFee]', 'Wait until transaction will be mined', utils.constant.NAME_FEE)
-    .option('--nameTtl [nameTtl]', 'Validity of name.', utils.constant.NAME_TTL)
-    .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
+    .option('--nameFee [nameFee]', 'Wait until transaction will be mined', SCHEMA.NAME_FEE)
+    .option('--nameTtl [nameTtl]', 'Validity of name.', SCHEMA.NAME_TTL)
+    .option('--clientTtl [clientTtl]', 'Client ttl.', SCHEMA.CLIENT_TTL)
     .description('Claim a domain name')
     .action(async (walletPath, name, ...args) => await AENS.fullClaim(walletPath, name, utils.cli.getCmdFromArguments(args)))
 
@@ -84,7 +85,7 @@ export default function () {
   program
     .command('claim <wallet_path> <name> <salt>')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-    .option('--nameFee [nameFee]', 'Wait until transaction will be mined', utils.constant.NAME_FEE)
+    .option('--nameFee [nameFee]', 'Wait until transaction will be mined', SCHEMA.NAME_FEE)
     .description('Claim a domain name')
     .action(async (walletPath, name, salt, ...args) => await AENS.claim(walletPath, name, salt, utils.cli.getCmdFromArguments(args)))
 
@@ -112,8 +113,8 @@ export default function () {
     .command('update <wallet_path> <name> [addresses...]')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
     .option('--extendPointers', 'Extend pointers', false)
-    .option('--nameTtl [nameTtl]', 'Validity of name.', utils.constant.NAME_TTL)
-    .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
+    .option('--nameTtl [nameTtl]', 'Validity of name.', SCHEMA.NAME_TTL)
+    .option('--clientTtl [clientTtl]', 'Client ttl.', SCHEMA.CLIENT_TTL)
     .description('Update a name pointer')
     .action(async (walletPath, name, addresses, ...args) => await AENS.updateName(walletPath, name, addresses, utils.cli.getCmdFromArguments(args)))
 
@@ -125,7 +126,7 @@ export default function () {
   program
     .command('extend <wallet_path> <name> <nameTtl')
     .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-    .option('--clientTtl [clientTtl]', 'Client ttl.', utils.constant.CLIENT_TTL)
+    .option('--clientTtl [clientTtl]', 'Client ttl.', SCHEMA.CLIENT_TTL)
     .description('Extend name ttl')
     .action(async (walletPath, name, nameTtl, ...args) => await AENS.extendName(walletPath, name, nameTtl, utils.cli.getCmdFromArguments(args)))
 
