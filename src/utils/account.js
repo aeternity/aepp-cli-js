@@ -16,55 +16,55 @@
 *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 *  PERFORMANCE OF THIS SOFTWARE.
 */
-import fs from 'fs'
-import path from 'path'
-import { Crypto, Keystore } from '@aeternity/aepp-sdk'
-import { readJSONFile } from './helpers'
-import { PROMPT_TYPE, prompt } from './prompt'
+import fs from 'fs';
+import path from 'path';
+import { Crypto, Keystore } from '@aeternity/aepp-sdk';
+import { readJSONFile } from './helpers';
+import { PROMPT_TYPE, prompt } from './prompt';
 
 // Helper function which check if `account file` exist and `ask for overwriting`
-export async function askForOverwrite (name, output) {
+export async function askForOverwrite(name, output) {
   return fs.existsSync(path.join(name, output))
     ? prompt(PROMPT_TYPE.askOverwrite)
-    : true
+    : true;
 }
 
 // Generate `keypair` encrypt it using password and write to `ethereum` keystore file
-export async function generateSecureWallet (name, { output = '', password, overwrite }) {
-  if (!overwrite && !(await askForOverwrite(name, output))) return
-  password = password || await prompt(PROMPT_TYPE.askPassword)
-  const { secretKey, publicKey } = Crypto.generateKeyPair(true)
+export async function generateSecureWallet(name, { output = '', password, overwrite }) {
+  if (!overwrite && !(await askForOverwrite(name, output))) return;
+  password = password || await prompt(PROMPT_TYPE.askPassword);
+  const { secretKey, publicKey } = Crypto.generateKeyPair(true);
 
-  fs.writeFileSync(path.join(output, name), JSON.stringify(await Keystore.dump(name, password, secretKey)))
+  fs.writeFileSync(path.join(output, name), JSON.stringify(await Keystore.dump(name, password, secretKey)));
 
-  return { publicKey: Crypto.aeEncodeKey(publicKey), path: path.resolve(process.cwd(), path.join(output, name)) }
+  return { publicKey: Crypto.aeEncodeKey(publicKey), path: path.resolve(process.cwd(), path.join(output, name)) };
 }
 
 // Generate `keypair` from `PRIVATE KEY` encrypt it using password and to `ethereum` keystore file
-export async function generateSecureWalletFromPrivKey (name, priv, { output = '', password, overwrite }) {
-  if (!overwrite && !(await askForOverwrite(name, output))) return
-  password = password || await prompt(PROMPT_TYPE.askPassword)
+export async function generateSecureWalletFromPrivKey(name, priv, { output = '', password, overwrite }) {
+  if (!overwrite && !(await askForOverwrite(name, output))) return;
+  password = password || await prompt(PROMPT_TYPE.askPassword);
 
-  const hexStr = Buffer.from(priv.trim(), 'hex')
-  const keys = Crypto.generateKeyPairFromSecret(hexStr)
+  const hexStr = Buffer.from(priv.trim(), 'hex');
+  const keys = Crypto.generateKeyPairFromSecret(hexStr);
 
-  const encryptedKeyPair = await Keystore.dump(name, password, keys.secretKey)
+  const encryptedKeyPair = await Keystore.dump(name, password, keys.secretKey);
 
-  fs.writeFileSync(path.join(output, name), JSON.stringify(encryptedKeyPair))
+  fs.writeFileSync(path.join(output, name), JSON.stringify(encryptedKeyPair));
 
-  return { publicKey: Crypto.aeEncodeKey(keys.publicKey), path: path.resolve(process.cwd(), path.join(output, name)) }
+  return { publicKey: Crypto.aeEncodeKey(keys.publicKey), path: path.resolve(process.cwd(), path.join(output, name)) };
 }
 
 // Get account file by path, decrypt it using password and return `keypair`
-export async function getWalletByPathAndDecrypt (walletPath, password) {
-  const keyFile = readJSONFile(path.resolve(process.cwd(), walletPath))
+export async function getWalletByPathAndDecrypt(walletPath, password) {
+  const keyFile = readJSONFile(path.resolve(process.cwd(), walletPath));
 
-  password ||= await prompt(PROMPT_TYPE.askPassword)
+  password ||= await prompt(PROMPT_TYPE.askPassword);
 
-  const privKey = await Keystore.recover(password, keyFile)
+  const privKey = await Keystore.recover(password, keyFile);
 
   return {
     secretKey: privKey,
-    publicKey: Crypto.getAddressFromPriv(privKey)
-  }
+    publicKey: Crypto.getAddressFromPriv(privKey),
+  };
 }

@@ -15,78 +15,80 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { Crypto } from '@aeternity/aepp-sdk'
-import { after, before, describe, it } from 'mocha'
-import { executeProgram, getSdk, WALLET_NAME } from './index'
-import oracleProgramFactory from '../src/commands/oracle'
+import { Crypto } from '@aeternity/aepp-sdk';
+import {
+  after, before, describe, it,
+} from 'mocha';
+import { executeProgram, getSdk, WALLET_NAME } from './index';
+import oracleProgramFactory from '../src/commands/oracle';
 
-const executeOracle = args => executeProgram(oracleProgramFactory, args)
+const executeOracle = (args) => executeProgram(oracleProgramFactory, args);
 
-describe('CLI Oracle Module', function () {
-  const oracleFormat = 'string'
-  const responseFormat = 'string'
-  let sdk
-  let oracleId
-  let queryId
+describe('CLI Oracle Module', () => {
+  const oracleFormat = 'string';
+  const responseFormat = 'string';
+  let sdk;
+  let oracleId;
+  let queryId;
 
-  before(async function () {
-    sdk = await getSdk()
-  })
+  before(async () => {
+    sdk = await getSdk();
+  });
 
-  after(() => sdk.removeWallet())
+  after(() => sdk.removeWallet());
 
   it('Oracle create', async () => {
     const oracleCreate = await executeOracle([
-      'create', WALLET_NAME, '--password', 'test', oracleFormat, responseFormat, '--json'
-    ])
-    oracleCreate.blockHeight.should.be.gt(0)
-    oracleCreate.queryFormat.should.be.equal(oracleFormat)
-    oracleCreate.responseFormat.should.be.equal(responseFormat)
-    oracleId = oracleCreate.id
-  })
+      'create', WALLET_NAME, '--password', 'test', oracleFormat, responseFormat, '--json',
+    ]);
+    oracleCreate.blockHeight.should.be.gt(0);
+    oracleCreate.queryFormat.should.be.equal(oracleFormat);
+    oracleCreate.responseFormat.should.be.equal(responseFormat);
+    oracleId = oracleCreate.id;
+  });
 
   it('Oracle extend', async () => {
-    const oracle = await sdk.getOracleObject(oracleId)
+    const oracle = await sdk.getOracleObject(oracleId);
     const oracleExtend = await executeOracle([
-      'extend', WALLET_NAME, '--password', 'test', oracleId, 100, '--json'
-    ])
-    oracleExtend.blockHeight.should.be.gt(0)
-    oracleExtend.ttl.should.be.gte(oracle.ttl + 100)
-  })
+      'extend', WALLET_NAME, '--password', 'test', oracleId, 100, '--json',
+    ]);
+    oracleExtend.blockHeight.should.be.gt(0);
+    oracleExtend.ttl.should.be.gte(oracle.ttl + 100);
+  });
 
   it('Oracle create query', async () => {
     const oracleQuery = await executeOracle([
-      'create-query', WALLET_NAME, '--password', 'test', oracleId, 'Hello?', '--json'
-    ])
-    oracleQuery.blockHeight.should.be.gt(0)
-    oracleQuery.decodedQuery.should.be.equal('Hello?')
-    oracleQuery.id.split('_')[0].should.be.equal('oq')
-    queryId = oracleQuery.id
-    const oracle = await sdk.getOracleObject(oracleId)
-    oracle.queries.length.should.be.equal(1)
-  })
+      'create-query', WALLET_NAME, '--password', 'test', oracleId, 'Hello?', '--json',
+    ]);
+    oracleQuery.blockHeight.should.be.gt(0);
+    oracleQuery.decodedQuery.should.be.equal('Hello?');
+    oracleQuery.id.split('_')[0].should.be.equal('oq');
+    queryId = oracleQuery.id;
+    const oracle = await sdk.getOracleObject(oracleId);
+    oracle.queries.length.should.be.equal(1);
+  });
 
   it('Oracle respond to query', async () => {
     const oracleQueryResponse = await executeOracle([
-      'respond-query', WALLET_NAME, '--password', 'test', oracleId, queryId, 'Hi!', '--json'
-    ])
-    oracleQueryResponse.blockHeight.should.be.gt(0)
-    const oracle = await sdk.getOracleObject(oracleId)
-    const query = await oracle.getQuery(queryId)
-    query.decodedResponse.should.be.equal('Hi!')
-  })
+      'respond-query', WALLET_NAME, '--password', 'test', oracleId, queryId, 'Hi!', '--json',
+    ]);
+    oracleQueryResponse.blockHeight.should.be.gt(0);
+    const oracle = await sdk.getOracleObject(oracleId);
+    const query = await oracle.getQuery(queryId);
+    query.decodedResponse.should.be.equal('Hi!');
+  });
 
   it('Get non existed Oracle', async () => {
-    const fakeOracleId = Crypto.generateKeyPair().publicKey.replace('ak_', 'ok_')
+    const fakeOracleId = Crypto.generateKeyPair().publicKey.replace('ak_', 'ok_');
     await executeOracle(['get', fakeOracleId, '--json'])
-      .should.be.rejectedWith('error: Oracle not found')
+      .should.be.rejectedWith('error: Oracle not found');
     await executeOracle(['get', 'oq_d1sadasdasda', '--json'])
-      .should.be.rejectedWith('Encoded string have a wrong type: oq (expected: ok)')
-  })
+      .should.be.rejectedWith('Encoded string have a wrong type: oq (expected: ok)');
+  });
 
   it('Get existed Oracle', async () => {
-    const oracle = await executeOracle(['get', oracleId, '--json'])
-    oracle.id.should.be.a('string')
-    oracle.id.split('_')[0].should.be.equal('ok')
-  })
-})
+    const oracle = await executeOracle(['get', oracleId, '--json']);
+    oracle.id.should.be.a('string');
+    oracle.id.split('_')[0].should.be.equal('ok');
+  });
+});

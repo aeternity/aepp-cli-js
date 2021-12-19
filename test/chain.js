@@ -15,54 +15,56 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { after, before, describe, it } from 'mocha'
-import { executeProgram, parseBlock, getSdk } from './index'
-import chainProgramFactory from '../src/commands/chain'
+import {
+  after, before, describe, it,
+} from 'mocha';
+import { executeProgram, parseBlock, getSdk } from './index';
+import chainProgramFactory from '../src/commands/chain';
 
-const executeChain = args => executeProgram(chainProgramFactory, args)
+const executeChain = (args) => executeProgram(chainProgramFactory, args);
 
-describe('CLI Chain Module', function () {
-  let sdk
+describe('CLI Chain Module', () => {
+  let sdk;
 
-  before(async function () {
-    sdk = await getSdk()
-  })
+  before(async () => {
+    sdk = await getSdk();
+  });
 
-  after(() => sdk.removeWallet())
+  after(() => sdk.removeWallet());
 
   it('TOP', async () => {
-    const res = await executeChain(['top', '--json'])
-    res.should.be.a('object')
-    res.hash.should.be.a('string')
-    res.height.should.be.a('number')
-  })
+    const res = await executeChain(['top', '--json']);
+    res.should.be.a('object');
+    res.hash.should.be.a('string');
+    res.height.should.be.a('number');
+  });
 
   it('STATUS', async () => {
-    const res = await executeChain(['status', '--json'])
-    res.nodeVersion.should.equal((await sdk.api.getStatus()).nodeVersion)
-  })
+    const res = await executeChain(['status', '--json']);
+    res.nodeVersion.should.equal((await sdk.api.getStatus()).nodeVersion);
+  });
 
   it('PLAY', async function () {
-    this.timeout(10000)
-    const res = await executeChain(['play', '--limit', '4'])
-    res.split('<<------------------------------------->>').length.should.equal(5)
+    this.timeout(10000);
+    const res = await executeChain(['play', '--limit', '4']);
+    res.split('<<------------------------------------->>').length.should.equal(5);
 
-    const parsed = res.split('<<------------------------------------->>').map(parseBlock)
-    parsed[0].previousBlockHash.should.equal(parsed[1].blockHash)
-    parsed[1].previousBlockHash.should.equal(parsed[2].blockHash)
-    parsed[2].previousBlockHash.should.equal(parsed[3].blockHash)
-  })
+    const parsed = res.split('<<------------------------------------->>').map(parseBlock);
+    parsed[0].previousBlockHash.should.equal(parsed[1].blockHash);
+    parsed[1].previousBlockHash.should.equal(parsed[2].blockHash);
+    parsed[2].previousBlockHash.should.equal(parsed[3].blockHash);
+  });
 
   it('TTL', async () => {
-    const { relativeTtl } = await executeChain(['ttl', 10, '--json'])
-    const height = await sdk.height()
-    const isValid = [relativeTtl + 1, relativeTtl, relativeTtl - 1].includes(height + 10)
-    isValid.should.equal(true)
-  })
+    const { relativeTtl } = await executeChain(['ttl', 10, '--json']);
+    const height = await sdk.height();
+    const isValid = [relativeTtl + 1, relativeTtl, relativeTtl - 1].includes(height + 10);
+    isValid.should.equal(true);
+  });
 
   it('NETWORK ID', async () => {
-    const nodeNetworkId = sdk.getNetworkId()
-    const { networkId } = await executeChain(['network_id', '--json'])
-    nodeNetworkId.should.equal(networkId)
-  })
-})
+    const nodeNetworkId = sdk.getNetworkId();
+    const { networkId } = await executeChain(['network_id', '--json']);
+    nodeNetworkId.should.equal(networkId);
+  });
+});

@@ -19,22 +19,26 @@
  */
 
 import {
-  Crypto, SCHEMA, TxBuilder, TxBuilderHelper, verifyTransaction, Node, getDefaultPointerKey
-} from '@aeternity/aepp-sdk'
-import { initOfflineTxBuilder, initTxBuilder } from '../utils/cli'
-import { print, printBuilderTransaction, printUnderscored, printValidation } from '../utils/print'
-import { validateName } from '../utils/helpers'
-import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION } from '../utils/constant'
+  Crypto, SCHEMA, TxBuilder, TxBuilderHelper, verifyTransaction, Node, getDefaultPointerKey,
+} from '@aeternity/aepp-sdk';
+import { initOfflineTxBuilder, initTxBuilder } from '../utils/cli';
+import {
+  print, printBuilderTransaction, printUnderscored, printValidation,
+} from '../utils/print';
+import { validateName } from '../utils/helpers';
+import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION } from '../utils/constant';
 
-const { TX_TYPE } = SCHEMA
+const { TX_TYPE } = SCHEMA;
 
 // ## Build `spend` transaction
-export async function spend (senderId, recipientId, amount, nonce, options) {
-  let { ttl, json, fee, payload } = options
-  ttl = parseInt(ttl)
-  nonce = parseInt(nonce)
+export async function spend(senderId, recipientId, amount, nonce, options) {
+  let {
+    ttl, json, fee, payload,
+  } = options;
+  ttl = parseInt(ttl);
+  nonce = parseInt(nonce);
   // Initialize `Ae`
-  const txBuilder = initOfflineTxBuilder()
+  const txBuilder = initOfflineTxBuilder();
   // Build params
   const params = {
     senderId,
@@ -43,81 +47,85 @@ export async function spend (senderId, recipientId, amount, nonce, options) {
     ttl,
     nonce,
     fee,
-    payload
-  }
+    payload,
+  };
   // calculate fee
-  fee = txBuilder.calculateFee(fee, TX_TYPE.spend, { params })
+  fee = txBuilder.calculateFee(fee, TX_TYPE.spend, { params });
   // Build `spend` transaction
-  const tx = txBuilder.buildTx({ ...params, fee }, TX_TYPE.spend)
+  const tx = txBuilder.buildTx({ ...params, fee }, TX_TYPE.spend);
   // Print Result
   json
     ? print({ tx: tx.tx, params: tx.txObject })
-    : printBuilderTransaction(tx, TX_TYPE.spend)
+    : printBuilderTransaction(tx, TX_TYPE.spend);
 }
 
 // ## Build `namePreClaim` transaction
-export async function namePreClaim (accountId, domain, nonce, options) {
-  let { ttl, json, fee } = options
+export async function namePreClaim(accountId, domain, nonce, options) {
+  let { ttl, json, fee } = options;
 
   // Validate `name`(check if `name` end on `.chain`)
-  validateName(domain)
+  validateName(domain);
   // Initialize `Ae`
-  const txBuilder = initOfflineTxBuilder()
+  const txBuilder = initOfflineTxBuilder();
 
   // Generate `salt` and `commitmentId` and build `name` hash
-  const _salt = Crypto.salt()
-  const commitmentId = await TxBuilderHelper.commitmentHash(domain, _salt)
+  const _salt = Crypto.salt();
+  const commitmentId = await TxBuilderHelper.commitmentHash(domain, _salt);
 
   const params = {
     accountId,
     commitmentId,
     ttl,
-    nonce
-  }
-  fee = txBuilder.calculateFee(fee, TX_TYPE.namePreClaim, { params })
+    nonce,
+  };
+  fee = txBuilder.calculateFee(fee, TX_TYPE.namePreClaim, { params });
   // Create `preclaim` transaction
-  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.namePreClaim)
+  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.namePreClaim);
 
   json
     ? print({ tx, txObject, salt: _salt })
-    : printBuilderTransaction({ tx, txObject: { ...txObject, salt: _salt } }, TX_TYPE.namePreClaim)
+    : printBuilderTransaction({ tx, txObject: { ...txObject, salt: _salt } }, TX_TYPE.namePreClaim);
 }
 
 // ## Build `nameClaim` transaction
-export async function nameClaim (accountId, nameSalt, domain, nonce, options) {
-  const vsn = 2
-  let { ttl, json, fee, nameFee } = options
-  const nameHash = `nm_${Crypto.encodeBase58Check(Buffer.from(domain))}`
+export async function nameClaim(accountId, nameSalt, domain, nonce, options) {
+  const vsn = 2;
+  let {
+    ttl, json, fee, nameFee,
+  } = options;
+  const nameHash = `nm_${Crypto.encodeBase58Check(Buffer.from(domain))}`;
 
   // Validate `name`(check if `name` end on `.chain`)
-  validateName(domain)
+  validateName(domain);
   // Initialize `Ae`
-  const txBuilder = initOfflineTxBuilder()
-  nameFee = nameFee || TxBuilderHelper.getMinimumNameFee(domain)
+  const txBuilder = initOfflineTxBuilder();
+  nameFee = nameFee || TxBuilderHelper.getMinimumNameFee(domain);
   const params = {
     nameFee,
     accountId,
     nameSalt,
     name: nameHash,
     ttl,
-    nonce
-  }
-  fee = txBuilder.calculateFee(fee, TX_TYPE.nameClaim, { params, vsn })
+    nonce,
+  };
+  fee = txBuilder.calculateFee(fee, TX_TYPE.nameClaim, { params, vsn });
   // Build `claim` transaction's
-  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameClaim, { vsn })
+  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameClaim, { vsn });
 
   json
     ? print({ tx, txObject })
-    : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameClaim)
+    : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameClaim);
 }
 
 // ## Build `nameUpdate` transaction
-export async function nameUpdate (accountId, nameId, nonce, pointers, options) {
-  let { ttl, json, fee, nameTtl, clientTtl } = options
+export async function nameUpdate(accountId, nameId, nonce, pointers, options) {
+  let {
+    ttl, json, fee, nameTtl, clientTtl,
+  } = options;
   // Initialize `Ae`
-  const txBuilder = initOfflineTxBuilder()
+  const txBuilder = initOfflineTxBuilder();
   // Create `update` transaction
-  pointers = pointers.map(id => Object.assign({}, { id, key: getDefaultPointerKey(id) }))
+  pointers = pointers.map((id) => ({ id, key: getDefaultPointerKey(id) }));
   const params = {
     nameId,
     accountId,
@@ -125,65 +133,65 @@ export async function nameUpdate (accountId, nameId, nonce, pointers, options) {
     pointers,
     clientTtl,
     ttl,
-    nonce
-  }
-  fee = txBuilder.calculateFee(fee, TX_TYPE.nameUpdate, { params })
+    nonce,
+  };
+  fee = txBuilder.calculateFee(fee, TX_TYPE.nameUpdate, { params });
   // Build `claim` transaction's
-  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameUpdate)
+  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameUpdate);
 
   json
     ? print({ tx, txObject })
-    : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameUpdate)
+    : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameUpdate);
 }
 
 // ## Build `nameTransfer` transaction
-export async function nameTransfer (accountId, recipientId, nameId, nonce, options) {
-  let { ttl, json, fee } = options
+export async function nameTransfer(accountId, recipientId, nameId, nonce, options) {
+  let { ttl, json, fee } = options;
   // Initialize `Ae`
-  const txBuilder = initOfflineTxBuilder()
+  const txBuilder = initOfflineTxBuilder();
   // Create `transfer` transaction
   const params = {
     accountId,
     recipientId,
     nameId,
     ttl,
-    nonce
-  }
-  fee = txBuilder.calculateFee(fee, TX_TYPE.nameTransfer, { params })
+    nonce,
+  };
+  fee = txBuilder.calculateFee(fee, TX_TYPE.nameTransfer, { params });
   // Build `claim` transaction's
-  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameTransfer)
+  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameTransfer);
 
   json
     ? print({ tx, txObject })
-    : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameTransfer)
+    : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameTransfer);
 }
 
 // ## Build `nameRevoke` transaction
-export async function nameRevoke (accountId, nameId, nonce, options) {
-  let { ttl, json, fee } = options
+export async function nameRevoke(accountId, nameId, nonce, options) {
+  let { ttl, json, fee } = options;
   // Initialize `Ae`
-  const txBuilder = initOfflineTxBuilder()
+  const txBuilder = initOfflineTxBuilder();
   // Create `transfer` transaction
   const params = {
     accountId,
     nameId,
     ttl,
-    nonce
-  }
-  fee = txBuilder.calculateFee(fee, TX_TYPE.nameRevoke, { params })
+    nonce,
+  };
+  fee = txBuilder.calculateFee(fee, TX_TYPE.nameRevoke, { params });
   // Build `claim` transaction's
-  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameRevoke)
+  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.nameRevoke);
 
   json
     ? print({ tx, txObject })
-    : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameRevoke)
+    : printBuilderTransaction({ tx, txObject }, TX_TYPE.nameRevoke);
 }
 
 // ## Build `contractDeploy` transaction
-export async function contractDeploy (ownerId, contractByteCode, initCallData, nonce, options) {
-  const { json } = options
+export async function contractDeploy(ownerId, contractByteCode, initCallData, nonce, options) {
+  const { json } = options;
   // Initialize `Ae`
-  const txBuilder = await initTxBuilder(options)
+  const txBuilder = await initTxBuilder(options);
   // Build `deploy` transaction's
   // Create `contract-deploy` transaction
   const { tx, contractId, txObject } = await txBuilder.contractCreateTx({
@@ -191,45 +199,47 @@ export async function contractDeploy (ownerId, contractByteCode, initCallData, n
     code: contractByteCode,
     ownerId,
     nonce: +nonce, // TODO: remove after fixing https://github.com/aeternity/aepp-sdk-js/issues/1370
-    callData: initCallData
-  })
+    callData: initCallData,
+  });
 
   if (json) {
-    print({ tx, contractId, txObject })
+    print({ tx, contractId, txObject });
   } else {
-    printUnderscored('Unsigned Contract Deploy TX', tx)
-    printUnderscored('Contract ID', contractId)
+    printUnderscored('Unsigned Contract Deploy TX', tx);
+    printUnderscored('Contract ID', contractId);
   }
 }
 
 // ## Build `contractCall` transaction
-export async function contractCall (callerId, contractId, callData, nonce, options) {
-  const { json } = options
+export async function contractCall(callerId, contractId, callData, nonce, options) {
+  const { json } = options;
   // Build `call` transaction's
   // Initialize `Ae`
-  const txBuilder = await initTxBuilder(options)
+  const txBuilder = await initTxBuilder(options);
   // Create `contract-call` transaction
   const tx = await txBuilder.contractCallTx({
     ...options,
     callerId,
     nonce,
     callData,
-    contractId
-  })
+    contractId,
+  });
 
   json
     ? print({ tx })
-    : printUnderscored('Unsigned Contract Call TX', tx)
+    : printUnderscored('Unsigned Contract Call TX', tx);
 }
 
 // ## Build `oracleRegister` transaction
-export async function oracleRegister (accountId, queryFormat, responseFormat, nonce, options) {
-  let { ttl, json, fee, queryFee, oracleTtl } = options
-  queryFee = parseInt(queryFee)
-  oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl))
-  nonce = parseInt(nonce)
+export async function oracleRegister(accountId, queryFormat, responseFormat, nonce, options) {
+  let {
+    ttl, json, fee, queryFee, oracleTtl,
+  } = options;
+  queryFee = parseInt(queryFee);
+  oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl));
+  nonce = parseInt(nonce);
 
-  const txBuilder = initOfflineTxBuilder()
+  const txBuilder = initOfflineTxBuilder();
   // Create `transfer` transaction
   const params = {
     accountId,
@@ -240,25 +250,27 @@ export async function oracleRegister (accountId, queryFormat, responseFormat, no
     queryFee,
     queryFormat,
     responseFormat,
-    abiVersion: ORACLE_VM_VERSION
-  }
-  fee = txBuilder.calculateFee(fee, TX_TYPE.oracleRegister, { params })
+    abiVersion: ORACLE_VM_VERSION,
+  };
+  fee = txBuilder.calculateFee(fee, TX_TYPE.oracleRegister, { params });
   // Build `claim` transaction's
-  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleRegister)
+  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleRegister);
   json
     ? print({ tx, txObject })
-    : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleRegister)
+    : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleRegister);
 }
 
 // ## Build `oraclePostQuery` transaction
-export async function oraclePostQuery (senderId, oracleId, query, nonce, options) {
-  let { ttl, json, fee, queryFee, queryTtl, responseTtl } = options
-  queryFee = parseInt(queryFee)
-  queryTtl = BUILD_ORACLE_TTL(parseInt(queryTtl))
-  responseTtl = BUILD_ORACLE_TTL(parseInt(responseTtl))
-  nonce = parseInt(nonce)
+export async function oraclePostQuery(senderId, oracleId, query, nonce, options) {
+  let {
+    ttl, json, fee, queryFee, queryTtl, responseTtl,
+  } = options;
+  queryFee = parseInt(queryFee);
+  queryTtl = BUILD_ORACLE_TTL(parseInt(queryTtl));
+  responseTtl = BUILD_ORACLE_TTL(parseInt(responseTtl));
+  nonce = parseInt(nonce);
 
-  const txBuilder = initOfflineTxBuilder()
+  const txBuilder = initOfflineTxBuilder();
   // Create `transfer` transaction
   const params = {
     senderId,
@@ -269,24 +281,24 @@ export async function oraclePostQuery (senderId, oracleId, query, nonce, options
     query,
     queryFee,
     queryTtl,
-    responseTtl
-  }
-  fee = txBuilder.calculateFee(fee, TX_TYPE.oracleQuery, { params })
+    responseTtl,
+  };
+  fee = txBuilder.calculateFee(fee, TX_TYPE.oracleQuery, { params });
   // Build `claim` transaction's
-  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleQuery)
+  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleQuery);
 
   json
     ? print({ tx, txObject })
-    : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleQuery)
+    : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleQuery);
 }
 
 // ## Build `oracleExtend` transaction
-export async function oracleExtend (callerId, oracleId, oracleTtl, nonce, options) {
-  let { ttl, json, fee } = options
-  oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl))
-  nonce = parseInt(nonce)
+export async function oracleExtend(callerId, oracleId, oracleTtl, nonce, options) {
+  let { ttl, json, fee } = options;
+  oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl));
+  nonce = parseInt(nonce);
 
-  const txBuilder = initOfflineTxBuilder()
+  const txBuilder = initOfflineTxBuilder();
   // Create `transfer` transaction
   const params = {
     callerId,
@@ -294,24 +306,26 @@ export async function oracleExtend (callerId, oracleId, oracleTtl, nonce, option
     oracleTtl,
     fee,
     nonce,
-    ttl
-  }
-  fee = txBuilder.calculateFee(fee, TX_TYPE.oracleExtend, { params })
+    ttl,
+  };
+  fee = txBuilder.calculateFee(fee, TX_TYPE.oracleExtend, { params });
   // Build `claim` transaction's
-  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleExtend)
+  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleExtend);
 
   json
     ? print({ tx, txObject })
-    : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleExtend)
+    : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleExtend);
 }
 
 // ## Build `oracleRespond` transaction
-export async function oracleRespond (callerId, oracleId, queryId, response, nonce, options) {
-  let { ttl, json, fee, responseTtl } = options
-  responseTtl = BUILD_ORACLE_TTL(parseInt(responseTtl))
-  nonce = parseInt(nonce)
+export async function oracleRespond(callerId, oracleId, queryId, response, nonce, options) {
+  let {
+    ttl, json, fee, responseTtl,
+  } = options;
+  responseTtl = BUILD_ORACLE_TTL(parseInt(responseTtl));
+  nonce = parseInt(nonce);
 
-  const txBuilder = initOfflineTxBuilder()
+  const txBuilder = initOfflineTxBuilder();
   // Create `transfer` transaction
   const params = {
     oracleId,
@@ -321,29 +335,29 @@ export async function oracleRespond (callerId, oracleId, queryId, response, nonc
     response,
     nonce,
     fee,
-    ttl
-  }
-  fee = txBuilder.calculateFee(fee, TX_TYPE.oracleResponse, { params })
+    ttl,
+  };
+  fee = txBuilder.calculateFee(fee, TX_TYPE.oracleResponse, { params });
   // Build `claim` transaction's
-  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleResponse)
+  const { tx, txObject } = txBuilder.buildTx({ ...params, fee }, TX_TYPE.oracleResponse);
 
   json
     ? print({ tx, txObject })
-    : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleResponse)
+    : printBuilderTransaction({ tx, txObject }, TX_TYPE.oracleResponse);
 }
 
 // ## Verify 'transaction'
-export async function verify (transaction, options) {
-  const { json } = options
+export async function verify(transaction, options) {
+  const { json } = options;
   // Validate input
-  TxBuilderHelper.decode(transaction, 'tx')
+  TxBuilderHelper.decode(transaction, 'tx');
   // Call `getStatus` API and print it
-  const validation = await verifyTransaction(transaction, await Node(options))
-  const { tx, txType: type } = TxBuilder.unpackTx(transaction)
+  const validation = await verifyTransaction(transaction, await Node(options));
+  const { tx, txType: type } = TxBuilder.unpackTx(transaction);
   if (json) {
-    print({ validation, tx, type })
-    return
+    print({ validation, tx, type });
+    return;
   }
-  printValidation({ validation, transaction })
-  if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓')
+  printValidation({ validation, transaction });
+  if (!validation.length) print(' ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ TX VALID ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓');
 }

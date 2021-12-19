@@ -18,18 +18,18 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 // We'll use `commander` for parsing options
-import { Command } from 'commander'
-import { NODE_URL } from '../utils/constant'
-import { inspect } from '../actions/inspect'
+import { Command } from 'commander';
+import { NODE_URL } from '../utils/constant';
+import { inspect } from '../actions/inspect';
 
 export default function () {
-  const program = new Command().name('aecli inspect')
+  const program = new Command().name('aecli inspect');
 
   // ## Initialize `options`
   program
     .option('-u --url [hostname]', 'Node to connect to', NODE_URL)
     .option('-f --force', 'Ignore node version compatibility check')
-    .option('--json', 'Print result in json format')
+    .option('--json', 'Print result in json format');
 
   // ## Initialize `inspect` command
   //
@@ -49,7 +49,7 @@ export default function () {
   program
     .arguments('<hash>')
     .description('Hash or Name to inspect (eg: ak_..., mk_..., name.chain)')
-    .action(async (hash, cmd) => inspect(hash, cmd))
+    .action(async (hash, cmd) => inspect(hash, cmd));
 
-  return program
+  return program;
 }

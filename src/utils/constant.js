@@ -28,25 +28,25 @@ export const HASH_TYPES = {
   account: 'ak',
   oracle: 'ok',
   oracleQuery: 'oq',
-  stateHash: 'bs'
-}
+  stateHash: 'bs',
+};
 
 // ## CONNECTION
-export const NODE_URL = 'https://testnet.aeternity.io'
-export const COMPILER_URL = 'https://compiler.aepps.com'
+export const NODE_URL = 'https://testnet.aeternity.io';
+export const COMPILER_URL = 'https://compiler.aepps.com';
 
 // ## CHAIN
-export const PLAY_LIMIT = 10
+export const PLAY_LIMIT = 10;
 
 // ## CONTRACT
-export const GAS = 1600000 - 21000 // MAX GAS
-export const DEPOSIT = 0
-export const ORACLE_VM_VERSION = 0
-export const AMOUNT = 0
+export const GAS = 1600000 - 21000; // MAX GAS
+export const DEPOSIT = 0;
+export const ORACLE_VM_VERSION = 0;
+export const AMOUNT = 0;
 
 // ## ORACLE
-export const BUILD_ORACLE_TTL = (ttl) => ({ type: 'delta', value: ttl })
-export const RESPONSE_TTL = 10
+export const BUILD_ORACLE_TTL = (ttl) => ({ type: 'delta', value: ttl });
+export const RESPONSE_TTL = 10;
 
 // ## DEFAULT OUTPUT FORMAT
-export const OUTPUT_JSON = false
+export const OUTPUT_JSON = false;

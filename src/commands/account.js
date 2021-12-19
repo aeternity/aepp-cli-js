@@ -18,21 +18,21 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 // We'll use `commander` for parsing options
-import { Command } from 'commander'
-import { AmountFormatter, SCHEMA } from '@aeternity/aepp-sdk'
-import { NODE_URL } from '../utils/constant'
-import { getCmdFromArguments } from '../utils/cli'
-import * as Account from '../actions/account'
+import { Command } from 'commander';
+import { AmountFormatter, SCHEMA } from '@aeternity/aepp-sdk';
+import { NODE_URL } from '../utils/constant';
+import { getCmdFromArguments } from '../utils/cli';
+import * as Account from '../actions/account';
 
 export default function () {
-  const program = new Command().name('aecli account')
+  const program = new Command().name('aecli account');
 
   // ## Initialize `options`
   program
     .option('-u, --url [hostname]', 'Node to connect to', NODE_URL)
     .option('-P, --password [password]', 'Wallet Password')
     .option('-f --force', 'Ignore epoch version compatibility check')
-    .option('--json', 'Print result in json format')
+    .option('--json', 'Print result in json format');
 
   // ## Initialize `spend` command
   //
@@ -53,7 +53,7 @@ export default function () {
     .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
     .option('-D, --denomination [denomination]', 'Denomination of amount', AmountFormatter.AE_AMOUNT_FORMATS.AETTOS)
-    .action(async (walletPath, receiverIdOrName, amount, ...args) => await Account.spend(walletPath, receiverIdOrName, amount, getCmdFromArguments(args)))
+    .action(async (walletPath, receiverIdOrName, amount, ...args) => await Account.spend(walletPath, receiverIdOrName, amount, getCmdFromArguments(args)));
 
   // ## Initialize `transfer` command
   //
@@ -67,13 +67,13 @@ export default function () {
   program
     .command('transfer <wallet_path>')
     .argument('<receiver>', 'Address or name of recipient account')
-    .argument('<fraction>', 'Fraction of balance to spend (between 0 and 1)', v => +v)
+    .argument('<fraction>', 'Fraction of balance to spend (between 0 and 1)', (v) => +v)
     .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
     .option('--payload [payload]', 'Transaction payload.', '')
     .option('-F, --fee [fee]', 'Spend transaction fee.')
     .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-    .action(async (walletPath, receiver, percentage, ...args) => await Account.transferFunds(walletPath, receiver, percentage, getCmdFromArguments(args)))
+    .action(async (walletPath, receiver, percentage, ...args) => await Account.transferFunds(walletPath, receiver, percentage, getCmdFromArguments(args)));
 
   // ## Initialize `sign` command
   //
@@ -84,7 +84,7 @@ export default function () {
     .command('sign <wallet_path> <tx>')
     .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
     .description('Create a transaction to another wallet')
-    .action(async (walletPath, tx, ...args) => await Account.sign(walletPath, tx, getCmdFromArguments(args)))
+    .action(async (walletPath, tx, ...args) => await Account.sign(walletPath, tx, getCmdFromArguments(args)));
 
   // ## Initialize `sign-message` command
   //
@@ -95,7 +95,7 @@ export default function () {
     .command('sign-message <wallet_path> [data...]')
     .option('--filePath [path]', 'Specify the path to the file for signing(ignore command message argument and use file instead)')
     .description('Create a transaction to another wallet')
-    .action(async (walletPath, data, ...args) => await Account.signMessage(walletPath, data, getCmdFromArguments(args)))
+    .action(async (walletPath, data, ...args) => await Account.signMessage(walletPath, data, getCmdFromArguments(args)));
 
   // ## Initialize `verify-message` command
   //
@@ -106,7 +106,7 @@ export default function () {
     .command('verify-message <wallet_path> <hexSignature> [data...]')
     .option('--filePath [path]', 'Specify the path to the file(ignore comm and message argument and use file instead)')
     .description('Create a transaction to another wallet')
-    .action(async (walletPath, hexSignature, data, ...args) => await Account.verifyMessage(walletPath, hexSignature, data, getCmdFromArguments(args)))
+    .action(async (walletPath, hexSignature, data, ...args) => await Account.verifyMessage(walletPath, hexSignature, data, getCmdFromArguments(args)));
 
   // ## Initialize `balance` command
   //
@@ -118,7 +118,7 @@ export default function () {
     .option('--height [height]', 'Specific block height')
     .option('--hash [hash]', 'Specific block hash')
     .description('Get wallet balance')
-    .action(async (walletPath, ...args) => await Account.getBalance(walletPath, getCmdFromArguments(args)))
+    .action(async (walletPath, ...args) => await Account.getBalance(walletPath, getCmdFromArguments(args)));
 
   // ## Initialize `address` command
   //
@@ -132,7 +132,7 @@ export default function () {
     .option('--privateKey', 'Print private key')
     .option('--forcePrompt', 'Force prompting')
     .description('Get wallet address')
-    .action(async (walletPath, ...args) => await Account.getAddress(walletPath, getCmdFromArguments(args)))
+    .action(async (walletPath, ...args) => await Account.getAddress(walletPath, getCmdFromArguments(args)));
 
   // ## Initialize `create` command
   //
@@ -149,7 +149,7 @@ export default function () {
     .option('-O, --output [output]', 'Output directory', '.')
     .option('--overwrite', 'Overwrite if exist')
     .description('Create a secure wallet')
-    .action(async (name, ...args) => await Account.createSecureWallet(name, getCmdFromArguments(args)))
+    .action(async (name, ...args) => await Account.createSecureWallet(name, getCmdFromArguments(args)));
 
   // ## Initialize `save` command
   //
@@ -166,7 +166,7 @@ export default function () {
     .option('-O, --output [output]', 'Output directory', '.')
     .option('--overwrite', 'Overwrite if exist')
     .description('Save a private keys string to a password protected file wallet')
-    .action(async (name, priv, ...args) => await Account.createSecureWalletByPrivKey(name, priv, getCmdFromArguments(args)))
+    .action(async (name, priv, ...args) => await Account.createSecureWalletByPrivKey(name, priv, getCmdFromArguments(args)));
 
   // ## Initialize `nonce` command
   //
@@ -178,7 +178,7 @@ export default function () {
   program
     .command('nonce <wallet_path>')
     .description('Get account nonce')
-    .action(async (walletPath, ...args) => await Account.getAccountNonce(walletPath, getCmdFromArguments(args)))
+    .action(async (walletPath, ...args) => await Account.getAccountNonce(walletPath, getCmdFromArguments(args)));
 
   // ## Initialize `generateKeyPairs` command
   //
@@ -189,7 +189,7 @@ export default function () {
     .command('generate <count>')
     .option('--forcePrompt', 'Force prompting')
     .description('Generate keyPairs')
-    .action(async (count, ...args) => await Account.generateKeyPairs(count, getCmdFromArguments(args)))
+    .action(async (count, ...args) => await Account.generateKeyPairs(count, getCmdFromArguments(args)));
 
-  return program
+  return program;
 }

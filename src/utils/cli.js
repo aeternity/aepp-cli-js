@@ -16,64 +16,72 @@
 *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 *  PERFORMANCE OF THIS SOFTWARE.
 */
-import { Universal, Node, Transaction, TxBuilder, ChainNode, MemoryAccount, ContractCompilerAPI } from '@aeternity/aepp-sdk'
-import { getWalletByPathAndDecrypt } from './account'
+import {
+  Universal, Node, Transaction, TxBuilder, ChainNode, MemoryAccount, ContractCompilerAPI,
+} from '@aeternity/aepp-sdk';
+import { getWalletByPathAndDecrypt } from './account';
 
 // ## Merge options with parent options.
-export function getCmdFromArguments ([options, commander]) {
-  return { ...options, ...commander.parent.opts() }
+export function getCmdFromArguments([options, commander]) {
+  return { ...options, ...commander.parent.opts() };
 }
 
 // Create `Universal` client
-async function initClient ({ url, keypair, compilerUrl, force: ignoreVersion, native: nativeMode = true, networkId, accounts = [] }) {
+async function initClient({
+  url, keypair, compilerUrl, force: ignoreVersion, native: nativeMode = true, networkId, accounts = [],
+}) {
   return Universal({
     nodes: [{ name: 'test-node', instance: await Node({ url, ignoreVersion }) }],
     compilerUrl,
     nativeMode,
     networkId,
-    accounts: [...keypair ? [MemoryAccount({ keypair })] : [], ...accounts]
-  })
+    accounts: [...keypair ? [MemoryAccount({ keypair })] : [], ...accounts],
+  });
 }
 // Create `TxBuilder` client
-export async function initTxBuilder ({ url, force: ignoreVersion, native: nativeMode = true, showWarning = true }) {
+export async function initTxBuilder({
+  url, force: ignoreVersion, native: nativeMode = true, showWarning = true,
+}) {
   return Transaction({
     nodes: [{ name: 'test-node', instance: await Node({ url, ignoreVersion }) }],
     nativeMode,
     ignoreVersion,
-    showWarning
-  })
+    showWarning,
+  });
 }
 // Create `OfflineTxBuilder` client
-export function initOfflineTxBuilder () {
-  return TxBuilder
+export function initOfflineTxBuilder() {
+  return TxBuilder;
 }
 // Create `ChainNode` client
-export async function initChain ({ url, force: ignoreVersion }) {
+export async function initChain({ url, force: ignoreVersion }) {
   return ChainNode({
     nodes: [{ name: 'test-node', instance: await Node({ url, ignoreVersion }) }],
-    ignoreVersion
-  })
+    ignoreVersion,
+  });
 }
 
-export async function initCompiler ({ compilerUrl, ignoreVersion }) {
-  return ContractCompilerAPI({ compilerUrl, ignoreVersion })
+export async function initCompiler({ compilerUrl, ignoreVersion }) {
+  return ContractCompilerAPI({ compilerUrl, ignoreVersion });
 }
 
 // ## Get account files and decrypt it using password
 // After that create `Universal` client using this `keyPair`
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
-export async function initClientByWalletFile (walletPath, options, returnKeyPair = false) {
-  const { password, accountOnly = false, networkId, debug = true } = options
+export async function initClientByWalletFile(walletPath, options, returnKeyPair = false) {
+  const {
+    password, accountOnly = false, networkId, debug = true,
+  } = options;
 
-  const keypair = await getWalletByPathAndDecrypt(walletPath, password)
-  const accounts = [MemoryAccount({ ...options, keypair, networkId })]
+  const keypair = await getWalletByPathAndDecrypt(walletPath, password);
+  const accounts = [MemoryAccount({ ...options, keypair, networkId })];
 
   const client = accountOnly
     ? accounts[0]
-    : await initClient({ ...options, accounts, debug })
+    : await initClient({ ...options, accounts, debug });
   if (returnKeyPair) {
-    return { client, keypair }
+    return { client, keypair };
   }
-  return client
+  return client;
 }
