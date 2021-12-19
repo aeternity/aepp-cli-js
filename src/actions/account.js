@@ -21,10 +21,9 @@
 import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
 
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
-import { HASH_TYPES } from '../utils/constant'
 import { initClientByWalletFile } from '../utils/cli'
 import { print, printTransaction, printUnderscored } from '../utils/print'
-import { checkPref, readFile } from '../utils/helpers'
+import { readFile } from '../utils/helpers'
 import { PROMPT_TYPE, prompt } from '../utils/prompt'
 
 // ## `Sign message` function
@@ -120,7 +119,6 @@ export async function spend (walletPath, receiverNameOrAddress, amount, options)
 // this function allow you to `send` % of balance to another `account`
 export async function transferFunds (walletPath, receiver, fraction, options) {
   const { ttl, json, nonce, fee, payload = '' } = options
-  checkPref(receiver, HASH_TYPES.account)
   // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options)
 
