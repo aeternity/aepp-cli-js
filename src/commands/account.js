@@ -64,7 +64,6 @@ export default function () {
   // Example: `aecli account transfer ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 0.5 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
   program
     .command('transfer <wallet_path> <receiver> <percentage>')
-    .option('--excludeFee', 'Exclude fee from amount')
     .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
     .option('--payload [payload]', 'Transaction payload.', '')
     .option('-F, --fee [fee]', 'Spend transaction fee.')
