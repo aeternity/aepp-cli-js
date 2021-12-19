@@ -127,7 +127,7 @@ export async function extendName (walletPath, domain, nameTtl, options) {
   }
 
   // Create `updateName` transaction
-  const updateTx = await client.aensUpdate(domain, [], { ttl, fee, nonce, waitMined, nameTtl, extendPointers: true })
+  const updateTx = await client.aensUpdate(domain, {}, { ttl, fee, nonce, waitMined, nameTtl, extendPointers: true })
   if (waitMined) {
     printTransaction(
       updateTx,
@@ -222,10 +222,8 @@ export async function nameBid (walletPath, domain, nameFee, options) {
 
 export async function fullClaim (walletPath, domain, options) {
   let { ttl, fee, nonce, nameFee, json, nameTtl, clientTtl } = options
-  // Validate `name`
   validateName(domain)
-  const [aensName, namespace] = domain.split('.')
-  if (namespace === 'chain' && aensName.length < 13) throw new Error('Full name claiming works only with name longer then 12 symbol(Not trigger auction)')
+  if (domain.split('.')[0] < 13) throw new Error('Full name claiming works only with name longer then 12 symbol (not trigger auction)')
 
   // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options)
@@ -244,8 +242,10 @@ export async function fullClaim (walletPath, domain, options) {
   nonce += 1
   const claim = await preclaim.claim({ nonce, ttl, fee, nameFee })
   nonce += 1
-  const updateTx = await claim.update([await client.address()], { nonce, ttl, fee, nameTtl, clientTtl })
-  nonce += 1
+  const updateTx = await claim.update(
+    { account_pubkey: await client.address() },
+    { nonce, ttl, fee, nameTtl, clientTtl }
+  )
 
   printTransaction(
     updateTx,

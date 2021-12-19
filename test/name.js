@@ -17,6 +17,7 @@
 
 import { Crypto } from '@aeternity/aepp-sdk'
 import { after, before, describe, it } from 'mocha'
+import { expect } from 'chai'
 import { executeProgram, randomName, getSdk, WALLET_NAME } from './index'
 import nameProgramFactory from '../src/commands/name'
 import inspectProgramFactory from '../src/commands/inspect'
@@ -51,8 +52,8 @@ describe('CLI AENS Module', function () {
     const address = await sdk.address()
 
     updateTx.blockHeight.should.be.gt(0)
-    const isUpdated = !!updateTx.pointers.find(({ id }) => id === address)
-    isUpdated.should.be.equal(true)
+    const pointer = updateTx.pointers.find(({ id }) => id === address)
+    expect(pointer).to.be.eql({ id: address, key: 'account_pubkey' })
   })
 
   it('Full claim with options', async function () {
@@ -76,8 +77,8 @@ describe('CLI AENS Module', function () {
     updateTx.blockHeight.should.be.gt(0)
     updateTx.tx.nameTtl.should.be.equal(50)
     updateTx.tx.clientTtl.should.be.equal(50)
-    const isUpdated = !!updateTx.pointers.find(({ id }) => id === address)
-    isUpdated.should.be.equal(true)
+    const pointer = updateTx.pointers.find(({ id }) => id === address)
+    expect(pointer).to.be.eql({ id: address, key: 'account_pubkey' })
   })
 
   it('Pre Claim Name', async () => {
