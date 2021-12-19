@@ -91,6 +91,14 @@ describe('CLI Account Module', function () {
     receiverBalance.should.equal(AmountFormatter.formatAmount(amount, { denomination: AmountFormatter.AE_AMOUNT_FORMATS.AE }))
   })
 
+  it('Spend fraction of coins to account by name', async () => {
+    const fraction = 0.0001
+    const { publicKey } = Crypto.generateKeyPair()
+    const balanceBefore = await sdk.getBalance(await sdk.address())
+    await executeAccount(['transfer', WALLET_NAME, '--password', 'test', publicKey, fraction])
+    expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * fraction)
+  })
+
   it('Get account nonce', async () => {
     const nonce = await sdk.getAccountNonce(await sdk.address())
     expect((await executeAccount(['nonce', WALLET_NAME, '--password', 'test', '--json'])).nextNonce)
