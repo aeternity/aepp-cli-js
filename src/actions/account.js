@@ -118,14 +118,13 @@ export async function spend (walletPath, receiverNameOrAddress, amount, options)
 
 // ## `Transfer` function
 // this function allow you to `send` % of balance to another `account`
-export async function transferFunds (walletPath, receiver, percentage, options) {
+export async function transferFunds (walletPath, receiver, fraction, options) {
   const { ttl, json, nonce, fee, payload = '' } = options
-  percentage = parseFloat(percentage)
   checkPref(receiver, HASH_TYPES.account)
   // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options)
 
-  let tx = await client.transferFunds(percentage, receiver, { ttl, nonce, payload, fee })
+  let tx = await client.transferFunds(fraction, receiver, { ttl, nonce, payload, fee })
   // if waitMined false
   if (typeof tx !== 'object') {
     tx = await client.tx(tx)
