@@ -56,7 +56,6 @@ export const COMPILER_URL = 'https://compiler.aepps.com'
 
 // ## CHAIN
 export const PLAY_LIMIT = 10
-export const PLAY_INTERVAL = 1000
 
 // ## CONTRACT
 export const GAS = 1600000 - 21000 // MAX GAS
