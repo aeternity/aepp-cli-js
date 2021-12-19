@@ -20,7 +20,8 @@ import fs from 'fs'
 import path from 'path'
 import { Crypto } from '@aeternity/aepp-sdk'
 import { prompt, PROMPT_TYPE } from '../utils/prompt'
-import * as utils from '../utils'
+import { getCmdFromArguments } from '../utils/cli'
+import { generateSecureWallet } from '../utils/account'
 
 // ## Key Extraction (from node nodes)
 async function extractReadableKeys (dir, options) {
@@ -41,7 +42,7 @@ async function extractReadableKeys (dir, options) {
 
 // ## Key Pair Generation
 async function generateKeyPair (name, { output, password } = {}) {
-  await utils.account.generateSecureWallet(name, { output, password })
+  await generateSecureWallet(name, { output, password })
 }
 
 // ## Transaction Deserialization
@@ -112,14 +113,14 @@ export default function () {
     .command('decrypt <directory>')
     .description('Decrypts public and private key to readable formats for testing purposes')
     .option('-i, --input [directory]', 'Directory where to look for keys', '.')
-    .action(async (dir, ...args) => await extractReadableKeys(dir, utils.cli.getCmdFromArguments(args)))
+    .action(async (dir, ...args) => await extractReadableKeys(dir, getCmdFromArguments(args)))
 
   program
     .command('genkey <keyname>')
     .description('Generate keypair')
     .option('-o, --output [directory]', 'Output directory for the keys', '.')
     .option('-p, --password [directory]', 'Password for keypair', '.')
-    .action(async (keyname, ...args) => await generateKeyPair(keyname, utils.cli.getCmdFromArguments(args)))
+    .action(async (keyname, ...args) => await generateKeyPair(keyname, getCmdFromArguments(args)))
 
   program
     .command('sign <tx> [privkey]')

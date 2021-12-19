@@ -19,7 +19,7 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander'
-import * as utils from '../utils'
+import { NODE_URL } from '../utils/constant'
 import { inspect } from '../actions/inspect'
 
 export default function () {
@@ -27,7 +27,7 @@ export default function () {
 
   // ## Initialize `options`
   program
-    .option('-u --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+    .option('-u --url [hostname]', 'Node to connect to', NODE_URL)
     .option('-f --force', 'Ignore node version compatibility check')
     .option('--json', 'Print result in json format')
 
