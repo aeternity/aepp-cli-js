@@ -26,20 +26,11 @@ import { print, printTransaction, printUnderscored } from '../utils/print';
 const readFile = (filename) => fs.readFileSync(path.resolve(process.cwd(), filename), 'utf-8');
 
 // ## Function which compile your `source` code
-export async function compile(file, options) {
-  const { json } = options;
-  const code = readFile(file);
-  if (!code) throw new Error('Contract file not found');
-
+export async function compile(filename, options) {
   const sdk = await initClient(options);
-
-  // Call `node` API which return `compiled code`
-  const contract = await sdk.compileContractAPI(code);
-  if (json) {
-    print({ bytecode: contract });
-  } else {
-    print(`Contract bytecode: ${contract}`);
-  }
+  const bytecode = await sdk.compileContractAPI(readFile(filename));
+  if (options.json) print({ bytecode });
+  else print(`Contract bytecode: ${bytecode}`);
 }
 
 function getContractParams({
@@ -143,8 +134,6 @@ export async function call(walletPath, fn, args, options) {
     callStatic, json, top, ttl, gas, nonce,
   } = options;
   const sdk = await initClientByWalletFile(walletPath, options);
-
-  // Call static or call
   const contract = await sdk.getContractInstance(getContractParams(options));
   const callResult = await contract.call(fn, args, {
     ttl: parseInt(ttl),
@@ -153,19 +142,14 @@ export async function call(walletPath, fn, args, options) {
     callStatic,
     top,
   });
-  // The execution result, if successful, will be an FATE-encoded result
-  // value. Once type decoding will be implemented in the SDK, this value will
-  // not be a hexadecimal string, anymore.
   if (json) print(callResult);
   else {
-    if (callResult && callResult.hash) printTransaction(await sdk.tx(callResult.hash), json);
-    print('----------------------Transaction info-----------------------');
+    if (callResult.hash) printTransaction(await sdk.tx(callResult.hash), json);
+    print('----------------------Call info-----------------------');
     printUnderscored('Contract address', contract.deployInfo.address);
-    printUnderscored('Gas price', callResult?.result?.gasPrice);
-    printUnderscored('Gas used', callResult?.result?.gasUsed);
-    printUnderscored('Return value (encoded)', callResult?.result?.returnValue);
-    // Decode result
-    const decoded = await callResult.decode();
-    printUnderscored('Return value (decoded)', decoded);
+    printUnderscored('Gas price', callResult.result?.gasPrice);
+    printUnderscored('Gas used', callResult.result?.gasUsed);
+    printUnderscored('Return value (encoded)', callResult.result?.returnValue);
+    printUnderscored('Return value (decoded)', callResult.decodedResult);
   }
 }

@@ -89,26 +89,28 @@ export default () => {
   // You can use this command to execute a function's of contract
   //
   // Example:
-  //    `aecli contract call ./myWalletFile --password testpass sumFunc int 1 2 --descrPath ./contractDescriptorFile.json ` --> Using descriptor file
-  //    `aecli contract call ./myWalletFile --password testpass sumFunc int 1 2 --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 ` --> Using contract address
+  //    `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json ` --> Using descriptor file
+  //    `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 ` --> Using contract address
   //
   // Also you have ability to make `static` call using `--callStatic` flag
   // Example:
-  //    `aecli contract call ./myWalletFile --password testpass sumFunc int 1 2 --descrPath ./contractDescriptorFile.json --callStatic` --> Static call using descriptor
-  //    `aecli contract call ./myWalletFile --password testpass sumFunc int 1 2 --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 --callStatic` --> Static call using contract address
+  //    `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json --callStatic` --> Static call using descriptor
+  //    `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 --callStatic` --> Static call using contract address
   // You can preset gas, nonce and ttl for that call. If not set use default.
-  // Example: `aecli contract call ./myWalletFile --password tstpass sumFunc int 1 2 --descrPath ./contractDescriptorFile.json  --gas 2222222 --nonce 4 --ttl 1243`
+  // Example: `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json --gas 2222222 --nonce 4 --ttl 1243`
   program
-    .command('call <wallet_path> <fn> [args...]')
+    .command('call <wallet_path> <fn>')
+    .addArgument(callArgs)
+    .addOption(descriptorPathOption)
+    .option('--contractAddress [contractAddress]', 'Contract address to call')
+    .addOption(contractSourceFilenameOption)
+    .addOption(contractAciFilenameOption)
     .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
     .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
     .option('-P, --password [password]', 'Wallet Password')
     .option('-G --gas [gas]', 'Amount of gas to call the contract', GAS)
-    .option('-d --descrPath [descrPath]', 'Path to contract descriptor file')
-    .option('-s --callStatic', 'Call static', false)
+    .option('-s --callStatic', 'Call static')
     .option('-t --topHash', 'Hash of block to make call')
-    .option('--contractAddress [contractAddress]', 'Contract address to call')
-    .option('--contractSource [contractSource]', 'Contract source code')
     .option('-F, --fee [fee]', 'Spend transaction fee.')
     .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
