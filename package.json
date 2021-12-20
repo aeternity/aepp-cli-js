@@ -33,13 +33,12 @@
   },
   "scripts": {
     "build": "babel src --out-dir bin --out-file-extension .mjs",
-    "prepare": "npm run build",
     "docs": "scripts/js-to-md.js src/*.js src/commands/*.js src/actions/*.js src/utils/*.js",
     "lint": "commitlint --from 23f6888 && eslint .",
     "test": "mocha --recursive",
     "test:watch": "mocha --recursive --watch",
     "release": "standard-version --skip.tag",
-    "prepublishOnly": "npm run docs"
+    "prepublishOnly": "npm run build && npm run docs"
   },
   "keywords": [
     "CLI",
