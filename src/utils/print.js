@@ -378,18 +378,6 @@ export function printName(name, json) {
   printUnderscored('TTL', name.ttl ?? 0);
 }
 
-// Print `contract_descriptor` file base info
-export function logContractDescriptor(desc, title, json) {
-  if (json) {
-    print(desc);
-    return;
-  }
-  print(title);
-  printUnderscored('Contract address', desc.address);
-  printUnderscored('Transaction hash', desc.transaction);
-  printUnderscored('Deploy descriptor', desc.descPath);
-}
-
 // Print `Buider Transaction`
 export function printBuilderTransaction({ tx, txObject }, type) {
   printUnderscored('Transaction type', type);

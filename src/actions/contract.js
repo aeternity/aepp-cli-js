@@ -22,9 +22,7 @@ import fs from 'fs';
 import path from 'path';
 import { initClient, initClientByWalletFile } from '../utils/cli';
 import { readJSONFile, readFile } from '../utils/helpers';
-import {
-  logContractDescriptor, print, printTransaction, printUnderscored,
-} from '../utils/print';
+import { print, printTransaction, printUnderscored } from '../utils/print';
 
 // ## Function which compile your `source` code
 export async function compile(file, options) {
@@ -140,20 +138,20 @@ export async function deploy(walletPath, contractPath, callData = '', options) {
     });
     // Prepare contract descriptor
     const descPath = `${contractPath.split('/').pop()}.deploy.${ownerId.slice(3)}.json`;
-    const contractDescriptor = {
+    const descriptor = {
       descPath,
       source: contractFile,
       bytecode: code,
       ...deployDescriptor,
     };
-    // Write to file
-    fs.writeFileSync(
-      descPath,
-      JSON.stringify(contractDescriptor),
-    );
-    // Log contract descriptor
+    fs.writeFileSync(descPath, JSON.stringify(descriptor));
     if (json) print({ descPath, ...deployDescriptor });
-    else logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json);
+    else {
+      print('Contract was successfully deployed');
+      printUnderscored('Contract address', descriptor.address);
+      printUnderscored('Transaction hash', descriptor.transaction);
+      printUnderscored('Deploy descriptor', descriptor.descPath);
+    }
   } else {
     await this.handleCallError(result);
   }
