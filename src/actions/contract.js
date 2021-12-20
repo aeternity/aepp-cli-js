@@ -28,14 +28,14 @@ import {
 
 // ## Function which compile your `source` code
 export async function compile(file, options) {
-  const { backend, json } = options;
+  const { json } = options;
   const code = readFile(path.resolve(process.cwd(), file), 'utf-8');
   if (!code) throw new Error('Contract file not found');
 
   const client = await initCompiler(options);
 
   // Call `node` API which return `compiled code`
-  const contract = await client.compileContractAPI(code, { backend });
+  const contract = await client.compileContractAPI(code);
   if (json) {
     print({ bytecode: contract });
   } else {
@@ -45,14 +45,13 @@ export async function compile(file, options) {
 
 // ## Function which compile your `source` code
 export async function encodeData(source, fn, args = [], options) {
-  const { backend } = options;
   const sourceCode = readFile(path.resolve(process.cwd(), source), 'utf-8');
   if (!sourceCode) throw new Error('Contract file not found');
 
   const client = await initCompiler(options);
 
   // Call `node` API which return `compiled code`
-  const callData = await client.contractEncodeCallDataAPI(sourceCode, fn, args, { backend });
+  const callData = await client.contractEncodeCallDataAPI(sourceCode, fn, args);
   if (options.json) {
     print(JSON.stringify({ callData }));
   } else {
@@ -62,9 +61,7 @@ export async function encodeData(source, fn, args = [], options) {
 
 // ## Function which compile your `source` code
 export async function decodeCallData(data, options) {
-  const {
-    sourcePath, code, fn, backend,
-  } = options;
+  const { sourcePath, code, fn } = options;
   let sourceCode;
 
   if (!sourcePath && !code) throw new Error('Contract source(--sourcePath) or contract code(--code) required!');
@@ -78,8 +75,8 @@ export async function decodeCallData(data, options) {
 
   // Call `node` API which return `compiled code`
   const decoded = code
-    ? await client.contractDecodeCallDataByCodeAPI(code, data, backend)
-    : await client.contractDecodeCallDataBySourceAPI(sourceCode, fn, data, { backend });
+    ? await client.contractDecodeCallDataByCodeAPI(code, data)
+    : await client.contractDecodeCallDataBySourceAPI(sourceCode, fn, data);
 
   if (options.json) {
     print(JSON.stringify({ decoded }));
