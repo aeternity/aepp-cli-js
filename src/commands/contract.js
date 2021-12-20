@@ -18,11 +18,23 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 // We'll use `commander` for parsing options
-import { Command } from 'commander';
+import { Argument, Option, Command } from 'commander';
 import { SCHEMA } from '@aeternity/aepp-sdk';
 import { NODE_URL, COMPILER_URL, GAS } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Contract from '../actions/contract';
+
+const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
+  .argParser((argsText) => {
+    const args = JSON.parse(argsText);
+    if (!Array.isArray(args)) throw new Error(`Call arguments should be an array, got ${argsText} instead`);
+    return args;
+  })
+  .default([]);
+
+const descriptorPathOption = new Option('-d --descrPath [descrPath]', 'Path to contract descriptor file');
+const contractSourceFilenameOption = new Option('--contractSource [contractSource]', 'Contract source code file name');
+const contractAciFilenameOption = new Option('--contractAci [contractAci]', 'Contract ACI file name');
 
 export default () => {
   const program = new Command().name('aecli contract');
@@ -44,29 +56,33 @@ export default () => {
     .description('Compile a contract')
     .action((file, ...args) => Contract.compile(file, getCmdFromArguments(args)));
 
-  // ## Initialize `encode callData` command
+  // ## Initialize `encode-calldata` command
   //
   // You can use this command to prepare `callData`
   //
   // Example: `aecli contract encodeData ./mycontract.contract testFn 1 2`
   program
-    .command('encodeData <source> <fn> [args...]')
-    .description('Encode contract call data')
-    .action((source, fn, args, ...otherArgs) => Contract.encodeData(source, fn, args, getCmdFromArguments(otherArgs)));
+    .command('encode-calldata <fn>')
+    .addArgument(callArgs)
+    .addOption(descriptorPathOption)
+    .addOption(contractSourceFilenameOption)
+    .addOption(contractAciFilenameOption)
+    .description('Encode contract calldata')
+    .action((fn, args, ...otherArgs) => Contract.encodeCalldata(fn, args, getCmdFromArguments(otherArgs)));
 
-  // ## Initialize `decode call data` command
+  // ## Initialize `decode-calldata` command
   //
-  // You can use this command to decode contract call data using source or bytecode
+  // You can use this command to decode contract calldata using source or bytecode
   //
   // Example bytecode: `aecli contract decodeCallData cb_asdasdasd... --code cb_asdasdasdasd....`
-  // Example source cdoe: `aecli contract decodeCallData cb_asdasdasd... --sourcePath ./contractSource --fn someFunction`
+  // Example source code: `aecli contract decodeCallData cb_asdasdasd... --sourcePath ./contractSource --fn someFunction`
   program
-    .command('decodeCallData <data>')
-    .option('--sourcePath [sourcePath]', 'Path to contract source')
-    .option('--code [code]', 'Compiler contract code')
-    .option('--fn [fn]', 'Function name')
-    .description('Decode contract call data')
-    .action((data, ...args) => Contract.decodeCallData(data, getCmdFromArguments(args)));
+    .command('decode-call-result <fn> <data>')
+    .addOption(descriptorPathOption)
+    .addOption(contractSourceFilenameOption)
+    .addOption(contractAciFilenameOption)
+    .description('Decode contract calldata')
+    .action((fn, data, ...args) => Contract.decodeCallResult(fn, data, getCmdFromArguments(args)));
 
   // ## Initialize `call` command
   //

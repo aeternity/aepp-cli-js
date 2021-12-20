@@ -21,13 +21,14 @@
 import fs from 'fs';
 import path from 'path';
 import { initClient, initClientByWalletFile } from '../utils/cli';
-import { readJSONFile, readFile } from '../utils/helpers';
 import { print, printTransaction, printUnderscored } from '../utils/print';
+
+const readFile = (filename) => fs.readFileSync(path.resolve(process.cwd(), filename), 'utf-8');
 
 // ## Function which compile your `source` code
 export async function compile(file, options) {
   const { json } = options;
-  const code = readFile(path.resolve(process.cwd(), file), 'utf-8');
+  const code = readFile(file);
   if (!code) throw new Error('Contract file not found');
 
   const sdk = await initClient(options);
@@ -41,57 +42,36 @@ export async function compile(file, options) {
   }
 }
 
-function getContractParams({ descrPath, contractAddress, contractSource }) {
-  if (contractAddress && contractSource) {
-    const source = readFile(path.resolve(process.cwd(), contractSource), 'utf-8');
-    return { source, contractAddress };
-  }
+function getContractParams({
+  descrPath, contractAddress, contractSource, contractAci,
+}, { dummySource } = {}) {
   if (descrPath) {
-    const { source, address } = readJSONFile(path.resolve(process.cwd(), descrPath));
-    return { source, contractAddress: address };
+    const { address, ...other } = JSON.parse(readFile(descrPath));
+    return { contractAddress: address, ...other };
   }
-  throw new Error('--descrPath or --contractAddress and --contractSource requires');
+  return {
+    contractAddress,
+    // TODO: either remove calldata methods in cli or reconsider getContractInstance requirements
+    source: (contractSource && readFile(contractSource)) ?? (dummySource && 'invalid-source'),
+    aci: contractAci && JSON.parse(readFile(contractAci)),
+  };
 }
 
-// ## Function which compile your `source` code
-export async function encodeData(source, fn, args = [], options) {
-  const sourceCode = readFile(path.resolve(process.cwd(), source), 'utf-8');
-  if (!sourceCode) throw new Error('Contract file not found');
-
+export async function encodeCalldata(fn, args, options) {
   const sdk = await initClient(options);
-
-  // Call `node` API which return `compiled code`
-  const callData = await sdk.contractEncodeCallDataAPI(sourceCode, fn, args);
-  if (options.json) {
-    print(JSON.stringify({ callData }));
-  } else {
-    print(`Contract encoded call data: ${callData}`);
-  }
+  const contract = await sdk.getContractInstance(getContractParams(options, { dummySource: true }));
+  const calldata = contract.calldata.encode(contract.aci.name, fn, args);
+  if (options.json) print({ calldata });
+  else print(`Contract encoded calldata: ${calldata}`);
 }
 
-// ## Function which compile your `source` code
-export async function decodeCallData(data, options) {
-  const { sourcePath, code, fn } = options;
-  let sourceCode;
-
-  if (!sourcePath && !code) throw new Error('Contract source(--sourcePath) or contract code(--code) required!');
-  if (sourcePath) {
-    if (!fn) throw new Error('Function name required in decoding by source!');
-    sourceCode = readFile(path.resolve(process.cwd(), sourcePath), 'utf-8');
-    if (!sourceCode) throw new Error('Contract file not found');
-  } else if (code.slice(0, 2) !== 'cb') throw new Error('Code must be like "cb_23dasdafgasffg...." ');
-
+export async function decodeCallResult(fn, calldata, options) {
   const sdk = await initClient(options);
-
-  // Call `node` API which return `compiled code`
-  const decoded = code
-    ? await sdk.contractDecodeCallDataByCodeAPI(code, data)
-    : await sdk.contractDecodeCallDataBySourceAPI(sourceCode, fn, data);
-
-  if (options.json) {
-    print(JSON.stringify({ decoded }));
-  } else {
-    print('Decoded Call Data:');
+  const contract = await sdk.getContractInstance(getContractParams(options, { dummySource: true }));
+  const decoded = contract.calldata.decode(contract.aci.name, fn, calldata);
+  if (options.json) print({ decoded });
+  else {
+    print('Contract decoded call result:');
     print(decoded);
   }
 }
@@ -109,7 +89,7 @@ export async function deploy(walletPath, contractPath, callData = '', options) {
   // deploy descriptor
   if (callData.split('_')[0] !== 'cb') throw new Error('"callData" should be a string with "cb" prefix');
   const sdk = await initClientByWalletFile(walletPath, options);
-  const contractFile = readFile(path.resolve(process.cwd(), contractPath), 'utf-8');
+  const contractFile = readFile(contractPath);
 
   const ownerId = await sdk.address();
   const { bytecode: code } = await sdk.contractCompile(contractFile);

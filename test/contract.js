@@ -19,6 +19,7 @@ import fs from 'fs';
 import {
   after, before, describe, it,
 } from 'mocha';
+import { expect } from 'chai';
 import { executeProgram, getSdk, WALLET_NAME } from './index';
 import contractProgramFactory from '../src/commands/contract';
 
@@ -31,79 +32,110 @@ contract Identity =
   entrypoint test(x : int, y: int) = x + y
 `;
 
-const CALL_DATA = 'cb_KxGSiyA2KwIEFfUrtQ==';
-const DECODED_CALL_DATA = { arguments: [{ type: 'int', value: 1 }, { type: 'int', value: 2 }], function: 'test' };
-
 describe('CLI Contract Module', () => {
-  const contractFile = 'testContract';
-  let deployDescriptor; let sdk; let bytecode; let
-    cAddress;
+  const contractSourceFile = 'testContract';
+  const contractAciFile = 'testContractAci';
+  let deployDescriptorFile;
+  let sdk;
+  let cAddress;
 
   before(async () => {
-    fs.writeFileSync(contractFile, testContractSource);
+    fs.writeFileSync(contractSourceFile, testContractSource);
     sdk = await getSdk();
+    fs.writeFileSync(contractAciFile, JSON.stringify(await sdk.contractGetACI(testContractSource)));
   });
 
   after(() => {
     sdk.removeWallet();
-    if (fs.existsSync(deployDescriptor)) fs.unlinkSync(deployDescriptor);
-    if (fs.existsSync(contractFile)) fs.unlinkSync(contractFile);
+    if (fs.existsSync(deployDescriptorFile)) fs.unlinkSync(deployDescriptorFile);
+    if (fs.existsSync(contractSourceFile)) fs.unlinkSync(contractSourceFile);
+    if (fs.existsSync(contractAciFile)) fs.unlinkSync(contractAciFile);
   });
 
   it('Compile Contract', async () => {
     const compiled = await sdk.contractCompile(testContractSource);
-    const compiledCLI = await executeContract(['compile', contractFile]);
+    const compiledCLI = await executeContract(['compile', contractSourceFile]);
     const bytecodeCLI = compiledCLI.split(':')[1].trim();
-    bytecode = compiled.bytecode;
-
     bytecodeCLI.should.be.equal(compiled.bytecode);
   });
 
-  it('Encode callData', async () => {
-    const { callData } = await executeContract(['encodeData', contractFile, 'test', '1', '2', '--json']);
-    callData.should.be.equal(CALL_DATA);
-  });
-
-  it('Decode callData', async () => {
-    const { decoded } = await executeContract(['decodeCallData', CALL_DATA, '--code', bytecode, '--json']);
-    decoded.should.be.eql(DECODED_CALL_DATA);
-  });
-
   it('Deploy Contract', async () => {
-    const { callData } = await executeContract(['encodeData', contractFile, 'init', '--json']);
-    const res = await executeContract(['deploy', WALLET_NAME, '--password', 'test', contractFile, callData, '--json']);
+    const { calldata } = await executeContract(['encode-calldata', '--contractSource', contractSourceFile, 'init', '--json']);
+    const res = await executeContract(['deploy', WALLET_NAME, '--password', 'test', contractSourceFile, calldata, '--json']);
     const { result: { contractId }, transaction, descPath } = res;
-    deployDescriptor = descPath;
-    const [name, pref, add] = deployDescriptor.split('.');
+    deployDescriptorFile = descPath;
+    const [name, pref, add] = deployDescriptorFile.split('.');
     cAddress = contractId;
     contractId.should.be.a('string');
     transaction.should.be.a('string');
-    name.should.be.equal(contractFile);
+    name.should.be.equal(contractSourceFile);
     pref.should.be.equal('deploy');
     add.should.be.equal((await sdk.address()).split('_')[1]);
   });
 
   it('Call Contract by descriptor', async () => {
-    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2']);
+    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptorFile, 'test', '1', '2']);
     callResponse.result.returnValue.should.contain('cb_');
     callResponse.decodedResult.should.be.equal('3');
   });
 
   it('Call Contract static by descriptor', async () => {
-    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2', '--callStatic']);
+    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptorFile, 'test', '1', '2', '--callStatic']);
     callResponse.result.returnValue.should.contain('cb_');
     callResponse.decodedResult.should.equal('3');
   });
 
   it('Call Contract by contract address', async () => {
-    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'test', '1', '2']);
+    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractSourceFile, 'test', '1', '2']);
     callResponse.result.returnValue.should.contain('cb_');
     callResponse.decodedResult.should.equal('3');
   });
 
   it('Call Contract static by contract address', async () => {
-    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'test', '1', '2', '--callStatic']);
+    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractSourceFile, 'test', '1', '2', '--callStatic']);
     callResponse.result.returnValue.should.contain('cb_');
     callResponse.decodedResult.should.equal('3');
+  });
+
+  describe('Calldata', () => {
+    it('encodes calldata', async () => {
+      const { calldata } = await executeContract([
+        'encode-calldata',
+        'test', '[1, 2]',
+        '--contractSource', contractSourceFile,
+        '--json',
+      ]);
+      expect(calldata).to.be.equal('cb_KxGSiyA2KwIEFfUrtQ==');
+    });
+
+    it('encodes calldata by aci', async () => {
+      const { calldata } = await executeContract([
+        'encode-calldata',
+        'test', '[1, 2]',
+        '--contractAci', contractAciFile,
+        '--json',
+      ]);
+      expect(calldata).to.be.equal('cb_KxGSiyA2KwIEFfUrtQ==');
+    });
+
+    it('encodes calldata by deploy descriptor', async () => {
+      const { calldata } = await executeContract([
+        'encode-calldata',
+        'test', '[1, 2]',
+        '--descrPath', deployDescriptorFile,
+        '--json',
+      ]);
+      expect(calldata).to.be.equal('cb_KxGSiyA2KwIEFfUrtQ==');
+    });
+
+    it('decodes call result', async () => {
+      const { decoded } = await executeContract([
+        'decode-call-result',
+        'test', 'cb_BvMDXHk=',
+        '--contractSource', contractSourceFile,
+        '--json',
+      ]);
+      decoded.should.be.equal('3');
+    });
   });
 });
