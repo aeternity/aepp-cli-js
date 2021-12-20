@@ -20,7 +20,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { initClientByWalletFile, initCompiler } from '../utils/cli';
+import { initClient, initClientByWalletFile } from '../utils/cli';
 import { readJSONFile, readFile } from '../utils/helpers';
 import {
   logContractDescriptor, print, printTransaction, printUnderscored,
@@ -32,10 +32,10 @@ export async function compile(file, options) {
   const code = readFile(path.resolve(process.cwd(), file), 'utf-8');
   if (!code) throw new Error('Contract file not found');
 
-  const client = await initCompiler(options);
+  const sdk = await initClient(options);
 
   // Call `node` API which return `compiled code`
-  const contract = await client.compileContractAPI(code);
+  const contract = await sdk.compileContractAPI(code);
   if (json) {
     print({ bytecode: contract });
   } else {
@@ -60,10 +60,10 @@ export async function encodeData(source, fn, args = [], options) {
   const sourceCode = readFile(path.resolve(process.cwd(), source), 'utf-8');
   if (!sourceCode) throw new Error('Contract file not found');
 
-  const client = await initCompiler(options);
+  const sdk = await initClient(options);
 
   // Call `node` API which return `compiled code`
-  const callData = await client.contractEncodeCallDataAPI(sourceCode, fn, args);
+  const callData = await sdk.contractEncodeCallDataAPI(sourceCode, fn, args);
   if (options.json) {
     print(JSON.stringify({ callData }));
   } else {
@@ -83,12 +83,12 @@ export async function decodeCallData(data, options) {
     if (!sourceCode) throw new Error('Contract file not found');
   } else if (code.slice(0, 2) !== 'cb') throw new Error('Code must be like "cb_23dasdafgasffg...." ');
 
-  const client = await initCompiler(options);
+  const sdk = await initClient(options);
 
   // Call `node` API which return `compiled code`
   const decoded = code
-    ? await client.contractDecodeCallDataByCodeAPI(code, data)
-    : await client.contractDecodeCallDataBySourceAPI(sourceCode, fn, data);
+    ? await sdk.contractDecodeCallDataByCodeAPI(code, data)
+    : await sdk.contractDecodeCallDataBySourceAPI(sourceCode, fn, data);
 
   if (options.json) {
     print(JSON.stringify({ decoded }));
@@ -110,25 +110,25 @@ export async function deploy(walletPath, contractPath, callData = '', options) {
   // source file. Multiple deploy of the same contract file will generate different
   // deploy descriptor
   if (callData.split('_')[0] !== 'cb') throw new Error('"callData" should be a string with "cb" prefix');
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initClientByWalletFile(walletPath, options);
   const contractFile = readFile(path.resolve(process.cwd(), contractPath), 'utf-8');
 
-  const ownerId = await client.address();
-  const { bytecode: code } = await client.contractCompile(contractFile);
+  const ownerId = await sdk.address();
+  const { bytecode: code } = await sdk.contractCompile(contractFile);
   const opt = {
-    ...client.Ae.defaults, gas, gasPrice, ttl, nonce, fee,
+    ...sdk.Ae.defaults, gas, gasPrice, ttl, nonce, fee,
   };
 
   // Prepare contract create transaction
-  const { tx, contractId } = await client.contractCreateTx({
+  const { tx, contractId } = await sdk.contractCreateTx({
     ...opt,
     callData,
     code,
     ownerId,
   });
   // Broadcast transaction
-  const { hash } = await client.send(tx, opt);
-  const result = await client.getTxInfo(hash);
+  const { hash } = await sdk.send(tx, opt);
+  const result = await sdk.getTxInfo(hash);
 
   if (result.returnType === 'ok') {
     const deployDescriptor = Object.freeze({
@@ -164,11 +164,10 @@ export async function call(walletPath, fn, args, options) {
   const {
     callStatic, json, top, ttl, gas, nonce,
   } = options;
-  // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initClientByWalletFile(walletPath, options);
 
   // Call static or call
-  const contract = await client.getContractInstance(getContractParams(options));
+  const contract = await sdk.getContractInstance(getContractParams(options));
   const callResult = await contract.call(fn, args, {
     ttl: parseInt(ttl),
     gas: parseInt(gas),
@@ -181,7 +180,7 @@ export async function call(walletPath, fn, args, options) {
   // not be a hexadecimal string, anymore.
   if (json) print(callResult);
   else {
-    if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json);
+    if (callResult && callResult.hash) printTransaction(await sdk.tx(callResult.hash), json);
     print('----------------------Transaction info-----------------------');
     printUnderscored('Contract address', contract.deployInfo.address);
     printUnderscored('Gas price', callResult?.result?.gasPrice);
