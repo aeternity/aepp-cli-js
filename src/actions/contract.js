@@ -21,7 +21,7 @@
 import fs from 'fs';
 import path from 'path';
 import { initClientByWalletFile, initCompiler } from '../utils/cli';
-import { prepareCallParams, readFile } from '../utils/helpers';
+import { readJSONFile, readFile } from '../utils/helpers';
 import {
   logContractDescriptor, print, printTransaction, printUnderscored,
 } from '../utils/print';
@@ -41,6 +41,18 @@ export async function compile(file, options) {
   } else {
     print(`Contract bytecode: ${contract}`);
   }
+}
+
+function getContractParams({ descrPath, contractAddress, contractSource }) {
+  if (contractAddress && contractSource) {
+    const source = readFile(path.resolve(process.cwd(), contractSource), 'utf-8');
+    return { source, contractAddress };
+  }
+  if (descrPath) {
+    const { source, address } = readJSONFile(path.resolve(process.cwd(), descrPath));
+    return { source, contractAddress: address };
+  }
+  throw new Error('--descrPath or --contractAddress and --contractSource requires');
 }
 
 // ## Function which compile your `source` code
@@ -149,16 +161,21 @@ export async function deploy(walletPath, contractPath, callData = '', options) {
 
 // ## Function which `call` contract
 export async function call(walletPath, fn, args, options) {
-  const { callStatic, json, top } = options;
+  const {
+    callStatic, json, top, ttl, gas, nonce,
+  } = options;
   // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
   const client = await initClientByWalletFile(walletPath, options);
-  const params = await prepareCallParams(fn, options);
 
   // Call static or call
-  const contract = await client.getContractInstance({
-    source: params.source, contractAddress: params.address,
+  const contract = await client.getContractInstance(getContractParams(options));
+  const callResult = await contract.call(fn, args, {
+    ttl: parseInt(ttl),
+    gas: parseInt(gas),
+    nonce: parseInt(nonce),
+    callStatic,
+    top,
   });
-  const callResult = await contract.call(fn, args, { ...params.options, callStatic, top });
   // The execution result, if successful, will be an FATE-encoded result
   // value. Once type decoding will be implemented in the SDK, this value will
   // not be a hexadecimal string, anymore.
@@ -166,7 +183,7 @@ export async function call(walletPath, fn, args, options) {
   else {
     if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json);
     print('----------------------Transaction info-----------------------');
-    printUnderscored('Contract address', params.address);
+    printUnderscored('Contract address', contract.deployInfo.address);
     printUnderscored('Gas price', callResult?.result?.gasPrice);
     printUnderscored('Gas used', callResult?.result?.gasUsed);
     printUnderscored('Return value (encoded)', callResult?.result?.returnValue);

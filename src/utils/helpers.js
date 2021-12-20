@@ -18,9 +18,7 @@
 // That script contains base helper function
 
 import fs from 'fs';
-import path from 'path';
-
-import { TxBuilderHelper, SCHEMA } from '@aeternity/aepp-sdk';
+import { TxBuilderHelper } from '@aeternity/aepp-sdk';
 import { HASH_TYPES } from './constant';
 
 export function readFile(filePath, encoding = null) {
@@ -41,44 +39,6 @@ export function readFile(filePath, encoding = null) {
 
 export function readJSONFile(filePath) {
   return JSON.parse(readFile(filePath));
-}
-
-// Grab contract descriptor by path
-const grabDesc = async (descrPath) => descrPath && readJSONFile(path.resolve(process.cwd(), descrPath));
-
-// ## Method which build arguments for call call/deploy contracts
-export async function prepareCallParams(name, {
-  descrPath, contractAddress, contractSource, gas, ttl, nonce,
-}) {
-  ttl = parseInt(ttl);
-  nonce = parseInt(nonce);
-  gas = parseInt(gas);
-
-  if (!descrPath && (!contractAddress || !contractSource)) throw new Error('--descrPath or --contractAddress and --contractSource requires');
-
-  if (contractAddress && contractSource) {
-    const contractFile = readFile(path.resolve(process.cwd(), contractSource), 'utf-8');
-    return {
-      source: contractFile,
-      address: contractAddress,
-      name,
-      options: {
-        ttl, gas, nonce, gasPrice: SCHEMA.MIN_GAS_PRICE,
-      },
-    };
-  }
-
-  const descr = await grabDesc(descrPath);
-  if (!descr) throw new Error('Descriptor file not found');
-
-  return {
-    source: descr.source,
-    name,
-    address: descr.address,
-    options: {
-      ttl, nonce, gas, gasPrice: SCHEMA.MIN_GAS_PRICE,
-    },
-  };
 }
 
 // ## Method which retrieve block info by hash
