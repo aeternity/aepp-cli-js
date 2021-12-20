@@ -20,10 +20,12 @@
 
 import fs from 'fs';
 import path from 'path';
+import { TxBuilderHelper } from '@aeternity/aepp-sdk';
 import { initClient, initClientByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
 
-const readFile = (filename) => fs.readFileSync(path.resolve(process.cwd(), filename), 'utf-8');
+const resolve = (filename) => path.resolve(process.cwd(), filename);
+const readFile = (filename, encoding = 'utf-8') => fs.readFileSync(resolve(filename), encoding);
 
 // ## Function which compile your `source` code
 export async function compile(filename, options) {
@@ -34,9 +36,9 @@ export async function compile(filename, options) {
 }
 
 function getContractParams({
-  descrPath, contractAddress, contractSource, contractAci,
+  descrPath, contractAddress, contractSource, contractBytecode, contractAci,
 }, { dummySource } = {}) {
-  if (descrPath) {
+  if (descrPath && fs.existsSync(resolve(descrPath))) {
     const { address, ...other } = JSON.parse(readFile(descrPath));
     return { contractAddress: address, ...other };
   }
@@ -44,6 +46,7 @@ function getContractParams({
     contractAddress,
     // TODO: either remove calldata methods in cli or reconsider getContractInstance requirements
     source: (contractSource && readFile(contractSource)) ?? (dummySource && 'invalid-source'),
+    bytecode: contractBytecode && TxBuilderHelper.encode(readFile(contractBytecode, null), 'cb'),
     aci: contractAci && JSON.parse(readFile(contractAci)),
   };
 }
@@ -67,64 +70,31 @@ export async function decodeCallResult(fn, calldata, options) {
   }
 }
 
-// ## Function which `deploy ` contract
-export async function deploy(walletPath, contractPath, callData = '', options) {
-  const {
-    json, gas, gasPrice, ttl, nonce, fee,
-  } = options;
-  // Deploy a contract to the chain and create a deploy descriptor
-  // with the contract informations that can be use to invoke the contract
-  // later on.
-  //   The generated descriptor will be created in the same folde of the contract
-  // source file. Multiple deploy of the same contract file will generate different
-  // deploy descriptor
-  if (callData.split('_')[0] !== 'cb') throw new Error('"callData" should be a string with "cb" prefix');
+// ## Function which `deploy` contract
+export async function deploy(walletPath, args, options) {
+  // Deploy a contract to the chain and create a deployment descriptor
+  // with the contract information that can be used to invoke the contract
+  // later on. The generated descriptor will be created in the same folder of the contract
+  // source file or at location provided in descrPath. Multiple deploy of the same contract
+  // file will generate different deploy descriptors.
   const sdk = await initClientByWalletFile(walletPath, options);
-  const contractFile = readFile(contractPath);
-
-  const ownerId = await sdk.address();
-  const { bytecode: code } = await sdk.contractCompile(contractFile);
-  const opt = {
-    ...sdk.Ae.defaults, gas, gasPrice, ttl, nonce, fee,
-  };
-
-  // Prepare contract create transaction
-  const { tx, contractId } = await sdk.contractCreateTx({
-    ...opt,
-    callData,
-    code,
-    ownerId,
+  const descriptor = getContractParams(options);
+  const contract = await sdk.getContractInstance(descriptor);
+  const result = await contract.deploy(args, options);
+  Object.assign(descriptor, {
+    address: result.address,
+    bytecode: contract.bytecode,
   });
-  // Broadcast transaction
-  const { hash } = await sdk.send(tx, opt);
-  const result = await sdk.getTxInfo(hash);
-
-  if (result.returnType === 'ok') {
-    const deployDescriptor = Object.freeze({
-      result,
-      owner: ownerId,
-      transaction: hash,
-      address: contractId,
-      createdAt: new Date(),
-    });
-    // Prepare contract descriptor
-    const descPath = `${contractPath.split('/').pop()}.deploy.${ownerId.slice(3)}.json`;
-    const descriptor = {
-      descPath,
-      source: contractFile,
-      bytecode: code,
-      ...deployDescriptor,
-    };
-    fs.writeFileSync(descPath, JSON.stringify(descriptor));
-    if (json) print({ descPath, ...deployDescriptor });
-    else {
-      print('Contract was successfully deployed');
-      printUnderscored('Contract address', descriptor.address);
-      printUnderscored('Transaction hash', descriptor.transaction);
-      printUnderscored('Deploy descriptor', descriptor.descPath);
-    }
-  } else {
-    await this.handleCallError(result);
+  const filename = options.contractSource ?? options.contractBytecode;
+  options.descrPath ||= path
+    .resolve(process.cwd(), `${filename}.deploy.${result.address.slice(3)}.json`);
+  fs.writeFileSync(options.descrPath, JSON.stringify(descriptor, undefined, 2));
+  if (options.json) print({ ...result, descrPath: options.descrPath });
+  else {
+    print('Contract was successfully deployed');
+    printUnderscored('Contract address', result.address);
+    printUnderscored('Transaction hash', result.transaction);
+    printUnderscored('Deploy descriptor', options.descrPath);
   }
 }
 

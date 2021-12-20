@@ -128,7 +128,12 @@ export default () => {
   //
   // Example: `aecli contract deploy ./myWalletFile --password tstpass ./contractSourceCodeFile --gas 2222222`
   program
-    .command('deploy <wallet_path> <contract_path> <callData>')
+    .command('deploy <wallet_path>')
+    .addArgument(callArgs)
+    .addOption(descriptorPathOption)
+    .addOption(contractSourceFilenameOption)
+    .option('--contractBytecode [contractBytecode]', 'Contract bytecode file name')
+    .addOption(contractAciFilenameOption)
     .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
     .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
     .option('-P, --password [password]', 'Wallet Password')
@@ -138,7 +143,7 @@ export default () => {
     .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
     .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
     .description('Deploy a contract on the chain')
-    .action((walletPath, path, callData, ...args) => Contract.deploy(walletPath, path, callData, getCmdFromArguments(args)));
+    .action((walletPath, args, ...otherArgs) => Contract.deploy(walletPath, args, getCmdFromArguments(otherArgs)));
 
   return program;
 };

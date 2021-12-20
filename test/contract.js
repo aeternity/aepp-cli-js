@@ -20,6 +20,7 @@ import {
   after, before, describe, it,
 } from 'mocha';
 import { expect } from 'chai';
+import { TxBuilderHelper } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk, WALLET_NAME } from './index';
 import contractProgramFactory from '../src/commands/contract';
 
@@ -27,9 +28,12 @@ const executeContract = (args) => executeProgram(contractProgramFactory, args);
 
 const testContractSource = `
 @compiler >= 6
+@compiler < 7
 
 contract Identity =
-  entrypoint test(x : int, y: int) = x + y
+  record state = { z: int }
+  entrypoint init(_z: int) = { z = _z }
+  entrypoint test(x : int, y: int) = x + y + state.z
 `;
 
 describe('CLI Contract Module', () => {
@@ -37,6 +41,7 @@ describe('CLI Contract Module', () => {
   const contractAciFile = 'testContractAci';
   let deployDescriptorFile;
   let sdk;
+  let contractBytecode;
   let contractAddress;
 
   before(async () => {
@@ -54,21 +59,61 @@ describe('CLI Contract Module', () => {
 
   it('compiles contract', async () => {
     const { bytecode } = await executeContract(['compile', contractSourceFile, '--json']);
+    contractBytecode = bytecode;
     expect(bytecode).to.satisfy((b) => b.startsWith('cb_'));
   });
 
-  it('Deploy Contract', async () => {
-    const { calldata } = await executeContract(['encode-calldata', '--contractSource', contractSourceFile, 'init', '--json']);
-    const res = await executeContract(['deploy', WALLET_NAME, '--password', 'test', contractSourceFile, calldata, '--json']);
-    const { result: { contractId }, transaction, descPath } = res;
-    deployDescriptorFile = descPath;
-    const [name, pref, add] = deployDescriptorFile.split('.');
-    contractAddress = contractId;
-    contractId.should.be.a('string');
-    transaction.should.be.a('string');
-    name.should.be.equal(contractSourceFile);
-    pref.should.be.equal('deploy');
-    add.should.be.equal((await sdk.address()).split('_')[1]);
+  describe('Deploy', () => {
+    it('deploys contract', async () => {
+      const { address, transaction, descrPath } = await executeContract([
+        'deploy',
+        WALLET_NAME, '--password', 'test',
+        '--contractSource', contractSourceFile,
+        '[3]',
+        '--json',
+      ]);
+      deployDescriptorFile = descrPath;
+      const [name, pref, add] = deployDescriptorFile.split('.');
+      contractAddress = address;
+      address.should.be.a('string');
+      transaction.should.be.a('string');
+      name.should.satisfy((n) => n.endsWith(contractSourceFile));
+      pref.should.be.equal('deploy');
+      add.should.be.equal(address.split('_')[1]);
+    });
+
+    it('deploys contract with custom descrPath', async () => {
+      const descrPath = './testDescriptor.json';
+      await executeContract([
+        'deploy',
+        WALLET_NAME, '--password', 'test',
+        '--contractSource', contractSourceFile,
+        '--descrPath', descrPath,
+        '[3]',
+        '--json',
+      ]);
+      expect(fs.existsSync(descrPath)).to.be.equal(true);
+      const descriptor = JSON.parse(fs.readFileSync(descrPath, 'utf-8'));
+      expect(descriptor.address).to.satisfy((b) => b.startsWith('ct_'));
+      expect(descriptor.bytecode).to.satisfy((b) => b.startsWith('cb_'));
+      expect(descriptor.source).to.satisfy((b) => b.includes('contract Identity'));
+      fs.unlinkSync(descrPath);
+    });
+
+    it('deploys contract by bytecode', async () => {
+      const contractBytecodeFile = './bytecode.bin';
+      fs.writeFileSync(contractBytecodeFile, TxBuilderHelper.decode(contractBytecode));
+      const { descrPath } = await executeContract([
+        'deploy',
+        WALLET_NAME, '--password', 'test',
+        '--contractAci', contractAciFile,
+        '--contractBytecode', contractBytecodeFile,
+        '[3]',
+        '--json',
+      ]);
+      fs.unlinkSync(descrPath);
+      fs.unlinkSync(contractBytecodeFile);
+    });
   });
 
   describe('Call', () => {
@@ -81,7 +126,7 @@ describe('CLI Contract Module', () => {
         'test', '[1, 2]',
       ]);
       callResponse.result.returnValue.should.contain('cb_');
-      callResponse.decodedResult.should.be.equal('3');
+      callResponse.decodedResult.should.be.equal('6');
     });
 
     it('calls contract static', async () => {
@@ -94,7 +139,7 @@ describe('CLI Contract Module', () => {
         '--callStatic',
       ]);
       callResponse.result.returnValue.should.contain('cb_');
-      callResponse.decodedResult.should.equal('3');
+      callResponse.decodedResult.should.equal('6');
     });
 
     it('calls contract by contract source and address', async () => {
@@ -106,7 +151,7 @@ describe('CLI Contract Module', () => {
         '--contractSource', contractSourceFile,
         'test', '[1, 2]',
       ]);
-      callResponse.decodedResult.should.equal('3');
+      callResponse.decodedResult.should.equal('6');
     });
 
     it('calls contract by contract ACI and address', async () => {
@@ -118,7 +163,7 @@ describe('CLI Contract Module', () => {
         '--contractAci', contractAciFile,
         'test', '[1, 2]',
       ]);
-      callResponse.decodedResult.should.equal('3');
+      callResponse.decodedResult.should.equal('6');
     });
   });
 
