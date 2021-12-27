@@ -44,8 +44,7 @@ describe('CLI AENS Module', () => {
 
   after(() => sdk.removeWallet());
 
-  it('Full claim', async function test() {
-    this.timeout(10000);
+  it('Full claim', async () => {
     const updateTx = await executeName([
       'full-claim',
       WALLET_NAME,
@@ -59,10 +58,9 @@ describe('CLI AENS Module', () => {
     updateTx.blockHeight.should.be.gt(0);
     const pointer = updateTx.pointers.find(({ id }) => id === address);
     expect(pointer).to.be.eql({ id: address, key: 'account_pubkey' });
-  });
+  }).timeout(10000);
 
-  it('Full claim with options', async function test() {
-    this.timeout(10000);
+  it('Full claim with options', async () => {
     const updateTx = await executeName([
       'full-claim',
       WALLET_NAME,
@@ -84,7 +82,7 @@ describe('CLI AENS Module', () => {
     updateTx.tx.clientTtl.should.be.equal(50);
     const pointer = updateTx.pointers.find(({ id }) => id === address);
     expect(pointer).to.be.eql({ id: address, key: 'account_pubkey' });
-  });
+  }).timeout(10000);
 
   it('Pre Claim Name', async () => {
     const preClaim = await executeName([
@@ -105,8 +103,7 @@ describe('CLI AENS Module', () => {
     nameResult.status.should.equal('AVAILABLE');
   });
 
-  it('Claim Name', async function test() {
-    this.timeout(10000);
+  it('Claim Name', async () => {
     const claim = await executeName([
       'claim',
       WALLET_NAME,
@@ -121,7 +118,7 @@ describe('CLI AENS Module', () => {
     claim.blockHeight.should.be.gt(0);
     claim.pointers.length.should.be.equal(0);
     nameResult.status.should.equal('CLAIMED');
-  });
+  }).timeout(10000);
 
   it('Update Name', async () => {
     const updateTx = await executeName([
@@ -232,14 +229,13 @@ describe('CLI AENS Module', () => {
   describe('Name Auction', () => {
     const nameFee = '3665700000000000000';
 
-    it('Open auction', async function test() {
-      this.timeout(10000);
+    it('Open auction', async () => {
       const keypair = Crypto.generateKeyPair();
       await sdk.spend('30000000000000000000000', keypair.publicKey);
       const preclaim = await sdk.aensPreclaim(name, { onAccount: keypair });
       const claim = await preclaim.claim({ onAccount: keypair });
       claim.blockHeight.should.be.gt(0);
-    });
+    }).timeout(10000);
 
     it('Make bid', async () => {
       const bid = await executeName([
@@ -256,8 +252,7 @@ describe('CLI AENS Module', () => {
       bid.tx.nameFee.should.be.equal(nameFee);
     });
 
-    it('Fail on open again', async function test() {
-      this.timeout(30000);
+    it('Fail on open again', async () => {
       const preClaim = await executeName([
         'pre-claim',
         WALLET_NAME,
@@ -275,6 +270,6 @@ describe('CLI AENS Module', () => {
         preClaim.salt,
         '--json',
       ]).should.be.rejectedWith('Giving up after 10 blocks mined');
-    });
+    }).timeout(30000);
   });
 });
