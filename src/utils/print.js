@@ -44,7 +44,7 @@ export function print(msg, obj) {
   }
   if (obj) {
     console.log(msg);
-    console.log(JSON.stringify(obj));
+    console.log(JsonStringifyBigInt(obj));
   } else {
     console.log(msg);
   }
@@ -60,7 +60,7 @@ export function printUnderscored(key, val) {
   print([
     key,
     '_'.repeat(WIDTH - key.length),
-    typeof val !== 'object' ? val : JSON.stringify(val),
+    typeof val !== 'object' ? val : JsonStringifyBigInt(val),
   ].join(' '));
 }
 
@@ -376,18 +376,6 @@ export function printName(name, json) {
   printUnderscored('Name hash', name.id ?? 'N/A');
   printUnderscored('Pointers', JSON.stringify(name.pointers) ?? 'N/A');
   printUnderscored('TTL', name.ttl ?? 0);
-}
-
-// Print `contract_descriptor` file base info
-export function logContractDescriptor(desc, title, json) {
-  if (json) {
-    print(desc);
-    return;
-  }
-  print(title);
-  printUnderscored('Contract address', desc.address);
-  printUnderscored('Transaction hash', desc.transaction);
-  printUnderscored('Deploy descriptor', desc.descPath);
 }
 
 // Print `Buider Transaction`

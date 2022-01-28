@@ -82,12 +82,11 @@ describe('CLI Transaction Module', () => {
     await signAndPost(tx);
   });
 
-  it('Build claim tx offline and send on-chain', async function test() {
-    this.timeout(10000);
+  it('Build claim tx offline and send on-chain', async () => {
     const { tx } = await executeTx(['name-claim', TX_KEYS.publicKey, salt, name, nonce, '--json']);
     await signAndPost(tx);
     nameId = (await sdk.aensQuery(name)).id;
-  });
+  }).timeout(10000);
 
   it('Build update tx offline and send on-chain', async () => {
     const { tx } = await executeTx(['name-update', TX_KEYS.publicKey, nameId, nonce, TX_KEYS.publicKey, '--json']);

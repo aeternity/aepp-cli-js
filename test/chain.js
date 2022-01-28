@@ -44,8 +44,7 @@ describe('CLI Chain Module', () => {
     res.nodeVersion.should.equal((await sdk.api.getStatus()).nodeVersion);
   });
 
-  it('PLAY', async function test() {
-    this.timeout(10000);
+  it('PLAY', async () => {
     const res = await executeChain(['play', '--limit', '4']);
     res.split('<<------------------------------------->>').length.should.equal(5);
 
@@ -53,7 +52,7 @@ describe('CLI Chain Module', () => {
     parsed[0].previousBlockHash.should.equal(parsed[1].blockHash);
     parsed[1].previousBlockHash.should.equal(parsed[2].blockHash);
     parsed[2].previousBlockHash.should.equal(parsed[3].blockHash);
-  });
+  }).timeout(10000);
 
   it('TTL', async () => {
     const { relativeTtl } = await executeChain(['ttl', 10, '--json']);

@@ -17,7 +17,7 @@
 *  PERFORMANCE OF THIS SOFTWARE.
 */
 import {
-  Universal, Node, Transaction, TxBuilder, ChainNode, MemoryAccount, ContractCompilerAPI,
+  Universal, Node, Transaction, TxBuilder, ChainNode, MemoryAccount,
 } from '@aeternity/aepp-sdk';
 import { getWalletByPathAndDecrypt } from './account';
 
@@ -27,7 +27,7 @@ export function getCmdFromArguments([options, commander]) {
 }
 
 // Create `Universal` client
-async function initClient({
+export async function initClient({
   url, keypair, compilerUrl, force: ignoreVersion, native: nativeMode = true, networkId, accounts = [],
 }) {
   return Universal({
@@ -59,10 +59,6 @@ export async function initChain({ url, force: ignoreVersion }) {
     nodes: [{ name: 'test-node', instance: await Node({ url, ignoreVersion }) }],
     ignoreVersion,
   });
-}
-
-export async function initCompiler({ compilerUrl, ignoreVersion }) {
-  return ContractCompilerAPI({ compilerUrl, ignoreVersion });
 }
 
 // ## Get account files and decrypt it using password

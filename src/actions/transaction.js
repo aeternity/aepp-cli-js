@@ -36,7 +36,6 @@ export async function spend(senderId, recipientId, amount, nonce, options) {
     ttl, json, fee, payload,
   } = options;
   ttl = parseInt(ttl);
-  nonce = parseInt(nonce);
   // Initialize `Ae`
   const txBuilder = initOfflineTxBuilder();
   // Build params
@@ -188,7 +187,7 @@ export async function contractDeploy(ownerId, contractByteCode, initCallData, no
     ...options,
     code: contractByteCode,
     ownerId,
-    nonce: +nonce, // TODO: remove after fixing https://github.com/aeternity/aepp-sdk-js/issues/1370
+    nonce,
     callData: initCallData,
   });
 
@@ -224,7 +223,6 @@ export async function oracleRegister(accountId, queryFormat, responseFormat, non
 }) {
   queryFee = parseInt(queryFee);
   oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl));
-  nonce = parseInt(nonce);
 
   const txBuilder = initOfflineTxBuilder();
   // Create `transfer` transaction
@@ -253,7 +251,6 @@ export async function oraclePostQuery(senderId, oracleId, query, nonce, {
   queryFee = parseInt(queryFee);
   queryTtl = BUILD_ORACLE_TTL(parseInt(queryTtl));
   responseTtl = BUILD_ORACLE_TTL(parseInt(responseTtl));
-  nonce = parseInt(nonce);
 
   const txBuilder = initOfflineTxBuilder();
   // Create `transfer` transaction
@@ -279,7 +276,6 @@ export async function oraclePostQuery(senderId, oracleId, query, nonce, {
 // ## Build `oracleExtend` transaction
 export async function oracleExtend(callerId, oracleId, oracleTtl, nonce, { ttl, json, fee }) {
   oracleTtl = BUILD_ORACLE_TTL(parseInt(oracleTtl));
-  nonce = parseInt(nonce);
 
   const txBuilder = initOfflineTxBuilder();
   // Create `transfer` transaction
@@ -304,7 +300,6 @@ export async function oracleRespond(callerId, oracleId, queryId, response, nonce
   ttl, json, fee, responseTtl,
 }) {
   responseTtl = BUILD_ORACLE_TTL(parseInt(responseTtl));
-  nonce = parseInt(nonce);
 
   const txBuilder = initOfflineTxBuilder();
   // Create `transfer` transaction

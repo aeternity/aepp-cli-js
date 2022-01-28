@@ -20,161 +20,106 @@
 
 import fs from 'fs';
 import path from 'path';
-import { initClientByWalletFile, initCompiler } from '../utils/cli';
-import { prepareCallParams, readFile } from '../utils/helpers';
-import {
-  logContractDescriptor, print, printTransaction, printUnderscored,
-} from '../utils/print';
+import { TxBuilderHelper } from '@aeternity/aepp-sdk';
+import { initClient, initClientByWalletFile } from '../utils/cli';
+import { print, printTransaction, printUnderscored } from '../utils/print';
+
+const resolve = (filename) => path.resolve(process.cwd(), filename);
+const readFile = (filename, encoding = 'utf-8') => fs.readFileSync(resolve(filename), encoding);
 
 // ## Function which compile your `source` code
-export async function compile(file, options) {
-  const { backend, json } = options;
-  const code = readFile(path.resolve(process.cwd(), file), 'utf-8');
-  if (!code) throw new Error('Contract file not found');
-
-  const client = await initCompiler(options);
-
-  // Call `node` API which return `compiled code`
-  const contract = await client.compileContractAPI(code, { backend });
-  if (json) {
-    print({ bytecode: contract });
-  } else {
-    print(`Contract bytecode: ${contract}`);
-  }
+export async function compile(filename, options) {
+  const sdk = await initClient(options);
+  const bytecode = await sdk.compileContractAPI(readFile(filename));
+  if (options.json) print({ bytecode });
+  else print(`Contract bytecode: ${bytecode}`);
 }
 
-// ## Function which compile your `source` code
-export async function encodeData(source, fn, args = [], options) {
-  const { backend } = options;
-  const sourceCode = readFile(path.resolve(process.cwd(), source), 'utf-8');
-  if (!sourceCode) throw new Error('Contract file not found');
-
-  const client = await initCompiler(options);
-
-  // Call `node` API which return `compiled code`
-  const callData = await client.contractEncodeCallDataAPI(sourceCode, fn, args, { backend });
-  if (options.json) {
-    print(JSON.stringify({ callData }));
-  } else {
-    print(`Contract encoded call data: ${callData}`);
+function getContractParams({
+  descrPath, contractAddress, contractSource, contractBytecode, contractAci,
+}, { dummySource } = {}) {
+  if (descrPath && fs.existsSync(resolve(descrPath))) {
+    const { address, ...other } = JSON.parse(readFile(descrPath));
+    return { contractAddress: address, ...other };
   }
+  return {
+    contractAddress,
+    // TODO: either remove calldata methods in cli or reconsider getContractInstance requirements
+    source: (contractSource && readFile(contractSource)) ?? (dummySource && 'invalid-source'),
+    bytecode: contractBytecode && TxBuilderHelper.encode(readFile(contractBytecode, null), 'cb'),
+    aci: contractAci && JSON.parse(readFile(contractAci)),
+  };
 }
 
-// ## Function which compile your `source` code
-export async function decodeCallData(data, options) {
-  const {
-    sourcePath, code, fn, backend,
-  } = options;
-  let sourceCode;
+export async function encodeCalldata(fn, args, options) {
+  const sdk = await initClient(options);
+  const contract = await sdk.getContractInstance(getContractParams(options, { dummySource: true }));
+  const calldata = contract.calldata.encode(contract.aci.name, fn, args);
+  if (options.json) print({ calldata });
+  else print(`Contract encoded calldata: ${calldata}`);
+}
 
-  if (!sourcePath && !code) throw new Error('Contract source(--sourcePath) or contract code(--code) required!');
-  if (sourcePath) {
-    if (!fn) throw new Error('Function name required in decoding by source!');
-    sourceCode = readFile(path.resolve(process.cwd(), sourcePath), 'utf-8');
-    if (!sourceCode) throw new Error('Contract file not found');
-  } else if (code.slice(0, 2) !== 'cb') throw new Error('Code must be like "cb_23dasdafgasffg...." ');
-
-  const client = await initCompiler(options);
-
-  // Call `node` API which return `compiled code`
-  const decoded = code
-    ? await client.contractDecodeCallDataByCodeAPI(code, data, backend)
-    : await client.contractDecodeCallDataBySourceAPI(sourceCode, fn, data, { backend });
-
-  if (options.json) {
-    print(JSON.stringify({ decoded }));
-  } else {
-    print('Decoded Call Data:');
+export async function decodeCallResult(fn, calldata, options) {
+  const sdk = await initClient(options);
+  const contract = await sdk.getContractInstance(getContractParams(options, { dummySource: true }));
+  const decoded = contract.calldata.decode(contract.aci.name, fn, calldata);
+  if (options.json) print({ decoded });
+  else {
+    print('Contract decoded call result:');
     print(decoded);
   }
 }
 
-// ## Function which `deploy ` contract
-export async function deploy(walletPath, contractPath, callData = '', options) {
-  const {
-    json, gas, gasPrice, ttl, nonce, fee,
-  } = options;
-  // Deploy a contract to the chain and create a deploy descriptor
-  // with the contract informations that can be use to invoke the contract
-  // later on.
-  //   The generated descriptor will be created in the same folde of the contract
-  // source file. Multiple deploy of the same contract file will generate different
-  // deploy descriptor
-  if (callData.split('_')[0] !== 'cb') throw new Error('"callData" should be a string with "cb" prefix');
-  const client = await initClientByWalletFile(walletPath, options);
-  const contractFile = readFile(path.resolve(process.cwd(), contractPath), 'utf-8');
-
-  const ownerId = await client.address();
-  const { bytecode: code } = await client.contractCompile(contractFile);
-  const opt = {
-    ...client.Ae.defaults, gas, gasPrice, ttl, nonce, fee,
-  };
-
-  // Prepare contract create transaction
-  const { tx, contractId } = await client.contractCreateTx({
-    ...opt,
-    callData,
-    code,
-    ownerId,
+// ## Function which `deploy` contract
+export async function deploy(walletPath, args, options) {
+  // Deploy a contract to the chain and create a deployment descriptor
+  // with the contract information that can be used to invoke the contract
+  // later on. The generated descriptor will be created in the same folder of the contract
+  // source file or at location provided in descrPath. Multiple deploy of the same contract
+  // file will generate different deploy descriptors.
+  const sdk = await initClientByWalletFile(walletPath, options);
+  const descriptor = getContractParams(options);
+  const contract = await sdk.getContractInstance(descriptor);
+  const result = await contract.deploy(args, options);
+  Object.assign(descriptor, {
+    address: result.address,
+    bytecode: contract.bytecode,
   });
-  // Broadcast transaction
-  const { hash } = await client.send(tx, opt);
-  const result = await client.getTxInfo(hash);
-
-  if (result.returnType === 'ok') {
-    const deployDescriptor = Object.freeze({
-      result,
-      owner: ownerId,
-      transaction: hash,
-      address: contractId,
-      createdAt: new Date(),
-    });
-    // Prepare contract descriptor
-    const descPath = `${contractPath.split('/').pop()}.deploy.${ownerId.slice(3)}.json`;
-    const contractDescriptor = {
-      descPath,
-      source: contractFile,
-      bytecode: code,
-      ...deployDescriptor,
-    };
-    // Write to file
-    fs.writeFileSync(
-      descPath,
-      JSON.stringify(contractDescriptor),
-    );
-    // Log contract descriptor
-    if (json) print({ descPath, ...deployDescriptor });
-    else logContractDescriptor(contractDescriptor, 'Contract was successfully deployed', json);
-  } else {
-    await this.handleCallError(result);
+  const filename = options.contractSource ?? options.contractBytecode;
+  options.descrPath ||= path
+    .resolve(process.cwd(), `${filename}.deploy.${result.address.slice(3)}.json`);
+  fs.writeFileSync(options.descrPath, JSON.stringify(descriptor, undefined, 2));
+  if (options.json) print({ ...result, descrPath: options.descrPath });
+  else {
+    print('Contract was successfully deployed');
+    printUnderscored('Contract address', result.address);
+    printUnderscored('Transaction hash', result.transaction);
+    printUnderscored('Deploy descriptor', options.descrPath);
   }
 }
 
 // ## Function which `call` contract
 export async function call(walletPath, fn, args, options) {
-  const { callStatic, json, top } = options;
-  // If callStatic init `Chain` stamp else get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-  const client = await initClientByWalletFile(walletPath, options);
-  const params = await prepareCallParams(fn, options);
-
-  // Call static or call
-  const contract = await client.getContractInstance({
-    source: params.source, contractAddress: params.address,
+  const {
+    callStatic, json, top, ttl, gas, nonce,
+  } = options;
+  const sdk = await initClientByWalletFile(walletPath, options);
+  const contract = await sdk.getContractInstance(getContractParams(options));
+  const callResult = await contract.call(fn, args, {
+    ttl: parseInt(ttl),
+    gas: parseInt(gas),
+    nonce: parseInt(nonce),
+    callStatic,
+    top,
   });
-  const callResult = await contract.call(fn, args, { ...params.options, callStatic, top });
-  // The execution result, if successful, will be an FATE-encoded result
-  // value. Once type decoding will be implemented in the SDK, this value will
-  // not be a hexadecimal string, anymore.
   if (json) print(callResult);
   else {
-    if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json);
-    print('----------------------Transaction info-----------------------');
-    printUnderscored('Contract address', params.address);
-    printUnderscored('Gas price', callResult?.result?.gasPrice);
-    printUnderscored('Gas used', callResult?.result?.gasUsed);
-    printUnderscored('Return value (encoded)', callResult?.result?.returnValue);
-    // Decode result
-    const decoded = await callResult.decode();
-    printUnderscored('Return value (decoded)', decoded);
+    if (callResult.hash) printTransaction(await sdk.tx(callResult.hash), json);
+    print('----------------------Call info-----------------------');
+    printUnderscored('Contract address', contract.deployInfo.address);
+    printUnderscored('Gas price', callResult.result?.gasPrice);
+    printUnderscored('Gas used', callResult.result?.gasUsed);
+    printUnderscored('Return value (encoded)', callResult.result?.returnValue);
+    printUnderscored('Return value (decoded)', callResult.decodedResult);
   }
 }
