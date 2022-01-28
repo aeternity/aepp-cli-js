@@ -15,9 +15,8 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import * as R from 'ramda'
 import { Universal, MemoryAccount, Node, Crypto } from '@aeternity/aepp-sdk'
-import accountProgramFactory from '../../bin/commands/account'
+import accountProgramFactory from '../../src/commands/account'
 
 const url = process.env.TEST_URL || 'http://localhost:3013'
 const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080'
@@ -111,12 +110,10 @@ export function parseBlock (res) {
     .reduce((acc, val) => {
       let v = val.split(/__/)
       if (v.length < 2) { v = val.split(':') }
-      return Object.assign(
-        acc,
-        {
-          [R.head(v).replace(' ', '_').replace(' ', '_').replace(' ', '_').toLowerCase()]: R.last(R.last(v).split(/_ /)).trim()
-        }
-      )
+      return Object.assign(acc, {
+        [v[0].replace(' ', '_').replace(' ', '_').replace(' ', '_').toLowerCase()]:
+          v[v.length - 1].split(/_ /).pop().trim()
+      })
     }, {})
 }
 

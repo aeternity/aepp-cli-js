@@ -19,7 +19,6 @@
  */
 
 import path from 'path'
-import * as R from 'ramda'
 import { initClientByWalletFile, initCompiler } from '../utils/cli'
 import { prepareCallParams, readFile, writeFile } from '../utils/helpers'
 import { logContractDescriptor, print, printTransaction, printUnderscored } from '../utils/print'
@@ -103,14 +102,15 @@ export async function deploy (walletPath, contractPath, callData = '', options) 
 
   const ownerId = await client.address()
   const { bytecode: code } = await client.contractCompile(contractFile)
-  const opt = R.merge(client.Ae.defaults, { gas, gasPrice, ttl, nonce, fee })
+  const opt = { ...client.Ae.defaults, gas, gasPrice, ttl, nonce, fee }
 
   // Prepare contract create transaction
-  const { tx, contractId } = await client.contractCreateTx(R.merge(opt, {
+  const { tx, contractId } = await client.contractCreateTx({
+    ...opt,
     callData,
     code,
     ownerId
-  }))
+  })
   // Broadcast transaction
   const { hash } = await client.send(tx, opt)
   const result = await client.getTxInfo(hash)
@@ -124,12 +124,13 @@ export async function deploy (walletPath, contractPath, callData = '', options) 
       createdAt: new Date()
     })
     // Prepare contract descriptor
-    const descPath = `${R.last(contractPath.split('/'))}.deploy.${ownerId.slice(3)}.json`
-    const contractDescriptor = R.merge({
+    const descPath = `${contractPath.split('/').pop()}.deploy.${ownerId.slice(3)}.json`
+    const contractDescriptor = {
       descPath,
       source: contractFile,
-      bytecode: code
-    }, deployDescriptor)
+      bytecode: code,
+      ...deployDescriptor
+    }
     // Write to file
     writeFile(
       descPath,
@@ -164,9 +165,9 @@ export async function call (walletPath, fn, args, options) {
     if (callResult && callResult.hash) printTransaction(await client.tx(callResult.hash), json)
     print('----------------------Transaction info-----------------------')
     printUnderscored('Contract address', params.address)
-    printUnderscored('Gas price', R.path(['result', 'gasPrice'])(callResult))
-    printUnderscored('Gas used', R.path(['result', 'gasUsed'])(callResult))
-    printUnderscored('Return value (encoded)', R.path(['result', 'returnValue'])(callResult))
+    printUnderscored('Gas price', callResult?.result?.gasPrice)
+    printUnderscored('Gas used', callResult?.result?.gasUsed)
+    printUnderscored('Return value (encoded)', callResult?.result?.returnValue)
     // Decode result
     const decoded = await callResult.decode()
     printUnderscored('Return value (decoded)', decoded)

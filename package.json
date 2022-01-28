@@ -3,16 +3,15 @@
   "version": "3.0.0",
   "description": "Aeternity command line interface",
   "bin": {
-    "aecli": "./bin/aecli.js"
+    "aecli": "src/aecli.js"
   },
   "dependencies": {
     "@aeternity/aepp-sdk": "github:aeternity/aepp-sdk-js#feature/poll-intervals",
     "commander": "^8.3.0",
-    "esm": "^3.2.25",
-    "prompts": "^2.4.2",
-    "ramda": "^0.27.1"
+    "prompts": "^2.4.2"
   },
   "devDependencies": {
+    "@babel/cli": "^7.16.0",
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.4",
     "@babel/register": "^7.16.0",
@@ -30,7 +29,9 @@
     "url": "https://github.com/aeternity/aepp-cli-js"
   },
   "scripts": {
-    "docs": "scripts/js-to-md.js bin/*.js bin/commands/*.js bin/actions/*.js bin/utils/*.js",
+    "build": "babel src --out-dir bin",
+    "prepare": "npm run build",
+    "docs": "scripts/js-to-md.js src/*.js src/commands/*.js src/actions/*.js src/utils/*.js",
     "lint": "commitlint --from 23f6888 && standard",
     "test": "mocha --recursive",
     "test:watch": "mocha --recursive --watch",
