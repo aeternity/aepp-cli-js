@@ -21,10 +21,12 @@
 'use strict'
 // We'll use `commander` for parsing options
 // Also we need `esm` package to handle `ES imports`
-const program = require('commander')
+const { Command } = require('commander')
 
 const requireEsm = require('esm')(module/*, options */) // use to handle es6 import/export
 const utils = requireEsm('./utils/index')
+
+const program = new Command()
 
 // Array of child command's
 const EXECUTABLE_CMD = [
@@ -53,4 +55,4 @@ program
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc))
 
 // Parse arguments
-program.parse(process.argv)
+program.parseAsync()

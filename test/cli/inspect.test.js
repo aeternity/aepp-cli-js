@@ -17,9 +17,15 @@
 
 import fs from 'fs'
 import { before, describe, it } from 'mocha'
+import { expect } from 'chai'
 
-import { configure, execute, parseBlock, KEY_PAIR, ready } from './index'
+import { configure, executeProgram, parseBlock, KEY_PAIR, ready } from './index'
 import { Crypto } from '@aeternity/aepp-sdk'
+import inspectProgramFactory from '../../bin/commands/inspect'
+import chainProgramFactory from '../../bin/commands/chain'
+
+const executeInspect = args => executeProgram(inspectProgramFactory, args)
+const executeChain = args => executeProgram(chainProgramFactory, args)
 
 // CONTRACT DESCRIPTOR
 const contractDescriptor = {
@@ -42,7 +48,7 @@ describe('CLI Inspect Module', function () {
   })
   it('Inspect Account', async () => {
     const balance = await wallet.balance(KEY_PAIR.publicKey)
-    const { balance: cliBalance } = JSON.parse(await execute(['inspect', KEY_PAIR.publicKey, '--json']))
+    const { balance: cliBalance } = await executeInspect([KEY_PAIR.publicKey, '--json'])
     const isEqual = `${balance}` === `${cliBalance}`
     isEqual.should.equal(true)
   })
@@ -52,19 +58,19 @@ describe('CLI Inspect Module', function () {
     // Create transaction to inspect
     const { hash } = await wallet.spend(amount, recipient)
 
-    const res = JSON.parse(await execute(['inspect', hash, '--json']))
+    const res = await executeInspect([hash, '--json'])
     res.tx.recipientId.should.equal(recipient)
     res.tx.senderId.should.be.equal(KEY_PAIR.publicKey)
     res.tx.amount.should.equal(amount)
   })
   it('Inspect Block', async () => {
-    const top = JSON.parse(await execute(['chain', 'top', '--json']))
-    const inspectRes = JSON.parse(await execute(['inspect', top.hash, '--json']))
+    const top = await executeChain(['top', '--json'])
+    const inspectRes = await executeInspect([top.hash, '--json'])
     top.hash.should.equal(inspectRes.hash)
   })
   it('Inspect Height', async () => {
-    const top = JSON.parse(await execute(['chain', 'top', '--json']))
-    const inspectRes = JSON.parse(await execute(['inspect', top.hash, '--json']))
+    const top = await executeChain(['top', '--json'])
+    const inspectRes = await executeInspect([top.hash, '--json'])
 
     top.hash.should.equal(inspectRes.hash)
   })
@@ -74,7 +80,7 @@ describe('CLI Inspect Module', function () {
     // create contract descriptor file
     fs.writeFileSync(fileName, JSON.stringify(contractDescriptor))
 
-    const descriptor = parseBlock(await execute(['inspect', 'deploy', fileName]))
+    const descriptor = parseBlock(await executeInspect(['deploy', fileName]))
     // remove contract descriptor file
     fs.unlinkSync(fileName)
     descriptor.source.should.equal(contractDescriptor.source)
@@ -87,9 +93,8 @@ describe('CLI Inspect Module', function () {
     descriptor.api_error.should.equal('Transaction not found')
   })
   it('Inspect Name', async () => {
-    const invalidName = await execute(['inspect', 'asd', '--json'])
-    const validName = JSON.parse(await execute(['inspect', 'nazdou2222222.chain', '--json']))
-    invalidName.should.contain('Name should end with .chain')
+    expect(executeInspect(['asd', '--json'])).to.be.rejectedWith('Name should end with .chain')
+    const validName = await executeInspect(['nazdou2222222.chain', '--json'])
     validName.status.should.be.equal('AVAILABLE')
   })
 })

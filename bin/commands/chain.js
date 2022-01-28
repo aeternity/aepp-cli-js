@@ -1,7 +1,6 @@
-#!/usr/bin/env node
 // # æternity CLI `chain` file
 //
-// This script initialize all `chain` function
+// This script initialize all `chain` command's
 /*
  * ISC License (ISC)
  * Copyright (c) 2018 aeternity developers
@@ -18,206 +17,86 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
+// We'll use `commander` for parsing options
+import { Command } from 'commander'
+import * as utils from '../utils'
+import * as Chain from '../actions/chain'
 
-import { exit, initChain } from '../utils/cli'
-import { handleApiError } from '../utils/errors'
-import { printBlock, print, printError, printUnderscored, printTransaction, printValidation } from '../utils/print'
-import { getBlock } from '../utils/helpers'
+export default function () {
+  const program = new Command().name('aecli chain')
 
-// ## Retrieve `node` version
-async function version (options) {
-  const { json } = options
-  try {
-    // Initialize `Ae`
-    const client = await initChain(options)
-    // Call `getStatus` API and print it
-    await handleApiError(async () => {
-      const status = await client.api.getStatus()
-      const { consensusProtocolVersion } = client.getNodeInfo()
-      if (json) {
-        print(status)
-        exit()
-      }
-      const FORKS = {
-        3: 'Fortuna',
-        4: 'Lima',
-        5: 'Iris'
-      }
-      printUnderscored('Difficulty', status.difficulty)
-      printUnderscored('Node version', status.nodeVersion)
-      printUnderscored('Consensus protocol version', `${consensusProtocolVersion} (${FORKS[consensusProtocolVersion]})`)
-      printUnderscored('Node revision', status.nodeRevision)
-      printUnderscored('Genesis hash', status.genesisKeyBlockHash)
-      printUnderscored('Network ID', status.networkId)
-      printUnderscored('Listening', status.listening)
-      printUnderscored('Peer count', status.peerCount)
-      printUnderscored('Pending transactions count', status.pendingTransactionsCount)
-      printUnderscored('Solutions', status.solutions)
-      printUnderscored('Syncing', status.syncing)
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // # Initialize `options`
+  program
+    .option('-u --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+    .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
+    .option('-L --limit [playlimit]', 'Limit for play command', utils.constant.PLAY_LIMIT)
+    .option('-f --force', 'Ignore node version compatibility check')
+    .option('--json', 'Print result in json format')
 
-// ## Retrieve `node` version
-async function getNetworkId (options) {
-  const { json } = options
-  try {
-    // Initialize `Ae`
-    const client = await initChain(options)
-    // Call `getStatus` API and print it
-    await handleApiError(async () => {
-      const { networkId } = await client.api.getStatus()
-      json ? print({ networkId }) : printUnderscored('Network ID', networkId)
-      exit(0)
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // ## Initialize `top` command
+  //
+  // You can use this command to retrieve `top block` from `node`
+  //
+  // Example: `aecli chain top`
+  program
+    .command('top')
+    .description('Get top of Chain')
+    .action(async (...args) => await Chain.top(utils.cli.getCmdFromArguments(args)))
 
-// ## Retrieve `ttl` version
-async function ttl (absoluteTtl, options) {
-  const { json } = options
-  try {
-    // Initialize `Ae`
-    const client = await initChain(options)
-    // Call `topBlock` API and calculate relative `ttl`
-    await handleApiError(async () => {
-      const height = await client.height()
-      if (json) {
-        print({ absoluteTtl, relativeTtl: +height + +absoluteTtl })
-      } else {
-        printUnderscored('Absolute TTL', absoluteTtl)
-        printUnderscored('Relative TTL', +height + +absoluteTtl)
-      }
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // ## Initialize `status` command
+  //
+  // You can use this command to retrieve `node version`
+  //
+  // Example: `aecli chain status`
+  program
+    .command('status')
+    .description('Get node version')
+    .action(async (...args) => await Chain.version(utils.cli.getCmdFromArguments(args)))
 
-// ## Retrieve `TOP` block
-async function top (options) {
-  const { json } = options
-  try {
-    // Initialize `Ae`
-    const client = await initChain(options)
-    // Call `getTopBlock` API and print it
-    await handleApiError(
-      async () => printBlock(await client.topBlock(), json)
-    )
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // ## Initialize `ttl` command
+  //
+  // You can use this command to retrieve relative `ttl`
+  //
+  // Example: `aecli chain ttl <absolute_ttl>`
+  program
+    .command('ttl <absoluteTtl>')
+    .description('Get relative ttl')
+    .action(async (absoluteTtl, ...args) => await Chain.ttl(absoluteTtl, utils.cli.getCmdFromArguments(args)))
 
-// ## This function `Play`(print all block) from `top` block to some condition(reach some `height` or `limit`)
-async function play (options) {
-  let { height, limit, json } = options
-  limit = parseInt(limit)
-  height = parseInt(height)
-  try {
-    const client = await initChain(options)
+  // ## Initialize `ttl` command
+  //
+  // You can use this command to retrieve relative `ttl`
+  //
+  // Example: `aecli chain ttl <absolute_ttl>`
+  program
+    .command('network_id')
+    .description('Get network ID')
+    .action(async (...args) => await Chain.getNetworkId(utils.cli.getCmdFromArguments(args)))
 
-    await handleApiError(async () => {
-      // Get top block from `node`. It is a start point for play.
-      const top = await client.topBlock()
+  // ## Initialize `play` command
+  //
+  // You can use this command to get list of block by some condition(by `limit` or `height`)
+  //
+  // Example: `aecli chain play --limit 10` --> print 10 blocks starting from top
+  //
+  // Example: `aecli chain play --height` --> print blocks until reach some height starting from top
+  program
+    .command('play')
+    .option('-P --height [playToHeight]', 'Play to selected height')
+    .description('Real-time block monitoring')
+    .action(async (...args) => await Chain.play(utils.cli.getCmdFromArguments(args)))
 
-      if (height && height > parseInt(top.height)) {
-        printError('Height is bigger then height of top block')
-        exit(1)
-      }
+  // ## Initialize `broadcast` command
+  //
+  // You can use this command to send `transaction` to the `chain`
+  //
+  // Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
+  program
+    .command('broadcast <tx>')
+    .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
+    .option('--verify', 'Verify Transaction before broadcast.')
+    .description('Send transaction to the chain')
+    .action(async (tx, ...args) => await Chain.broadcast(tx, utils.cli.getCmdFromArguments(args)))
 
-      printBlock(top, json)
-
-      // Play by `height` or by `limit` using `top` block as start point
-      height
-        ? await playWithHeight(height, top.prevHash)(client, json)
-        : await playWithLimit(--limit, top.prevHash)(client, json)
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
-
-// # Play by `limit`
-function playWithLimit (limit, blockHash) {
-  return async (client, json) => {
-    if (!limit) return
-
-    const block = await getBlock(blockHash)(client)
-
-    return new Promise((resolve, reject) => {
-      setTimeout(async () => {
-        printBlock(block, json)
-        resolve(await playWithLimit(--limit, block.prevHash)(client, json))
-      }, 1000)
-    })
-  }
-}
-
-// # Play by `height`
-function playWithHeight (height, blockHash) {
-  return async (client, json) => {
-    const block = await getBlock(blockHash)(client)
-    if (parseInt(block.height) < height) return
-
-    return new Promise((resolve, reject) => {
-      setTimeout(async () => {
-        printBlock(block, json)
-        resolve(await playWithHeight(height, block.prevHash)(client, json))
-      }, 1000)
-    })
-  }
-}
-
-// ## Send 'transaction' to the chain
-async function broadcast (signedTx, options) {
-  const { json, waitMined, verify } = options
-  try {
-    // Initialize `Ae`
-    const client = await initChain(options)
-    // Call `getStatus` API and print it
-    await handleApiError(async () => {
-      try {
-        const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify })
-        waitMined ? printTransaction(tx, json) : print('Transaction send to the chain. Tx hash: ' + tx.hash)
-      } catch (e) {
-        if (e.verifyTx) {
-          const validation = await e.verifyTx()
-          if (validation.length) {
-            printValidation({ validation, transaction: signedTx })
-            return
-          }
-        }
-        if (e.code === 'TX_VERIFICATION_ERROR') {
-          printValidation(e)
-          return
-        }
-        throw e
-      }
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
-
-export const Chain = {
-  top,
-  version,
-  play,
-  ttl,
-  getNetworkId,
-  broadcast
+  return program
 }

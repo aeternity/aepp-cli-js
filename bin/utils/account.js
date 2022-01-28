@@ -17,9 +17,7 @@
 *  PERFORMANCE OF THIS SOFTWARE.
 */
 import path from 'path'
-
 import { Crypto, Keystore } from '@aeternity/aepp-sdk'
-
 import { isFileExist, readJSONFile, writeFile } from './helpers'
 import { PROMPT_TYPE, prompt } from './prompt'
 
@@ -32,7 +30,7 @@ export async function askForOverwrite (name, output) {
 
 // Generate `keypair` encrypt it using password and write to `ethereum` keystore file
 export async function generateSecureWallet (name, { output = '', password, overwrite }) {
-  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(1)
+  if (!overwrite && !(await askForOverwrite(name, output))) return
   password = password || await prompt(PROMPT_TYPE.askPassword)
   const { secretKey, publicKey } = Crypto.generateKeyPair(true)
 
@@ -43,7 +41,7 @@ export async function generateSecureWallet (name, { output = '', password, overw
 
 // Generate `keypair` from `PRIVATE KEY` encrypt it using password and to `ethereum` keystore file
 export async function generateSecureWalletFromPrivKey (name, priv, { output = '', password, overwrite }) {
-  if (!overwrite && !(await askForOverwrite(name, output))) process.exit(1)
+  if (!overwrite && !(await askForOverwrite(name, output))) return
   password = password || await prompt(PROMPT_TYPE.askPassword)
 
   const hexStr = Buffer.from(priv.trim(), 'hex')
@@ -58,18 +56,14 @@ export async function generateSecureWalletFromPrivKey (name, priv, { output = ''
 
 // Get account file by path, decrypt it using password and return `keypair`
 export async function getWalletByPathAndDecrypt (walletPath, { password } = {}) {
-  try {
-    const keyFile = readJSONFile(path.resolve(process.cwd(), walletPath))
+  const keyFile = readJSONFile(path.resolve(process.cwd(), walletPath))
 
-    if (!password || typeof password !== 'string' || !password.length) password = await prompt(PROMPT_TYPE.askPassword)
+  if (!password || typeof password !== 'string' || !password.length) password = await prompt(PROMPT_TYPE.askPassword)
 
-    const privKey = await Keystore.recover(password, keyFile)
+  const privKey = await Keystore.recover(password, keyFile)
 
-    return {
-      secretKey: privKey,
-      publicKey: Keystore.getAddressFromPriv(privKey)
-    }
-  } catch (e) {
-    throw new Error('GET WALLET ERROR: ' + e.message)
+  return {
+    secretKey: privKey,
+    publicKey: Crypto.getAddressFromPriv(privKey)
   }
 }

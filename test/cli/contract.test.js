@@ -17,7 +17,10 @@
 
 import fs from 'fs'
 import { after, before, describe, it } from 'mocha'
-import { configure, execute as exec, KEY_PAIR, plan, ready, WALLET_NAME } from './index'
+import { configure, executeProgram, KEY_PAIR, plan, ready, WALLET_NAME } from './index'
+import contractProgramFactory from '../../bin/commands/contract'
+
+const executeContract = args => executeProgram(contractProgramFactory, args)
 
 // CONTRACT SOURCE
 const testContract = `
@@ -57,7 +60,7 @@ describe('CLI Contract Module', function () {
     // Create contract file
     // Compile contract
     const compiled = await wallet.contractCompile(testContract).catch(console.error)
-    const compiledCLI = (await exec(['contract', 'compile', contractFile]))
+    const compiledCLI = (await executeContract(['compile', contractFile]))
     const bytecodeCLI = compiledCLI.split(':')[1].trim()
     bytecode = compiled.bytecode
 
@@ -65,13 +68,13 @@ describe('CLI Contract Module', function () {
   })
 
   it('Encode callData', async () => {
-    const { callData } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'test', '1', '2', '--json']))
+    const { callData } = await executeContract(['encodeData', contractFile, 'test', '1', '2', '--json'])
     callData.should.be.equal(CALL_DATA)
   })
 
   it('Decode callData', async () => {
-    const { decoded } = JSON.parse(await exec(['contract', 'decodeCallData', CALL_DATA, '--code', bytecode, '--json']))
-    return Promise.resolve(decoded).should.eventually.become(DECODED_CALL_DATA)
+    const { decoded } = await executeContract(['decodeCallData', CALL_DATA, '--code', bytecode, '--json'])
+    decoded.should.be.eql(DECODED_CALL_DATA)
   })
 
   it('Deploy Contract', async () => {
@@ -79,9 +82,8 @@ describe('CLI Contract Module', function () {
     fs.writeFileSync(contractFile, testContract)
 
     // Deploy contract
-    const { callData } = JSON.parse(await exec(['contract', 'encodeData', contractFile, 'init', '--json']))
-    const resRaw = await exec(['contract', 'deploy', WALLET_NAME, '--password', 'test', contractFile, callData, '--json'])
-    const res = JSON.parse(resRaw)
+    const { callData } = await executeContract(['encodeData', contractFile, 'init', '--json'])
+    const res = await executeContract(['deploy', WALLET_NAME, '--password', 'test', contractFile, callData, '--json'])
     const { result: { contractId }, transaction, descPath } = res
     deployDescriptor = descPath
     const [name, pref, add] = deployDescriptor.split('.')
@@ -95,27 +97,26 @@ describe('CLI Contract Module', function () {
 
   it('Call Contract by descriptor', async () => {
     // Call contract
-    const res = await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2'])
-    const callResponse = JSON.parse(res)
+    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2'])
     callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.be.equal('3')
   })
 
   it('Call Contract static by descriptor', async () => {
     // Call contract
-    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2', '--callStatic'])))
+    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--descrPath', deployDescriptor, 'test', '1', '2', '--callStatic'])
     callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.equal('3')
   })
 
   it('Call Contract by contract address', async () => {
-    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'test', '1', '2'])))
+    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'test', '1', '2'])
     callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.equal('3')
   })
 
   it('Call Contract static by contract address', async () => {
-    const callResponse = (JSON.parse(await exec(['contract', 'call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'test', '1', '2', '--callStatic'])))
+    const callResponse = await executeContract(['call', WALLET_NAME, '--password', 'test', '--json', '--contractAddress', cAddress, '--contractSource', contractFile, 'test', '1', '2', '--callStatic'])
     callResponse.result.returnValue.should.contain('cb_')
     callResponse.decodedResult.should.equal('3')
   })

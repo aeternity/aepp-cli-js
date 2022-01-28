@@ -22,7 +22,6 @@ import fs from 'fs'
 import path from 'path'
 
 import { GAS_PRICE, HASH_TYPES } from './constant'
-import { printError } from './print'
 import { TxBuilderHelper } from '@aeternity/aepp-sdk'
 
 // ## Method which build arguments for call call/deploy contracts
@@ -103,28 +102,15 @@ export function checkPref (hash, hashType) {
 
 // Read JSON file
 export function readJSONFile (filePath) {
-  try {
-    return JSON.parse(readFile(filePath))
-  } catch (e) {
-    printError('READ FILE ERROR:')
-    printError('  message: ' + e.message)
-    printError('  path: ' + filePath)
-    process.exit(1)
-  }
+  return JSON.parse(readFile(filePath))
 }
 
 // Write file to filesystem
-export function writeFile (name, data, errTitle = 'WRITE FILE ERROR') {
-  try {
-    fs.writeFileSync(
-      name,
-      data
-    )
-    return true
-  } catch (e) {
-    printError(`${errTitle}: ` + e)
-    process.exit(1)
-  }
+export function writeFile (name, data) {
+  fs.writeFileSync(
+    name,
+    data
+  )
 }
 
 // Read file from filesystem

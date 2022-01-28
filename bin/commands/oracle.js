@@ -1,7 +1,6 @@
-#!/usr/bin/env node
-// # æternity CLI `contract` file
+// # æternity CLI `oracle` file
 //
-// This script initialize all `contract` function
+// This script initialize all `oracle` commands
 /*
  * ISC License (ISC)
  * Copyright (c) 2018 aeternity developers
@@ -18,180 +17,105 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
+// We'll use `commander` for parsing options
+import { Command } from 'commander'
+import * as utils from '../utils'
+import * as Oracle from '../actions/oracle'
 
-import { TxBuilderHelper } from '@aeternity/aepp-sdk'
-import { exit, initChain, initClientByWalletFile } from '../utils/cli'
-import { BUILD_ORACLE_TTL } from '../utils/constant'
-import { handleApiError } from '../utils/errors'
-import {
-  print, printError,
-  printOracle,
-  printQueries, printTransaction
-} from '../utils/print'
+export default function () {
+  const program = new Command().name('aecli oracle')
 
-// ## Create Oracle
-async function createOracle (walletPath, queryFormat, responseFormat, options) {
-  const { ttl, fee, nonce, waitMined, json, oracleTtl, queryFee } = options
+  // ## Initialize `options`
+  program
+    .option('-u, --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+    .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
+    .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', utils.constant.TX_TTL)
+    .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
+    .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+    .option('-P, --password [password]', 'Wallet Password')
+    .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+    .option('-f --force', 'Ignore node version compatibility check')
+    .option('--json', 'Print result in json format', utils.constant.OUTPUT_JSON)
 
-  try {
-    const client = await initClientByWalletFile(walletPath, options)
-    await handleApiError(async () => {
-      // Register Oracle
-      const oracle = await client.registerOracle(queryFormat, responseFormat, {
-        ttl,
-        waitMined,
-        nonce,
-        fee,
-        oracleTtl: isNaN(parseInt(oracleTtl))
-          ? oracleTtl
-          : BUILD_ORACLE_TTL(oracleTtl),
-        queryFee
-      })
-      if (waitMined) {
-        printTransaction(oracle, json)
-      } else {
-        print('Transaction send to the chain. Tx hash: ', oracle)
-      }
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // ## Initialize `create` command
+  //
+  // You can use this command to `create` Oracle
+  //
+  // Example: `aecli oracle create ./myWalletKeyFile --password testpass string string`
+  //
+  // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+  //
+  // You can use `--ttl` to pre-set transaction `time to leave`
+  program
+    .command('create <wallet_path> <queryFormat> <responseFormat>')
+    .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+    .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', utils.constant.ORACLE_TTL)
+    .option('--queryFee [queryFee]', 'Oracle query fee', utils.constant.QUERY_FEE)
+    .description('Register Oracle')
+    .action(async (walletPath, queryFormat, responseFormat, ...args) => await Oracle.createOracle(walletPath, queryFormat, responseFormat, utils.cli.getCmdFromArguments(args)))
 
-// ## Extend Oracle
-async function extendOracle (walletPath, oracleId, oracleTtl, options) {
-  const { ttl, fee, nonce, waitMined, json } = options
+  // ## Initialize `extend oracle` command
+  //
+  // You can use this command to `extend` Oracle time to leave
+  //
+  // Example: `aecli oracle extend ./myWalletKeyFile --password testpass ok_12dasdgfa32fasf 200`
+  //
+  // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+  //
+  // You can use `--ttl` to pre-set transaction `time to leave`
+  program
+    .command('extend <wallet_path> <oracleId> <oracleTtl>')
+    .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+    .description('Extend Oracle')
+    .action(async (walletPath, oracleId, oracleTtl, ...args) => await Oracle.extendOracle(walletPath, oracleId, oracleTtl, utils.cli.getCmdFromArguments(args)))
 
-  try {
-    if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number')
-    TxBuilderHelper.decode(oracleId, 'ok')
-    const client = await initClientByWalletFile(walletPath, options)
-    await handleApiError(async () => {
-      const oracle = await client.getOracleObject(oracleId)
-      const extended = await oracle.extendOracle(BUILD_ORACLE_TTL(oracleTtl), {
-        ttl,
-        waitMined,
-        nonce,
-        fee
-      })
-      if (waitMined) {
-        printTransaction(extended, json)
-      } else {
-        print('Transaction send to the chain. Tx hash: ', extended)
-      }
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // ## Initialize `create oracle query` command
+  //
+  // You can use this command to `create` an Oracle Query
+  //
+  // Example: `aecli oracle create-query ./myWalletKeyFile --password testpass ok_123asdasd... WhatTheWeatherIs?`
+  //
+  // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+  //
+  // You can use `--ttl` to pre-set transaction `time to leave`
+  program
+    .command('create-query <wallet_path> <oracleId> <query>')
+    .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+    .option('--responseTtl [responseTtl]', 'Query response time to leave', utils.constant.RESPONSE_TTL)
+    .option('--queryTtl [queryTtl]', 'Query time to leave', utils.constant.QUERY_TTL)
+    .option('--queryFee [queryFee]', 'Oracle query fee', utils.constant.QUERY_FEE)
+    .description('Create Oracle query')
+    .action(async (walletPath, oracleId, query, ...args) => await Oracle.createOracleQuery(walletPath, oracleId, query, utils.cli.getCmdFromArguments(args)))
 
-// ## Create Oracle Query
-async function createOracleQuery (walletPath, oracleId, query, options) {
-  const { ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl } =
-    options
+  // ## Initialize `respond query` command
+  //
+  // You can use this command to `respond` to Oracle Query
+  //
+  // Example: `aecli oracle respondQuery ./myWalletKeyFile --password testpass ok_12313... oq_12efdsafa... +16Degree`
+  //
+  // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+  //
+  // You can use `--ttl` to pre-set transaction `time to leave`
+  program
+    .command('respond-query <wallet_path> <oracleId> <queryId> <response>')
+    .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+    .option('--responseTtl [responseTtl]', 'Query response time to leave', utils.constant.RESPONSE_TTL)
+    .description('Respond to  Oracle Query')
+    .action(async (walletPath, oracleId, queryId, response, ...args) => await Oracle.respondToQuery(walletPath, oracleId, queryId, response, utils.cli.getCmdFromArguments(args)))
 
-  try {
-    TxBuilderHelper.decode(oracleId, 'ok')
-    const client = await initClientByWalletFile(walletPath, options)
+  // ## Initialize `get oracle` command
+  //
+  // You can use this command to `get` an Oracle
+  //
+  // Example: `aecli oracle respondQuery ./myWalletKeyFile --password testpass ok_12313... oq_12efdsafa... +16Degree`
+  //
+  // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+  //
+  // You can use `--ttl` to pre-set transaction `time to leave`
+  program
+    .command('get <oracleId>')
+    .description('Get Oracle')
+    .action(async (oracleId, ...args) => await Oracle.queryOracle(oracleId, utils.cli.getCmdFromArguments(args)))
 
-    await handleApiError(async () => {
-      const oracle = await client.getOracleObject(oracleId)
-      const oracleQuery = await oracle.postQuery(query, {
-        ttl,
-        waitMined,
-        nonce,
-        fee,
-        queryTll: isNaN(parseInt(queryTll))
-          ? queryTll
-          : BUILD_ORACLE_TTL(queryTll),
-        responseTtl: isNaN(parseInt(responseTtl))
-          ? responseTtl
-          : BUILD_ORACLE_TTL(responseTtl),
-        queryFee
-      })
-      if (waitMined) {
-        printTransaction(oracleQuery, json)
-      } else {
-        print('Transaction send to the chain. Tx hash: ', oracleQuery)
-      }
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
-
-// ## Respond to Oracle Query
-async function respondToQuery (
-  walletPath,
-  oracleId,
-  queryId,
-  response,
-  options
-) {
-  const { ttl, fee, nonce, waitMined, json, responseTtl } = options
-
-  try {
-    TxBuilderHelper.decode(oracleId, 'ok')
-    TxBuilderHelper.decode(queryId, 'oq')
-    const client = await initClientByWalletFile(walletPath, options)
-
-    await handleApiError(async () => {
-      const oracle = await client.getOracleObject(oracleId)
-      const queryResponse = await oracle.respondToQuery(queryId, response, {
-        ttl,
-        waitMined,
-        nonce,
-        fee,
-        responseTtl: isNaN(parseInt(responseTtl))
-          ? responseTtl
-          : BUILD_ORACLE_TTL(responseTtl)
-      })
-      if (waitMined) {
-        printTransaction(queryResponse, json)
-      } else {
-        print('Transaction send to the chain. Tx hash: ', queryResponse)
-      }
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
-
-// ## Get oracle
-async function queryOracle (oracleId, options) {
-  try {
-    TxBuilderHelper.decode(oracleId, 'ok')
-    const client = await initChain(options)
-    await handleApiError(async () => {
-      const oracle = await client.api.getOracleByPubkey(oracleId)
-      const { oracleQueries: queries } =
-        await client.api.getOracleQueriesByPubkey(oracleId)
-      if (options.json) {
-        console.log(JSON.stringify({ ...oracle, queries }))
-      } else {
-        printOracle(oracle, options.json)
-        printQueries(queries, options.json)
-      }
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
-
-export const Oracle = {
-  createOracle,
-  extendOracle,
-  queryOracle,
-  createOracleQuery,
-  respondToQuery
+  return program
 }

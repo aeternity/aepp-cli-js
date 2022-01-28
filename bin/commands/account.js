@@ -1,7 +1,6 @@
-#!/usr/bin/env node
 // # æternity CLI `account` file
 //
-// This script initialize all `account` function
+// This script initialize all `account` commands
 /*
  * ISC License (ISC)
  * Copyright (c) 2018 aeternity developers
@@ -18,344 +17,178 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
+// We'll use `commander` for parsing options
+import { Command } from 'commander'
+import * as utils from '../utils'
+import * as Account from '../actions/account'
 
-import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk'
+export default function () {
+  const program = new Command().name('aecli account')
 
-import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account'
-import { HASH_TYPES } from '../utils/constant'
-import { exit, initClientByWalletFile } from '../utils/cli'
-import { handleApiError } from '../utils/errors'
-import { print, printError, printTransaction, printUnderscored } from '../utils/print'
-import { checkPref, readFile } from '../utils/helpers'
-import { PROMPT_TYPE, prompt } from '../utils/prompt'
+  // ## Initialize `options`
+  program
+    .option('-u, --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
+    .option('-U, --internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
+    .option('-P, --password [password]', 'Wallet Password')
+    .option('-f --force', 'Ignore epoch version compatibility check')
+    .option('--json', 'Print result in json format')
 
-// ## `Sign message` function
-// this function allow you to `sign` arbitrary data
-async function signMessage (walletPath, data = [], options) {
-  const { json, filePath } = options
-  const dataForSign = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
-    if (dataForSign.length >= 0xFD) throw new Error('Message too long!')
-    const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
-    await handleApiError(async () => {
-      const signedMessage = await client.signMessage(dataForSign)
-      const address = await client.address()
-      const result = {
-        data: typeof dataForSign !== 'string' ? Array.from(dataForSign) : dataForSign,
-        address,
-        signature: Array.from(signedMessage),
-        signatureHex: Buffer.from(signedMessage).toString('hex')
-      }
-      if (json) {
-        print(result)
-      } else {
-        printUnderscored('Unsigned', result.data)
-        printUnderscored('Signing account address', result.address)
-        printUnderscored('Signature', result.signature)
-        printUnderscored('Signature Hex', result.signatureHex)
-      }
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // ## Initialize `spend` command
+  //
+  // You can use this command to send tokens to another account
+  //
+  // Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword`
+  //
+  // Example: `aecli account spend ./myWalletKeyFile aensAccountName.chain 100 --password testpassword`
+  //
+  // You can set transaction `ttl(Time to leave)`. If not set use default.
+  //
+  // Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
+  program
+    .command('spend <wallet_path> <receiverIdOrName> <amount>')
+    .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+    .option('--payload [payload]', 'Transaction payload.', '')
+    .option('-F, --fee [fee]', 'Spend transaction fee.')
+    .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+    .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+    .option('-D, --denomination [denomination]', 'Denomination of amount', utils.constant.DENOMINATION)
+    .action(async (walletPath, receiverIdOrName, amount, ...args) => await Account.spend(walletPath, receiverIdOrName, amount, utils.cli.getCmdFromArguments(args)))
 
-// ## `Verify` function
-// this function allow you to `verify` signed data
-async function verifyMessage (walletPath, hexSignature, data = [], options) {
-  const { json, filePath } = options
-  const dataForVerify = filePath ? readFile(filePath) : data.reduce((acc, el, i) => `${acc}${i === 0 ? el : ' ' + el}`, '')
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
-    if (dataForVerify.length >= 0xFD) throw new Error('Message too long!')
-    const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
-    await handleApiError(async () => {
-      const isCorrect = await client.verifyMessage(dataForVerify, hexSignature)
-      const result = {
-        data: typeof dataForVerify !== 'string' ? Array.from(dataForVerify) : dataForVerify,
-        isCorrect
-      }
-      if (json) {
-        print(result)
-      } else {
-        printUnderscored('Valid signature', isCorrect)
-        printUnderscored('Data', dataForVerify)
-      }
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // ## Initialize `transfer` command
+  //
+  // You can use this command to send % of balance to another account
+  //
+  // Example: `aecli account transfer ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 0.5 --password testpassword`
+  //
+  // You can set transaction `ttl(Time to leave)`. If not set use default.
+  //
+  // Example: `aecli account transfer ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 0.5 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
+  program
+    .command('transfer <wallet_path> <receiver> <percentage>')
+    .option('--excludeFee', 'Exclude fee from amount')
+    .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+    .option('--payload [payload]', 'Transaction payload.', '')
+    .option('-F, --fee [fee]', 'Spend transaction fee.')
+    .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', utils.constant.TX_TTL)
+    .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+    .option('-D, --denomination [denomination]', 'Denomination of amount', utils.constant.DENOMINATION)
+    .action(async (walletPath, receiver, percentage, ...args) => await Account.transferFunds(walletPath, receiver, percentage, utils.cli.getCmdFromArguments(args)))
 
-// ## `Sign` function
-// this function allow you to `sign` transaction's
-async function sign (walletPath, tx, options) {
-  const { json } = options
-  try {
-    // Validate `tx` hash
-    if (tx.slice(0, 2) !== 'tx') { throw new Error('Invalid transaction hash') }
+  // ## Initialize `sign` command
+  //
+  // You can use this command to sign your transaction's
+  //
+  // Example: `aecli account sign ./myWalletKeyFile tx_1241rioefwj23f2wfdsfsdsdfsasdf --password testpassword`
+  program
+    .command('sign <wallet_path> <tx>')
+    .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+    .description('Create a transaction to another wallet')
+    .action(async (walletPath, tx, ...args) => await Account.sign(walletPath, tx, utils.cli.getCmdFromArguments(args)))
 
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Account` flavor with this `keyPair`
-    const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true })
+  // ## Initialize `sign-message` command
+  //
+  // You can use this command to sign message
+  //
+  // Example: `aecli account sign-message ./myWalletKeyFile Hello --password testpassword`
+  program
+    .command('sign-message <wallet_path> [data...]')
+    .option('--filePath [path]', 'Specify the path to the file for signing(ignore command message argument and use file instead)')
+    .description('Create a transaction to another wallet')
+    .action(async (walletPath, data, ...args) => await Account.signMessage(walletPath, data, utils.cli.getCmdFromArguments(args)))
 
-    await handleApiError(async () => {
-      const signedTx = await client.signTransaction(tx)
-      const address = await client.address()
-      const networkId = client.getNetworkId()
-      if (json) {
-        print({ signedTx, address, networkId })
-      } else {
-        printUnderscored('Signing account address', address)
-        printUnderscored('Network ID', networkId)
-        printUnderscored('Unsigned', tx)
-        printUnderscored('Signed', signedTx)
-      }
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // ## Initialize `verify-message` command
+  //
+  // You can use this command to sign message
+  //
+  // Example: `aecli account verify-message ./myWalletKeyFile asd1dasfadfsdasdasdasHexSig... Hello --password testpassword`
+  program
+    .command('verify-message <wallet_path> <hexSignature> [data...]')
+    .option('--filePath [path]', 'Specify the path to the file(ignore comm and message argument and use file instead)')
+    .description('Create a transaction to another wallet')
+    .action(async (walletPath, hexSignature, data, ...args) => await Account.verifyMessage(walletPath, hexSignature, data, utils.cli.getCmdFromArguments(args)))
 
-// ## `Spend` function
-// this function allow you to `send` token's to another `account`
-async function spend (walletPath, receiverNameOrAddress, amount, options) {
-  const { ttl, json, nonce, fee, payload = '', denomination = AmountFormatter.AE_AMOUNT_FORMATS.AETTOS } = options
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const client = await initClientByWalletFile(walletPath, options)
+  // ## Initialize `balance` command
+  //
+  // You can use this command to retrieve balance of account
+  //
+  // Example: `aecli account balance ./myWalletKeyFile --password testpassword`
+  program
+    .command('balance <wallet_path>')
+    .option('--height [height]', 'Specific block height')
+    .option('--hash [hash]', 'Specific block hash')
+    .description('Get wallet balance')
+    .action(async (walletPath, ...args) => await Account.getBalance(walletPath, utils.cli.getCmdFromArguments(args)))
 
-    await handleApiError(async () => {
-      let tx = await client.spend(amount, receiverNameOrAddress, { ttl, nonce, payload, fee, denomination })
-      // if waitMined false
-      if (typeof tx !== 'object') {
-        tx = await client.tx(tx)
-      } else {
-        !json && print('Transaction mined')
-      }
-      json
-        ? print({ tx })
-        : printTransaction(tx, json)
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // ## Initialize `address` command
+  //
+  // You can use this command to retrieve get your public and private key
+  //
+  // Example: `aecli account address ./myWalletKeyFile --password testpassword` --> show only public key
+  //
+  // Example: `aecli account address ./myWalletKeyFile --password testpassword --privateKey` --> show  public key and private key
+  program
+    .command('address <wallet_path>')
+    .option('--privateKey', 'Print private key')
+    .option('--forcePrompt', 'Force prompting')
+    .description('Get wallet address')
+    .action(async (walletPath, ...args) => await Account.getAddress(walletPath, utils.cli.getCmdFromArguments(args)))
 
-// ## `Transfer` function
-// this function allow you to `send` % of balance to another `account`
-async function transferFunds (walletPath, receiver, percentage, options) {
-  const { ttl, json, nonce, fee, payload = '', excludeFee } = options
-  percentage = parseFloat(percentage)
-  try {
-    checkPref(receiver, HASH_TYPES.account)
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const client = await initClientByWalletFile(walletPath, options)
+  // ## Initialize `create` command
+  //
+  // You can use this command to generate `keypair` and encrypt it by password.
+  // This command create `ethereum like keyfile`.
+  //
+  // You can use `--output ./keys` to set directory to save you key.
+  //
+  // Example: `aecli account create myWalletName --password testpassword`
+  //
+  // Example: `aecli account create myWalletName --password testpassword --output ./mykeys` --> create `key-file` in `mykeys` directory
+  program
+    .command('create <name>')
+    .option('-O, --output [output]', 'Output directory', '.')
+    .option('--overwrite', 'Overwrite if exist')
+    .description('Create a secure wallet')
+    .action(async (name, ...args) => await Account.createSecureWallet(name, utils.cli.getCmdFromArguments(args)))
 
-    await handleApiError(async () => {
-      let tx = await client.transferFunds(percentage, receiver, { ttl, nonce, payload, fee, excludeFee })
-      // if waitMined false
-      if (typeof tx !== 'object') {
-        tx = await client.tx(tx)
-      } else {
-        !json && print('Transaction mined')
-      }
-      if (json) {
-        print({ tx })
-      } else {
-        printTransaction(tx, json)
-      }
-      exit()
-    })
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // ## Initialize `save` command
+  //
+  // You can use this command to generate `keypair` from `private-key` and encrypt it by password.
+  // This command create `ethereum like keyfile`.
+  //
+  // You can use `--output ./keys` to set directory to save you key
+  //
+  // Example: `aecli account save myWalletName 1902855723940510273412074210842018342148234  --password testpassword`
+  //
+  // Example: `aecli account save myWalletName 1902855723940510273412074210842018342148234 --password testpassword --output ./mykeys` --> create `key-file` in `mykeys` directory
+  program
+    .command('save <name> <privkey>')
+    .option('-O, --output [output]', 'Output directory', '.')
+    .option('--overwrite', 'Overwrite if exist')
+    .description('Save a private keys string to a password protected file wallet')
+    .action(async (name, priv, ...args) => await Account.createSecureWalletByPrivKey(name, priv, utils.cli.getCmdFromArguments(args)))
 
-// ## Get `balance` function
-// This function allow you retrieve account `balance`
-async function getBalance (walletPath, options) {
-  const { height, hash, json } = options
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
-    await handleApiError(
-      async () => {
-        const nonce = await client.getAccountNonce(keypair.publicKey)
-        const balance = await client.balance(keypair.publicKey, { height: +height, hash })
-        const address = await client.address()
-        if (json) {
-          print({ address, nonce, balance })
-        } else {
-          printUnderscored('Balance', balance)
-          printUnderscored('ID', address)
-          printUnderscored('Nonce', nonce)
-        }
-        exit()
-      }
-    )
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
+  // ## Initialize `nonce` command
+  //
+  // You can use this command to get `account nonce`.
+  //
+  // You can use `--output ./keys` to set directory to save you key
+  //
+  // Example: `aecli account nonce myWalletName --password testpassword
+  program
+    .command('nonce <wallet_path>')
+    .description('Get account nonce')
+    .action(async (walletPath, ...args) => await Account.getAccountNonce(walletPath, utils.cli.getCmdFromArguments(args)))
 
-// ## Get `address` function
-// This function allow you retrieve account `public` and `private` keys
-async function getAddress (walletPath, options) {
-  const { privateKey, forcePrompt = false, json } = options
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const { client, keypair } = await initClientByWalletFile(walletPath, { ...options, accountOnly: true }, true)
+  // ## Initialize `generateKeyPairs` command
+  //
+  // You can use this command to generate KeyPair's.
+  //
+  // Example: `aecli account generate 10 --force
+  program
+    .command('generate <count>')
+    .option('--forcePrompt', 'Force prompting')
+    .description('Generate keyPairs')
+    .action(async (count, ...args) => await Account.generateKeyPairs(count, utils.cli.getCmdFromArguments(args)))
 
-    await handleApiError(
-      async () => {
-        if (json) {
-          if (privateKey) {
-            if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-              print({ publicKey: await client.address(), secretKey: keypair.secretKey })
-            }
-          } else {
-            print({ publicKey: await client.address() })
-          }
-        } else {
-          printUnderscored('Address', await client.address())
-          if (privateKey) {
-            if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-              printUnderscored('Secret Key', keypair.secretKey)
-            }
-          }
-        }
-        exit()
-      }
-    )
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
-
-// ## Get `nonce` function
-// This function allow you retrieve account `nonce`
-async function getAccountNonce (walletPath, options) {
-  const { json } = options
-  try {
-    // Get `keyPair` by `walletPath`, decrypt using password and initialize `Ae` client with this `keyPair`
-    const { client, keypair } = await initClientByWalletFile(walletPath, options, true)
-
-    await handleApiError(
-      async () => {
-        const nonce = await client.getAccountNonce(keypair.publicKey)
-        if (json) {
-          print({
-            id: keypair.publicKey,
-            nonce: nonce - 1,
-            nextNonce: nonce
-          })
-        } else {
-          printUnderscored('ID', keypair.publicKey)
-          printUnderscored('Nonce', nonce - 1)
-          printUnderscored('Next Nonce', nonce)
-        }
-        process.exit()
-      }
-    )
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
-
-// ## Create secure `wallet` file
-// This function allow you to generate `keypair` and write it to secure `ethereum` like key-file
-async function createSecureWallet (walletPath, { output, password, overwrite, json }) {
-  try {
-    const { publicKey, path } = await generateSecureWallet(walletPath, { output, password, overwrite })
-    if (json) {
-      print({
-        publicKey,
-        path
-      })
-    } else {
-      printUnderscored('Address', publicKey)
-      printUnderscored('Path', path)
-    }
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
-
-// ## Create secure `wallet` file from `private-key`
-// This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
-async function createSecureWalletByPrivKey (walletPath, priv, { output, password, overwrite, json }) {
-  try {
-    const { publicKey, path } = await generateSecureWalletFromPrivKey(walletPath, priv, { output, password, overwrite })
-    if (json) {
-      print({
-        publicKey,
-        path
-      })
-    } else {
-      printUnderscored('Address', publicKey)
-      printUnderscored('Path', path)
-    }
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
-
-// ## Create secure `wallet` file from `private-key`
-// This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
-async function generateKeyPairs (count = 1, { forcePrompt, json }) {
-  try {
-    if (!Number.isInteger(+count)) {
-      throw new Error('Count must be an Number')
-    }
-    if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-      const accounts = Array.from(Array(parseInt(count))).map(_ => Crypto.generateKeyPair(false))
-      if (json) {
-        print(JSON.stringify(accounts, null, 2))
-      } else {
-        accounts.forEach((acc, i) => {
-          printUnderscored('Account index', i)
-          printUnderscored('Public Key', acc.publicKey)
-          printUnderscored('Secret Key', acc.secretKey)
-          print('')
-        })
-      }
-    } else {
-      exit()
-    }
-    exit()
-  } catch (e) {
-    printError(e.message)
-    exit(1)
-  }
-}
-
-export const Account = {
-  spend,
-  getBalance,
-  getAddress,
-  getAccountNonce,
-  createSecureWallet,
-  createSecureWalletByPrivKey,
-  sign,
-  transferFunds,
-  generateKeyPairs,
-  signMessage,
-  verifyMessage
+  return program
 }
