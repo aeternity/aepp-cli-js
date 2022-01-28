@@ -47,7 +47,9 @@ describe('CLI Contract Module', () => {
   before(async () => {
     fs.writeFileSync(contractSourceFile, testContractSource);
     sdk = await getSdk();
-    fs.writeFileSync(contractAciFile, JSON.stringify(await sdk.contractGetACI(testContractSource)));
+    fs.writeFileSync(contractAciFile, JSON.stringify(
+      await sdk.compilerApi.generateACI({ code: testContractSource }),
+    ));
   });
 
   after(() => {

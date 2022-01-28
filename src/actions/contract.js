@@ -30,7 +30,7 @@ const readFile = (filename, encoding = 'utf-8') => fs.readFileSync(resolve(filen
 // ## Function which compile your `source` code
 export async function compile(filename, options) {
   const sdk = await initClient(options);
-  const bytecode = await sdk.compileContractAPI(readFile(filename));
+  const { bytecode } = await sdk.compilerApi.compileContract({ code: readFile(filename) });
   if (options.json) print({ bytecode });
   else print(`Contract bytecode: ${bytecode}`);
 }
@@ -54,7 +54,8 @@ function getContractParams({
 export async function encodeCalldata(fn, args, options) {
   const sdk = await initClient(options);
   const contract = await sdk.getContractInstance(getContractParams(options, { dummySource: true }));
-  const calldata = contract.calldata.encode(contract.aci.name, fn, args);
+  // eslint-disable-next-line no-underscore-dangle
+  const calldata = contract.calldata.encode(contract._name, fn, args);
   if (options.json) print({ calldata });
   else print(`Contract encoded calldata: ${calldata}`);
 }
@@ -62,7 +63,8 @@ export async function encodeCalldata(fn, args, options) {
 export async function decodeCallResult(fn, calldata, options) {
   const sdk = await initClient(options);
   const contract = await sdk.getContractInstance(getContractParams(options, { dummySource: true }));
-  const decoded = contract.calldata.decode(contract.aci.name, fn, calldata);
+  // eslint-disable-next-line no-underscore-dangle
+  const decoded = contract.calldata.decode(contract._name, fn, calldata);
   if (options.json) print({ decoded });
   else {
     print('Contract decoded call result:');
