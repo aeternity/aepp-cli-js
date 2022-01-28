@@ -22,8 +22,9 @@
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
+    "eslint": "^8.5.0",
+    "eslint-config-airbnb-base": "^15.0.0",
     "mocha": "^9.1.3",
-    "standard": "^16.0.4",
     "standard-version": "^9.3.2"
   },
   "repository": {
@@ -34,7 +35,7 @@
     "build": "babel src --out-dir bin --out-file-extension .mjs",
     "prepare": "npm run build",
     "docs": "scripts/js-to-md.js src/*.js src/commands/*.js src/actions/*.js src/utils/*.js",
-    "lint": "commitlint --from 23f6888 && standard",
+    "lint": "commitlint --from 23f6888 && eslint .",
     "test": "mocha --recursive",
     "test:watch": "mocha --recursive --watch",
     "release": "standard-version --skip.tag",

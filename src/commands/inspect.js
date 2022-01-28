@@ -18,25 +18,24 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 // We'll use `commander` for parsing options
-import { Command } from 'commander'
-import * as utils from '../utils'
-import { inspect } from '../actions/inspect'
+import { Command } from 'commander';
+import { NODE_URL } from '../utils/constant';
+import inspect from '../actions/inspect';
 
-export default function () {
-  const program = new Command().name('aecli inspect')
+export default () => {
+  const program = new Command().name('aecli inspect');
 
   // ## Initialize `options`
   program
-    .option('-u --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
-    .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
+    .option('-u --url [hostname]', 'Node to connect to', NODE_URL)
     .option('-f --force', 'Ignore node version compatibility check')
-    .option('--json', 'Print result in json format')
+    .option('--json', 'Print result in json format');
 
   // ## Initialize `inspect` command
   //
   // You can use this command to get info about account, block, transaction or name
   //
-  // Example: `aecli inspect testName.test` --> get info about AENS `name`
+  // Example: `aecli inspect testName.chain` --> get info about AENS `name`
   //
   // Example: `aecli inspect ak_134defawsgf34gfq4f` --> get info about `account`
   //
@@ -49,8 +48,8 @@ export default function () {
   // Example: `aecli inspect th_asfwegfj34234t34t` --> get info about `transaction` by transaction `hash`
   program
     .arguments('<hash>')
-    .description('Hash or Name to inspect (eg: ak_..., mk_..., name.test)')
-    .action(async (hash, cmd) => inspect(hash, cmd))
+    .description('Hash or Name to inspect (eg: ak_..., mk_..., name.chain)')
+    .action((hash, cmd) => inspect(hash, cmd));
 
-  return program
-}
+  return program;
+};

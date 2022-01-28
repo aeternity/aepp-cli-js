@@ -18,16 +18,20 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { TxBuilderHelper } from '@aeternity/aepp-sdk'
-import { initChain, initClientByWalletFile } from '../utils/cli'
-import { BUILD_ORACLE_TTL } from '../utils/constant'
-import { print, printOracle, printQueries, printTransaction } from '../utils/print'
+import { TxBuilderHelper } from '@aeternity/aepp-sdk';
+import { initChain, initClientByWalletFile } from '../utils/cli';
+import { BUILD_ORACLE_TTL } from '../utils/constant';
+import {
+  print, printOracle, printQueries, printTransaction,
+} from '../utils/print';
 
 // ## Create Oracle
-export async function createOracle (walletPath, queryFormat, responseFormat, options) {
-  const { ttl, fee, nonce, waitMined, json, oracleTtl, queryFee } = options
+export async function createOracle(walletPath, queryFormat, responseFormat, options) {
+  const {
+    ttl, fee, nonce, waitMined, json, oracleTtl, queryFee,
+  } = options;
 
-  const client = await initClientByWalletFile(walletPath, options)
+  const client = await initClientByWalletFile(walletPath, options);
   // Register Oracle
   const oracle = await client.registerOracle(queryFormat, responseFormat, {
     ttl,
@@ -37,45 +41,48 @@ export async function createOracle (walletPath, queryFormat, responseFormat, opt
     oracleTtl: isNaN(parseInt(oracleTtl))
       ? oracleTtl
       : BUILD_ORACLE_TTL(oracleTtl),
-    queryFee
-  })
+    queryFee,
+  });
   if (waitMined) {
-    printTransaction(oracle, json)
+    printTransaction(oracle, json);
   } else {
-    print('Transaction send to the chain. Tx hash: ', oracle)
+    print('Transaction send to the chain. Tx hash: ', oracle);
   }
 }
 
 // ## Extend Oracle
-export async function extendOracle (walletPath, oracleId, oracleTtl, options) {
-  const { ttl, fee, nonce, waitMined, json } = options
+export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
+  const {
+    ttl, fee, nonce, waitMined, json,
+  } = options;
 
-  if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number')
-  TxBuilderHelper.decode(oracleId, 'ok')
-  const client = await initClientByWalletFile(walletPath, options)
-  const oracle = await client.getOracleObject(oracleId)
+  if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number');
+  TxBuilderHelper.decode(oracleId, 'ok');
+  const client = await initClientByWalletFile(walletPath, options);
+  const oracle = await client.getOracleObject(oracleId);
   const extended = await oracle.extendOracle(BUILD_ORACLE_TTL(oracleTtl), {
     ttl,
     waitMined,
     nonce,
-    fee
-  })
+    fee,
+  });
   if (waitMined) {
-    printTransaction(extended, json)
+    printTransaction(extended, json);
   } else {
-    print('Transaction send to the chain. Tx hash: ', extended)
+    print('Transaction send to the chain. Tx hash: ', extended);
   }
 }
 
 // ## Create Oracle Query
-export async function createOracleQuery (walletPath, oracleId, query, options) {
-  const { ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl } =
-    options
+export async function createOracleQuery(walletPath, oracleId, query, options) {
+  const {
+    ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl,
+  } = options;
 
-  TxBuilderHelper.decode(oracleId, 'ok')
-  const client = await initClientByWalletFile(walletPath, options)
+  TxBuilderHelper.decode(oracleId, 'ok');
+  const client = await initClientByWalletFile(walletPath, options);
 
-  const oracle = await client.getOracleObject(oracleId)
+  const oracle = await client.getOracleObject(oracleId);
   const oracleQuery = await oracle.postQuery(query, {
     ttl,
     waitMined,
@@ -87,30 +94,32 @@ export async function createOracleQuery (walletPath, oracleId, query, options) {
     responseTtl: isNaN(parseInt(responseTtl))
       ? responseTtl
       : BUILD_ORACLE_TTL(responseTtl),
-    queryFee
-  })
+    queryFee,
+  });
   if (waitMined) {
-    printTransaction(oracleQuery, json)
+    printTransaction(oracleQuery, json);
   } else {
-    print('Transaction send to the chain. Tx hash: ', oracleQuery)
+    print('Transaction send to the chain. Tx hash: ', oracleQuery);
   }
 }
 
 // ## Respond to Oracle Query
-export async function respondToQuery (
+export async function respondToQuery(
   walletPath,
   oracleId,
   queryId,
   response,
-  options
+  options,
 ) {
-  const { ttl, fee, nonce, waitMined, json, responseTtl } = options
+  const {
+    ttl, fee, nonce, waitMined, json, responseTtl,
+  } = options;
 
-  TxBuilderHelper.decode(oracleId, 'ok')
-  TxBuilderHelper.decode(queryId, 'oq')
-  const client = await initClientByWalletFile(walletPath, options)
+  TxBuilderHelper.decode(oracleId, 'ok');
+  TxBuilderHelper.decode(queryId, 'oq');
+  const client = await initClientByWalletFile(walletPath, options);
 
-  const oracle = await client.getOracleObject(oracleId)
+  const oracle = await client.getOracleObject(oracleId);
   const queryResponse = await oracle.respondToQuery(queryId, response, {
     ttl,
     waitMined,
@@ -118,26 +127,25 @@ export async function respondToQuery (
     fee,
     responseTtl: isNaN(parseInt(responseTtl))
       ? responseTtl
-      : BUILD_ORACLE_TTL(responseTtl)
-  })
+      : BUILD_ORACLE_TTL(responseTtl),
+  });
   if (waitMined) {
-    printTransaction(queryResponse, json)
+    printTransaction(queryResponse, json);
   } else {
-    print('Transaction send to the chain. Tx hash: ', queryResponse)
+    print('Transaction send to the chain. Tx hash: ', queryResponse);
   }
 }
 
 // ## Get oracle
-export async function queryOracle (oracleId, options) {
-  TxBuilderHelper.decode(oracleId, 'ok')
-  const client = await initChain(options)
-  const oracle = await client.api.getOracleByPubkey(oracleId)
-  const { oracleQueries: queries } =
-        await client.api.getOracleQueriesByPubkey(oracleId)
+export async function queryOracle(oracleId, options) {
+  TxBuilderHelper.decode(oracleId, 'ok');
+  const client = await initChain(options);
+  const oracle = await client.api.getOracleByPubkey(oracleId);
+  const { oracleQueries: queries } = await client.api.getOracleQueriesByPubkey(oracleId);
   if (options.json) {
-    console.log(JSON.stringify({ ...oracle, queries }))
+    console.log(JSON.stringify({ ...oracle, queries }));
   } else {
-    printOracle(oracle, options.json)
-    printQueries(queries, options.json)
+    printOracle(oracle, options.json);
+    printQueries(queries, options.json);
   }
 }

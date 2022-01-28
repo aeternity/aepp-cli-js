@@ -19,10 +19,10 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 // We'll use `commander` for parsing options
-import { Command } from 'commander'
-import { NODE_URL, NODE_INTERNAL_URL, COMPILER_URL } from './utils/constant'
+import { Command } from 'commander';
+import { NODE_URL, COMPILER_URL } from './utils/constant';
 
-const program = new Command()
+const program = new Command();
 
 // Array of child command's
 const EXECUTABLE_CMD = [
@@ -33,10 +33,10 @@ const EXECUTABLE_CMD = [
   { name: 'name', desc: 'AENS system' },
   { name: 'tx', desc: 'Transaction builder' },
   { name: 'oracle', desc: 'Interact with oracles' },
-  { name: 'crypto', desc: 'Crypto helpers' }
-]
+  { name: 'crypto', desc: 'Crypto helpers' },
+];
 // You get get CLI version by exec `aecli version`
-program.version(process.env.npm_package_version)
+program.version(process.env.npm_package_version);
 
 // ## Initialize `config` command
 program
@@ -44,13 +44,12 @@ program
   .description('Print the client default configuration')
   .action(() => {
     // TODO: show these values https://github.com/aeternity/aepp-cli-js/issues/174
-    console.log('NODE_URL', NODE_URL)
-    console.log('NODE_INTERNAL_URL', NODE_INTERNAL_URL)
-    console.log('COMPILER_URL', COMPILER_URL)
-  })
+    console.log('NODE_URL', NODE_URL);
+    console.log('COMPILER_URL', COMPILER_URL);
+  });
 
 // ## Initialize `child` command's
-EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc))
+EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
 
 // Parse arguments
-program.parseAsync()
+program.parseAsync();

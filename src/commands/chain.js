@@ -18,20 +18,20 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 // We'll use `commander` for parsing options
-import { Command } from 'commander'
-import * as utils from '../utils'
-import * as Chain from '../actions/chain'
+import { Command } from 'commander';
+import { NODE_URL, PLAY_LIMIT } from '../utils/constant';
+import { getCmdFromArguments } from '../utils/cli';
+import * as Chain from '../actions/chain';
 
-export default function () {
-  const program = new Command().name('aecli chain')
+export default () => {
+  const program = new Command().name('aecli chain');
 
   // # Initialize `options`
   program
-    .option('-u --url [hostname]', 'Node to connect to', utils.constant.NODE_URL)
-    .option('--internalUrl [internal]', 'Node to connect to(internal)', utils.constant.NODE_INTERNAL_URL)
-    .option('-L --limit [playlimit]', 'Limit for play command', utils.constant.PLAY_LIMIT)
+    .option('-u --url [hostname]', 'Node to connect to', NODE_URL)
+    .option('-L --limit [playlimit]', 'Limit for play command', PLAY_LIMIT)
     .option('-f --force', 'Ignore node version compatibility check')
-    .option('--json', 'Print result in json format')
+    .option('--json', 'Print result in json format');
 
   // ## Initialize `top` command
   //
@@ -41,7 +41,7 @@ export default function () {
   program
     .command('top')
     .description('Get top of Chain')
-    .action(async (...args) => await Chain.top(utils.cli.getCmdFromArguments(args)))
+    .action((...args) => Chain.top(getCmdFromArguments(args)));
 
   // ## Initialize `status` command
   //
@@ -51,7 +51,7 @@ export default function () {
   program
     .command('status')
     .description('Get node version')
-    .action(async (...args) => await Chain.version(utils.cli.getCmdFromArguments(args)))
+    .action((...args) => Chain.version(getCmdFromArguments(args)));
 
   // ## Initialize `ttl` command
   //
@@ -61,7 +61,7 @@ export default function () {
   program
     .command('ttl <absoluteTtl>')
     .description('Get relative ttl')
-    .action(async (absoluteTtl, ...args) => await Chain.ttl(absoluteTtl, utils.cli.getCmdFromArguments(args)))
+    .action((absoluteTtl, ...args) => Chain.ttl(absoluteTtl, getCmdFromArguments(args)));
 
   // ## Initialize `ttl` command
   //
@@ -71,7 +71,7 @@ export default function () {
   program
     .command('network_id')
     .description('Get network ID')
-    .action(async (...args) => await Chain.getNetworkId(utils.cli.getCmdFromArguments(args)))
+    .action((...args) => Chain.getNetworkId(getCmdFromArguments(args)));
 
   // ## Initialize `play` command
   //
@@ -84,7 +84,7 @@ export default function () {
     .command('play')
     .option('-P --height [playToHeight]', 'Play to selected height')
     .description('Real-time block monitoring')
-    .action(async (...args) => await Chain.play(utils.cli.getCmdFromArguments(args)))
+    .action((...args) => Chain.play(getCmdFromArguments(args)));
 
   // ## Initialize `broadcast` command
   //
@@ -96,7 +96,7 @@ export default function () {
     .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
     .option('--verify', 'Verify Transaction before broadcast.')
     .description('Send transaction to the chain')
-    .action(async (tx, ...args) => await Chain.broadcast(tx, utils.cli.getCmdFromArguments(args)))
+    .action((tx, ...args) => Chain.broadcast(tx, getCmdFromArguments(args)));
 
-  return program
-}
+  return program;
+};
