@@ -46,7 +46,7 @@ export async function generateSecureWalletFromPrivKey (name, priv, { output = ''
   if (!overwrite && !(await askForOverwrite(name, output))) process.exit(1)
   password = password || await prompt(PROMPT_TYPE.askPassword)
 
-  const hexStr = Crypto.hexStringToByte(priv.trim())
+  const hexStr = Buffer.from(priv.trim(), 'hex')
   const keys = Crypto.generateKeyPairFromSecret(hexStr)
 
   const encryptedKeyPair = await Keystore.dump(name, password, keys.secretKey)

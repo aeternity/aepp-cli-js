@@ -6,43 +6,34 @@
     "aecli": "./bin/aecli.js"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "^8.1.0",
-    "commander": "^7.2.0",
+    "@aeternity/aepp-sdk": "^10.0.0",
+    "commander": "^8.3.0",
     "esm": "^3.2.25",
-    "prompts": "^2.4.1",
+    "prompts": "^2.4.2",
     "ramda": "^0.27.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.14.3",
-    "@babel/core": "^7.14.3",
-    "@babel/node": "^7.14.2",
-    "@babel/plugin-proposal-export-default-from": "^7.12.13",
-    "@babel/plugin-proposal-object-rest-spread": "^7.14.2",
-    "@babel/plugin-transform-runtime": "^7.14.3",
-    "@babel/preset-env": "^7.14.2",
-    "@babel/register": "^7.13.16",
-    "@babel/runtime": "^7.14.0",
-    "babel-plugin-ramda": "^2.0.0",
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "@babel/register": "^7.16.0",
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-conventional": "^15.0.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
-    "conventional-changelog-cli": "^2.1.1",
-    "cz-conventional-changelog": "^3.3.0",
-    "docco": "^0.8.1",
-    "mocha": "^8.4.0",
-    "recursive-rename": "^4.0.0",
-    "standard": "^16.0.3"
+    "mocha": "^9.1.3",
+    "standard": "^16.0.4",
+    "standard-version": "^9.3.2"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/aeternity/aepp-cli-js"
   },
   "scripts": {
-    "docs": "docco -t tooling/docs/markdown.jst -c /dev/null bin/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/commands/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/utils/*.js &&  rm -f docs/null && node rename-to-md.js",
-    "lint": "standard",
-    "test:e2e": "mocha --recursive --require @babel/register",
-    "test": "npm run lint && npm run test:e2e",
-    "test:watch": "mocha --recursive --require @babel/register --watch",
-    "genChangelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "docs": "scripts/js-to-md.js bin/*.js bin/commands/*.js bin/utils/*.js",
+    "lint": "commitlint --from 23f6888 && standard",
+    "test": "mocha --recursive",
+    "test:watch": "mocha --recursive --watch",
+    "release": "standard-version --skip.tag",
     "prepublishOnly": "npm run docs"
   },
   "keywords": [
@@ -51,10 +42,5 @@
     "blockchain"
   ],
   "author": "nduchak",
-  "license": "ISC",
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  }
+  "license": "ISC"
 }

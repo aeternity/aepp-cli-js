@@ -120,7 +120,7 @@ describe('CLI Transaction Module', function () {
 
   it('Build contract create tx offline and send on-chain', async () => {
     const { bytecode } = await compilerCLI.contractCompile(testContract)
-    const callData = await compilerCLI.contractEncodeCall(testContract, 'init', [])
+    const callData = await compilerCLI.contractEncodeCallDataAPI(testContract, 'init', [])
     const { tx, contractId: cId } = JSON.parse(await execute(['tx', 'contract-deploy', TX_KEYS.publicKey, bytecode, callData, nonce, '--json']))
     contractId = cId
     const res = (parseBlock(await signAndPost(tx)))
@@ -130,7 +130,7 @@ describe('CLI Transaction Module', function () {
   })
 
   it('Build contract call tx offline and send on-chain', async () => {
-    const callData = await compilerCLI.contractEncodeCall(testContract, 'test', ['1', '2'])
+    const callData = await compilerCLI.contractEncodeCallDataAPI(testContract, 'test', ['1', '2'])
     const { tx } = JSON.parse(await execute(['tx', 'contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']))
     const res = (parseBlock(await signAndPost(tx)))
     const isMined = !isNaN(res.block_height_)

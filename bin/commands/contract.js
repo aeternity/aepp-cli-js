@@ -185,7 +185,9 @@ async function call (walletPath, fn, args, options) {
     await handleApiError(
       async () => {
         // Call static or call
-        const contract = await client.getContractInstance(params.source, { contractAddress: params.address })
+        const contract = await client.getContractInstance({
+          source: params.source, contractAddress: params.address
+        })
         const callResult = await contract.call(fn, args, { ...params.options, callStatic, top })
         // The execution result, if successful, will be an FATE-encoded result
         // value. Once type decoding will be implemented in the SDK, this value will

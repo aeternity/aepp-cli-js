@@ -38,7 +38,7 @@ You can install, use and work on this `CLI` tool, by following these instruction
 
 1. Clone this repository
 2. With your terminal: enter in folder when the repo has been cloned
-3. Run `bin/aecli.js` to see the (following) available commands or run `npm link` and use `aecli` command 
+3. Run `bin/aecli.js` to see the (following) available commands or run `npm link` and use `aecli` command
 
 ```
 Usage: aecli [options] [command]

@@ -19,7 +19,7 @@
 import * as R from 'ramda'
 
 import { HASH_TYPES } from './constant'
-import { Crypto } from '@aeternity/aepp-sdk'
+import { Crypto, TxBuilder } from '@aeternity/aepp-sdk'
 
 // ## CONSTANT
 const TX_TYPE_PRINT_MAP = {
@@ -47,9 +47,16 @@ function getTabs (tabs) {
   return R.repeat(' ', tabs * 4).reduce((a, b) => a + b, '')
 }
 
+const JsonStringifyBigInt = (object, replacer, space) =>
+  JSON.stringify(
+    object,
+    (key, value) => typeof value === 'bigint' ? `${value}` : value,
+    space
+  )
+
 // Print helper
 export function print (msg, obj) {
-  if (typeof msg === 'object') return console.log(JSON.stringify(msg))
+  if (typeof msg === 'object') return console.log(JsonStringifyBigInt(msg))
   if (obj) {
     console.log(msg)
     console.log(JSON.stringify(obj))
@@ -115,28 +122,14 @@ export function printBlockTransactions (ts, json, tabs = 0) {
 
 // ## TX
 
-export function printValidation ({ validation, tx, txType }) {
+export function printValidation ({ validation, transaction }) {
   print('---------------------------------------- TX DATA ↓↓↓ \n')
-  Object.entries({ ...{ type: txType }, ...tx }).forEach(([key, value]) => printUnderscored(key, value))
-  validation
-    .reduce(
-      (acc, { msg, txKey, type }) => {
-        type === 'error' ? acc[0].push({ msg, txKey }) : acc[1].push({ msg, txKey })
-        return acc
-      },
-      [[], []]
-    )
-    .forEach((el, i) => {
-      if (el.length) {
-        i === 0
-          ? print('\n---------------------------------------- ERRORS ↓↓↓ \n')
-          : print('\n---------------------------------------- WARNINGS ↓↓↓ \n')
-        el
-          .forEach(({ msg, txKey }) => {
-            printUnderscored(txKey, msg)
-          })
-      }
-    })
+  const { tx, txType: type } = TxBuilder.unpackTx(transaction)
+  Object.entries({ ...tx, type }).forEach(([key, value]) => printUnderscored(key, value))
+  print('\n---------------------------------------- ERRORS ↓↓↓ \n')
+  validation.forEach(({ message, checkedKeys }) => {
+    printUnderscored(checkedKeys.join(', '), message)
+  })
 }
 
 //
@@ -277,7 +270,7 @@ function printOracleRegisterTransaction (tx = {}, tabs = '') {
 function printOraclePostQueryTransaction (tx = {}, tabs = '') {
   printUnderscored(tabs + 'Account', R.defaultTo('N/A', R.path(['tx', 'senderId'], tx)))
   printUnderscored(tabs + 'Oracle ID', R.defaultTo('N/A', 'ok_' + R.path(['tx', 'oracleId'], tx).slice(3)))
-  printUnderscored(tabs + 'Query ID', R.defaultTo('N/A', 'oq' + R.path(['id'], tx).slice(3)))
+  printUnderscored(tabs + 'Query ID', R.defaultTo('N/A', R.path(['id'], tx)))
   printUnderscored(tabs + 'Query', R.defaultTo('N/A', R.path(['tx', 'query'], tx)))
 
   printUnderscored(tabs + 'Fee', R.defaultTo('N/A', R.path(['tx', 'fee'], tx)))

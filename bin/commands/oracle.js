@@ -19,7 +19,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { Crypto } from '@aeternity/aepp-sdk'
+import { TxBuilderHelper } from '@aeternity/aepp-sdk'
 import { exit, initChain, initClientByWalletFile } from '../utils/cli'
 import { BUILD_ORACLE_TTL } from '../utils/constant'
 import { handleApiError } from '../utils/errors'
@@ -66,9 +66,7 @@ async function extendOracle (walletPath, oracleId, oracleTtl, options) {
 
   try {
     if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number')
-    if (!Crypto.assertedType(oracleId, 'ok', true)) {
-      throw new Error('Invalid oracleId')
-    }
+    TxBuilderHelper.decode(oracleId, 'ok')
     const client = await initClientByWalletFile(walletPath, options)
     await handleApiError(async () => {
       const oracle = await client.getOracleObject(oracleId)
@@ -97,9 +95,7 @@ async function createOracleQuery (walletPath, oracleId, query, options) {
     options
 
   try {
-    if (!Crypto.assertedType(oracleId, 'ok', true)) {
-      throw new Error('Invalid oracleId')
-    }
+    TxBuilderHelper.decode(oracleId, 'ok')
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
@@ -141,12 +137,8 @@ async function respondToQuery (
   const { ttl, fee, nonce, waitMined, json, responseTtl } = options
 
   try {
-    if (!Crypto.assertedType(oracleId, 'ok', true)) {
-      throw new Error('Invalid oracleId')
-    }
-    if (!Crypto.assertedType(queryId, 'oq', true)) {
-      throw new Error('Invalid queryId')
-    }
+    TxBuilderHelper.decode(oracleId, 'ok')
+    TxBuilderHelper.decode(queryId, 'oq')
     const client = await initClientByWalletFile(walletPath, options)
 
     await handleApiError(async () => {
@@ -176,9 +168,7 @@ async function respondToQuery (
 // ## Get oracle
 async function queryOracle (oracleId, options) {
   try {
-    if (!Crypto.assertedType(oracleId, 'ok', true)) {
-      throw new Error('Invalid oracleId')
-    }
+    TxBuilderHelper.decode(oracleId, 'ok')
     const client = await initChain(options)
     await handleApiError(async () => {
       const oracle = await client.api.getOracleByPubkey(oracleId)
