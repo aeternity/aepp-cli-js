@@ -18,7 +18,7 @@
 */
 import fs from 'fs';
 import path from 'path';
-import { Crypto, Keystore } from '@aeternity/aepp-sdk';
+import { Crypto, Keystore, TxBuilderHelper } from '@aeternity/aepp-sdk';
 import { readJSONFile } from './helpers';
 import { PROMPT_TYPE, prompt } from './prompt';
 
@@ -30,7 +30,7 @@ async function writeWallet(name, secretKey, output, password, overwrite) {
   password ||= await prompt(PROMPT_TYPE.askPassword);
   fs.writeFileSync(walletPath, JSON.stringify(await Keystore.dump(name, password, secretKey)));
   const { publicKey } = Crypto.generateKeyPairFromSecret(secretKey);
-  return { publicKey: Crypto.aeEncodeKey(publicKey), path: walletPath };
+  return { publicKey: TxBuilderHelper.encode(publicKey, 'ak'), path: walletPath };
 }
 
 // Generate `keypair` encrypt it using password and write to `ethereum` keystore file

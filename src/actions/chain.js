@@ -70,7 +70,6 @@ export async function ttl(absoluteTtl, options) {
   const { json } = options;
   // Initialize `Ae`
   const client = await initChain(options);
-  // Call `topBlock` API and calculate relative `ttl`
   const height = await client.height();
   if (json) {
     print({ absoluteTtl, relativeTtl: +height + +absoluteTtl });
@@ -86,7 +85,7 @@ export async function top(options) {
   // Initialize `Ae`
   const client = await initChain(options);
   // Call `getTopBlock` API and print it
-  printBlock(await client.topBlock(), json);
+  printBlock(await client.api.getTopHeader(), json);
 }
 
 // # Play by `limit`
@@ -117,17 +116,17 @@ export async function play(options) {
   const client = await initChain(options);
 
   // Get top block from `node`. It is a start point for play.
-  const topBlock = await client.topBlock();
+  const topHeader = await client.api.getTopHeader();
 
-  if (height && height > parseInt(topBlock.height)) {
+  if (height && height > parseInt(topHeader.height)) {
     throw new Error('Height is bigger then height of top block');
   }
 
-  printBlock(topBlock, json);
+  printBlock(topHeader, json);
 
   // Play by `height` or by `limit` using `top` block as start point
-  if (height) await playWithHeight(height, topBlock.prevHash, client, json);
-  else await playWithLimit(limit - 1, topBlock.prevHash, client, json);
+  if (height) await playWithHeight(height, topHeader.prevHash, client, json);
+  else await playWithLimit(limit - 1, topHeader.prevHash, client, json);
 }
 
 // ## Send 'transaction' to the chain

@@ -103,16 +103,25 @@ describe('CLI Transaction Module', () => {
     await signAndPost(tx);
   });
 
+  let contract;
   it('Build contract create tx offline and send on-chain', async () => {
-    const { bytecode } = await sdk.contractCompile(testContract);
-    const callData = await sdk.contractEncodeCallDataAPI(testContract, 'init', []);
-    const { tx, contractId: cId } = await executeTx(['contract-deploy', TX_KEYS.publicKey, bytecode, callData, nonce, '--json']);
+    contract = await sdk.getContractInstance({ source: testContract });
+    const { tx, contractId: cId } = await executeTx([
+      'contract-deploy',
+      TX_KEYS.publicKey,
+      await contract.compile(),
+      // eslint-disable-next-line no-underscore-dangle
+      contract.calldata.encode(contract._name, 'init', []),
+      nonce,
+      '--json',
+    ]);
     contractId = cId;
     await signAndPost(tx);
   });
 
   it('Build contract call tx offline and send on-chain', async () => {
-    const callData = await sdk.contractEncodeCallDataAPI(testContract, 'test', ['1', '2']);
+    // eslint-disable-next-line no-underscore-dangle
+    const callData = contract.calldata.encode(contract._name, 'test', ['1', '2']);
     const { tx } = await executeTx(['contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']);
     await signAndPost(tx);
   });
