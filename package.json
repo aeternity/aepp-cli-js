@@ -6,7 +6,7 @@
     "aecli": "bin/aecli.mjs"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "github:aeternity/aepp-sdk-js#develop",
+    "@aeternity/aepp-sdk": "^11.0.0",
     "commander": "^8.3.0",
     "prompts": "^2.4.2"
   },

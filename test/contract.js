@@ -82,7 +82,7 @@ describe('CLI Contract Module', () => {
       name.should.satisfy((n) => n.endsWith(contractSourceFile));
       pref.should.be.equal('deploy');
       add.should.be.equal(address.split('_')[1]);
-    });
+    }).timeout(4000);
 
     it('deploys contract with custom descrPath', async () => {
       const descrPath = './testDescriptor.json';
@@ -100,7 +100,7 @@ describe('CLI Contract Module', () => {
       expect(descriptor.bytecode).to.satisfy((b) => b.startsWith('cb_'));
       expect(descriptor.source).to.satisfy((b) => b.includes('contract Identity'));
       fs.unlinkSync(descrPath);
-    });
+    }).timeout(4000);
 
     it('deploys contract by bytecode', async () => {
       const contractBytecodeFile = './bytecode.bin';
