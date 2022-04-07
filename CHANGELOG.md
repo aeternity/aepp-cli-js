@@ -1,3 +1,40 @@
+# Changelog
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [4.0.0](https://github.com/aeternity/aepp-cli-js/compare/v3.0.0...v4.0.0) (2022-04-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* **contract deploy:** accept args and bytecode, custom descrPath
+
+Run `aecli contract deploy --help` to get the latest documentation.
+
+* **contract call:** accept arguments as JSON-encoded array
+
+Affected commands: `contract deploy`, `contract call`.
+
+* **contract:** decode call result, make args flexible
+
+Removed commands: `contract encodeData`, `contract decodeCallData`.
+Added commands: `contract encode-calldata`, `contract decode-call-result`.
+
+### Features
+
+* **contract deploy:** accept args and bytecode, custom descrPath ([cb25bb7](https://github.com/aeternity/aepp-cli-js/commit/cb25bb7d6ac2c0afd92a20df2ff5292d2b5f9c69))
+
+
+### Bug Fixes
+
+* **account transfer:** remove unimplemented excludeFee option ([cddbbe9](https://github.com/aeternity/aepp-cli-js/commit/cddbbe9f6a063142ac9cb6ed58fd088b18d2aea4))
+* **account transfer:** remove unused denomination option ([4c4d215](https://github.com/aeternity/aepp-cli-js/commit/4c4d21532106f9927f46e58cea9f2afb09190e83))
+* **contract call:** accept arguments as JSON-encoded array ([201a7e0](https://github.com/aeternity/aepp-cli-js/commit/201a7e042d81686eabfbf14e53bcb82b7f9f01c0))
+* **name full-claim:** key of created pointer ([7c278f1](https://github.com/aeternity/aepp-cli-js/commit/7c278f1bfd9724f1a2f8e235fe2ad013c587a9bb))
+* config command ([27a1169](https://github.com/aeternity/aepp-cli-js/commit/27a11697d649e7042bae683cb9a438f63950d9d1))
+* usage show correct command name ([223f05d](https://github.com/aeternity/aepp-cli-js/commit/223f05d819da749894c5de7b640ff37e8cee92bf))
+* **contract:** decode call result, make args flexible ([b0a5cdc](https://github.com/aeternity/aepp-cli-js/commit/b0a5cdc7da289e64121bb17a48ff2e9b55ae8d84))
+
 # [3.0.0](https://github.com/aeternity/aepp-cli-js/compare/2.6.0...3.0.0) (2021-06-10)
 
 
@@ -132,10 +169,10 @@
 * **Commitizen:** Configurte commitizen ([#53](https://github.com/aeternity/aepp-cli-js/issues/53)) ([e7f2d0a](https://github.com/aeternity/aepp-cli-js/commit/e7f2d0a))
 
 
-* **CI:** Configure Jenkins pipeline 
+* **CI:** Configure Jenkins pipeline
 
 
-* **Account:** Add option to get `balance` on specific `heigh/hash` 
+* **Account:** Add option to get `balance` on specific `heigh/hash`
 
 
 * **CLI:** Make compatible with [spec](https://hackmd.aepps.com/EwEwhgbMAMDMDGBaCAjArEgLLYAzRYIA7CItJgIzCUAcOY0IQA==)
