@@ -15,7 +15,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { Crypto } from '@aeternity/aepp-sdk';
+import { Crypto, TxBuilderHelper } from '@aeternity/aepp-sdk';
 import fs from 'fs';
 import {
   after, before, describe, it,
@@ -154,7 +154,7 @@ describe('CLI Transaction Module', () => {
     const { tx } = await executeTx(['oracle-respond', TX_KEYS.publicKey, oracleId, queryId, response, nonce, '--json']);
     await signAndPost(tx);
     const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
-    const responseQuery = Crypto.decodeBase64Check(queries[0].response.slice(3)).toString();
+    const responseQuery = TxBuilderHelper.decode(queries[0].response).toString();
     const hasQuery = !!queries.length;
     hasQuery.should.be.equal(true);
     response.should.be.equal(responseQuery);

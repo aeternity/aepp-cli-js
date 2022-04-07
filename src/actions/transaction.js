@@ -90,7 +90,6 @@ export async function nameClaim(accountId, nameSalt, domain, nonce, options) {
   let {
     ttl, json, fee, nameFee,
   } = options;
-  const nameHash = `nm_${Crypto.encodeBase58Check(Buffer.from(domain))}`;
 
   // Validate `name`(check if `name` end on `.chain`)
   validateName(domain);
@@ -101,7 +100,7 @@ export async function nameClaim(accountId, nameSalt, domain, nonce, options) {
     nameFee,
     accountId,
     nameSalt,
-    name: nameHash,
+    name: domain,
     ttl,
     nonce,
   };
