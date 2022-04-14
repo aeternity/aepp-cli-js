@@ -1,49 +1,44 @@
 {
   "name": "@aeternity/aepp-cli",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Aeternity command line interface",
   "bin": {
-    "aecli": "./bin/aecli.js"
+    "aecli": "bin/aecli.mjs"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "^8.1.0",
-    "commander": "^7.2.0",
-    "esm": "^3.2.25",
-    "prompts": "^2.4.1",
-    "ramda": "^0.27.1"
+    "@aeternity/aepp-sdk": "^11.0.1",
+    "commander": "^8.3.0",
+    "prompts": "^2.4.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.14.3",
-    "@babel/core": "^7.14.3",
-    "@babel/node": "^7.14.2",
-    "@babel/plugin-proposal-export-default-from": "^7.12.13",
-    "@babel/plugin-proposal-object-rest-spread": "^7.14.2",
-    "@babel/plugin-transform-runtime": "^7.14.3",
-    "@babel/preset-env": "^7.14.2",
-    "@babel/register": "^7.13.16",
-    "@babel/runtime": "^7.14.0",
-    "babel-plugin-ramda": "^2.0.0",
-    "chai": "^4.3.4",
+    "@babel/cli": "^7.16.8",
+    "@babel/core": "^7.16.12",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/register": "^7.16.9",
+    "@commitlint/cli": "^16.1.0",
+    "@commitlint/config-conventional": "^16.0.0",
+    "babel-plugin-add-import-extension": "^1.6.0",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.3",
+    "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
-    "conventional-changelog-cli": "^2.1.1",
-    "cz-conventional-changelog": "^3.3.0",
-    "docco": "^0.8.1",
-    "mocha": "^8.4.0",
-    "recursive-rename": "^4.0.0",
-    "standard": "^16.0.3"
+    "eslint": "^8.7.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "mocha": "^9.2.0",
+    "standard-version": "^9.3.2"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/aeternity/aepp-cli-js"
   },
   "scripts": {
-    "docs": "docco -t tooling/docs/markdown.jst -c /dev/null bin/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/commands/*.js && docco -t tooling/docs/markdown.jst -c /dev/null bin/utils/*.js &&  rm -f docs/null && node rename-to-md.js",
-    "lint": "standard",
-    "test:e2e": "mocha --recursive --require @babel/register",
-    "test": "npm run lint && npm run test:e2e",
-    "test:watch": "mocha --recursive --require @babel/register --watch",
-    "genChangelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
-    "prepublishOnly": "npm run docs"
+    "build": "babel src --out-dir bin --out-file-extension .mjs",
+    "docs": "scripts/js-to-md.js src/*.js src/commands/*.js src/actions/*.js src/utils/*.js",
+    "lint": "commitlint --from 23f6888 && eslint .",
+    "test": "mocha --recursive",
+    "test:watch": "mocha --recursive --watch",
+    "release": "standard-version --skip.tag",
+    "prepublishOnly": "npm run build && npm run docs"
   },
   "keywords": [
     "CLI",
@@ -51,10 +46,5 @@
     "blockchain"
   ],
   "author": "nduchak",
-  "license": "ISC",
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  }
+  "license": "ISC"
 }
