@@ -1,12 +1,12 @@
 {
   "name": "@aeternity/aepp-cli",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Aeternity command line interface",
   "bin": {
     "aecli": "bin/aecli.mjs"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "^11.0.0",
+    "@aeternity/aepp-sdk": "^11.0.1",
     "commander": "^8.3.0",
     "prompts": "^2.4.2"
   },
