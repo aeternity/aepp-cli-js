@@ -28,10 +28,10 @@ import { getBlock } from '../utils/helpers';
 export async function version(options) {
   const { json } = options;
   // Initialize `Ae`
-  const client = await initChain(options);
+  const sdk = await initChain(options);
   // Call `getStatus` API and print it
-  const status = await client.api.getStatus();
-  const { consensusProtocolVersion } = client.getNodeInfo();
+  const status = await sdk.api.getStatus();
+  const { consensusProtocolVersion } = sdk.getNodeInfo();
   if (json) {
     print(status);
     return;
@@ -58,9 +58,9 @@ export async function version(options) {
 export async function getNetworkId(options) {
   const { json } = options;
   // Initialize `Ae`
-  const client = await initChain(options);
+  const sdk = await initChain(options);
   // Call `getStatus` API and print it
-  const { networkId } = await client.api.getStatus();
+  const { networkId } = await sdk.api.getStatus();
   if (json) print({ networkId });
   else printUnderscored('Network ID', networkId);
 }
@@ -69,8 +69,8 @@ export async function getNetworkId(options) {
 export async function ttl(absoluteTtl, options) {
   const { json } = options;
   // Initialize `Ae`
-  const client = await initChain(options);
-  const height = await client.height();
+  const sdk = await initChain(options);
+  const height = await sdk.height();
   if (json) {
     print({ absoluteTtl, relativeTtl: +height + +absoluteTtl });
   } else {
@@ -83,29 +83,29 @@ export async function ttl(absoluteTtl, options) {
 export async function top(options) {
   const { json } = options;
   // Initialize `Ae`
-  const client = await initChain(options);
+  const sdk = await initChain(options);
   // Call `getTopBlock` API and print it
-  printBlock(await client.api.getTopHeader(), json);
+  printBlock(await sdk.api.getTopHeader(), json);
 }
 
 // # Play by `limit`
-async function playWithLimit(limit, blockHash, client, json) {
+async function playWithLimit(limit, blockHash, sdk, json) {
   if (!limit) return;
-  const block = await getBlock(blockHash, client);
+  const block = await getBlock(blockHash, sdk);
 
   await new Promise((resolve) => { setTimeout(resolve, 1000); });
   printBlock(block, json);
-  await playWithLimit(limit - 1, block.prevHash, client, json);
+  await playWithLimit(limit - 1, block.prevHash, sdk, json);
 }
 
 // # Play by `height`
-async function playWithHeight(height, blockHash, client, json) {
-  const block = await getBlock(blockHash, client);
+async function playWithHeight(height, blockHash, sdk, json) {
+  const block = await getBlock(blockHash, sdk);
   if (parseInt(block.height) < height) return;
 
   await new Promise((resolve) => { setTimeout(resolve, 1000); });
   printBlock(block, json);
-  await playWithHeight(height, block.prevHash, client, json);
+  await playWithHeight(height, block.prevHash, sdk, json);
 }
 
 // ## This function `Play`(print all block) from `top` block to some condition(reach some `height` or `limit`)
@@ -113,10 +113,10 @@ export async function play(options) {
   let { height, limit, json } = options;
   limit = parseInt(limit);
   height = parseInt(height);
-  const client = await initChain(options);
+  const sdk = await initChain(options);
 
   // Get top block from `node`. It is a start point for play.
-  const topHeader = await client.api.getTopHeader();
+  const topHeader = await sdk.api.getTopHeader();
 
   if (height && height > parseInt(topHeader.height)) {
     throw new Error('Height is bigger then height of top block');
@@ -125,18 +125,18 @@ export async function play(options) {
   printBlock(topHeader, json);
 
   // Play by `height` or by `limit` using `top` block as start point
-  if (height) await playWithHeight(height, topHeader.prevHash, client, json);
-  else await playWithLimit(limit - 1, topHeader.prevHash, client, json);
+  if (height) await playWithHeight(height, topHeader.prevHash, sdk, json);
+  else await playWithLimit(limit - 1, topHeader.prevHash, sdk, json);
 }
 
 // ## Send 'transaction' to the chain
 export async function broadcast(signedTx, options) {
   const { json, waitMined, verify } = options;
   // Initialize `Ae`
-  const client = await initChain(options);
+  const sdk = await initChain(options);
   // Call `getStatus` API and print it
   try {
-    const tx = await client.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify });
+    const tx = await sdk.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify });
     if (waitMined) printTransaction(tx, json);
     else print(`Transaction send to the chain. Tx hash: ${tx.hash}`);
   } catch (e) {

@@ -19,7 +19,7 @@
  */
 
 import { TxBuilderHelper } from '@aeternity/aepp-sdk';
-import { initChain, initClientByWalletFile } from '../utils/cli';
+import { initChain, initSdkByWalletFile } from '../utils/cli';
 import { BUILD_ORACLE_TTL } from '../utils/constant';
 import {
   print, printOracle, printQueries, printTransaction,
@@ -31,9 +31,9 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
     ttl, fee, nonce, waitMined, json, oracleTtl, queryFee,
   } = options;
 
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
   // Register Oracle
-  const oracle = await client.registerOracle(queryFormat, responseFormat, {
+  const oracle = await sdk.registerOracle(queryFormat, responseFormat, {
     ttl,
     waitMined,
     nonce,
@@ -58,8 +58,8 @@ export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
 
   if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number');
   TxBuilderHelper.decode(oracleId, 'ok');
-  const client = await initClientByWalletFile(walletPath, options);
-  const oracle = await client.getOracleObject(oracleId);
+  const sdk = await initSdkByWalletFile(walletPath, options);
+  const oracle = await sdk.getOracleObject(oracleId);
   const extended = await oracle.extendOracle(BUILD_ORACLE_TTL(oracleTtl), {
     ttl,
     waitMined,
@@ -80,9 +80,9 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
   } = options;
 
   TxBuilderHelper.decode(oracleId, 'ok');
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
-  const oracle = await client.getOracleObject(oracleId);
+  const oracle = await sdk.getOracleObject(oracleId);
   const oracleQuery = await oracle.postQuery(query, {
     ttl,
     waitMined,
@@ -117,9 +117,9 @@ export async function respondToQuery(
 
   TxBuilderHelper.decode(oracleId, 'ok');
   TxBuilderHelper.decode(queryId, 'oq');
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
-  const oracle = await client.getOracleObject(oracleId);
+  const oracle = await sdk.getOracleObject(oracleId);
   const queryResponse = await oracle.respondToQuery(queryId, response, {
     ttl,
     waitMined,
@@ -139,9 +139,9 @@ export async function respondToQuery(
 // ## Get oracle
 export async function queryOracle(oracleId, options) {
   TxBuilderHelper.decode(oracleId, 'ok');
-  const client = await initChain(options);
-  const oracle = await client.api.getOracleByPubkey(oracleId);
-  const { oracleQueries: queries } = await client.api.getOracleQueriesByPubkey(oracleId);
+  const sdk = await initChain(options);
+  const oracle = await sdk.api.getOracleByPubkey(oracleId);
+  const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
   if (options.json) {
     console.log(JSON.stringify({ ...oracle, queries }));
   } else {

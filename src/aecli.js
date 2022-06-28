@@ -41,7 +41,7 @@ program.version(process.env.npm_package_version);
 // ## Initialize `config` command
 program
   .command('config')
-  .description('Print the client default configuration')
+  .description('Print the sdk default configuration')
   .action(() => {
     // TODO: show these values https://github.com/aeternity/aepp-cli-js/issues/174
     console.log('NODE_URL', NODE_URL);

@@ -21,7 +21,7 @@
 import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk';
 
 import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account';
-import { initClientByWalletFile } from '../utils/cli';
+import { initSdkByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
 import { readFile } from '../utils/helpers';
 import { PROMPT_TYPE, prompt } from '../utils/prompt';
@@ -32,9 +32,9 @@ export async function signMessage(walletPath, data = [], options) {
   const { json, filePath } = options;
   const dataForSign = filePath ? readFile(filePath) : data.join(' ');
   if (dataForSign.length >= 0xFD) throw new Error('Message too long!');
-  const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true });
-  const signedMessage = await client.signMessage(dataForSign);
-  const address = await client.address();
+  const sdk = await initSdkByWalletFile(walletPath, { ...options, accountOnly: true });
+  const signedMessage = await sdk.signMessage(dataForSign);
+  const address = await sdk.address();
   const result = {
     data: typeof dataForSign !== 'string' ? Array.from(dataForSign) : dataForSign,
     address,
@@ -57,8 +57,8 @@ export async function verifyMessage(walletPath, hexSignature, data = [], options
   const { json, filePath } = options;
   const dataForVerify = filePath ? readFile(filePath) : data.join(' ');
   if (dataForVerify.length >= 0xFD) throw new Error('Message too long!');
-  const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true });
-  const isCorrect = await client.verifyMessage(dataForVerify, hexSignature);
+  const sdk = await initSdkByWalletFile(walletPath, { ...options, accountOnly: true });
+  const isCorrect = await sdk.verifyMessage(dataForVerify, hexSignature);
   const result = {
     data: typeof dataForVerify !== 'string' ? Array.from(dataForVerify) : dataForVerify,
     isCorrect,
@@ -78,11 +78,11 @@ export async function sign(walletPath, tx, options) {
   // Validate `tx` hash
   if (tx.slice(0, 2) !== 'tx') { throw new Error('Invalid transaction hash'); }
 
-  const client = await initClientByWalletFile(walletPath, { ...options, accountOnly: true });
+  const sdk = await initSdkByWalletFile(walletPath, { ...options, accountOnly: true });
 
-  const signedTx = await client.signTransaction(tx);
-  const address = await client.address();
-  const networkId = client.getNetworkId();
+  const signedTx = await sdk.signTransaction(tx);
+  const address = await sdk.address();
+  const networkId = sdk.getNetworkId();
   if (json) {
     print({ signedTx, address, networkId });
   } else {
@@ -99,14 +99,14 @@ export async function spend(walletPath, receiverNameOrAddress, amount, options) 
   const {
     ttl, json, nonce, fee, payload = '', denomination = AmountFormatter.AE_AMOUNT_FORMATS.AETTOS,
   } = options;
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
-  let tx = await client.spend(amount, receiverNameOrAddress, {
+  let tx = await sdk.spend(amount, receiverNameOrAddress, {
     ttl, nonce, payload, fee, denomination,
   });
   // if waitMined false
   if (typeof tx !== 'object') {
-    tx = await client.tx(tx);
+    tx = await sdk.tx(tx);
   } else if (!json) {
     print('Transaction mined');
   }
@@ -120,14 +120,14 @@ export async function transferFunds(walletPath, receiver, fraction, options) {
   const {
     ttl, json, nonce, fee, payload = '',
   } = options;
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
-  let tx = await client.transferFunds(fraction, receiver, {
+  let tx = await sdk.transferFunds(fraction, receiver, {
     ttl, nonce, payload, fee,
   });
   // if waitMined false
   if (typeof tx !== 'object') {
-    tx = await client.tx(tx);
+    tx = await sdk.tx(tx);
   } else if (!json) {
     print('Transaction mined');
   }
@@ -142,10 +142,10 @@ export async function transferFunds(walletPath, receiver, fraction, options) {
 // This function allow you retrieve account `balance`
 export async function getBalance(walletPath, options) {
   const { height, hash, json } = options;
-  const { client, keypair } = await initClientByWalletFile(walletPath, options, true);
-  const nonce = await client.getAccountNonce(keypair.publicKey);
-  const balance = await client.balance(keypair.publicKey, { height: +height, hash });
-  const address = await client.address();
+  const { sdk, keypair } = await initSdkByWalletFile(walletPath, options, true);
+  const nonce = await sdk.getAccountNonce(keypair.publicKey);
+  const balance = await sdk.balance(keypair.publicKey, { height: +height, hash });
+  const address = await sdk.address();
   if (json) {
     print({ address, nonce, balance });
   } else {
@@ -159,18 +159,18 @@ export async function getBalance(walletPath, options) {
 // This function allow you retrieve account `public` and `private` keys
 export async function getAddress(walletPath, options) {
   const { privateKey, forcePrompt = false, json } = options;
-  const { client, keypair } = await initClientByWalletFile(walletPath, { ...options, accountOnly: true }, true);
+  const { sdk, keypair } = await initSdkByWalletFile(walletPath, { ...options, accountOnly: true }, true);
 
   if (json) {
     if (privateKey) {
       if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-        print({ publicKey: await client.address(), secretKey: keypair.secretKey });
+        print({ publicKey: await sdk.address(), secretKey: keypair.secretKey });
       }
     } else {
-      print({ publicKey: await client.address() });
+      print({ publicKey: await sdk.address() });
     }
   } else {
-    printUnderscored('Address', await client.address());
+    printUnderscored('Address', await sdk.address());
     if (privateKey) {
       if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
         printUnderscored('Secret Key', keypair.secretKey);
@@ -183,9 +183,9 @@ export async function getAddress(walletPath, options) {
 // This function allow you retrieve account `nonce`
 export async function getAccountNonce(walletPath, options) {
   const { json } = options;
-  const { client, keypair } = await initClientByWalletFile(walletPath, options, true);
+  const { sdk, keypair } = await initSdkByWalletFile(walletPath, options, true);
 
-  const nonce = await client.getAccountNonce(keypair.publicKey);
+  const nonce = await sdk.getAccountNonce(keypair.publicKey);
   if (json) {
     print({
       id: keypair.publicKey,
