@@ -160,22 +160,17 @@ export async function getBalance(walletPath, options) {
 export async function getAddress(walletPath, options) {
   const { privateKey, forcePrompt = false, json } = options;
   const { account, keypair } = await getAccountByWalletFile(walletPath, options);
+  const printPrivateKey = privateKey && (forcePrompt
+    || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' }));
 
   if (json) {
-    if (privateKey) {
-      if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-        print({ publicKey: await account.address(), secretKey: keypair.secretKey });
-      }
-    } else {
-      print({ publicKey: await account.address() });
-    }
+    print({
+      publicKey: await account.address(),
+      ...printPrivateKey && { secretKey: keypair.secretKey },
+    });
   } else {
     printUnderscored('Address', await account.address());
-    if (privateKey) {
-      if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-        printUnderscored('Secret Key', keypair.secretKey);
-      }
-    }
+    if (printPrivateKey) printUnderscored('Secret Key', keypair.secretKey);
   }
 }
 
