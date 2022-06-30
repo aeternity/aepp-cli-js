@@ -85,7 +85,7 @@ export async function executeProgram(program, args) {
   try {
     await program.parseAsync([
       ...args,
-      ...['config'].includes(args[0]) ? [] : ['--url', url],
+      ...['config', 'decode', 'sign', 'unpack'].includes(args[0]) ? [] : ['--url', url],
       ...args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [],
     ], { from: 'user' });
   } finally {

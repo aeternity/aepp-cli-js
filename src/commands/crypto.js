@@ -17,78 +17,52 @@
 
 import { Command } from 'commander';
 import fs from 'fs';
-import { Crypto } from '@aeternity/aepp-sdk';
-
-// ## Transaction Deserialization
-//
-// This helper function deserialized the transaction `tx` and prints the result.
-function unpackTx(tx) {
-  const deserializedTx = Crypto.deserialize(Crypto.decodeTx(tx));
-  console.log(JSON.stringify(deserializedTx, undefined, 2));
-}
-
-// ## Address decoder
-//
-// This helper function decodes address(base58) to hex
-function decodeAddress(address) {
-  const decoded = Crypto.decodeBase58Check(address.split('_')[1]).toString('hex');
-  console.log(`Decoded address (hex): ${decoded}`);
-}
+import {
+  Crypto, TxBuilderHelper, TxBuilder, SCHEMA,
+} from '@aeternity/aepp-sdk';
 
 const program = new Command().name('aecli crypto');
-
-// ## Transaction Signing
-//
-// This function shows how to use a compliant private key to sign an æternity
-// transaction and turn it into an RLP-encoded tuple ready for mining
-function signTx(tx, privKey) {
-  if (!tx.match(/^tx_.+/)) {
-    throw Error('Not a valid transaction');
-  }
-
-  const binaryKey = (() => {
-    if (program.file) {
-      return fs.readFileSync(program.file);
-    } if (privKey) {
-      return Buffer.from(privKey, 'hex');
-    }
-    throw Error('Must provide either [privkey] or [file]');
-  })();
-
-  const decryptedKey = program.password ? Crypto.decryptKey(program.password, binaryKey) : binaryKey;
-
-  // Split the base58Check part of the transaction
-  const base58CheckTx = tx.split('_')[1];
-  // ... and sign the binary create_contract transaction
-  const binaryTx = Crypto.decodeBase58Check(base58CheckTx);
-
-  const signature = Crypto.sign(Buffer.concat([Buffer.from(Crypto.NETWORK_ID), binaryTx]), decryptedKey);
-
-  // the signed tx deserializer expects a 4-tuple:
-  // <tag, version, signatures_array, binary_tx>
-  const unpackedSignedTx = [
-    Buffer.from([11]),
-    Buffer.from([1]),
-    [Buffer.from(signature)],
-    binaryTx,
-  ];
-
-  console.log(Crypto.encodeTx(unpackedSignedTx));
-}
 
 program
   .command('decode <base58address>')
   .description('Decodes base58 address to hex')
-  .action(decodeAddress);
+  // ## Address decoder
+  // This helper function decodes address(base58) to hex
+  .action((address) => {
+    const decoded = TxBuilderHelper.decode(address, 'ak').toString('hex');
+    console.log(`Decoded address (hex): ${decoded}`);
+  });
 
 program
   .command('sign <tx> [privkey]')
   .option('-p, --password [password]', 'password of the private key')
   .option('-f, --file [file]', 'private key file')
-  .action(signTx);
+  .option('--networkId [networkId]', 'Network id', 'ae_mainnet')
+  // ## Transaction Signing
+  //
+  // This function shows how to use a compliant private key to sign an æternity
+  // transaction and turn it into an RLP-encoded tuple ready for mining
+  .action((tx, privKey, { networkId, password, file }) => {
+    const binaryKey = (() => {
+      if (file) return fs.readFileSync(file);
+      if (privKey) return Buffer.from(privKey, 'hex');
+      throw new Error('Must provide either [privkey] or [file]');
+    })();
+    const decryptedKey = password ? Crypto.decryptKey(password, binaryKey) : binaryKey;
+    const encodedTx = TxBuilderHelper.decode(tx, 'tx');
+    const signature = Crypto.sign(Buffer.concat([Buffer.from(networkId), encodedTx]), decryptedKey);
+    console.log(TxBuilder.buildTx({ encodedTx, signatures: [signature] }, SCHEMA.TX_TYPE.signed).tx);
+  });
 
 program
   .command('unpack <tx>')
-  .action(unpackTx);
+  // ## Transaction Deserialization
+  // This helper function deserialized the transaction `tx` and prints the result.
+  .action((tx) => {
+    const unpackedTx = TxBuilder.unpackTx(tx);
+    delete unpackedTx.rlpEncoded;
+    delete unpackedTx.binary;
+    console.log(JSON.stringify(unpackedTx, undefined, 2));
+  });
 
 export default program;
