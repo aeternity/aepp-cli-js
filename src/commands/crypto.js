@@ -17,27 +17,7 @@
 
 import { Command } from 'commander';
 import fs from 'fs';
-import path from 'path';
 import { Crypto } from '@aeternity/aepp-sdk';
-import { prompt, PROMPT_TYPE } from '../utils/prompt';
-import { getCmdFromArguments } from '../utils/cli';
-
-// ## Key Extraction (from node nodes)
-async function extractReadableKeys(dir, options) {
-  const pwd = options.input;
-  const password = await prompt(PROMPT_TYPE.askPassword);
-  const key = fs.readFileSync(path.join(pwd, dir, 'sign_key'));
-  const pubKey = fs.readFileSync(path.join(pwd, dir, 'sign_key.pub'));
-
-  const decrypted = Crypto.decryptPrivateKey(password, key);
-
-  const privateHex = Buffer.from(decrypted).toString('hex');
-  const decryptedPub = Crypto.decryptPubKey(password, pubKey);
-
-  console.log(`Private key (hex): ${privateHex}`);
-  console.log(`Public key (base check): ak_${Crypto.encodeBase58Check(decryptedPub)}`);
-  console.log(`Public key (hex): ${decryptedPub.toString('hex')}`);
-}
 
 // ## Transaction Deserialization
 //
@@ -100,12 +80,6 @@ program
   .command('decode <base58address>')
   .description('Decodes base58 address to hex')
   .action(decodeAddress);
-
-program
-  .command('decrypt <directory>')
-  .description('Decrypts public and private key to readable formats for testing purposes')
-  .option('-i, --input [directory]', 'Directory where to look for keys', '.')
-  .action((dir, ...args) => extractReadableKeys(dir, getCmdFromArguments(args)));
 
 program
   .command('sign <tx> [privkey]')
