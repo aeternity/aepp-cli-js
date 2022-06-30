@@ -61,23 +61,17 @@ export async function initChain({ url, force: ignoreVersion }) {
   });
 }
 
+export async function getAccountByWalletFile(walletPath, options) {
+  const keypair = await getWalletByPathAndDecrypt(walletPath, options.password);
+  const accounts = [MemoryAccount({ ...options, keypair })];
+  return { account: accounts[0], keypair };
+}
+
 // ## Get account files and decrypt it using password
 // After that create `Universal` sdk using this `keyPair`
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
-export async function initSdkByWalletFile(walletPath, options, returnKeyPair = false) {
-  const {
-    password, accountOnly = false, networkId, debug = true,
-  } = options;
-
-  const keypair = await getWalletByPathAndDecrypt(walletPath, password);
-  const accounts = [MemoryAccount({ ...options, keypair, networkId })];
-
-  const sdk = accountOnly
-    ? accounts[0]
-    : await initSdk({ ...options, accounts, debug });
-  if (returnKeyPair) {
-    return { sdk, keypair };
-  }
-  return sdk;
+export async function initSdkByWalletFile(walletPath, options) {
+  const { account } = await getAccountByWalletFile(walletPath, options);
+  return initSdk({ ...options, accounts: [account] });
 }
