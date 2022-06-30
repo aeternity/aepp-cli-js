@@ -3,7 +3,7 @@
 // This script initialize all `account` function
 /*
  * ISC License (ISC)
- * Copyright (c) 2018 aeternity developers
+ * Copyright (c) 2022 aeternity developers
  *
  *  Permission to use, copy, modify, and/or distribute this software for any
  *  purpose with or without fee is hereby granted, provided that the above
@@ -20,7 +20,7 @@
 
 import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk';
 
-import { generateSecureWallet, generateSecureWalletFromPrivKey } from '../utils/account';
+import { writeWallet } from '../utils/account';
 import { initSdkByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
 import { readFile } from '../utils/helpers';
@@ -204,7 +204,8 @@ export async function getAccountNonce(walletPath, options) {
 export async function createSecureWallet(walletPath, {
   output, password, overwrite, json,
 }) {
-  const { publicKey, path } = await generateSecureWallet(walletPath, { output, password, overwrite });
+  const { secretKey } = Crypto.generateKeyPair(true);
+  const { publicKey, path } = await writeWallet(walletPath, secretKey, output, password, overwrite);
   if (json) {
     print({
       publicKey,
@@ -218,10 +219,11 @@ export async function createSecureWallet(walletPath, {
 
 // ## Create secure `wallet` file from `private-key`
 // This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
-export async function createSecureWalletByPrivKey(walletPath, priv, {
+export async function createSecureWalletByPrivKey(walletPath, secretKey, {
   output, password, overwrite, json,
 }) {
-  const { publicKey, path } = await generateSecureWalletFromPrivKey(walletPath, priv, { output, password, overwrite });
+  secretKey = Buffer.from(secretKey.trim(), 'hex');
+  const { publicKey, path } = await writeWallet(walletPath, secretKey, output, password, overwrite);
   if (json) {
     print({
       publicKey,

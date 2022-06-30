@@ -21,7 +21,6 @@ import path from 'path';
 import { Crypto } from '@aeternity/aepp-sdk';
 import { prompt, PROMPT_TYPE } from '../utils/prompt';
 import { getCmdFromArguments } from '../utils/cli';
-import { generateSecureWallet } from '../utils/account';
 
 // ## Key Extraction (from node nodes)
 async function extractReadableKeys(dir, options) {
@@ -38,11 +37,6 @@ async function extractReadableKeys(dir, options) {
   console.log(`Private key (hex): ${privateHex}`);
   console.log(`Public key (base check): ak_${Crypto.encodeBase58Check(decryptedPub)}`);
   console.log(`Public key (hex): ${decryptedPub.toString('hex')}`);
-}
-
-// ## Key Pair Generation
-async function generateKeyPair(name, { output, password } = {}) {
-  await generateSecureWallet(name, { output, password });
 }
 
 // ## Transaction Deserialization
@@ -112,13 +106,6 @@ program
   .description('Decrypts public and private key to readable formats for testing purposes')
   .option('-i, --input [directory]', 'Directory where to look for keys', '.')
   .action((dir, ...args) => extractReadableKeys(dir, getCmdFromArguments(args)));
-
-program
-  .command('genkey <keyname>')
-  .description('Generate keypair')
-  .option('-o, --output [directory]', 'Output directory for the keys', '.')
-  .option('-p, --password [directory]', 'Password for keypair', '.')
-  .action((keyname, ...args) => generateKeyPair(keyname, getCmdFromArguments(args)));
 
 program
   .command('sign <tx> [privkey]')
