@@ -22,9 +22,9 @@ import {
 import { expect } from 'chai';
 import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk';
 import { getSdk, executeProgram, WALLET_NAME } from './index';
-import accountProgramFactory from '../src/commands/account';
+import accountProgram from '../src/commands/account';
 
-const executeAccount = (args) => executeProgram(accountProgramFactory, args);
+const executeAccount = (args) => executeProgram(accountProgram, args);
 const walletName = 'test.wallet';
 
 describe('CLI Account Module', () => {

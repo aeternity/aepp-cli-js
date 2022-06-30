@@ -21,7 +21,7 @@ import fs from 'fs';
 import {
   Universal, MemoryAccount, Node, Crypto,
 } from '@aeternity/aepp-sdk';
-import accountProgramFactory from '../src/commands/account';
+import accountProgram from '../src/commands/account';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -49,12 +49,29 @@ const spendPromise = (async () => {
   await sdk.spend(1e26, keypair.publicKey);
 })();
 
+function getProgramOptions(command) {
+  return {
+    /* eslint-disable no-underscore-dangle */
+    optionValues: { ...command._optionValues },
+    optionValueSources: { ...command._optionValueSources },
+    /* eslint-enable no-underscore-dangle */
+    commands: command.commands.map((c) => getProgramOptions(c)),
+  };
+}
+
+function setProgramOptions(command, options) {
+  /* eslint-disable no-underscore-dangle */
+  command._optionValues = options.optionValues;
+  command._optionValueSources = options.optionValueSources;
+  /* eslint-enable no-underscore-dangle */
+  command.commands.forEach((c, i) => setProgramOptions(c, options.commands[i]));
+}
+
 let isProgramExecuting = false;
-export async function executeProgram(programFactory, args) {
+export async function executeProgram(program, args) {
   if (isProgramExecuting) throw new Error('Another program is already running');
   isProgramExecuting = true;
   let result = '';
-  const program = programFactory();
   program
     .configureOutput({ writeOut: (str) => { result += str; } })
     .exitOverride();
@@ -64,6 +81,7 @@ export async function executeProgram(programFactory, args) {
     if (result) result += '\n';
     result += data.join(' ');
   };
+  const options = getProgramOptions(program);
   try {
     await program.parseAsync([
       ...args,
@@ -73,6 +91,7 @@ export async function executeProgram(programFactory, args) {
   } finally {
     console.log = log;
     isProgramExecuting = false;
+    setProgramOptions(program, options);
   }
 
   if (!args.includes('--json')) return result;
@@ -89,7 +108,7 @@ export async function getSdk() {
   const sdk = await Sdk({
     accounts: [MemoryAccount({ keypair })],
   });
-  await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', keypair.secretKey, '--overwrite']);
+  await executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', keypair.secretKey, '--overwrite']);
   sdk.removeWallet = () => {
     if (fs.existsSync(WALLET_NAME)) fs.unlinkSync(WALLET_NAME);
   };

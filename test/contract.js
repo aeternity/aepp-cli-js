@@ -22,9 +22,9 @@ import {
 import { expect } from 'chai';
 import { TxBuilderHelper } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk, WALLET_NAME } from './index';
-import contractProgramFactory from '../src/commands/contract';
+import contractProgram from '../src/commands/contract';
 
-const executeContract = (args) => executeProgram(contractProgramFactory, args);
+const executeContract = (args) => executeProgram(contractProgram, args);
 
 const testContractSource = `
 @compiler >= 6

@@ -20,9 +20,9 @@ import {
   after, before, describe, it,
 } from 'mocha';
 import { executeProgram, getSdk, WALLET_NAME } from './index';
-import oracleProgramFactory from '../src/commands/oracle';
+import oracleProgram from '../src/commands/oracle';
 
-const executeOracle = (args) => executeProgram(oracleProgramFactory, args);
+const executeOracle = (args) => executeProgram(oracleProgram, args);
 
 describe('CLI Oracle Module', () => {
   const oracleFormat = 'string';

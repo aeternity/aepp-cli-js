@@ -61,75 +61,73 @@ function decodeAddress(address) {
   console.log(`Decoded address (hex): ${decoded}`);
 }
 
-export default () => {
-  const program = new Command().name('aecli crypto');
+const program = new Command().name('aecli crypto');
 
-  // ## Transaction Signing
-  //
-  // This function shows how to use a compliant private key to sign an æternity
-  // transaction and turn it into an RLP-encoded tuple ready for mining
-  function signTx(tx, privKey) {
-    if (!tx.match(/^tx_.+/)) {
-      throw Error('Not a valid transaction');
-    }
-
-    const binaryKey = (() => {
-      if (program.file) {
-        return fs.readFileSync(program.file);
-      } if (privKey) {
-        return Buffer.from(privKey, 'hex');
-      }
-      throw Error('Must provide either [privkey] or [file]');
-    })();
-
-    const decryptedKey = program.password ? Crypto.decryptKey(program.password, binaryKey) : binaryKey;
-
-    // Split the base58Check part of the transaction
-    const base58CheckTx = tx.split('_')[1];
-    // ... and sign the binary create_contract transaction
-    const binaryTx = Crypto.decodeBase58Check(base58CheckTx);
-
-    const signature = Crypto.sign(Buffer.concat([Buffer.from(Crypto.NETWORK_ID), binaryTx]), decryptedKey);
-
-    // the signed tx deserializer expects a 4-tuple:
-    // <tag, version, signatures_array, binary_tx>
-    const unpackedSignedTx = [
-      Buffer.from([11]),
-      Buffer.from([1]),
-      [Buffer.from(signature)],
-      binaryTx,
-    ];
-
-    console.log(Crypto.encodeTx(unpackedSignedTx));
+// ## Transaction Signing
+//
+// This function shows how to use a compliant private key to sign an æternity
+// transaction and turn it into an RLP-encoded tuple ready for mining
+function signTx(tx, privKey) {
+  if (!tx.match(/^tx_.+/)) {
+    throw Error('Not a valid transaction');
   }
 
-  program
-    .command('decode <base58address>')
-    .description('Decodes base58 address to hex')
-    .action(decodeAddress);
+  const binaryKey = (() => {
+    if (program.file) {
+      return fs.readFileSync(program.file);
+    } if (privKey) {
+      return Buffer.from(privKey, 'hex');
+    }
+    throw Error('Must provide either [privkey] or [file]');
+  })();
 
-  program
-    .command('decrypt <directory>')
-    .description('Decrypts public and private key to readable formats for testing purposes')
-    .option('-i, --input [directory]', 'Directory where to look for keys', '.')
-    .action((dir, ...args) => extractReadableKeys(dir, getCmdFromArguments(args)));
+  const decryptedKey = program.password ? Crypto.decryptKey(program.password, binaryKey) : binaryKey;
 
-  program
-    .command('genkey <keyname>')
-    .description('Generate keypair')
-    .option('-o, --output [directory]', 'Output directory for the keys', '.')
-    .option('-p, --password [directory]', 'Password for keypair', '.')
-    .action((keyname, ...args) => generateKeyPair(keyname, getCmdFromArguments(args)));
+  // Split the base58Check part of the transaction
+  const base58CheckTx = tx.split('_')[1];
+  // ... and sign the binary create_contract transaction
+  const binaryTx = Crypto.decodeBase58Check(base58CheckTx);
 
-  program
-    .command('sign <tx> [privkey]')
-    .option('-p, --password [password]', 'password of the private key')
-    .option('-f, --file [file]', 'private key file')
-    .action(signTx);
+  const signature = Crypto.sign(Buffer.concat([Buffer.from(Crypto.NETWORK_ID), binaryTx]), decryptedKey);
 
-  program
-    .command('unpack <tx>')
-    .action(unpackTx);
+  // the signed tx deserializer expects a 4-tuple:
+  // <tag, version, signatures_array, binary_tx>
+  const unpackedSignedTx = [
+    Buffer.from([11]),
+    Buffer.from([1]),
+    [Buffer.from(signature)],
+    binaryTx,
+  ];
 
-  return program;
-};
+  console.log(Crypto.encodeTx(unpackedSignedTx));
+}
+
+program
+  .command('decode <base58address>')
+  .description('Decodes base58 address to hex')
+  .action(decodeAddress);
+
+program
+  .command('decrypt <directory>')
+  .description('Decrypts public and private key to readable formats for testing purposes')
+  .option('-i, --input [directory]', 'Directory where to look for keys', '.')
+  .action((dir, ...args) => extractReadableKeys(dir, getCmdFromArguments(args)));
+
+program
+  .command('genkey <keyname>')
+  .description('Generate keypair')
+  .option('-o, --output [directory]', 'Output directory for the keys', '.')
+  .option('-p, --password [directory]', 'Password for keypair', '.')
+  .action((keyname, ...args) => generateKeyPair(keyname, getCmdFromArguments(args)));
+
+program
+  .command('sign <tx> [privkey]')
+  .option('-p, --password [password]', 'password of the private key')
+  .option('-f, --file [file]', 'private key file')
+  .action(signTx);
+
+program
+  .command('unpack <tx>')
+  .action(unpackTx);
+
+export default program;

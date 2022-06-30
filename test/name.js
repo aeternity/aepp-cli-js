@@ -23,20 +23,20 @@ import { expect } from 'chai';
 import {
   executeProgram, randomName, getSdk, WALLET_NAME,
 } from './index';
-import nameProgramFactory from '../src/commands/name';
-import inspectProgramFactory from '../src/commands/inspect';
-import accountProgramFactory from '../src/commands/account';
+import nameProgram from '../src/commands/name';
+import inspectProgram from '../src/commands/inspect';
+import accountProgram from '../src/commands/account';
 
-const executeName = (args) => executeProgram(nameProgramFactory, args);
-const executeInspect = (args) => executeProgram(inspectProgramFactory, args);
-const executeAccount = (args) => executeProgram(accountProgramFactory, args);
+const executeName = (args) => executeProgram(nameProgram, args);
+const executeInspect = (args) => executeProgram(inspectProgram, args);
+const executeAccount = (args) => executeProgram(accountProgram, args);
 
 describe('CLI AENS Module', () => {
   const { publicKey } = Crypto.generateKeyPair();
   const name = randomName(12);
   const name2 = randomName(13);
-  let sdk; let
-    salt;
+  let sdk;
+  let salt;
 
   before(async () => {
     sdk = await getSdk();
