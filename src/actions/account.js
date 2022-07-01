@@ -239,7 +239,7 @@ export async function generateKeyPairs(count = 1, { forcePrompt, json }) {
   if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
     const accounts = Array.from(Array(parseInt(count))).map(() => Crypto.generateKeyPair(false));
     if (json) {
-      print(JSON.stringify(accounts, null, 2));
+      print(accounts);
     } else {
       accounts.forEach((acc, i) => {
         printUnderscored('Account index', i);

@@ -30,21 +30,21 @@ function getTabs(tabs) {
   return ' '.repeat(tabs * 4);
 }
 
-const JsonStringifyBigInt = (object, replacer, space) => JSON.stringify(
+const JsonStringifyBigInt = (object, spaced) => JSON.stringify(
   object,
   (key, value) => (typeof value === 'bigint' ? `${value}` : value),
-  space,
+  spaced ? 2 : undefined,
 );
 
 // Print helper
 export function print(msg, obj) {
   if (typeof msg === 'object') {
-    console.log(JsonStringifyBigInt(msg));
+    console.log(JsonStringifyBigInt(msg, true));
     return;
   }
   if (obj) {
     console.log(msg);
-    console.log(JsonStringifyBigInt(obj));
+    console.log(JsonStringifyBigInt(obj, true));
   } else {
     console.log(msg);
   }

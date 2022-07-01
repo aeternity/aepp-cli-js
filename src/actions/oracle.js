@@ -143,7 +143,7 @@ export async function queryOracle(oracleId, options) {
   const oracle = await sdk.api.getOracleByPubkey(oracleId);
   const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
   if (options.json) {
-    console.log(JSON.stringify({ ...oracle, queries }));
+    print({ ...oracle, queries });
   } else {
     printOracle(oracle, options.json);
     printQueries(queries, options.json);

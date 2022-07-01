@@ -20,6 +20,7 @@ import fs from 'fs';
 import {
   Crypto, TxBuilderHelper, TxBuilder, SCHEMA,
 } from '@aeternity/aepp-sdk';
+import { print } from '../utils/print';
 
 const program = new Command().name('aecli crypto');
 
@@ -62,7 +63,7 @@ program
     const unpackedTx = TxBuilder.unpackTx(tx);
     delete unpackedTx.rlpEncoded;
     delete unpackedTx.binary;
-    console.log(JSON.stringify(unpackedTx, undefined, 2));
+    print(unpackedTx);
   });
 
 export default program;
