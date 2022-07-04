@@ -18,7 +18,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk';
+import { generateKeyPair, AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk';
 
 import { writeWallet } from '../utils/account';
 import { initSdkByWalletFile, getAccountByWalletFile } from '../utils/cli';
@@ -95,7 +95,7 @@ export async function sign(walletPath, tx, options) {
 // this function allow you to `send` token's to another `account`
 export async function spend(walletPath, receiverNameOrAddress, amount, options) {
   const {
-    ttl, json, nonce, fee, payload = '', denomination = AmountFormatter.AE_AMOUNT_FORMATS.AETTOS,
+    ttl, json, nonce, fee, payload = '', denomination = AE_AMOUNT_FORMATS.AETTOS,
   } = options;
   const sdk = await initSdkByWalletFile(walletPath, options);
 
@@ -104,7 +104,7 @@ export async function spend(walletPath, receiverNameOrAddress, amount, options) 
   });
   // if waitMined false
   if (typeof tx !== 'object') {
-    tx = await sdk.tx(tx);
+    tx = await sdk.getTransaction(tx);
   } else if (!json) {
     print('Transaction mined');
   }
@@ -125,7 +125,7 @@ export async function transferFunds(walletPath, receiver, fraction, options) {
   });
   // if waitMined false
   if (typeof tx !== 'object') {
-    tx = await sdk.tx(tx);
+    tx = await sdk.getTransaction(tx);
   } else if (!json) {
     print('Transaction mined');
   }
@@ -142,8 +142,8 @@ export async function getBalance(walletPath, options) {
   const { height, hash, json } = options;
   const sdk = await initSdkByWalletFile(walletPath, options);
   const address = await sdk.address();
-  const nonce = await sdk.getAccountNonce(address);
-  const balance = await sdk.balance(address, { height: +height, hash });
+  const { nextNonce: nonce } = await sdk.api.getAccountNextNonce(address);
+  const balance = await sdk.getBalance(address, { height: height && +height, hash });
   if (json) {
     print({ address, nonce, balance });
   } else {
@@ -178,7 +178,7 @@ export async function getAccountNonce(walletPath, options) {
   const { json } = options;
   const sdk = await initSdkByWalletFile(walletPath, options);
   const address = await sdk.address();
-  const nonce = await sdk.getAccountNonce(address);
+  const { nextNonce: nonce } = await sdk.api.getAccountNextNonce(address);
   if (json) {
     print({
       id: address,
@@ -197,7 +197,7 @@ export async function getAccountNonce(walletPath, options) {
 export async function createSecureWallet(walletPath, {
   output, password, overwrite, json,
 }) {
-  const { secretKey } = Crypto.generateKeyPair(true);
+  const { secretKey } = generateKeyPair(true);
   const { publicKey, path } = await writeWallet(walletPath, secretKey, output, password, overwrite);
   if (json) {
     print({
@@ -235,7 +235,7 @@ export async function generateKeyPairs(count = 1, { forcePrompt, json }) {
     throw new Error('Count must be an Number');
   }
   if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-    const accounts = Array.from(Array(parseInt(count))).map(() => Crypto.generateKeyPair(false));
+    const accounts = Array.from(Array(parseInt(count))).map(() => generateKeyPair(false));
     if (json) {
       print(accounts);
     } else {

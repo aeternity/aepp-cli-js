@@ -19,7 +19,7 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { AmountFormatter, SCHEMA } from '@aeternity/aepp-sdk';
+import { AE_AMOUNT_FORMATS, TX_TTL } from '@aeternity/aepp-sdk';
 import { NODE_URL } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Account from '../actions/account';
@@ -49,9 +49,9 @@ program
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--payload [payload]', 'Transaction payload.', '')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .option('-D, --denomination [denomination]', 'Denomination of amount', AmountFormatter.AE_AMOUNT_FORMATS.AETTOS)
+  .option('-D, --denomination [denomination]', 'Denomination of amount', AE_AMOUNT_FORMATS.AETTOS)
   .action((walletPath, receiverIdOrName, amount, ...args) => Account.spend(walletPath, receiverIdOrName, amount, getCmdFromArguments(args)));
 
 // ## Initialize `transfer` command
@@ -70,7 +70,7 @@ program
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--payload [payload]', 'Transaction payload.', '')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .action((walletPath, receiver, percentage, ...args) => Account.transferFunds(walletPath, receiver, percentage, getCmdFromArguments(args)));
 

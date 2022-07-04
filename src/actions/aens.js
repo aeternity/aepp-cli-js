@@ -18,8 +18,8 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { Crypto, getDefaultPointerKey } from '@aeternity/aepp-sdk';
-import { initChain, initSdkByWalletFile } from '../utils/cli';
+import { isAddressValid, getDefaultPointerKey } from '@aeternity/aepp-sdk';
+import { initSdk, initSdkByWalletFile } from '../utils/cli';
 import { print, printName, printTransaction } from '../utils/print';
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers';
 
@@ -90,7 +90,7 @@ export async function updateName(walletPath, domain, addresses, options) {
   } = options;
 
   // Validate `address`
-  const invalidAddresses = addresses.filter((address) => !Crypto.isAddressValid(address));
+  const invalidAddresses = addresses.filter((address) => !isAddressValid(address));
   if (invalidAddresses.length) throw new Error(`Addresses "[${invalidAddresses}]" is not valid`);
   // Validate `name`
   validateName(domain);
@@ -157,7 +157,7 @@ export async function transferName(walletPath, domain, address, options) {
   } = options;
 
   // Validate `address`
-  if (!Crypto.isAddressValid(address)) throw new Error(`Address "${address}" is not valid`);
+  if (!isAddressValid(address)) throw new Error(`Address "${address}" is not valid`);
   // Validate `name`
   validateName(domain);
   const sdk = await initSdkByWalletFile(walletPath, options);
@@ -257,15 +257,13 @@ export async function fullClaim(walletPath, domain, options) {
   }
 
   // Wait for next block and create `claimName` transaction
-  if (nonce) {
-    nonce = parseInt(nonce);
-  }
+  nonce = nonce && +nonce;
   const preclaim = await sdk.aensPreclaim(domain, { nonce, ttl, fee });
-  nonce += 1;
+  nonce = nonce && nonce + 1;
   const nameInstance = await preclaim.claim({
     nonce, ttl, fee, nameFee,
   });
-  nonce += 1;
+  nonce = nonce && nonce + 1;
   const updateTx = await nameInstance.update(
     { account_pubkey: await sdk.address() },
     {
@@ -282,7 +280,7 @@ export async function fullClaim(walletPath, domain, options) {
 export async function lookUp(domain, options) {
   const { json } = options;
   validateName(domain);
-  const sdk = await initChain(options);
+  const sdk = await initSdk(options);
 
   // Check if `name` is unavailable and we can revoke it
   printName(

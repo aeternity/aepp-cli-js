@@ -19,7 +19,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import fs from 'fs';
 import {
-  Universal, MemoryAccount, Node, Crypto,
+  AeSdk, MemoryAccount, Node, generateKeyPair,
 } from '@aeternity/aepp-sdk';
 import accountProgram from '../src/commands/account';
 
@@ -32,16 +32,20 @@ const publicKey = process.env.PUBLIC_KEY || 'ak_2dATVcZ9KJU5a8hdsVtTv21pYiGWiPbm
 const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876bb84e3cdf71efb12f56c7335fad54d5cf08400e988222f26eb4b02c8f89077457467211a6e6d955edb70749c6a33b';
 export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet';
 const ignoreVersion = process.env.IGNORE_VERSION || false;
-const keypair = Crypto.generateKeyPair();
+const keypair = generateKeyPair();
 export const WALLET_NAME = 'mywallet';
 
-const Sdk = async (params) => Universal({
-  ignoreVersion,
-  compilerUrl,
-  nodes: [{ name: 'test', instance: await Node({ url }) }],
-  accounts: [MemoryAccount({ keypair: { publicKey, secretKey } })],
-  ...params,
-});
+const Sdk = async (params = {}) => {
+  const sdk = new AeSdk({
+    ignoreVersion,
+    compilerUrl,
+    nodes: [{ name: 'test', instance: new Node(url) }],
+    ...params,
+  });
+  params.accounts ??= [new MemoryAccount({ keypair: { publicKey, secretKey } })];
+  await Promise.all(params.accounts.map((acc, idx) => sdk.addAccount(acc, { select: idx === 0 })));
+  return sdk;
+};
 
 const spendPromise = (async () => {
   const sdk = await Sdk();
@@ -110,7 +114,7 @@ export async function getSdk() {
   await spendPromise;
 
   const sdk = await Sdk({
-    accounts: [MemoryAccount({ keypair })],
+    accounts: [new MemoryAccount({ keypair })],
   });
   await executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', keypair.secretKey, '--overwrite']);
   sdk.removeWallet = () => {

@@ -21,7 +21,9 @@
 //
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander';
-import { SCHEMA } from '@aeternity/aepp-sdk';
+import {
+  TX_TTL, NAME_TTL, CLIENT_TTL, MIN_GAS_PRICE, QUERY_FEE, ORACLE_TTL, QUERY_TTL,
+} from '@aeternity/aepp-sdk';
 import * as constant from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Transaction from '../actions/transaction';
@@ -32,9 +34,9 @@ const program = new Command().name('aecli tx');
 // ## Initialize `options`
 program
   .option('-u, --url [hostname]', 'Node to connect to', constant.NODE_URL)
-  // .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+// .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
-  .option('--ttl [fee]', 'Override the ttl that the transaction is going to be sent with', SCHEMA.TX_TTL)
+  .option('--ttl [fee]', 'Override the ttl that the transaction is going to be sent with', TX_TTL)
   .option('-f --force', 'Ignore node version compatibility check')
   .option('--json', 'Print result in json format');
 
@@ -70,10 +72,10 @@ program
   .command('name-update <accountId> <nameId>')
   .addArgument(nonceArgument)
   .argument('[pointers...]')
-  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
-  .option('--nameTtl [nameTtl]', 'Validity of name.', SCHEMA.NAME_TTL)
-  .option('--clientTtl [clientTtl]', 'Client ttl.', SCHEMA.CLIENT_TTL)
+  .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
+  .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
   .description('Build name update transaction.')
   .action((accountId, domain, nonce, pointers, ...args) => Transaction.nameUpdate(accountId, domain, nonce, pointers, getCmdFromArguments(args)));
 
@@ -85,9 +87,9 @@ program
 program
   .command('name-claim <accountId> <salt> <domain>')
   .addArgument(nonceArgument)
-  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
-  .option('--nameFee [nameFee]', 'Name fee.', SCHEMA.NAME_FEE)
+  .option('--nameFee [nameFee]', 'Name fee.')
   .description('Build name claim transaction.')
   .action((accountId, salt, domain, nonce, ...args) => Transaction.nameClaim(accountId, salt, domain, nonce, getCmdFromArguments(args)));
 
@@ -99,7 +101,7 @@ program
 program
   .command('name-transfer <accountId> <recipientId> <domain>')
   .addArgument(nonceArgument)
-  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build name tansfer transaction.')
   .action((accountId, transferId, domain, nonce, ...args) => Transaction.nameTransfer(accountId, transferId, domain, nonce, getCmdFromArguments(args)));
@@ -112,7 +114,7 @@ program
 program
   .command('name-revoke <accountId> <domain>')
   .addArgument(nonceArgument)
-  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build name revoke transaction.')
   .action((accountId, domain, nonce, ...args) => Transaction.nameRevoke(accountId, domain, nonce, getCmdFromArguments(args)));
@@ -125,10 +127,10 @@ program
 program
   .command('contract-deploy <ownerId> <contractBytecode> <initCallData>')
   .addArgument(nonceArgument)
-  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', constant.GAS)
-  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', SCHEMA.MIN_GAS_PRICE)
+  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .option('--amount [amount]', 'Amount', constant.AMOUNT)
   .option('--deposit [deposit]', 'Deposit', constant.DEPOSIT)
   .description('Build contract create transaction.')
@@ -142,10 +144,10 @@ program
 program
   .command('contract-call <callerId> <contractId> <callData>')
   .addArgument(nonceArgument)
-  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', constant.GAS)
-  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', SCHEMA.MIN_GAS_PRICE)
+  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .option('--amount [amount]', 'Amount', constant.AMOUNT)
   .description('Build contract create transaction.')
   .action((callerId, contractId, callData, nonce, ...args) => Transaction.contractCall(callerId, contractId, callData, nonce, getCmdFromArguments(args)));
@@ -158,10 +160,10 @@ program
 program
   .command('oracle-register <accountId> <queryFormat> <responseFormat>')
   .addArgument(nonceArgument)
-  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
-  .option('--queryFee [queryFee]', 'Oracle Query fee.', SCHEMA.QUERY_FEE)
-  .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', SCHEMA.ORACLE_TTL.value)
+  .option('--queryFee [queryFee]', 'Oracle Query fee.', QUERY_FEE)
+  .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', ORACLE_TTL.value)
   .description('Build oracle register transaction.')
   .action((accountId, queryFormat, responseFormat, nonce, ...args) => Transaction.oracleRegister(accountId, queryFormat, responseFormat, nonce, getCmdFromArguments(args)));
 
@@ -173,10 +175,10 @@ program
 program
   .command('oracle-post-query <accountId> <oracleId> <query>')
   .addArgument(nonceArgument)
-  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
-  .option('--queryFee [queryFee]', 'Oracle Query fee.', SCHEMA.QUERY_FEE)
-  .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', SCHEMA.QUERY_TTL.value)
+  .option('--queryFee [queryFee]', 'Oracle Query fee.', QUERY_FEE)
+  .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', QUERY_TTL.value)
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', constant.RESPONSE_TTL)
   .description('Build oracle post query transaction.')
   .action((accountId, oracleId, query, nonce, ...args) => Transaction.oraclePostQuery(accountId, oracleId, query, nonce, getCmdFromArguments(args)));
@@ -189,7 +191,7 @@ program
 program
   .command('oracle-extend <callerId> <oracleId> <oracleTtl>')
   .addArgument(nonceArgument)
-  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .description('Build oracle extend transaction.')
   .action((callerId, oracleId, oracleTtl, nonce, ...args) => Transaction.oracleExtend(callerId, oracleId, oracleTtl, nonce, getCmdFromArguments(args)));
@@ -202,7 +204,7 @@ program
 program
   .command('oracle-respond <callerId> <oracleId> <queryId> <response>')
   .addArgument(nonceArgument)
-  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', SCHEMA.TX_TTL)
+  .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', constant.RESPONSE_TTL)
   .description('Build oracle extend transaction.')

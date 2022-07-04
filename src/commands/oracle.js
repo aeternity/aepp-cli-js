@@ -19,7 +19,9 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { SCHEMA } from '@aeternity/aepp-sdk';
+import {
+  TX_TTL, ORACLE_TTL, QUERY_FEE, QUERY_TTL,
+} from '@aeternity/aepp-sdk';
 import { NODE_URL, OUTPUT_JSON, RESPONSE_TTL } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Oracle from '../actions/oracle';
@@ -29,7 +31,7 @@ const program = new Command().name('aecli oracle');
 // ## Initialize `options`
 program
   .option('-u, --url [hostname]', 'Node to connect to', NODE_URL)
-  .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', SCHEMA.TX_TTL)
+  .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', TX_TTL)
   .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-P, --password [password]', 'Wallet Password')
@@ -49,8 +51,8 @@ program
 program
   .command('create <wallet_path> <queryFormat> <responseFormat>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', SCHEMA.ORACLE_TTL)
-  .option('--queryFee [queryFee]', 'Oracle query fee', SCHEMA.QUERY_FEE)
+  .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', ORACLE_TTL)
+  .option('--queryFee [queryFee]', 'Oracle query fee', QUERY_FEE)
   .description('Register Oracle')
   .action((walletPath, queryFormat, responseFormat, ...args) => Oracle.createOracle(walletPath, queryFormat, responseFormat, getCmdFromArguments(args)));
 
@@ -82,8 +84,8 @@ program
   .command('create-query <wallet_path> <oracleId> <query>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL)
-  .option('--queryTtl [queryTtl]', 'Query time to leave', SCHEMA.QUERY_TTL)
-  .option('--queryFee [queryFee]', 'Oracle query fee', SCHEMA.QUERY_FEE)
+  .option('--queryTtl [queryTtl]', 'Query time to leave', QUERY_TTL)
+  .option('--queryFee [queryFee]', 'Oracle query fee', QUERY_FEE)
   .description('Create Oracle query')
   .action((walletPath, oracleId, query, ...args) => Oracle.createOracleQuery(walletPath, oracleId, query, getCmdFromArguments(args)));
 

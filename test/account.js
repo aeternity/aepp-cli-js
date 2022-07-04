@@ -20,7 +20,7 @@ import {
   after, before, describe, it,
 } from 'mocha';
 import { expect } from 'chai';
-import { Crypto, AmountFormatter } from '@aeternity/aepp-sdk';
+import { generateKeyPair, AE_AMOUNT_FORMATS, formatAmount } from '@aeternity/aepp-sdk';
 import { getSdk, executeProgram, WALLET_NAME } from './index';
 import accountProgram from '../src/commands/account';
 
@@ -32,7 +32,7 @@ describe('CLI Account Module', () => {
   let sigFromFile;
   const fileName = 'testData';
   const fileData = 'Hello world!';
-  const keypair = Crypto.generateKeyPair();
+  const keypair = generateKeyPair();
   let sdk;
 
   before(async () => {
@@ -71,14 +71,14 @@ describe('CLI Account Module', () => {
   });
 
   it('Check Wallet Balance', async () => {
-    const balance = await sdk.balance(await sdk.address());
+    const balance = await sdk.getBalance(await sdk.address());
     expect((await executeAccount(['balance', WALLET_NAME, '--password', 'test', '--json'])).balance)
       .to.equal(balance);
   });
 
   it('Spend coins to another wallet', async () => {
     const amount = 100;
-    const { publicKey } = Crypto.generateKeyPair();
+    const { publicKey } = generateKeyPair();
     await executeAccount(['spend', WALLET_NAME, '--password', 'test', publicKey, amount]);
     const receiverBalance = await sdk.getBalance(publicKey);
     (+receiverBalance).should.equal(amount);
@@ -86,27 +86,27 @@ describe('CLI Account Module', () => {
 
   it('Spend coins to another wallet using denomination', async () => {
     const amount = 1; // 1 AE
-    const denomination = AmountFormatter.AE_AMOUNT_FORMATS.AE;
-    const receiverKeys = Crypto.generateKeyPair();
+    const denomination = AE_AMOUNT_FORMATS.AE;
+    const receiverKeys = generateKeyPair();
     await executeAccount(['spend', WALLET_NAME, '--password', 'test', '-D', denomination, receiverKeys.publicKey, amount]);
     const receiverBalance = await sdk.getBalance(receiverKeys.publicKey);
     receiverBalance.should.equal(
-      AmountFormatter.formatAmount(amount, { denomination: AmountFormatter.AE_AMOUNT_FORMATS.AE }),
+      formatAmount(amount, { denomination: AE_AMOUNT_FORMATS.AE }),
     );
   });
 
   it('Spend fraction of coins to account by name', async () => {
     const fraction = 0.0001;
-    const { publicKey } = Crypto.generateKeyPair();
+    const { publicKey } = generateKeyPair();
     const balanceBefore = await sdk.getBalance(await sdk.address());
     await executeAccount(['transfer', WALLET_NAME, '--password', 'test', publicKey, fraction]);
     expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * fraction);
   });
 
   it('Get account nonce', async () => {
-    const nonce = await sdk.getAccountNonce(await sdk.address());
+    const { nextNonce } = await sdk.api.getAccountNextNonce(await sdk.address());
     expect((await executeAccount(['nonce', WALLET_NAME, '--password', 'test', '--json'])).nextNonce)
-      .to.equal(nonce);
+      .to.equal(nextNonce);
   });
 
   it('Generate accounts', async () => {

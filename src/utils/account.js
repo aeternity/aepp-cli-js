@@ -18,7 +18,9 @@
 */
 import fs from 'fs';
 import path from 'path';
-import { Crypto, Keystore, TxBuilderHelper } from '@aeternity/aepp-sdk';
+import {
+  generateKeyPairFromSecret, getAddressFromPriv, dump, recover, encode,
+} from '@aeternity/aepp-sdk';
 import { readJSONFile } from './helpers';
 import { PROMPT_TYPE, prompt } from './prompt';
 
@@ -28,9 +30,9 @@ export async function writeWallet(name, secretKey, output, password, overwrite) 
     throw new Error(`Wallet already exist at ${walletPath}`);
   }
   password ||= await prompt(PROMPT_TYPE.askPassword);
-  fs.writeFileSync(walletPath, JSON.stringify(await Keystore.dump(name, password, secretKey)));
-  const { publicKey } = Crypto.generateKeyPairFromSecret(secretKey);
-  return { publicKey: TxBuilderHelper.encode(publicKey, 'ak'), path: walletPath };
+  fs.writeFileSync(walletPath, JSON.stringify(await dump(name, password, secretKey)));
+  const { publicKey } = generateKeyPairFromSecret(secretKey);
+  return { publicKey: encode(publicKey, 'ak'), path: walletPath };
 }
 
 // Get account file by path, decrypt it using password and return `keypair`
@@ -39,10 +41,10 @@ export async function getWalletByPathAndDecrypt(walletPath, password) {
 
   password ||= await prompt(PROMPT_TYPE.askPassword);
 
-  const privKey = await Keystore.recover(password, keyFile);
+  const privKey = await recover(password, keyFile);
 
   return {
     secretKey: privKey,
-    publicKey: Crypto.getAddressFromPriv(privKey),
+    publicKey: getAddressFromPriv(privKey),
   };
 }

@@ -18,7 +18,7 @@
 import { Command } from 'commander';
 import fs from 'fs';
 import {
-  Crypto, TxBuilderHelper, TxBuilder, SCHEMA,
+  decryptKey, sign, buildTx, unpackTx, decode, TX_TYPE,
 } from '@aeternity/aepp-sdk';
 import { print } from '../utils/print';
 
@@ -30,7 +30,7 @@ program
   // ## Address decoder
   // This helper function decodes address(base58) to hex
   .action((address) => {
-    const decoded = TxBuilderHelper.decode(address, 'ak').toString('hex');
+    const decoded = decode(address, 'ak').toString('hex');
     console.log(`Decoded address (hex): ${decoded}`);
   });
 
@@ -49,10 +49,10 @@ program
       if (privKey) return Buffer.from(privKey, 'hex');
       throw new Error('Must provide either [privkey] or [file]');
     })();
-    const decryptedKey = password ? Crypto.decryptKey(password, binaryKey) : binaryKey;
-    const encodedTx = TxBuilderHelper.decode(tx, 'tx');
-    const signature = Crypto.sign(Buffer.concat([Buffer.from(networkId), encodedTx]), decryptedKey);
-    console.log(TxBuilder.buildTx({ encodedTx, signatures: [signature] }, SCHEMA.TX_TYPE.signed).tx);
+    const decryptedKey = password ? decryptKey(password, binaryKey) : binaryKey;
+    const encodedTx = decode(tx, 'tx');
+    const signature = sign(Buffer.concat([Buffer.from(networkId), encodedTx]), decryptedKey);
+    console.log(buildTx({ encodedTx, signatures: [signature] }, TX_TYPE.signed).tx);
   });
 
 program
@@ -60,7 +60,8 @@ program
   // ## Transaction Deserialization
   // This helper function deserialized the transaction `tx` and prints the result.
   .action((tx) => {
-    const unpackedTx = TxBuilder.unpackTx(tx);
+    const unpackedTx = unpackTx(tx);
+    unpackedTx.txType = TX_TYPE[unpackedTx.txType];
     delete unpackedTx.rlpEncoded;
     delete unpackedTx.binary;
     print(unpackedTx);

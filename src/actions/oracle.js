@@ -18,9 +18,9 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { TxBuilderHelper } from '@aeternity/aepp-sdk';
-import { initChain, initSdkByWalletFile } from '../utils/cli';
+import { initSdk, initSdkByWalletFile } from '../utils/cli';
 import { BUILD_ORACLE_TTL } from '../utils/constant';
+import { decode } from '../utils/helpers';
 import {
   print, printOracle, printQueries, printTransaction,
 } from '../utils/print';
@@ -57,14 +57,15 @@ export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
   } = options;
 
   if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number');
-  TxBuilderHelper.decode(oracleId, 'ok');
+  decode(oracleId, 'ok');
   const sdk = await initSdkByWalletFile(walletPath, options);
   const oracle = await sdk.getOracleObject(oracleId);
-  const extended = await oracle.extendOracle(BUILD_ORACLE_TTL(oracleTtl), {
+  const extended = await oracle.extendOracle({
     ttl,
     waitMined,
     nonce,
     fee,
+    ...BUILD_ORACLE_TTL(oracleTtl),
   });
   if (waitMined) {
     printTransaction(extended, json);
@@ -79,7 +80,7 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
     ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl,
   } = options;
 
-  TxBuilderHelper.decode(oracleId, 'ok');
+  decode(oracleId, 'ok');
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   const oracle = await sdk.getOracleObject(oracleId);
@@ -115,8 +116,8 @@ export async function respondToQuery(
     ttl, fee, nonce, waitMined, json, responseTtl,
   } = options;
 
-  TxBuilderHelper.decode(oracleId, 'ok');
-  TxBuilderHelper.decode(queryId, 'oq');
+  decode(oracleId, 'ok');
+  decode(queryId, 'oq');
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   const oracle = await sdk.getOracleObject(oracleId);
@@ -138,8 +139,8 @@ export async function respondToQuery(
 
 // ## Get oracle
 export async function queryOracle(oracleId, options) {
-  TxBuilderHelper.decode(oracleId, 'ok');
-  const sdk = await initChain(options);
+  decode(oracleId, 'ok');
+  const sdk = await initSdk(options);
   const oracle = await sdk.api.getOracleByPubkey(oracleId);
   const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
   if (options.json) {

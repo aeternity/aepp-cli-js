@@ -15,7 +15,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { Crypto } from '@aeternity/aepp-sdk';
+import { generateKeyPair } from '@aeternity/aepp-sdk';
 import {
   after, before, describe, it,
 } from 'mocha';
@@ -79,7 +79,7 @@ describe('CLI Oracle Module', () => {
   });
 
   it('Get non existed Oracle', async () => {
-    const fakeOracleId = Crypto.generateKeyPair().publicKey.replace('ak_', 'ok_');
+    const fakeOracleId = generateKeyPair().publicKey.replace('ak_', 'ok_');
     await executeOracle(['get', fakeOracleId, '--json'])
       .should.be.rejectedWith('error: Oracle not found');
     await executeOracle(['get', 'oq_d1sadasdasda', '--json'])

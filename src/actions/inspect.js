@@ -18,9 +18,9 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { TxBuilder } from '@aeternity/aepp-sdk';
+import { unpackTx as _unpackTx } from '@aeternity/aepp-sdk';
 import { HASH_TYPES } from '../utils/constant';
-import { initChain } from '../utils/cli';
+import { initSdk } from '../utils/cli';
 import {
   print,
   printBlock,
@@ -39,7 +39,7 @@ async function getBlockByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, [HASH_TYPES.block, HASH_TYPES.micro_block]);
-    const sdk = await initChain(options);
+    const sdk = await initSdk(options);
     printBlock(await getBlock(hash, sdk), json);
   } catch (e) {
     printError(e.message);
@@ -50,8 +50,8 @@ async function getTransactionByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, HASH_TYPES.transaction);
-    const sdk = await initChain(options);
-    printTransaction(await sdk.tx(hash), json);
+    const sdk = await initSdk(options);
+    printTransaction(await sdk.getTransaction(hash), json);
   } catch (e) {
     printError(e.message);
   }
@@ -61,7 +61,7 @@ async function unpackTx(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, HASH_TYPES.rawTransaction);
-    const { tx, txType: type } = TxBuilder.unpackTx(hash);
+    const { tx, txType: type } = _unpackTx(hash);
     if (json) {
       print({ tx, type });
       return;
@@ -77,9 +77,9 @@ async function getAccountByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, HASH_TYPES.account);
-    const sdk = await initChain(options);
+    const sdk = await initSdk(options);
     const { nonce } = await sdk.api.getAccountByPubkey(hash);
-    const balance = await sdk.balance(hash);
+    const balance = await sdk.getBalance(hash);
     const { transactions } = await sdk.api.getPendingAccountTransactionsByPubkey(hash);
     if (json) {
       print({
@@ -104,7 +104,7 @@ async function getBlockByHeight(height, options) {
   const { json } = options;
   height = parseInt(height);
   try {
-    const sdk = await initChain(options);
+    const sdk = await initSdk(options);
 
     printBlock(await sdk.api.getKeyBlockByHeight(height), json);
   } catch (e) {
@@ -115,7 +115,7 @@ async function getBlockByHeight(height, options) {
 async function getName(name, options) {
   const { json } = options;
   validateName(name);
-  const sdk = await initChain(options);
+  const sdk = await initSdk(options);
   try {
     printName(
       await updateNameStatus(name, sdk),
@@ -132,7 +132,7 @@ async function getName(name, options) {
 async function getContract(contractId, options) {
   const { json } = options;
   try {
-    const sdk = await initChain(options);
+    const sdk = await initSdk(options);
 
     printTransaction(await sdk.api.getContract(contractId), json);
   } catch (e) {
@@ -143,7 +143,7 @@ async function getContract(contractId, options) {
 async function getOracle(oracleId, options) {
   const { json } = options;
   try {
-    const sdk = await initChain(options);
+    const sdk = await initSdk(options);
 
     // printTransaction(await sdk.api.getContract(contractId), json)
     printOracle(await sdk.api.getOracleByPubkey(oracleId), json);
