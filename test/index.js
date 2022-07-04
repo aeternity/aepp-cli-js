@@ -83,11 +83,15 @@ export async function executeProgram(program, args) {
   };
   const options = getProgramOptions(program);
   try {
-    await program.parseAsync([
+    const allArgs = [
       ...args,
       ...['config', 'decode', 'sign', 'unpack'].includes(args[0]) ? [] : ['--url', url],
       ...args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [],
-    ], { from: 'user' });
+    ];
+    if (allArgs.some((a) => !['string', 'number'].includes(typeof a))) {
+      throw new Error(`Invalid arguments: [${allArgs.join(', ')}]`);
+    }
+    await program.parseAsync(allArgs, { from: 'user' });
   } finally {
     console.log = log;
     isProgramExecuting = false;

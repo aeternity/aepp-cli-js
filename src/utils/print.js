@@ -377,15 +377,3 @@ export function printName(name, json) {
   printUnderscored('Pointers', JSON.stringify(name.pointers) ?? 'N/A');
   printUnderscored('TTL', name.ttl ?? 0);
 }
-
-// Print `Buider Transaction`
-export function printBuilderTransaction({ tx, txObject }, type) {
-  printUnderscored('Transaction type', type);
-  print('Summary');
-  Object
-    .entries(txObject)
-    .forEach(([key, value]) => printUnderscored(`    ${key.toUpperCase()}`, value));
-  print('Output');
-  printUnderscored('    Encoded', tx);
-  print('This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.');
-}
