@@ -31,7 +31,6 @@ import { PROMPT_TYPE, prompt } from '../utils/prompt';
 export async function signMessage(walletPath, data = [], options) {
   const { json, filePath } = options;
   const dataForSign = filePath ? readFile(filePath) : data.join(' ');
-  if (dataForSign.length >= 0xFD) throw new Error('Message too long!');
   const { account } = await getAccountByWalletFile(walletPath, options);
   const signedMessage = await account.signMessage(dataForSign);
   const address = await account.address();
@@ -56,7 +55,6 @@ export async function signMessage(walletPath, data = [], options) {
 export async function verifyMessage(walletPath, hexSignature, data = [], options) {
   const { json, filePath } = options;
   const dataForVerify = filePath ? readFile(filePath) : data.join(' ');
-  if (dataForVerify.length >= 0xFD) throw new Error('Message too long!');
   const { account } = await getAccountByWalletFile(walletPath, options);
   const isCorrect = await account.verifyMessage(dataForVerify, hexSignature);
   const result = {
