@@ -22,13 +22,14 @@ import { Argument, Option, Command } from 'commander';
 import { TX_TTL, MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
 import { COMPILER_URL } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
+import CliError from '../utils/CliError';
 import * as Contract from '../actions/contract';
 import { nodeOption, jsonOption, gasOption } from '../arguments';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
   .argParser((argsText) => {
     const args = JSON.parse(argsText);
-    if (!Array.isArray(args)) throw new Error(`Call arguments should be an array, got ${argsText} instead`);
+    if (!Array.isArray(args)) throw new CliError(`Call arguments should be an array, got ${argsText} instead`);
     return args;
   })
   .default([]);

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * ISC License (ISC)
- * Copyright (c) 2021 aeternity developers
+ * Copyright (c) 2022 aeternity developers
  *
  *  Permission to use, copy, modify, and/or distribute this software for any
  *  purpose with or without fee is hereby granted, provided that the above
@@ -16,5 +16,6 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 import program from './commands/account';
+import { runProgram } from './utils/CliError';
 
-program.parseAsync();
+await runProgram(program);

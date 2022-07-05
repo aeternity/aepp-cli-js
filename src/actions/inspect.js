@@ -33,6 +33,7 @@ import {
 import {
   checkPref, getBlock, updateNameStatus, validateName,
 } from '../utils/helpers';
+import CliError from '../utils/CliError';
 
 // ## Inspect helper function's
 async function getBlockByHash(hash, options) {
@@ -157,7 +158,7 @@ async function getOracle(oracleId, options) {
 // ## Inspect function
 // That function get the param(`hash`, `height` or `name`) and show you info about it
 export default async function inspect(hash, option) {
-  if (!hash) throw new Error('Hash required');
+  if (!hash) throw new CliError('Hash required');
 
   // Get `block` by `height`
   if (!isNaN(hash)) {

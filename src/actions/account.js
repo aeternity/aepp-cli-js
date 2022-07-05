@@ -19,11 +19,11 @@
  */
 
 import { generateKeyPair, AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk';
-
+import CliError from '../utils/CliError';
 import { writeWallet } from '../utils/account';
 import { initSdkByWalletFile, getAccountByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
-import { readFile } from '../utils/helpers';
+import { decode, readFile } from '../utils/helpers';
 import { PROMPT_TYPE, prompt } from '../utils/prompt';
 
 // ## `Sign message` function
@@ -74,7 +74,7 @@ export async function verifyMessage(walletPath, hexSignature, data = [], options
 export async function sign(walletPath, tx, options) {
   const { json } = options;
   // Validate `tx` hash
-  if (tx.slice(0, 2) !== 'tx') { throw new Error('Invalid transaction hash'); }
+  decode(tx, 'tx');
 
   const { account } = await getAccountByWalletFile(walletPath, options);
 
@@ -232,7 +232,7 @@ export async function createSecureWalletByPrivKey(walletPath, secretKey, {
 // This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
 export async function generateKeyPairs(count = 1, { forcePrompt, json }) {
   if (!Number.isInteger(+count)) {
-    throw new Error('Count must be an Number');
+    throw new CliError('Count must be an Number');
   }
   if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
     const accounts = Array.from(Array(parseInt(count))).map(() => generateKeyPair(false));

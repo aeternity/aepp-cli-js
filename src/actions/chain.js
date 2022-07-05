@@ -23,6 +23,7 @@ import {
   printBlock, print, printUnderscored, printTransaction, printValidation,
 } from '../utils/print';
 import { getBlock } from '../utils/helpers';
+import CliError from '../utils/CliError';
 
 // ## Retrieve `node` version
 export async function version(options) {
@@ -119,7 +120,7 @@ export async function play(options) {
   const topHeader = await sdk.api.getTopHeader();
 
   if (height && height > parseInt(topHeader.height)) {
-    throw new Error('Height is bigger then height of top block');
+    throw new CliError('Height is bigger then height of top block');
   }
 
   printBlock(topHeader, json);

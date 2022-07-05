@@ -16,5 +16,6 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 import program from './commands/main';
+import { runProgram } from './utils/CliError';
 
-program.parseAsync();
+await runProgram(program);
