@@ -111,7 +111,7 @@ export async function call(walletPath, fn, args, options) {
   const contract = await sdk.getContractInstance(getContractParams(options));
   const callResult = await contract.call(fn, args, {
     ttl: ttl && parseInt(ttl),
-    gas: gas && parseInt(gas),
+    gas,
     nonce: nonce && parseInt(nonce),
     callStatic,
     top,

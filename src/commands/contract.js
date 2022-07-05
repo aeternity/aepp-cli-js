@@ -20,10 +20,10 @@
 // We'll use `commander` for parsing options
 import { Argument, Option, Command } from 'commander';
 import { TX_TTL, MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
-import { COMPILER_URL, GAS } from '../utils/constant';
+import { COMPILER_URL } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Contract from '../actions/contract';
-import { nodeOption, jsonOption } from '../arguments';
+import { nodeOption, jsonOption, gasOption } from '../arguments';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
   .argParser((argsText) => {
@@ -108,7 +108,7 @@ program
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-P, --password [password]', 'Wallet Password')
-  .option('-G --gas [gas]', 'Amount of gas to call the contract', GAS)
+  .addOption(gasOption)
   .option('-s --callStatic', 'Call static')
   .option('-t --topHash', 'Hash of block to make call')
   .option('-F, --fee [fee]', 'Spend transaction fee.')
@@ -137,7 +137,7 @@ program
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .option('-P, --password [password]', 'Wallet Password')
-  .option('-G --gas [gas]', 'Amount of gas to deploy the contract', GAS)
+  .addOption(gasOption)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .option('-F, --fee [fee]', 'Spend transaction fee.')
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)

@@ -35,9 +35,6 @@ export const HASH_TYPES = {
 export const NODE_URL = 'https://testnet.aeternity.io';
 export const COMPILER_URL = 'https://compiler.aepps.com';
 
-// ## CONTRACT
-export const GAS = 1600000 - 21000; // MAX GAS
-
 // ## ORACLE
 export const BUILD_ORACLE_TTL = (ttl) => ({ type: 'delta', value: ttl });
 export const RESPONSE_TTL = 10;

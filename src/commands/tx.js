@@ -24,10 +24,12 @@ import { Command } from 'commander';
 import {
   TX_TTL, NAME_TTL, CLIENT_TTL, MIN_GAS_PRICE, QUERY_FEE, ORACLE_TTL, QUERY_TTL,
 } from '@aeternity/aepp-sdk';
-import * as constant from '../utils/constant';
+import { RESPONSE_TTL } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Transaction from '../actions/transaction';
-import { nonceArgument, nodeOption, jsonOption } from '../arguments';
+import {
+  nodeOption, jsonOption, gasOption, nonceArgument,
+} from '../arguments';
 
 const program = new Command().name('aecli tx');
 
@@ -129,7 +131,7 @@ program
   .addArgument(nonceArgument)
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
-  .option('-G --gas [gas]', 'Amount of gas to deploy the contract', constant.GAS)
+  .addOption(gasOption)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
@@ -145,7 +147,7 @@ program
   .addArgument(nonceArgument)
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
-  .option('-G --gas [gas]', 'Amount of gas to deploy the contract', constant.GAS)
+  .addOption(gasOption)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
@@ -178,7 +180,7 @@ program
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('--queryFee [queryFee]', 'Oracle Query fee.', QUERY_FEE)
   .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', QUERY_TTL.value)
-  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', constant.RESPONSE_TTL)
+  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL)
   .description('Build oracle post query transaction.')
   .action((accountId, oracleId, query, nonce, ...args) => Transaction.oraclePostQuery(accountId, oracleId, query, nonce, getCmdFromArguments(args)));
 
@@ -205,7 +207,7 @@ program
   .addArgument(nonceArgument)
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .option('-F, --fee [fee]', 'Transaction fee.')
-  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', constant.RESPONSE_TTL)
+  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL)
   .description('Build oracle extend transaction.')
   .action((callerId, oracleId, queryId, response, nonce, ...args) => Transaction.oracleRespond(callerId, oracleId, queryId, response, nonce, getCmdFromArguments(args)));
 
