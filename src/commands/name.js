@@ -22,22 +22,22 @@
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander';
 import { TX_TTL, NAME_TTL, CLIENT_TTL } from '@aeternity/aepp-sdk';
-import { NODE_URL, OUTPUT_JSON } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as AENS from '../actions/aens';
+import { nodeOption, jsonOption } from '../arguments';
 
 const program = new Command().name('aecli name');
 
 // ## Initialize `options`
 program
-  .option('-u, --url [hostname]', 'Node to connect to', NODE_URL)
+  .addOption(nodeOption)
   .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', TX_TTL)
   .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-P, --password [password]', 'Wallet Password')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-f --force', 'Ignore node version compatibility check')
-  .option('--json', 'Print result in json format', OUTPUT_JSON);
+  .addOption(jsonOption);
 
 // ## Initialize `claim` command
 //

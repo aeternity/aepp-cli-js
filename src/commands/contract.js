@@ -20,9 +20,10 @@
 // We'll use `commander` for parsing options
 import { Argument, Option, Command } from 'commander';
 import { TX_TTL, MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
-import { NODE_URL, COMPILER_URL, GAS } from '../utils/constant';
+import { COMPILER_URL, GAS } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Contract from '../actions/contract';
+import { nodeOption, jsonOption } from '../arguments';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
   .argParser((argsText) => {
@@ -40,10 +41,10 @@ const program = new Command().name('aecli contract');
 
 // ## Initialize `options`
 program
-  .option('-u --url [hostname]', 'Node to connect to', NODE_URL)
+  .addOption(nodeOption)
   .option('--compilerUrl [compilerUrl]', 'Compiler URL', COMPILER_URL)
   .option('-f --force', 'Ignore node version compatibility check')
-  .option('--json', 'Print result in json format');
+  .addOption(jsonOption);
 
 // ## Initialize `compile` command
 //

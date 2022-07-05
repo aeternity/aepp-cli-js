@@ -22,22 +22,23 @@ import { Command } from 'commander';
 import {
   TX_TTL, ORACLE_TTL, QUERY_FEE, QUERY_TTL,
 } from '@aeternity/aepp-sdk';
-import { NODE_URL, OUTPUT_JSON, RESPONSE_TTL } from '../utils/constant';
+import { RESPONSE_TTL } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Oracle from '../actions/oracle';
+import { nodeOption, jsonOption } from '../arguments';
 
 const program = new Command().name('aecli oracle');
 
 // ## Initialize `options`
 program
-  .option('-u, --url [hostname]', 'Node to connect to', NODE_URL)
+  .addOption(nodeOption)
   .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', TX_TTL)
   .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-P, --password [password]', 'Wallet Password')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-f --force', 'Ignore node version compatibility check')
-  .option('--json', 'Print result in json format', OUTPUT_JSON);
+  .addOption(jsonOption);
 
 // ## Initialize `create` command
 //

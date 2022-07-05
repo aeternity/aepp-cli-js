@@ -25,7 +25,6 @@ import {
 } from '@aeternity/aepp-sdk';
 import { print, printUnderscored, printValidation } from '../utils/print';
 import { validateName, decode } from '../utils/helpers';
-import { ORACLE_VM_VERSION } from '../utils/constant';
 
 const vmAbi = Object.fromEntries(
   Object.entries(PROTOCOL_VM_ABI[PROTOCOL_VERSIONS.IRIS])
@@ -45,6 +44,9 @@ function buildAndPrintTx(txType, params, json, extraKeys = {}) {
       break;
     case TX_TYPE.contractCall:
       params.abiVersion = vmAbi[TX_TYPE.contractCall].abiVersion;
+      break;
+    case TX_TYPE.oracleRegister:
+      params.abiVersion = vmAbi[TX_TYPE.oracleRegister].abiVersion;
       break;
     default:
   }
@@ -188,7 +190,6 @@ export function oracleRegister(accountId, queryFormat, responseFormat, nonce, {
     queryFee: parseInt(queryFee),
     queryFormat,
     responseFormat,
-    abiVersion: ORACLE_VM_VERSION,
   };
   buildAndPrintTx(TX_TYPE.oracleRegister, params, json);
 }

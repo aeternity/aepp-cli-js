@@ -27,18 +27,18 @@ import {
 import * as constant from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Transaction from '../actions/transaction';
-import { nonceArgument } from '../arguments';
+import { nonceArgument, nodeOption, jsonOption } from '../arguments';
 
 const program = new Command().name('aecli tx');
 
 // ## Initialize `options`
 program
-  .option('-u, --url [hostname]', 'Node to connect to', constant.NODE_URL)
+  .addOption(nodeOption)
 // .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
   .option('--ttl [fee]', 'Override the ttl that the transaction is going to be sent with', TX_TTL)
   .option('-f --force', 'Ignore node version compatibility check')
-  .option('--json', 'Print result in json format');
+  .addOption(jsonOption);
 
 // ## Initialize `spend` command
 //
@@ -131,8 +131,7 @@ program
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', constant.GAS)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
-  .option('--amount [amount]', 'Amount', constant.AMOUNT)
-  .option('--deposit [deposit]', 'Deposit', constant.DEPOSIT)
+  .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
   .action((ownerId, contractBytecode, initCallData, nonce, ...args) => Transaction.contractDeploy(ownerId, contractBytecode, initCallData, nonce, getCmdFromArguments(args)));
 
@@ -148,7 +147,7 @@ program
   .option('-F, --fee [fee]', 'Transaction fee.')
   .option('-G --gas [gas]', 'Amount of gas to deploy the contract', constant.GAS)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
-  .option('--amount [amount]', 'Amount', constant.AMOUNT)
+  .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
   .action((callerId, contractId, callData, nonce, ...args) => Transaction.contractCall(callerId, contractId, callData, nonce, getCmdFromArguments(args)));
 

@@ -20,18 +20,18 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
 import { AE_AMOUNT_FORMATS, TX_TTL } from '@aeternity/aepp-sdk';
-import { NODE_URL } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Account from '../actions/account';
+import { nodeOption, jsonOption } from '../arguments';
 
 const program = new Command().name('aecli account');
 
 // ## Initialize `options`
 program
-  .option('-u, --url [hostname]', 'Node to connect to', NODE_URL)
+  .addOption(nodeOption)
   .option('-P, --password [password]', 'Wallet Password')
   .option('-f --force', 'Ignore epoch version compatibility check')
-  .option('--json', 'Print result in json format');
+  .addOption(jsonOption);
 
 // ## Initialize `spend` command
 //
