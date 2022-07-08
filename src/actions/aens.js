@@ -19,7 +19,7 @@
  */
 
 import { Crypto, getDefaultPointerKey } from '@aeternity/aepp-sdk';
-import { initChain, initClientByWalletFile } from '../utils/cli';
+import { initChain, initSdkByWalletFile } from '../utils/cli';
 import { print, printName, printTransaction } from '../utils/print';
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers';
 
@@ -32,15 +32,15 @@ export async function preClaim(walletPath, domain, options) {
   // Validate `name`(check if `name` end on `.chain`)
   // validateName(domain)
 
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name' available
-  const name = await updateNameStatus(domain, client);
+  const name = await updateNameStatus(domain, sdk);
   if (!isAvailable(name)) {
     throw new Error('Domain not available');
   }
   // Create `pre-claim` transaction
-  const preClaimTx = await client.aensPreclaim(domain, {
+  const preClaimTx = await sdk.aensPreclaim(domain, {
     ttl, fee, nonce, waitMined,
   });
   if (waitMined) {
@@ -61,16 +61,16 @@ export async function claim(walletPath, domain, salt, options) {
   // Validate `name`
   // validateName(domain)
 
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name' available
-  const name = await updateNameStatus(domain, client);
+  const name = await updateNameStatus(domain, sdk);
   if (!isAvailable(name)) {
     throw new Error('Domain not available');
   }
 
   // Wait for next block and create `claimName` transaction
-  const claimTx = await client.aensClaim(domain, salt, {
+  const claimTx = await sdk.aensClaim(domain, salt, {
     nonce, ttl, fee, waitMined, nameFee,
   });
   if (waitMined) {
@@ -94,16 +94,16 @@ export async function updateName(walletPath, domain, addresses, options) {
   if (invalidAddresses.length) throw new Error(`Addresses "[${invalidAddresses}]" is not valid`);
   // Validate `name`
   validateName(domain);
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name` is unavailable and we can update it
-  const name = await updateNameStatus(domain, client);
+  const name = await updateNameStatus(domain, sdk);
   if (isAvailable(name)) {
     throw new Error(`Domain is ${name.status} and cannot be updated`);
   }
 
   // Create `updateName` transaction
-  const updateTx = await client.aensUpdate(
+  const updateTx = await sdk.aensUpdate(
     domain,
     Object.fromEntries(addresses.map((address) => [getDefaultPointerKey(address), address])),
     {
@@ -128,16 +128,16 @@ export async function extendName(walletPath, domain, nameTtl, options) {
 
   // Validate `name`
   validateName(domain);
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name` is unavailable and we can update it
-  const name = await updateNameStatus(domain, client);
+  const name = await updateNameStatus(domain, sdk);
   if (isAvailable(name)) {
     throw new Error(`Domain is ${name.status} and cannot be extended`);
   }
 
   // Create `updateName` transaction
-  const updateTx = await client.aensUpdate(domain, {}, {
+  const updateTx = await sdk.aensUpdate(domain, {}, {
     ttl, fee, nonce, waitMined, nameTtl, extendPointers: true,
   });
   if (waitMined) {
@@ -160,16 +160,16 @@ export async function transferName(walletPath, domain, address, options) {
   if (!Crypto.isAddressValid(address)) throw new Error(`Address "${address}" is not valid`);
   // Validate `name`
   validateName(domain);
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name` is unavailable and we can transfer it
-  const name = await updateNameStatus(domain, client);
+  const name = await updateNameStatus(domain, sdk);
   if (isAvailable(name)) {
     throw new Error('Domain is available, nothing to transfer');
   }
 
   // Create `transferName` transaction
-  const transferTX = await client.aensTransfer(domain, address, {
+  const transferTX = await sdk.aensTransfer(domain, address, {
     ttl, fee, nonce, waitMined,
   });
   if (waitMined) {
@@ -190,16 +190,16 @@ export async function revokeName(walletPath, domain, options) {
 
   // Validate `name`
   validateName(domain);
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if `name` is unavailable and we can revoke it
-  const name = await updateNameStatus(domain, client);
+  const name = await updateNameStatus(domain, sdk);
   if (isAvailable(name)) {
     throw new Error('Domain is available, nothing to revoke');
   }
 
   // Create `revokeName` transaction
-  const revokeTx = await client.aensRevoke(domain, {
+  const revokeTx = await sdk.aensRevoke(domain, {
     ttl, fee, nonce, waitMined,
   });
   if (waitMined) {
@@ -219,16 +219,16 @@ export async function nameBid(walletPath, domain, nameFee, options) {
   // Validate `name`
   validateName(domain);
 
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name' available
-  const name = await updateNameStatus(domain, client);
+  const name = await updateNameStatus(domain, sdk);
   if (!isAvailable(name)) {
     throw new Error('Auction do not start or already end');
   }
 
   // Wait for next block and create `claimName` transaction
-  const nameBidTx = await client.aensBid(domain, nameFee, {
+  const nameBidTx = await sdk.aensBid(domain, nameFee, {
     nonce, ttl, fee, waitMined,
   });
   if (waitMined) {
@@ -248,10 +248,10 @@ export async function fullClaim(walletPath, domain, options) {
   validateName(domain);
   if (domain.split('.')[0] < 13) throw new Error('Full name claiming works only with name longer then 12 symbol (not trigger auction)');
 
-  const client = await initClientByWalletFile(walletPath, options);
+  const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name' available
-  const name = await updateNameStatus(domain, client);
+  const name = await updateNameStatus(domain, sdk);
   if (!isAvailable(name)) {
     throw new Error('Domain not available');
   }
@@ -260,14 +260,14 @@ export async function fullClaim(walletPath, domain, options) {
   if (nonce) {
     nonce = parseInt(nonce);
   }
-  const preclaim = await client.aensPreclaim(domain, { nonce, ttl, fee });
+  const preclaim = await sdk.aensPreclaim(domain, { nonce, ttl, fee });
   nonce += 1;
   const nameInstance = await preclaim.claim({
     nonce, ttl, fee, nameFee,
   });
   nonce += 1;
   const updateTx = await nameInstance.update(
-    { account_pubkey: await client.address() },
+    { account_pubkey: await sdk.address() },
     {
       nonce, ttl, fee, nameTtl, clientTtl,
     },
@@ -282,11 +282,11 @@ export async function fullClaim(walletPath, domain, options) {
 export async function lookUp(domain, options) {
   const { json } = options;
   validateName(domain);
-  const client = await initChain(options);
+  const sdk = await initChain(options);
 
   // Check if `name` is unavailable and we can revoke it
   printName(
-    await updateNameStatus(domain, client),
+    await updateNameStatus(domain, sdk),
     json,
   );
 }

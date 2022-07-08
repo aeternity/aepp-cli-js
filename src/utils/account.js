@@ -2,7 +2,7 @@
 // That script contains helper function's for work with `account`
 /*
 * ISC License (ISC)
-* Copyright (c) 2018 aeternity developers
+* Copyright (c) 2022 aeternity developers
 *
 *  Permission to use, copy, modify, and/or distribute this software for any
 *  purpose with or without fee is hereby granted, provided that the above
@@ -22,7 +22,7 @@ import { Crypto, Keystore, TxBuilderHelper } from '@aeternity/aepp-sdk';
 import { readJSONFile } from './helpers';
 import { PROMPT_TYPE, prompt } from './prompt';
 
-async function writeWallet(name, secretKey, output, password, overwrite) {
+export async function writeWallet(name, secretKey, output, password, overwrite) {
   const walletPath = path.resolve(process.cwd(), path.join(output, name));
   if (!overwrite && fs.existsSync(walletPath) && !await prompt(PROMPT_TYPE.askOverwrite)) {
     throw new Error(`Wallet already exist at ${walletPath}`);
@@ -31,18 +31,6 @@ async function writeWallet(name, secretKey, output, password, overwrite) {
   fs.writeFileSync(walletPath, JSON.stringify(await Keystore.dump(name, password, secretKey)));
   const { publicKey } = Crypto.generateKeyPairFromSecret(secretKey);
   return { publicKey: TxBuilderHelper.encode(publicKey, 'ak'), path: walletPath };
-}
-
-// Generate `keypair` encrypt it using password and write to `ethereum` keystore file
-export async function generateSecureWallet(name, { output = '', password, overwrite }) {
-  const { secretKey } = Crypto.generateKeyPair(true);
-  return writeWallet(name, secretKey, output, password, overwrite);
-}
-
-// Generate `keypair` from `PRIVATE KEY` encrypt it using password and to `ethereum` keystore file
-export async function generateSecureWalletFromPrivKey(name, secretKey, { output = '', password, overwrite }) {
-  secretKey = Buffer.from(secretKey.trim(), 'hex');
-  return writeWallet(name, secretKey, output, password, overwrite);
 }
 
 // Get account file by path, decrypt it using password and return `keypair`

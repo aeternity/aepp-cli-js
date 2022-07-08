@@ -45,15 +45,15 @@ export function readJSONFile(filePath) {
 // if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`
 //
 // if it's `BLOCK` call `getKeyBlockByHash`
-export async function getBlock(hash, client) {
+export async function getBlock(hash, sdk) {
   const type = hash.split('_')[0];
   switch (type) {
     case HASH_TYPES.block:
-      return client.api.getKeyBlockByHash(hash);
+      return sdk.api.getKeyBlockByHash(hash);
     case HASH_TYPES.micro_block:
       return {
-        ...await client.api.getMicroBlockHeaderByHash(hash),
-        ...await client.api.getMicroBlockTransactionsByHash(hash),
+        ...await sdk.api.getMicroBlockHeaderByHash(hash),
+        ...await sdk.api.getMicroBlockTransactionsByHash(hash),
       };
     default:
       throw new Error(`Unknown block hash type: ${type}`);
@@ -85,9 +85,9 @@ export function checkPref(hash, hashType) {
 // ## AENS helpers methods
 
 // Get `name` status
-export async function updateNameStatus(name, client) {
+export async function updateNameStatus(name, sdk) {
   try {
-    return { ...await client.getName(name), status: 'CLAIMED' };
+    return { ...await sdk.getName(name), status: 'CLAIMED' };
   } catch (e) {
     if (e.response && e.response.status === 404) {
       return { name, status: 'AVAILABLE' };

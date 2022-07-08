@@ -22,11 +22,11 @@ import {
 import { expect } from 'chai';
 import { Crypto } from '@aeternity/aepp-sdk';
 import { executeProgram, parseBlock, getSdk } from './index';
-import inspectProgramFactory from '../src/commands/inspect';
-import chainProgramFactory from '../src/commands/chain';
+import inspectProgram from '../src/commands/inspect';
+import chainProgram from '../src/commands/chain';
 
-const executeInspect = (args) => executeProgram(inspectProgramFactory, args);
-const executeChain = (args) => executeProgram(chainProgramFactory, args);
+const executeInspect = (args) => executeProgram(inspectProgram, args);
+const executeChain = (args) => executeProgram(chainProgram, args);
 
 const contractDescriptor = {
   descPath: 'testc.deploy.MA8Qe8ac7e9EARYK7fQxEqFufRGrG1i6qFvHA21eXXMDcnmuc.json',

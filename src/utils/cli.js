@@ -26,8 +26,8 @@ export function getCmdFromArguments([options, commander]) {
   return { ...options, ...commander.parent.opts() };
 }
 
-// Create `Universal` client
-export async function initClient({
+// Create `Universal` sdk
+export async function initSdk({
   url, keypair, compilerUrl, force: ignoreVersion, native: nativeMode = true, networkId, accounts = [],
 }) {
   return Universal({
@@ -38,7 +38,7 @@ export async function initClient({
     accounts: [...keypair ? [MemoryAccount({ keypair })] : [], ...accounts],
   });
 }
-// Create `TxBuilder` client
+// Create `TxBuilder` sdk
 export async function initTxBuilder({
   url, force: ignoreVersion, native: nativeMode = true, showWarning = true,
 }) {
@@ -49,11 +49,11 @@ export async function initTxBuilder({
     showWarning,
   });
 }
-// Create `OfflineTxBuilder` client
+// Create `OfflineTxBuilder` sdk
 export function initOfflineTxBuilder() {
   return TxBuilder;
 }
-// Create `ChainNode` client
+// Create `ChainNode` sdk
 export async function initChain({ url, force: ignoreVersion }) {
   return ChainNode({
     nodes: [{ name: 'test-node', instance: await Node({ url, ignoreVersion }) }],
@@ -61,23 +61,17 @@ export async function initChain({ url, force: ignoreVersion }) {
   });
 }
 
+export async function getAccountByWalletFile(walletPath, options) {
+  const keypair = await getWalletByPathAndDecrypt(walletPath, options.password);
+  const accounts = [MemoryAccount({ ...options, keypair })];
+  return { account: accounts[0], keypair };
+}
+
 // ## Get account files and decrypt it using password
-// After that create `Universal` client using this `keyPair`
+// After that create `Universal` sdk using this `keyPair`
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
-export async function initClientByWalletFile(walletPath, options, returnKeyPair = false) {
-  const {
-    password, accountOnly = false, networkId, debug = true,
-  } = options;
-
-  const keypair = await getWalletByPathAndDecrypt(walletPath, password);
-  const accounts = [MemoryAccount({ ...options, keypair, networkId })];
-
-  const client = accountOnly
-    ? accounts[0]
-    : await initClient({ ...options, accounts, debug });
-  if (returnKeyPair) {
-    return { client, keypair };
-  }
-  return client;
+export async function initSdkByWalletFile(walletPath, options) {
+  const { account } = await getAccountByWalletFile(walletPath, options);
+  return initSdk({ ...options, accounts: [account] });
 }

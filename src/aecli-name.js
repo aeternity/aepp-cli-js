@@ -15,6 +15,6 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
-import genProgram from './commands/name';
+import program from './commands/name';
 
-genProgram().parseAsync();
+program.parseAsync();

@@ -19,9 +19,9 @@ import {
   after, before, describe, it,
 } from 'mocha';
 import { executeProgram, parseBlock, getSdk } from './index';
-import chainProgramFactory from '../src/commands/chain';
+import chainProgram from '../src/commands/chain';
 
-const executeChain = (args) => executeProgram(chainProgramFactory, args);
+const executeChain = (args) => executeProgram(chainProgram, args);
 
 describe('CLI Chain Module', () => {
   let sdk;

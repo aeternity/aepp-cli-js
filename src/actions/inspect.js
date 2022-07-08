@@ -39,8 +39,8 @@ async function getBlockByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, [HASH_TYPES.block, HASH_TYPES.micro_block]);
-    const client = await initChain(options);
-    printBlock(await getBlock(hash, client), json);
+    const sdk = await initChain(options);
+    printBlock(await getBlock(hash, sdk), json);
   } catch (e) {
     printError(e.message);
   }
@@ -50,8 +50,8 @@ async function getTransactionByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, HASH_TYPES.transaction);
-    const client = await initChain(options);
-    printTransaction(await client.tx(hash), json);
+    const sdk = await initChain(options);
+    printTransaction(await sdk.tx(hash), json);
   } catch (e) {
     printError(e.message);
   }
@@ -77,10 +77,10 @@ async function getAccountByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, HASH_TYPES.account);
-    const client = await initChain(options);
-    const { nonce } = await client.api.getAccountByPubkey(hash);
-    const balance = await client.balance(hash);
-    const { transactions } = await client.api.getPendingAccountTransactionsByPubkey(hash);
+    const sdk = await initChain(options);
+    const { nonce } = await sdk.api.getAccountByPubkey(hash);
+    const balance = await sdk.balance(hash);
+    const { transactions } = await sdk.api.getPendingAccountTransactionsByPubkey(hash);
     if (json) {
       print({
         hash,
@@ -104,9 +104,9 @@ async function getBlockByHeight(height, options) {
   const { json } = options;
   height = parseInt(height);
   try {
-    const client = await initChain(options);
+    const sdk = await initChain(options);
 
-    printBlock(await client.api.getKeyBlockByHeight(height), json);
+    printBlock(await sdk.api.getKeyBlockByHeight(height), json);
   } catch (e) {
     printError(e.message);
   }
@@ -115,10 +115,10 @@ async function getBlockByHeight(height, options) {
 async function getName(name, options) {
   const { json } = options;
   validateName(name);
-  const client = await initChain(options);
+  const sdk = await initChain(options);
   try {
     printName(
-      await updateNameStatus(name, client),
+      await updateNameStatus(name, sdk),
       json,
     );
   } catch (e) {
@@ -132,9 +132,9 @@ async function getName(name, options) {
 async function getContract(contractId, options) {
   const { json } = options;
   try {
-    const client = await initChain(options);
+    const sdk = await initChain(options);
 
-    printTransaction(await client.api.getContract(contractId), json);
+    printTransaction(await sdk.api.getContract(contractId), json);
   } catch (e) {
     printError(e.message);
   }
@@ -143,11 +143,11 @@ async function getContract(contractId, options) {
 async function getOracle(oracleId, options) {
   const { json } = options;
   try {
-    const client = await initChain(options);
+    const sdk = await initChain(options);
 
-    // printTransaction(await client.api.getContract(contractId), json)
-    printOracle(await client.api.getOracleByPubkey(oracleId), json);
-    const { oracleQueries: queries } = await client.api.getOracleQueriesByPubkey(oracleId);
+    // printTransaction(await sdk.api.getContract(contractId), json)
+    printOracle(await sdk.api.getOracleByPubkey(oracleId), json);
+    const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
     if (queries) printQueries(queries, json);
   } catch (e) {
     printError(e.message);

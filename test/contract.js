@@ -22,9 +22,9 @@ import {
 import { expect } from 'chai';
 import { TxBuilderHelper } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk, WALLET_NAME } from './index';
-import contractProgramFactory from '../src/commands/contract';
+import contractProgram from '../src/commands/contract';
 
-const executeContract = (args) => executeProgram(contractProgramFactory, args);
+const executeContract = (args) => executeProgram(contractProgram, args);
 
 const testContractSource = `
 @compiler >= 6
@@ -36,7 +36,8 @@ contract Identity =
   entrypoint test(x : int, y: int) = x + y + state.z
 `;
 
-describe('CLI Contract Module', () => {
+describe('CLI Contract Module', function contractTests() {
+  this.timeout(4000);
   const contractSourceFile = 'testContract';
   const contractAciFile = 'testContractAci';
   let deployDescriptorFile;
@@ -82,7 +83,7 @@ describe('CLI Contract Module', () => {
       name.should.satisfy((n) => n.endsWith(contractSourceFile));
       pref.should.be.equal('deploy');
       add.should.be.equal(address.split('_')[1]);
-    }).timeout(4000);
+    });
 
     it('deploys contract with custom descrPath', async () => {
       const descrPath = './testDescriptor.json';
@@ -100,7 +101,7 @@ describe('CLI Contract Module', () => {
       expect(descriptor.bytecode).to.satisfy((b) => b.startsWith('cb_'));
       expect(descriptor.source).to.satisfy((b) => b.includes('contract Identity'));
       fs.unlinkSync(descrPath);
-    }).timeout(4000);
+    });
 
     it('deploys contract by bytecode', async () => {
       const contractBytecodeFile = './bytecode.bin';

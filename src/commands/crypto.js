@@ -17,119 +17,53 @@
 
 import { Command } from 'commander';
 import fs from 'fs';
-import path from 'path';
-import { Crypto } from '@aeternity/aepp-sdk';
-import { prompt, PROMPT_TYPE } from '../utils/prompt';
-import { getCmdFromArguments } from '../utils/cli';
-import { generateSecureWallet } from '../utils/account';
+import {
+  Crypto, TxBuilderHelper, TxBuilder, SCHEMA,
+} from '@aeternity/aepp-sdk';
+import { print } from '../utils/print';
 
-// ## Key Extraction (from node nodes)
-async function extractReadableKeys(dir, options) {
-  const pwd = options.input;
-  const password = await prompt(PROMPT_TYPE.askPassword);
-  const key = fs.readFileSync(path.join(pwd, dir, 'sign_key'));
-  const pubKey = fs.readFileSync(path.join(pwd, dir, 'sign_key.pub'));
+const program = new Command().name('aecli crypto');
 
-  const decrypted = Crypto.decryptPrivateKey(password, key);
+program
+  .command('decode <base58address>')
+  .description('Decodes base58 address to hex')
+  // ## Address decoder
+  // This helper function decodes address(base58) to hex
+  .action((address) => {
+    const decoded = TxBuilderHelper.decode(address, 'ak').toString('hex');
+    console.log(`Decoded address (hex): ${decoded}`);
+  });
 
-  const privateHex = Buffer.from(decrypted).toString('hex');
-  const decryptedPub = Crypto.decryptPubKey(password, pubKey);
-
-  console.log(`Private key (hex): ${privateHex}`);
-  console.log(`Public key (base check): ak_${Crypto.encodeBase58Check(decryptedPub)}`);
-  console.log(`Public key (hex): ${decryptedPub.toString('hex')}`);
-}
-
-// ## Key Pair Generation
-async function generateKeyPair(name, { output, password } = {}) {
-  await generateSecureWallet(name, { output, password });
-}
-
-// ## Transaction Deserialization
-//
-// This helper function deserialized the transaction `tx` and prints the result.
-function unpackTx(tx) {
-  const deserializedTx = Crypto.deserialize(Crypto.decodeTx(tx));
-  console.log(JSON.stringify(deserializedTx, undefined, 2));
-}
-
-// ## Address decoder
-//
-// This helper function decodes address(base58) to hex
-function decodeAddress(address) {
-  const decoded = Crypto.decodeBase58Check(address.split('_')[1]).toString('hex');
-  console.log(`Decoded address (hex): ${decoded}`);
-}
-
-export default () => {
-  const program = new Command().name('aecli crypto');
-
+program
+  .command('sign <tx> [privkey]')
+  .option('-p, --password [password]', 'password of the private key')
+  .option('-f, --file [file]', 'private key file')
+  .option('--networkId [networkId]', 'Network id', 'ae_mainnet')
   // ## Transaction Signing
   //
   // This function shows how to use a compliant private key to sign an æternity
   // transaction and turn it into an RLP-encoded tuple ready for mining
-  function signTx(tx, privKey) {
-    if (!tx.match(/^tx_.+/)) {
-      throw Error('Not a valid transaction');
-    }
-
+  .action((tx, privKey, { networkId, password, file }) => {
     const binaryKey = (() => {
-      if (program.file) {
-        return fs.readFileSync(program.file);
-      } if (privKey) {
-        return Buffer.from(privKey, 'hex');
-      }
-      throw Error('Must provide either [privkey] or [file]');
+      if (file) return fs.readFileSync(file);
+      if (privKey) return Buffer.from(privKey, 'hex');
+      throw new Error('Must provide either [privkey] or [file]');
     })();
+    const decryptedKey = password ? Crypto.decryptKey(password, binaryKey) : binaryKey;
+    const encodedTx = TxBuilderHelper.decode(tx, 'tx');
+    const signature = Crypto.sign(Buffer.concat([Buffer.from(networkId), encodedTx]), decryptedKey);
+    console.log(TxBuilder.buildTx({ encodedTx, signatures: [signature] }, SCHEMA.TX_TYPE.signed).tx);
+  });
 
-    const decryptedKey = program.password ? Crypto.decryptKey(program.password, binaryKey) : binaryKey;
+program
+  .command('unpack <tx>')
+  // ## Transaction Deserialization
+  // This helper function deserialized the transaction `tx` and prints the result.
+  .action((tx) => {
+    const unpackedTx = TxBuilder.unpackTx(tx);
+    delete unpackedTx.rlpEncoded;
+    delete unpackedTx.binary;
+    print(unpackedTx);
+  });
 
-    // Split the base58Check part of the transaction
-    const base58CheckTx = tx.split('_')[1];
-    // ... and sign the binary create_contract transaction
-    const binaryTx = Crypto.decodeBase58Check(base58CheckTx);
-
-    const signature = Crypto.sign(Buffer.concat([Buffer.from(Crypto.NETWORK_ID), binaryTx]), decryptedKey);
-
-    // the signed tx deserializer expects a 4-tuple:
-    // <tag, version, signatures_array, binary_tx>
-    const unpackedSignedTx = [
-      Buffer.from([11]),
-      Buffer.from([1]),
-      [Buffer.from(signature)],
-      binaryTx,
-    ];
-
-    console.log(Crypto.encodeTx(unpackedSignedTx));
-  }
-
-  program
-    .command('decode <base58address>')
-    .description('Decodes base58 address to hex')
-    .action(decodeAddress);
-
-  program
-    .command('decrypt <directory>')
-    .description('Decrypts public and private key to readable formats for testing purposes')
-    .option('-i, --input [directory]', 'Directory where to look for keys', '.')
-    .action((dir, ...args) => extractReadableKeys(dir, getCmdFromArguments(args)));
-
-  program
-    .command('genkey <keyname>')
-    .description('Generate keypair')
-    .option('-o, --output [directory]', 'Output directory for the keys', '.')
-    .option('-p, --password [directory]', 'Password for keypair', '.')
-    .action((keyname, ...args) => generateKeyPair(keyname, getCmdFromArguments(args)));
-
-  program
-    .command('sign <tx> [privkey]')
-    .option('-p, --password [password]', 'password of the private key')
-    .option('-f, --file [file]', 'private key file')
-    .action(signTx);
-
-  program
-    .command('unpack <tx>')
-    .action(unpackTx);
-
-  return program;
-};
+export default program;

@@ -24,11 +24,11 @@ import { expect } from 'chai';
 import {
   executeProgram, parseBlock, randomName, getSdk, networkId,
 } from './index';
-import txProgramFactory from '../src/commands/tx';
-import accountProgramFactory from '../src/commands/account';
-import chainProgramFactory from '../src/commands/chain';
+import txProgram from '../src/commands/tx';
+import accountProgram from '../src/commands/account';
+import chainProgram from '../src/commands/chain';
 
-const executeTx = (args) => executeProgram(txProgramFactory, args);
+const executeTx = (args) => executeProgram(txProgram, args);
 
 const WALLET_NAME = 'txWallet';
 const testContract = `
@@ -52,7 +52,7 @@ describe('CLI Transaction Module', () => {
   before(async () => {
     sdk = await getSdk();
     await sdk.spend(1e24, TX_KEYS.publicKey);
-    await executeProgram(accountProgramFactory, ['save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite']);
+    await executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite']);
   });
 
   after(() => {
@@ -62,10 +62,10 @@ describe('CLI Transaction Module', () => {
 
   async function signAndPost(tx) {
     const { signedTx } = await executeProgram(
-      accountProgramFactory,
+      accountProgram,
       ['sign', WALLET_NAME, tx, '--password', 'test', '--json', '--networkId', networkId],
     );
-    const { blockHeight } = parseBlock(await executeProgram(chainProgramFactory, ['broadcast', signedTx]));
+    const { blockHeight } = parseBlock(await executeProgram(chainProgram, ['broadcast', signedTx]));
     expect(+blockHeight).to.be.above(0);
     nonce += 1;
   }

@@ -1,7 +1,6 @@
-#!/usr/bin/env node
 /*
  * ISC License (ISC)
- * Copyright (c) 2021 aeternity developers
+ * Copyright (c) 2022 aeternity developers
  *
  *  Permission to use, copy, modify, and/or distribute this software for any
  *  purpose with or without fee is hereby granted, provided that the above
@@ -15,6 +14,18 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
-import program from './commands/tx';
 
-program.parseAsync();
+import { describe, it } from 'mocha';
+import { expect } from 'chai';
+import { executeProgram } from './index';
+import mainProgram from '../src/commands/main';
+
+describe('CLI Other tests', () => {
+  it('Config', async () => {
+    const config = await executeProgram(mainProgram, ['config']);
+    expect(config).to.include('NODE_URL');
+    expect(config).to.include('COMPILER_URL');
+    expect(config).to.not.include('undefined');
+    expect(config.split('http')).to.have.length(3);
+  });
+});
