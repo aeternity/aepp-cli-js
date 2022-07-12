@@ -24,23 +24,10 @@ export function getCmdFromArguments([options, commander]) {
   return { ...options, ...commander.parent.opts() };
 }
 
-class Sdk extends AeSdk {
-  async getTransaction(txHash) {
-    const [entry, info] = await Promise.all([
-      this.api.getTransactionByHash(txHash),
-      this.api.getTransactionInfoByHash(txHash).catch((error) => {
-        if (error.details?.reason === 'Tx has no info') return {};
-        throw error;
-      }),
-    ]);
-    return { ...entry, ...info };
-  }
-}
-
 export async function initSdk({
   url, keypair, compilerUrl, force: ignoreVersion, networkId, accounts = [],
 } = {}) {
-  const sdk = new Sdk({
+  const sdk = new AeSdk({
     nodes: url ? [{ name: 'test-node', instance: new Node(url, { ignoreVersion }) }] : [],
     compilerUrl,
     networkId,

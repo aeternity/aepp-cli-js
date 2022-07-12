@@ -118,7 +118,7 @@ export async function call(walletPath, fn, args, options) {
   });
   if (json) print(callResult);
   else {
-    if (callResult.hash) printTransaction(await sdk.getTransaction(callResult.hash), json);
+    if (callResult.hash) printTransaction(await sdk.api.getTransactionByHash(callResult.hash), json);
     print('----------------------Call info-----------------------');
     printUnderscored('Contract address', contract.deployInfo.address);
     printUnderscored('Gas price', callResult.result?.gasPrice);

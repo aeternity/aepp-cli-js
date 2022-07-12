@@ -51,7 +51,7 @@ async function getTransactionByHash(hash, options) {
   try {
     checkPref(hash, HASH_TYPES.transaction);
     const sdk = await initSdk(options);
-    printTransaction(await sdk.getTransaction(hash), json);
+    printTransaction(await sdk.api.getTransactionByHash(hash), json);
   } catch (e) {
     printError(e.message);
   }

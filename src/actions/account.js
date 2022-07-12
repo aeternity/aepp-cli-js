@@ -104,7 +104,7 @@ export async function spend(walletPath, receiverNameOrAddress, amount, options) 
   });
   // if waitMined false
   if (typeof tx !== 'object') {
-    tx = await sdk.getTransaction(tx);
+    tx = await sdk.api.getTransactionByHash(tx);
   } else if (!json) {
     print('Transaction mined');
   }
@@ -125,7 +125,7 @@ export async function transferFunds(walletPath, receiver, fraction, options) {
   });
   // if waitMined false
   if (typeof tx !== 'object') {
-    tx = await sdk.getTransaction(tx);
+    tx = await sdk.api.getTransactionByHash(tx);
   } else if (!json) {
     print('Transaction mined');
   }
