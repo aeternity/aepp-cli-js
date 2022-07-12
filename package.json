@@ -39,7 +39,8 @@
     "test": "nyc mocha --recursive",
     "test:watch": "mocha --recursive --watch",
     "release": "standard-version --skip.tag",
-    "prepublishOnly": "npm run build && npm run docs"
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run docs"
   },
   "keywords": [
     "CLI",
