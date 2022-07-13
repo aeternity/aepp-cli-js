@@ -21,6 +21,7 @@ import {
   decryptKey, sign, buildTx, unpackTx, decode, TX_TYPE,
 } from '@aeternity/aepp-sdk';
 import { print } from '../utils/print';
+import CliError from '../utils/CliError';
 
 const program = new Command().name('aecli crypto');
 
@@ -47,7 +48,7 @@ program
     const binaryKey = (() => {
       if (file) return fs.readFileSync(file);
       if (privKey) return Buffer.from(privKey, 'hex');
-      throw new Error('Must provide either [privkey] or [file]');
+      throw new CliError('Must provide either [privkey] or [file]');
     })();
     const decryptedKey = password ? decryptKey(password, binaryKey) : binaryKey;
     const encodedTx = decode(tx, 'tx');

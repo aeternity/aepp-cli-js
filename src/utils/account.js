@@ -23,11 +23,12 @@ import {
 } from '@aeternity/aepp-sdk';
 import { readJSONFile } from './helpers';
 import { PROMPT_TYPE, prompt } from './prompt';
+import CliError from './CliError';
 
 export async function writeWallet(name, secretKey, output, password, overwrite) {
   const walletPath = path.resolve(process.cwd(), path.join(output, name));
   if (!overwrite && fs.existsSync(walletPath) && !await prompt(PROMPT_TYPE.askOverwrite)) {
-    throw new Error(`Wallet already exist at ${walletPath}`);
+    throw new CliError(`Wallet already exist at ${walletPath}`);
   }
   password ||= await prompt(PROMPT_TYPE.askPassword);
   fs.writeFileSync(walletPath, JSON.stringify(await dump(name, password, secretKey)));

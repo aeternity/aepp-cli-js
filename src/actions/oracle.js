@@ -24,6 +24,7 @@ import { decode } from '../utils/helpers';
 import {
   print, printOracle, printQueries, printTransaction,
 } from '../utils/print';
+import CliError from '../utils/CliError';
 
 // ## Create Oracle
 export async function createOracle(walletPath, queryFormat, responseFormat, options) {
@@ -56,7 +57,7 @@ export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
     ttl, fee, nonce, waitMined, json,
   } = options;
 
-  if (isNaN(+oracleTtl)) throw new Error('Oracle Ttl should be a number');
+  if (isNaN(+oracleTtl)) throw new CliError('Oracle Ttl should be a number');
   decode(oracleId, 'ok');
   const sdk = await initSdkByWalletFile(walletPath, options);
   const oracle = await sdk.getOracleObject(oracleId);
