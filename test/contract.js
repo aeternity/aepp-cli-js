@@ -20,7 +20,7 @@ import {
   after, before, describe, it,
 } from 'mocha';
 import { expect } from 'chai';
-import { TxBuilderHelper } from '@aeternity/aepp-sdk';
+import { decode } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk, WALLET_NAME } from './index';
 import contractProgram from '../src/commands/contract';
 
@@ -49,7 +49,7 @@ describe('CLI Contract Module', function contractTests() {
     fs.writeFileSync(contractSourceFile, testContractSource);
     sdk = await getSdk();
     fs.writeFileSync(contractAciFile, JSON.stringify(
-      await sdk.compilerApi.generateACI({ code: testContractSource }),
+      await sdk.compilerApi.generateACI({ code: testContractSource, options: {} }),
     ));
   });
 
@@ -105,7 +105,7 @@ describe('CLI Contract Module', function contractTests() {
 
     it('deploys contract by bytecode', async () => {
       const contractBytecodeFile = './bytecode.bin';
-      fs.writeFileSync(contractBytecodeFile, TxBuilderHelper.decode(contractBytecode));
+      fs.writeFileSync(contractBytecodeFile, decode(contractBytecode));
       const { descrPath } = await executeContract([
         'deploy',
         WALLET_NAME, '--password', 'test',

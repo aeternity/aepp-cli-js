@@ -16,8 +16,9 @@
 */
 // # Utils `print` Module
 // That script contains helper function for `console` print
-import { Crypto, TxBuilder } from '@aeternity/aepp-sdk';
+import { unpackTx } from '@aeternity/aepp-sdk';
 import { HASH_TYPES } from './constant';
+import { decode } from './helpers';
 
 // ## Row width
 const WIDTH = 40;
@@ -67,7 +68,7 @@ export function printUnderscored(key, val) {
 // ## TX
 export function printValidation({ validation, transaction }) {
   print('---------------------------------------- TX DATA ↓↓↓ \n');
-  const { tx, txType: type } = TxBuilder.unpackTx(transaction);
+  const { tx, txType: type } = unpackTx(transaction);
   Object.entries({ ...tx, type }).forEach(([key, value]) => printUnderscored(key, value));
   print('\n---------------------------------------- ERRORS ↓↓↓ \n');
   validation.forEach(({ message, checkedKeys }) => {
@@ -355,9 +356,9 @@ export function printQueries(queries = [], json) {
     printUnderscored('Query ID', q.id ?? 'N/A');
     printUnderscored('Fee', q.fee ?? 'N/A');
     printUnderscored('Query', q.query ?? 'N/A');
-    printUnderscored('Query decoded', Crypto.decodeBase64Check(q.query.slice(3)).toString() ?? 'N/A');
+    printUnderscored('Query decoded', decode(q.query, 'oq').toString() ?? 'N/A');
     printUnderscored('Response', q.response ?? 'N/A');
-    printUnderscored('Response decoded', Crypto.decodeBase64Check(q.response.slice(3)).toString() ?? 'N/A');
+    printUnderscored('Response decoded', decode(q.response, 'or').toString() ?? 'N/A');
     printUnderscored('Response Ttl', q.responseTtl ?? 'N/A');
     printUnderscored('Sender Id', q.senderId ?? 'N/A');
     printUnderscored('Sender Nonce', q.senderNonce ?? 'N/A');

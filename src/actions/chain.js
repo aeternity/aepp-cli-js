@@ -18,7 +18,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { initChain } from '../utils/cli';
+import { initSdk } from '../utils/cli';
 import {
   printBlock, print, printUnderscored, printTransaction, printValidation,
 } from '../utils/print';
@@ -28,7 +28,7 @@ import { getBlock } from '../utils/helpers';
 export async function version(options) {
   const { json } = options;
   // Initialize `Ae`
-  const sdk = await initChain(options);
+  const sdk = await initSdk(options);
   // Call `getStatus` API and print it
   const status = await sdk.api.getStatus();
   const { consensusProtocolVersion } = sdk.getNodeInfo();
@@ -58,7 +58,7 @@ export async function version(options) {
 export async function getNetworkId(options) {
   const { json } = options;
   // Initialize `Ae`
-  const sdk = await initChain(options);
+  const sdk = await initSdk(options);
   // Call `getStatus` API and print it
   const { networkId } = await sdk.api.getStatus();
   if (json) print({ networkId });
@@ -69,7 +69,7 @@ export async function getNetworkId(options) {
 export async function ttl(absoluteTtl, options) {
   const { json } = options;
   // Initialize `Ae`
-  const sdk = await initChain(options);
+  const sdk = await initSdk(options);
   const height = await sdk.height();
   if (json) {
     print({ absoluteTtl, relativeTtl: +height + +absoluteTtl });
@@ -83,7 +83,7 @@ export async function ttl(absoluteTtl, options) {
 export async function top(options) {
   const { json } = options;
   // Initialize `Ae`
-  const sdk = await initChain(options);
+  const sdk = await initSdk(options);
   // Call `getTopBlock` API and print it
   printBlock(await sdk.api.getTopHeader(), json);
 }
@@ -113,7 +113,7 @@ export async function play(options) {
   let { height, limit, json } = options;
   limit = parseInt(limit);
   height = parseInt(height);
-  const sdk = await initChain(options);
+  const sdk = await initSdk(options);
 
   // Get top block from `node`. It is a start point for play.
   const topHeader = await sdk.api.getTopHeader();
@@ -133,7 +133,7 @@ export async function play(options) {
 export async function broadcast(signedTx, options) {
   const { json, waitMined, verify } = options;
   // Initialize `Ae`
-  const sdk = await initChain(options);
+  const sdk = await initSdk(options);
   // Call `getStatus` API and print it
   try {
     const tx = await sdk.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify });

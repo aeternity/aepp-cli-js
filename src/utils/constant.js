@@ -1,6 +1,6 @@
 /*
 * ISC License (ISC)
-* Copyright (c) 2018 aeternity developers
+* Copyright (c) 2022 aeternity developers
 *
 *  Permission to use, copy, modify, and/or distribute this software for any
 *  purpose with or without fee is hereby granted, provided that the above
@@ -35,18 +35,6 @@ export const HASH_TYPES = {
 export const NODE_URL = 'https://testnet.aeternity.io';
 export const COMPILER_URL = 'https://compiler.aepps.com';
 
-// ## CHAIN
-export const PLAY_LIMIT = 10;
-
-// ## CONTRACT
-export const GAS = 1600000 - 21000; // MAX GAS
-export const DEPOSIT = 0;
-export const ORACLE_VM_VERSION = 0;
-export const AMOUNT = 0;
-
 // ## ORACLE
 export const BUILD_ORACLE_TTL = (ttl) => ({ type: 'delta', value: ttl });
 export const RESPONSE_TTL = 10;
-
-// ## DEFAULT OUTPUT FORMAT
-export const OUTPUT_JSON = false;

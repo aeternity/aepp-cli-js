@@ -19,16 +19,15 @@
  */
 
 import {
-  Crypto, SCHEMA, TxBuilder, TxBuilderHelper, verifyTransaction, Node, getDefaultPointerKey,
+  TX_TYPE, TX_SCHEMA, PROTOCOL_VM_ABI, PROTOCOL_VERSIONS, ORACLE_TTL_TYPES,
+  Node, salt as _salt, unpackTx, commitmentHash, buildContractId, verifyTransaction,
+  getDefaultPointerKey, calculateMinFee, buildTx,
 } from '@aeternity/aepp-sdk';
-import { initOfflineTxBuilder } from '../utils/cli';
 import { print, printUnderscored, printValidation } from '../utils/print';
-import { validateName } from '../utils/helpers';
-import { BUILD_ORACLE_TTL, ORACLE_VM_VERSION } from '../utils/constant';
+import { validateName, decode } from '../utils/helpers';
 
-const { TX_TYPE, TX_SERIALIZATION_SCHEMA } = SCHEMA;
 const vmAbi = Object.fromEntries(
-  Object.entries(SCHEMA.PROTOCOL_VM_ABI[SCHEMA.PROTOCOL_VERSIONS.IRIS])
+  Object.entries(PROTOCOL_VM_ABI[PROTOCOL_VERSIONS.IRIS])
     .map(([txType, { vmVersion, abiVersion }]) => [
       txType, { vmVersion: vmVersion[0], abiVersion: abiVersion[0] },
     ]),
@@ -36,9 +35,7 @@ const vmAbi = Object.fromEntries(
 
 // Print `Buider Transaction`
 function buildAndPrintTx(txType, params, json, extraKeys = {}) {
-  // Initialize `Ae`
-  const txBuilder = initOfflineTxBuilder();
-  const vsn = Math.max(...Object.keys(TX_SERIALIZATION_SCHEMA[txType]).map((a) => +a));
+  const vsn = Math.max(...Object.keys(TX_SCHEMA[txType]).map((a) => +a));
 
   // TODO: move to SDK side
   switch (txType) {
@@ -48,11 +45,14 @@ function buildAndPrintTx(txType, params, json, extraKeys = {}) {
     case TX_TYPE.contractCall:
       params.abiVersion = vmAbi[TX_TYPE.contractCall].abiVersion;
       break;
+    case TX_TYPE.oracleRegister:
+      params.abiVersion = vmAbi[TX_TYPE.oracleRegister].abiVersion;
+      break;
     default:
   }
 
-  params.fee = txBuilder.calculateFee(params.fee, txType, { params, vsn });
-  const { tx, txObject } = txBuilder.buildTx(params, txType, { vsn });
+  params.fee ??= calculateMinFee(txType, { params, vsn });
+  const { tx, txObject } = buildTx(params, txType, { vsn });
 
   if (json) {
     print({ tx, txObject, ...extraKeys });
@@ -87,8 +87,8 @@ export function namePreClaim(accountId, name, nonce, { json, ...options }) {
   validateName(name);
 
   // Generate `salt` and `commitmentId` and build `name` hash
-  const salt = Crypto.salt();
-  const commitmentId = TxBuilderHelper.commitmentHash(name, salt);
+  const salt = _salt();
+  const commitmentId = commitmentHash(name, salt);
 
   const params = {
     ...options,
@@ -150,23 +150,25 @@ export function nameRevoke(accountId, nameId, nonce, { json, ...options }) {
 }
 
 // ## Build `contractDeploy` transaction
-export function contractDeploy(ownerId, code, callData, nonce, { json, ...options }) {
+export function contractDeploy(ownerId, code, callData, nonce, { json, gas, ...options }) {
   const params = {
     ...options,
+    gasLimit: gas,
     code,
     ownerId,
     nonce,
     callData,
   };
   buildAndPrintTx(TX_TYPE.contractCreate, params, json, {
-    contractId: TxBuilderHelper.buildContractId(ownerId, nonce),
+    contractId: buildContractId(ownerId, nonce),
   });
 }
 
 // ## Build `contractCall` transaction
-export function contractCall(callerId, contractId, callData, nonce, { json, ...options }) {
+export function contractCall(callerId, contractId, callData, nonce, { json, gas, ...options }) {
   const params = {
     ...options,
+    gasLimit: gas,
     callerId,
     nonce,
     callData,
@@ -183,11 +185,11 @@ export function oracleRegister(accountId, queryFormat, responseFormat, nonce, {
     ...options,
     accountId,
     nonce,
-    oracleTtl: BUILD_ORACLE_TTL(parseInt(oracleTtl)),
+    oracleTtlType: ORACLE_TTL_TYPES.delta,
+    oracleTtlValue: parseInt(oracleTtl),
     queryFee: parseInt(queryFee),
     queryFormat,
     responseFormat,
-    abiVersion: ORACLE_VM_VERSION,
   };
   buildAndPrintTx(TX_TYPE.oracleRegister, params, json);
 }
@@ -203,8 +205,10 @@ export function oraclePostQuery(senderId, oracleId, query, nonce, {
     oracleId,
     query,
     queryFee: parseInt(queryFee),
-    queryTtl: BUILD_ORACLE_TTL(parseInt(queryTtl)),
-    responseTtl: BUILD_ORACLE_TTL(parseInt(responseTtl)),
+    queryTtlType: ORACLE_TTL_TYPES.delta,
+    queryTtlValue: parseInt(queryTtl),
+    responseTtlType: ORACLE_TTL_TYPES.delta,
+    responseTtlValue: parseInt(responseTtl),
   };
   buildAndPrintTx(TX_TYPE.oracleQuery, params, json);
 }
@@ -215,7 +219,8 @@ export function oracleExtend(callerId, oracleId, oracleTtl, nonce, { json, ...op
     ...options,
     callerId,
     oracleId,
-    oracleTtl: BUILD_ORACLE_TTL(parseInt(oracleTtl)),
+    oracleTtlType: ORACLE_TTL_TYPES.delta,
+    oracleTtlValue: parseInt(oracleTtl),
     nonce,
   };
   buildAndPrintTx(TX_TYPE.oracleExtend, params, json);
@@ -228,7 +233,8 @@ export function oracleRespond(callerId, oracleId, queryId, response, nonce, {
   const params = {
     ...options,
     oracleId,
-    responseTtl: BUILD_ORACLE_TTL(parseInt(responseTtl)),
+    responseTtlType: ORACLE_TTL_TYPES.delta,
+    responseTtlValue: parseInt(responseTtl),
     callerId,
     queryId,
     response,
@@ -240,10 +246,10 @@ export function oracleRespond(callerId, oracleId, queryId, response, nonce, {
 // ## Verify 'transaction'
 export async function verify(transaction, { json, ...options }) {
   // Validate input
-  TxBuilderHelper.decode(transaction, 'tx');
+  decode(transaction, 'tx');
   // Call `getStatus` API and print it
   const validation = await verifyTransaction(transaction, await Node(options));
-  const { tx, txType: type } = TxBuilder.unpackTx(transaction);
+  const { tx, txType: type } = unpackTx(transaction);
   if (json) {
     print({ validation, tx, type });
     return;

@@ -19,16 +19,16 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { NODE_URL } from '../utils/constant';
 import inspect from '../actions/inspect';
+import { nodeOption, jsonOption } from '../arguments';
 
 const program = new Command().name('aecli inspect');
 
 // ## Initialize `options`
 program
-  .option('-u --url [hostname]', 'Node to connect to', NODE_URL)
+  .addOption(nodeOption)
   .option('-f --force', 'Ignore node version compatibility check')
-  .option('--json', 'Print result in json format');
+  .addOption(jsonOption);
 
 // ## Initialize `inspect` command
 //

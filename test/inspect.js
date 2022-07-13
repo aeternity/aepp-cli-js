@@ -20,7 +20,7 @@ import {
   after, before, describe, it,
 } from 'mocha';
 import { expect } from 'chai';
-import { Crypto } from '@aeternity/aepp-sdk';
+import { generateKeyPair } from '@aeternity/aepp-sdk';
 import { executeProgram, parseBlock, getSdk } from './index';
 import inspectProgram from '../src/commands/inspect';
 import chainProgram from '../src/commands/chain';
@@ -50,15 +50,15 @@ describe('CLI Inspect Module', () => {
 
   it('Inspect Account', async () => {
     const address = await sdk.address();
-    const balance = await sdk.balance(address);
+    const balance = await sdk.getBalance(address);
     const { balance: cliBalance } = await executeInspect([address, '--json']);
     const isEqual = `${balance}` === `${cliBalance}`;
     isEqual.should.equal(true);
   });
 
   it('Inspect Transaction', async () => {
-    const recipient = (Crypto.generateKeyPair()).publicKey;
-    const amount = 420;
+    const recipient = (generateKeyPair()).publicKey;
+    const amount = '420';
     const { hash } = await sdk.spend(amount, recipient);
 
     const res = await executeInspect([hash, '--json']);

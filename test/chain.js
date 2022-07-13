@@ -62,7 +62,7 @@ describe('CLI Chain Module', () => {
   });
 
   it('NETWORK ID', async () => {
-    const nodeNetworkId = sdk.getNetworkId();
+    const nodeNetworkId = await sdk.getNetworkId();
     const { networkId } = await executeChain(['network_id', '--json']);
     nodeNetworkId.should.equal(networkId);
   });

@@ -18,7 +18,7 @@
 // That script contains base helper function
 
 import fs from 'fs';
-import { TxBuilderHelper } from '@aeternity/aepp-sdk';
+import { decode as _decode } from '@aeternity/aepp-sdk';
 import { HASH_TYPES } from './constant';
 
 export function readFile(filePath, encoding = null) {
@@ -101,5 +101,15 @@ export function isAvailable(name) { return name.status === 'AVAILABLE'; }
 
 // Validate `name`
 export function validateName(name) {
-  TxBuilderHelper.ensureNameValid(name);
+  if (typeof name !== 'string') throw new Error('Name must be a string');
+  if (!name.endsWith('.chain')) throw new Error(`Name should end with .chain: ${name}`);
+}
+
+export function decode(data, requiredPrefix) {
+  if (typeof data !== 'string') throw new Error('Data must be a string');
+  const prefix = data.split('_')[0];
+  if (prefix !== requiredPrefix) {
+    throw new Error(`Encoded string have a wrong type: ${prefix} (expected: ${requiredPrefix})`);
+  }
+  return _decode(data);
 }

@@ -19,18 +19,18 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { NODE_URL, PLAY_LIMIT } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Chain from '../actions/chain';
+import { nodeOption, jsonOption } from '../arguments';
 
 const program = new Command().name('aecli chain');
 
 // # Initialize `options`
 program
-  .option('-u --url [hostname]', 'Node to connect to', NODE_URL)
-  .option('-L --limit [playlimit]', 'Limit for play command', PLAY_LIMIT)
+  .addOption(nodeOption)
+  .option('-L --limit [playlimit]', 'Limit for play command', 10)
   .option('-f --force', 'Ignore node version compatibility check')
-  .option('--json', 'Print result in json format');
+  .addOption(jsonOption);
 
 // ## Initialize `top` command
 //

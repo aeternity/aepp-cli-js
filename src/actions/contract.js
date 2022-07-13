@@ -20,7 +20,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { TxBuilderHelper } from '@aeternity/aepp-sdk';
+import { encode } from '@aeternity/aepp-sdk';
 import { initSdk, initSdkByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
 
@@ -30,7 +30,9 @@ const readFile = (filename, encoding = 'utf-8') => fs.readFileSync(resolve(filen
 // ## Function which compile your `source` code
 export async function compile(filename, options) {
   const sdk = await initSdk(options);
-  const { bytecode } = await sdk.compilerApi.compileContract({ code: readFile(filename) });
+  const { bytecode } = await sdk.compilerApi.compileContract({
+    code: readFile(filename).toString(), options: {},
+  });
   if (options.json) print({ bytecode });
   else print(`Contract bytecode: ${bytecode}`);
 }
@@ -39,15 +41,15 @@ function getContractParams({
   descrPath, contractAddress, contractSource, contractBytecode, contractAci,
 }, { dummySource } = {}) {
   if (descrPath && fs.existsSync(resolve(descrPath))) {
-    const { address, ...other } = JSON.parse(readFile(descrPath));
+    const { address, ...other } = JSON.parse(readFile(descrPath).toString());
     return { contractAddress: address, ...other };
   }
   return {
     contractAddress,
     // TODO: either remove calldata methods in cli or reconsider getContractInstance requirements
-    source: (contractSource && readFile(contractSource)) ?? (dummySource && 'invalid-source'),
-    bytecode: contractBytecode && TxBuilderHelper.encode(readFile(contractBytecode, null), 'cb'),
-    aci: contractAci && JSON.parse(readFile(contractAci)),
+    source: (contractSource && readFile(contractSource).toString()) ?? (dummySource && 'invalid-source'),
+    bytecode: contractBytecode && encode(readFile(contractBytecode, null), 'cb'),
+    aci: contractAci && JSON.parse(readFile(contractAci).toString()),
   };
 }
 
@@ -108,15 +110,15 @@ export async function call(walletPath, fn, args, options) {
   const sdk = await initSdkByWalletFile(walletPath, options);
   const contract = await sdk.getContractInstance(getContractParams(options));
   const callResult = await contract.call(fn, args, {
-    ttl: parseInt(ttl),
-    gas: parseInt(gas),
-    nonce: parseInt(nonce),
+    ttl: ttl && parseInt(ttl),
+    gas,
+    nonce: nonce && parseInt(nonce),
     callStatic,
     top,
   });
   if (json) print(callResult);
   else {
-    if (callResult.hash) printTransaction(await sdk.tx(callResult.hash), json);
+    if (callResult.hash) printTransaction(await sdk.api.getTransactionByHash(callResult.hash), json);
     print('----------------------Call info-----------------------');
     printUnderscored('Contract address', contract.deployInfo.address);
     printUnderscored('Gas price', callResult.result?.gasPrice);
