@@ -95,7 +95,8 @@ export async function deploy(walletPath, args, options) {
     // eslint-disable-next-line no-underscore-dangle
     aci: contract._aci,
   };
-  fs.writeFileSync(options.descrPath, JSON.stringify(descriptor, undefined, 2));
+  await fs.promises.mkdir(path.parse(options.descrPath).dir, { recursive: true });
+  await fs.promises.writeFile(options.descrPath, JSON.stringify(descriptor, undefined, 2));
   if (options.json) print({ ...result, descrPath: options.descrPath });
   else {
     print('Contract was successfully deployed');

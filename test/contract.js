@@ -87,7 +87,7 @@ describe('CLI Contract Module', function contractTests() {
     });
 
     it('deploys contract with custom descrPath', async () => {
-      const descrPath = './testDescriptor.json';
+      const descrPath = './not-existing/testDescriptor.json';
       await executeContract([
         'deploy',
         WALLET_NAME, '--password', 'test',
