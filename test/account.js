@@ -15,7 +15,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import fs from 'fs';
+import fs from 'fs-extra';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { generateKeyPair, AE_AMOUNT_FORMATS, formatAmount } from '@aeternity/aepp-sdk';
@@ -34,20 +34,20 @@ describe('CLI Account Module', () => {
   let sdk;
 
   before(async () => {
-    fs.writeFileSync(fileName, fileData);
+    await fs.outputFile(fileName, fileData);
     sdk = await getSdk();
   });
 
   it('Create Wallet', async () => {
     await executeAccount(['create', walletName, '--password', 'test', '--overwrite']);
-    fs.existsSync(walletName).should.equal(true);
+    expect(await fs.exists(walletName)).to.be.equal(true);
     expect((await executeAccount(['address', walletName, '--password', 'test', '--json'])).publicKey)
       .to.be.a('string');
   });
 
   it('Create Wallet From Private Key', async () => {
     await executeAccount(['save', walletName, '--password', 'test', keypair.secretKey, '--overwrite']);
-    fs.existsSync(walletName).should.equal(true);
+    expect(await fs.exists(walletName)).to.be.equal(true);
     expect((await executeAccount(['address', walletName, '--password', 'test', '--json'])).publicKey)
       .to.equal(keypair.publicKey);
   });

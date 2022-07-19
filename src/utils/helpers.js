@@ -17,30 +17,9 @@
 // # Utils `helpers` Module
 // That script contains base helper function
 
-import fs from 'fs';
 import { decode as _decode } from '@aeternity/aepp-sdk';
 import { HASH_TYPES } from './constant';
 import CliError from './CliError';
-
-export function readFile(filePath, encoding = null) {
-  try {
-    return fs.readFileSync(
-      filePath,
-      encoding,
-    );
-  } catch (e) {
-    switch (e.code) {
-      case 'ENOENT':
-        throw new CliError('File not found');
-      default:
-        throw e;
-    }
-  }
-}
-
-export function readJSONFile(filePath) {
-  return JSON.parse(readFile(filePath));
-}
 
 // ## Method which retrieve block info by hash
 // if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`

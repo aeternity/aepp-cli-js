@@ -18,19 +18,20 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
+import fs from 'fs-extra';
 import { generateKeyPair, AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk';
 import CliError from '../utils/CliError';
 import { writeWallet } from '../utils/account';
 import { initSdkByWalletFile, getAccountByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
-import { decode, readFile } from '../utils/helpers';
+import { decode } from '../utils/helpers';
 import { PROMPT_TYPE, prompt } from '../utils/prompt';
 
 // ## `Sign message` function
 // this function allow you to `sign` arbitrary data
 export async function signMessage(walletPath, data = [], options) {
   const { json, filePath } = options;
-  const dataForSign = filePath ? readFile(filePath) : data.join(' ');
+  const dataForSign = filePath ? await fs.readFile(filePath) : data.join(' ');
   const { account } = await getAccountByWalletFile(walletPath, options);
   const signedMessage = await account.signMessage(dataForSign);
   const address = await account.address();
@@ -54,7 +55,7 @@ export async function signMessage(walletPath, data = [], options) {
 // this function allow you to `verify` signed data
 export async function verifyMessage(walletPath, hexSignature, data = [], options) {
   const { json, filePath } = options;
-  const dataForVerify = filePath ? readFile(filePath) : data.join(' ');
+  const dataForVerify = filePath ? await fs.readFile(filePath) : data.join(' ');
   const { account } = await getAccountByWalletFile(walletPath, options);
   const isCorrect = await account.verifyMessage(dataForVerify, hexSignature);
   const result = {

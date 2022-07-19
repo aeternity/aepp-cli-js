@@ -15,7 +15,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import fs from 'fs';
+import fs from 'fs-extra';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { generateKeyPair } from '@aeternity/aepp-sdk';
@@ -77,9 +77,9 @@ describe('CLI Inspect Module', () => {
 
   it.skip('Inspect Deploy', async () => {
     const fileName = 'test.deploy.json';
-    fs.writeFileSync(fileName, JSON.stringify(contractDescriptor));
+    await fs.outputJson(fileName, contractDescriptor);
     const descriptor = parseBlock(await executeInspect(['deploy', fileName]));
-    fs.unlinkSync(fileName);
+    await fs.remove(fileName);
     descriptor.source.should.equal(contractDescriptor.source);
     descriptor.bytecode.should.equal(contractDescriptor.bytecode);
     descriptor.address.should.equal(contractDescriptor.address);

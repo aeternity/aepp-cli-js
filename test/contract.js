@@ -15,7 +15,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import fs from 'fs';
+import fs from 'fs-extra';
 import {
   after, before, describe, it,
 } from 'mocha';
@@ -47,15 +47,16 @@ describe('CLI Contract Module', function contractTests() {
   let contractAddress;
 
   before(async () => {
-    fs.writeFileSync(contractSourceFile, testContractSource);
+    await fs.outputFile(contractSourceFile, testContractSource);
     sdk = await getSdk();
-    fs.writeFileSync(contractAciFile, JSON.stringify(
+    await fs.outputJson(
+      contractAciFile,
       await sdk.compilerApi.generateACI({ code: testContractSource, options: {} }),
-    ));
+    );
   });
 
-  after(() => {
-    if (fs.existsSync(deployDescriptorFile)) fs.unlinkSync(deployDescriptorFile);
+  after(async () => {
+    await fs.remove(deployDescriptorFile);
   });
 
   it('compiles contract', async () => {
@@ -92,17 +93,17 @@ describe('CLI Contract Module', function contractTests() {
         '[3]',
         '--json',
       ]);
-      expect(fs.existsSync(descrPath)).to.be.equal(true);
-      const descriptor = JSON.parse(fs.readFileSync(descrPath, 'utf-8'));
+      expect(await fs.exists(descrPath)).to.be.equal(true);
+      const descriptor = await fs.readJson(descrPath);
       expect(descriptor.address).to.satisfy((b) => b.startsWith('ct_'));
       expect(descriptor.bytecode).to.satisfy((b) => b.startsWith('cb_'));
       expect(descriptor.aci).to.an('object');
-      fs.unlinkSync(descrPath);
+      await fs.remove(descrPath);
     });
 
     it('deploys contract by bytecode', async () => {
       const contractBytecodeFile = 'test-artifacts/bytecode.bin';
-      fs.writeFileSync(contractBytecodeFile, decode(contractBytecode));
+      await fs.outputFile(contractBytecodeFile, decode(contractBytecode));
       await executeContract([
         'deploy',
         WALLET_NAME, '--password', 'test',
