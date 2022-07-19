@@ -100,7 +100,7 @@ describe('CLI Contract Module', function contractTests() {
       const descriptor = JSON.parse(fs.readFileSync(descrPath, 'utf-8'));
       expect(descriptor.address).to.satisfy((b) => b.startsWith('ct_'));
       expect(descriptor.bytecode).to.satisfy((b) => b.startsWith('cb_'));
-      expect(descriptor.source).to.satisfy((b) => b.includes('contract Identity'));
+      expect(descriptor.aci).to.an('object');
       fs.unlinkSync(descrPath);
     });
 
@@ -141,6 +141,17 @@ describe('CLI Contract Module', function contractTests() {
       ]);
       callResponse.result.returnValue.should.contain('cb_');
       callResponse.decodedResult.should.be.equal('6');
+    });
+
+    it('overrides descriptor\'s address using --contractAddress', async () => {
+      await expect(executeContract([
+        'call',
+        WALLET_NAME, '--password', 'test',
+        '--json',
+        '--contractAddress', 'ct_test',
+        '--descrPath', deployDescriptorFile,
+        'test', '[1, 2]',
+      ])).to.be.rejectedWith('Invalid name or address: ct_test');
     });
 
     it('calls contract static', async () => {

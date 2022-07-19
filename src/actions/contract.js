@@ -40,16 +40,18 @@ export async function compile(filename, options) {
 function getContractParams({
   descrPath, contractAddress, contractSource, contractBytecode, contractAci,
 }, { dummySource } = {}) {
+  let descriptor = {};
   if (descrPath && fs.existsSync(resolve(descrPath))) {
-    const { address, ...other } = JSON.parse(readFile(descrPath).toString());
-    return { contractAddress: address, ...other };
+    descriptor = JSON.parse(readFile(resolve(descrPath)).toString());
   }
   return {
-    contractAddress,
+    contractAddress: contractAddress ?? descriptor.address,
     // TODO: either remove calldata methods in cli or reconsider getContractInstance requirements
-    source: (contractSource && readFile(contractSource).toString()) ?? (dummySource && 'invalid-source'),
-    bytecode: contractBytecode && encode(readFile(contractBytecode, null), 'cb'),
-    aci: contractAci && JSON.parse(readFile(contractAci).toString()),
+    ...dummySource && { source: 'invalid-source' },
+    ...descriptor,
+    ...contractSource && { source: readFile(contractSource).toString() },
+    ...contractBytecode && { bytecode: encode(readFile(contractBytecode, null), 'cb') },
+    ...contractAci && { aci: JSON.parse(readFile(contractAci).toString()) },
   };
 }
 
@@ -82,16 +84,17 @@ export async function deploy(walletPath, args, options) {
   // source file or at location provided in descrPath. Multiple deploy of the same contract
   // file will generate different deploy descriptors.
   const sdk = await initSdkByWalletFile(walletPath, options);
-  const descriptor = getContractParams(options);
-  const contract = await sdk.getContractInstance(descriptor);
+  const contract = await sdk.getContractInstance(getContractParams(options));
   const result = await contract.deploy(args, options);
-  Object.assign(descriptor, {
-    address: result.address,
-    bytecode: contract.bytecode,
-  });
   const filename = options.contractSource ?? options.contractBytecode;
   options.descrPath ||= path
     .resolve(process.cwd(), `${filename}.deploy.${result.address.slice(3)}.json`);
+  const descriptor = {
+    address: result.address,
+    bytecode: contract.bytecode,
+    // eslint-disable-next-line no-underscore-dangle
+    aci: contract._aci,
+  };
   fs.writeFileSync(options.descrPath, JSON.stringify(descriptor, undefined, 2));
   if (options.json) print({ ...result, descrPath: options.descrPath });
   else {
