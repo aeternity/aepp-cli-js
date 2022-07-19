@@ -20,7 +20,7 @@ import { expect } from 'chai';
 import { executeProgram } from './index';
 import mainProgram from '../src/commands/main';
 
-describe('CLI Other tests', () => {
+describe('Other tests', () => {
   it('Config', async () => {
     const config = await executeProgram(mainProgram, ['config']);
     expect(config).to.include('NODE_URL');

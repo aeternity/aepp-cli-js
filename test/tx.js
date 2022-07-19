@@ -35,7 +35,7 @@ contract Identity =
   entrypoint test(x : int, y: int) = x + y
 `;
 
-describe('CLI Transaction Module', () => {
+describe('Transaction Module', () => {
   const TX_KEYS = generateKeyPair();
   const oracleId = `ok_${TX_KEYS.publicKey.slice(3)}`;
   let sdk;

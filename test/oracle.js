@@ -22,7 +22,7 @@ import oracleProgram from '../src/commands/oracle';
 
 const executeOracle = (args) => executeProgram(oracleProgram, args);
 
-describe('CLI Oracle Module', () => {
+describe('Oracle Module', () => {
   const oracleFormat = 'string';
   const responseFormat = 'string';
   let sdk;

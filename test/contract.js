@@ -37,7 +37,7 @@ contract Identity =
   entrypoint test(x : int, y: int) = x + y + state.z
 `;
 
-describe('CLI Contract Module', function contractTests() {
+describe('Contract Module', function contractTests() {
   this.timeout(4000);
   const contractSourceFile = 'test-artifacts/contract.aes';
   const contractAciFile = 'test-artifacts/contract-aci.json';

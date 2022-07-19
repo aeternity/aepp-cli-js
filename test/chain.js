@@ -21,7 +21,7 @@ import chainProgram from '../src/commands/chain';
 
 const executeChain = (args) => executeProgram(chainProgram, args);
 
-describe('CLI Chain Module', () => {
+describe('Chain Module', () => {
   let sdk;
 
   before(async () => {

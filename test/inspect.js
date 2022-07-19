@@ -37,7 +37,7 @@ const contractDescriptor = {
   createdAt: '2018-09-04T11:32:17.207Z',
 };
 
-describe('CLI Inspect Module', () => {
+describe('Inspect Module', () => {
   let sdk;
 
   before(async () => {

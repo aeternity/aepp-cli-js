@@ -23,7 +23,7 @@ import cryptoProgramFactory from '../src/commands/crypto';
 
 const executeCrypto = (args) => executeProgram(cryptoProgramFactory, args);
 
-describe('CLI Crypto Module', () => {
+describe('Crypto Module', () => {
   it('decodes address', async () => {
     const output = await executeCrypto([
       'decode', 'ak_MA8Qe8ac7e9EARYK7fQxEqFufRGrG1i6qFvHA21eXXMDcnmuc',

@@ -25,7 +25,7 @@ import accountProgram from '../src/commands/account';
 const executeAccount = (args) => executeProgram(accountProgram, args);
 const walletName = 'test-artifacts/test-wallet.json';
 
-describe('CLI Account Module', () => {
+describe('Account Module', () => {
   let sig;
   let sigFromFile;
   const fileName = 'test-artifacts/message.txt';

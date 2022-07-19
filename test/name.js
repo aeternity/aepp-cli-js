@@ -29,7 +29,7 @@ const executeName = (args) => executeProgram(nameProgram, args);
 const executeInspect = (args) => executeProgram(inspectProgram, args);
 const executeAccount = (args) => executeProgram(accountProgram, args);
 
-describe('CLI AENS Module', () => {
+describe('AENS Module', () => {
   const { publicKey } = generateKeyPair();
   const name = randomName(12);
   const name2 = randomName(13);
