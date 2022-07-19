@@ -23,6 +23,7 @@ import { expect } from 'chai';
 import { decode } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk, WALLET_NAME } from './index';
 import contractProgram from '../src/commands/contract';
+import CliError from '../src/utils/CliError';
 
 const executeContract = (args) => executeProgram(contractProgram, args);
 
@@ -116,6 +117,16 @@ describe('CLI Contract Module', function contractTests() {
       ]);
       fs.unlinkSync(descrPath);
       fs.unlinkSync(contractBytecodeFile);
+    });
+
+    it('throws error if arguments invalid', async () => {
+      await expect(executeContract([
+        'deploy',
+        WALLET_NAME, '--password', 'test',
+        '--contractSource', contractSourceFile,
+        '[3',
+        '--json',
+      ])).to.be.rejectedWith(CliError, 'Can\'t parse contract arguments: Unexpected end of JSON input');
     });
   });
 

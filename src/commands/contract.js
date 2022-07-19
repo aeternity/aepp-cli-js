@@ -28,7 +28,12 @@ import { nodeOption, jsonOption, gasOption } from '../arguments';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
   .argParser((argsText) => {
-    const args = JSON.parse(argsText);
+    let args;
+    try {
+      args = JSON.parse(argsText);
+    } catch (error) {
+      throw new CliError(`Can't parse contract arguments: ${error.message}`);
+    }
     if (!Array.isArray(args)) throw new CliError(`Call arguments should be an array, got ${argsText} instead`);
     return args;
   })
