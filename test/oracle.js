@@ -16,9 +16,7 @@
  */
 
 import { generateKeyPair } from '@aeternity/aepp-sdk';
-import {
-  after, before, describe, it,
-} from 'mocha';
+import { before, describe, it } from 'mocha';
 import { executeProgram, getSdk, WALLET_NAME } from './index';
 import oracleProgram from '../src/commands/oracle';
 
@@ -34,8 +32,6 @@ describe('CLI Oracle Module', () => {
   before(async () => {
     sdk = await getSdk();
   });
-
-  after(() => sdk.removeWallet());
 
   it('Oracle create', async () => {
     const oracleCreate = await executeOracle([

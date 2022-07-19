@@ -16,21 +16,19 @@
  */
 
 import fs from 'fs';
-import {
-  after, before, describe, it,
-} from 'mocha';
+import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { generateKeyPair, AE_AMOUNT_FORMATS, formatAmount } from '@aeternity/aepp-sdk';
 import { getSdk, executeProgram, WALLET_NAME } from './index';
 import accountProgram from '../src/commands/account';
 
 const executeAccount = (args) => executeProgram(accountProgram, args);
-const walletName = 'test.wallet';
+const walletName = 'test-artifacts/test-wallet.json';
 
 describe('CLI Account Module', () => {
   let sig;
   let sigFromFile;
-  const fileName = 'testData';
+  const fileName = 'test-artifacts/message.txt';
   const fileData = 'Hello world!';
   const keypair = generateKeyPair();
   let sdk;
@@ -38,12 +36,6 @@ describe('CLI Account Module', () => {
   before(async () => {
     fs.writeFileSync(fileName, fileData);
     sdk = await getSdk();
-  });
-
-  after(() => {
-    sdk.removeWallet();
-    if (fs.existsSync(fileName)) fs.unlinkSync(fileName);
-    if (fs.existsSync(walletName)) fs.unlinkSync(walletName);
   });
 
   it('Create Wallet', async () => {

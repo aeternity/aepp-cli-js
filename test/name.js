@@ -16,9 +16,7 @@
  */
 
 import { generateKeyPair, MemoryAccount } from '@aeternity/aepp-sdk';
-import {
-  after, before, describe, it,
-} from 'mocha';
+import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import {
   executeProgram, randomName, getSdk, WALLET_NAME,
@@ -41,8 +39,6 @@ describe('CLI AENS Module', () => {
   before(async () => {
     sdk = await getSdk();
   });
-
-  after(() => sdk.removeWallet());
 
   it('Full claim', async () => {
     const updateTx = await executeName([

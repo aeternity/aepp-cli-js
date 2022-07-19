@@ -16,9 +16,7 @@
  */
 
 import fs from 'fs';
-import {
-  after, before, describe, it,
-} from 'mocha';
+import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { generateKeyPair } from '@aeternity/aepp-sdk';
 import { executeProgram, parseBlock, getSdk } from './index';
@@ -45,8 +43,6 @@ describe('CLI Inspect Module', () => {
   before(async () => {
     sdk = await getSdk();
   });
-
-  after(() => sdk.removeWallet());
 
   it('Inspect Account', async () => {
     const address = await sdk.address();

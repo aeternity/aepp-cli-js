@@ -11,3 +11,4 @@ docs
 /pnpm-debug.log
 bin
 /.nyc_output
+/test-artifacts

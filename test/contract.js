@@ -39,8 +39,8 @@ contract Identity =
 
 describe('CLI Contract Module', function contractTests() {
   this.timeout(4000);
-  const contractSourceFile = 'testContract';
-  const contractAciFile = 'testContractAci';
+  const contractSourceFile = 'test-artifacts/contract.aes';
+  const contractAciFile = 'test-artifacts/contract-aci.json';
   let deployDescriptorFile;
   let sdk;
   let contractBytecode;
@@ -55,10 +55,7 @@ describe('CLI Contract Module', function contractTests() {
   });
 
   after(() => {
-    sdk.removeWallet();
     if (fs.existsSync(deployDescriptorFile)) fs.unlinkSync(deployDescriptorFile);
-    if (fs.existsSync(contractSourceFile)) fs.unlinkSync(contractSourceFile);
-    if (fs.existsSync(contractAciFile)) fs.unlinkSync(contractAciFile);
   });
 
   it('compiles contract', async () => {
@@ -77,13 +74,12 @@ describe('CLI Contract Module', function contractTests() {
         '--json',
       ]);
       deployDescriptorFile = descrPath;
-      const [name, pref, add] = deployDescriptorFile.split('.');
+      const [name, add] = deployDescriptorFile.split('.deploy.');
       contractAddress = address;
       address.should.be.a('string');
       transaction.should.be.a('string');
       name.should.satisfy((n) => n.endsWith(contractSourceFile));
-      pref.should.be.equal('deploy');
-      add.should.be.equal(address.split('_')[1]);
+      add.should.be.equal(`${address.split('_')[1]}.json`);
     });
 
     it('deploys contract with custom descrPath', async () => {
@@ -105,9 +101,9 @@ describe('CLI Contract Module', function contractTests() {
     });
 
     it('deploys contract by bytecode', async () => {
-      const contractBytecodeFile = './bytecode.bin';
+      const contractBytecodeFile = 'test-artifacts/bytecode.bin';
       fs.writeFileSync(contractBytecodeFile, decode(contractBytecode));
-      const { descrPath } = await executeContract([
+      await executeContract([
         'deploy',
         WALLET_NAME, '--password', 'test',
         '--contractAci', contractAciFile,
@@ -115,8 +111,6 @@ describe('CLI Contract Module', function contractTests() {
         '[3]',
         '--json',
       ]);
-      fs.unlinkSync(descrPath);
-      fs.unlinkSync(contractBytecodeFile);
     });
 
     it('throws error if arguments invalid', async () => {
