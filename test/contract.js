@@ -154,6 +154,16 @@ describe('CLI Contract Module', function contractTests() {
       ])).to.be.rejectedWith('Invalid name or address: ct_test');
     });
 
+    it('throws error if descriptor file not exists', async () => {
+      await expect(executeContract([
+        'call',
+        WALLET_NAME, '--password', 'test',
+        '--json',
+        '--descrPath', `${deployDescriptorFile}test`,
+        'test', '[1, 2]',
+      ])).to.be.rejectedWith('ENOENT: no such file or directory, open');
+    });
+
     it('calls contract static', async () => {
       const callResponse = await executeContract([
         'call',

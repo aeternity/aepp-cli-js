@@ -39,9 +39,9 @@ export async function compile(filename, options) {
 
 function getContractParams({
   descrPath, contractAddress, contractSource, contractBytecode, contractAci,
-}, { dummySource } = {}) {
+}, { dummySource, descrMayNotExist } = {}) {
   let descriptor = {};
-  if (descrPath && fs.existsSync(resolve(descrPath))) {
+  if (descrPath && (!descrMayNotExist || fs.existsSync(resolve(descrPath)))) {
     descriptor = JSON.parse(readFile(resolve(descrPath)).toString());
   }
   return {
@@ -84,7 +84,7 @@ export async function deploy(walletPath, args, options) {
   // source file or at location provided in descrPath. Multiple deploy of the same contract
   // file will generate different deploy descriptors.
   const sdk = await initSdkByWalletFile(walletPath, options);
-  const contract = await sdk.getContractInstance(getContractParams(options));
+  const contract = await sdk.getContractInstance(getContractParams(options, { descrMayNotExist: true }));
   const result = await contract.deploy(args, options);
   const filename = options.contractSource ?? options.contractBytecode;
   options.descrPath ||= path
