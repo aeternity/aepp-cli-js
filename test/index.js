@@ -17,7 +17,6 @@
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import fs from 'fs';
 import {
   AeSdk, MemoryAccount, Node, generateKeyPair,
 } from '@aeternity/aepp-sdk';
@@ -33,7 +32,7 @@ const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876
 export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet';
 const ignoreVersion = process.env.IGNORE_VERSION || false;
 const keypair = generateKeyPair();
-export const WALLET_NAME = 'mywallet';
+export const WALLET_NAME = 'test-artifacts/wallet.json';
 
 const Sdk = async (params = {}) => {
   const sdk = new AeSdk({
@@ -117,9 +116,6 @@ export async function getSdk() {
     accounts: [new MemoryAccount({ keypair })],
   });
   await executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', keypair.secretKey, '--overwrite']);
-  sdk.removeWallet = () => {
-    if (fs.existsSync(WALLET_NAME)) fs.unlinkSync(WALLET_NAME);
-  };
   return sdk;
 }
 

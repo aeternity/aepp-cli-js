@@ -144,11 +144,11 @@ program
 //
 // Example: `aecli account create myWalletName --password testpassword --output ./mykeys` --> create `key-file` in `mykeys` directory
 program
-  .command('create <name>')
+  .command('create <wallet_path>')
   .option('-O, --output [output]', 'Output directory', '.')
   .option('--overwrite', 'Overwrite if exist')
   .description('Create a secure wallet')
-  .action((name, ...args) => Account.createSecureWallet(name, getCmdFromArguments(args)));
+  .action((walletPath, ...args) => Account.createSecureWallet(walletPath, getCmdFromArguments(args)));
 
 // ## Initialize `save` command
 //
@@ -161,11 +161,11 @@ program
 //
 // Example: `aecli account save myWalletName 1902855723940510273412074210842018342148234 --password testpassword --output ./mykeys` --> create `key-file` in `mykeys` directory
 program
-  .command('save <name> <privkey>')
+  .command('save <wallet_path> <privkey>')
   .option('-O, --output [output]', 'Output directory', '.')
   .option('--overwrite', 'Overwrite if exist')
   .description('Save a private keys string to a password protected file wallet')
-  .action((name, priv, ...args) => Account.createSecureWalletByPrivKey(name, priv, getCmdFromArguments(args)));
+  .action((walletPath, priv, ...args) => Account.createSecureWalletByPrivKey(walletPath, priv, getCmdFromArguments(args)));
 
 // ## Initialize `nonce` command
 //

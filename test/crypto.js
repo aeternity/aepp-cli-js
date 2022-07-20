@@ -15,25 +15,15 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import {
-  after, before, describe, it,
-} from 'mocha';
+import { describe, it } from 'mocha';
 import { expect } from 'chai';
 import { generateKeyPair, unpackTx, TX_TYPE } from '@aeternity/aepp-sdk';
-import { executeProgram, getSdk } from './index';
+import { executeProgram } from './index';
 import cryptoProgramFactory from '../src/commands/crypto';
 
 const executeCrypto = (args) => executeProgram(cryptoProgramFactory, args);
 
-describe('CLI Crypto Module', () => {
-  let sdk;
-
-  before(async () => {
-    sdk = await getSdk();
-  });
-
-  after(() => sdk.removeWallet());
-
+describe('Crypto Module', () => {
   it('decodes address', async () => {
     const output = await executeCrypto([
       'decode', 'ak_MA8Qe8ac7e9EARYK7fQxEqFufRGrG1i6qFvHA21eXXMDcnmuc',

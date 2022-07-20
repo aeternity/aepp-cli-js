@@ -16,10 +16,7 @@
  */
 
 import { generateKeyPair, decode } from '@aeternity/aepp-sdk';
-import fs from 'fs';
-import {
-  after, before, describe, it,
-} from 'mocha';
+import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import {
   executeProgram, parseBlock, randomName, getSdk, networkId,
@@ -30,7 +27,7 @@ import chainProgram from '../src/commands/chain';
 
 const executeTx = (args) => executeProgram(txProgram, args);
 
-const WALLET_NAME = 'txWallet';
+const WALLET_NAME = 'test-artifacts/tx-wallet.json';
 const testContract = `
 @compiler >= 6
 
@@ -38,7 +35,7 @@ contract Identity =
   entrypoint test(x : int, y: int) = x + y
 `;
 
-describe('CLI Transaction Module', () => {
+describe('Transaction Module', () => {
   const TX_KEYS = generateKeyPair();
   const oracleId = `ok_${TX_KEYS.publicKey.slice(3)}`;
   let sdk;
@@ -53,11 +50,6 @@ describe('CLI Transaction Module', () => {
     sdk = await getSdk();
     await sdk.spend(1e24, TX_KEYS.publicKey);
     await executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite']);
-  });
-
-  after(() => {
-    sdk.removeWallet();
-    if (fs.existsSync(WALLET_NAME)) fs.unlinkSync(WALLET_NAME);
   });
 
   async function signAndPost(tx) {

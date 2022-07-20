@@ -16,7 +16,7 @@
  */
 
 import { Command } from 'commander';
-import fs from 'fs';
+import fs from 'fs-extra';
 import {
   decryptKey, sign, buildTx, unpackTx, decode, TX_TYPE,
 } from '@aeternity/aepp-sdk';
@@ -44,9 +44,9 @@ program
   //
   // This function shows how to use a compliant private key to sign an æternity
   // transaction and turn it into an RLP-encoded tuple ready for mining
-  .action((tx, privKey, { networkId, password, file }) => {
-    const binaryKey = (() => {
-      if (file) return fs.readFileSync(file);
+  .action(async (tx, privKey, { networkId, password, file }) => {
+    const binaryKey = await (() => {
+      if (file) return fs.readFile(file);
       if (privKey) return Buffer.from(privKey, 'hex');
       throw new CliError('Must provide either [privkey] or [file]');
     })();

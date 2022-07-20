@@ -15,22 +15,18 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import {
-  after, before, describe, it,
-} from 'mocha';
+import { before, describe, it } from 'mocha';
 import { executeProgram, parseBlock, getSdk } from './index';
 import chainProgram from '../src/commands/chain';
 
 const executeChain = (args) => executeProgram(chainProgram, args);
 
-describe('CLI Chain Module', () => {
+describe('Chain Module', () => {
   let sdk;
 
   before(async () => {
     sdk = await getSdk();
   });
-
-  after(() => sdk.removeWallet());
 
   it('TOP', async () => {
     const res = await executeChain(['top', '--json']);
