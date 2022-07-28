@@ -12,11 +12,11 @@ function splitCodeIntoBlocks(text) {
         content.push({ type: 'code', content: text });
         return content;
       case 0:
-        text = text.slice(commentIndex).trimLeft().slice(1);
+        text = text.slice(commentIndex).trimStart().slice(1);
         break;
       default:
         content.push({ type: 'code', content: text.slice(0, commentIndex) });
-        text = text.slice(commentIndex).trimLeft().slice(1);
+        text = text.slice(commentIndex).trimStart().slice(1);
         break;
     }
     switch (text[0]) {
