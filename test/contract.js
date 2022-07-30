@@ -81,7 +81,7 @@ describe('Contract Module', function contractTests() {
       transaction.should.be.a('string');
       name.should.satisfy((n) => n.endsWith(contractSourceFile));
       add.should.be.equal(`${address.split('_')[1]}.json`);
-    });
+    }).timeout(8000);
 
     it('deploys contract with custom descrPath', async () => {
       const descrPath = './not-existing/testDescriptor.json';
