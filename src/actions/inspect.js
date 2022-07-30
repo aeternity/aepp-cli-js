@@ -18,8 +18,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { unpackTx as _unpackTx } from '@aeternity/aepp-sdk';
-import { HASH_TYPES } from '../utils/constant';
+import { Encoding, unpackTx as _unpackTx } from '@aeternity/aepp-sdk';
 import { initSdk } from '../utils/cli';
 import {
   print,
@@ -39,7 +38,7 @@ import CliError from '../utils/CliError';
 async function getBlockByHash(hash, options) {
   const { json } = options;
   try {
-    checkPref(hash, [HASH_TYPES.block, HASH_TYPES.micro_block]);
+    checkPref(hash, [Encoding.KeyBlockHash, Encoding.MicroBlockHash]);
     const sdk = await initSdk(options);
     printBlock(await getBlock(hash, sdk), json);
   } catch (e) {
@@ -50,7 +49,7 @@ async function getBlockByHash(hash, options) {
 async function getTransactionByHash(hash, options) {
   const { json } = options;
   try {
-    checkPref(hash, HASH_TYPES.transaction);
+    checkPref(hash, Encoding.TxHash);
     const sdk = await initSdk(options);
     printTransaction(await sdk.api.getTransactionByHash(hash), json);
   } catch (e) {
@@ -61,7 +60,7 @@ async function getTransactionByHash(hash, options) {
 async function unpackTx(hash, options) {
   const { json } = options;
   try {
-    checkPref(hash, HASH_TYPES.rawTransaction);
+    checkPref(hash, Encoding.Transaction);
     const { tx, txType: type } = _unpackTx(hash);
     if (json) {
       print({ tx, type });
@@ -77,7 +76,7 @@ async function unpackTx(hash, options) {
 async function getAccountByHash(hash, options) {
   const { json } = options;
   try {
-    checkPref(hash, HASH_TYPES.account);
+    checkPref(hash, Encoding.AccountAddress);
     const sdk = await initSdk(options);
     const { nonce } = await sdk.api.getAccountByPubkey(hash);
     const balance = await sdk.getBalance(hash);
@@ -169,29 +168,29 @@ export default async function inspect(hash, option) {
   const [pref] = hash.split('_');
   switch (pref) {
     // Get `block` by `hash`
-    case HASH_TYPES.block:
+    case Encoding.KeyBlockHash:
       await getBlockByHash(hash, option);
       break;
     // Get `micro_block` by `hash`
-    case HASH_TYPES.micro_block:
+    case Encoding.MicroBlockHash:
       await getBlockByHash(hash, option);
       break;
     // Get `account` by `hash`
-    case HASH_TYPES.account:
+    case Encoding.AccountAddress:
       await getAccountByHash(hash, option);
       break;
     // Get `transaction` by `hash`
-    case HASH_TYPES.transaction:
+    case Encoding.TxHash:
       await getTransactionByHash(hash, option);
       break;
-    case HASH_TYPES.rawTransaction:
+    case Encoding.Transaction:
       await unpackTx(hash, option);
       break;
     // Get `contract` by `contractId`
-    case HASH_TYPES.contract:
+    case Encoding.ContractAddress:
       await getContract(hash, option);
       break;
-    case HASH_TYPES.oracle:
+    case Encoding.OracleAddress:
       await getOracle(hash, option);
       break;
     // Get `name`
