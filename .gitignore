@@ -10,3 +10,5 @@ docs
 /docker-compose.override.yml
 /pnpm-debug.log
 bin
+/.nyc_output
+/test-artifacts

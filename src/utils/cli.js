@@ -16,9 +16,7 @@
 *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 *  PERFORMANCE OF THIS SOFTWARE.
 */
-import {
-  Universal, Node, Transaction, TxBuilder, ChainNode, MemoryAccount,
-} from '@aeternity/aepp-sdk';
+import { AeSdk, Node, MemoryAccount } from '@aeternity/aepp-sdk';
 import { getWalletByPathAndDecrypt } from './account';
 
 // ## Merge options with parent options.
@@ -26,58 +24,30 @@ export function getCmdFromArguments([options, commander]) {
   return { ...options, ...commander.parent.opts() };
 }
 
-// Create `Universal` client
-export async function initClient({
-  url, keypair, compilerUrl, force: ignoreVersion, native: nativeMode = true, networkId, accounts = [],
-}) {
-  return Universal({
-    nodes: [{ name: 'test-node', instance: await Node({ url, ignoreVersion }) }],
+export async function initSdk({
+  url, keypair, compilerUrl, force: ignoreVersion, networkId, accounts = [],
+} = {}) {
+  const sdk = new AeSdk({
+    nodes: url ? [{ name: 'test-node', instance: new Node(url, { ignoreVersion }) }] : [],
     compilerUrl,
-    nativeMode,
     networkId,
-    accounts: [...keypair ? [MemoryAccount({ keypair })] : [], ...accounts],
   });
+  await Promise.all([...keypair ? [new MemoryAccount({ keypair })] : [], ...accounts]
+    .map((account, idx) => sdk.addAccount(account, { select: idx === 0 })));
+  return sdk;
 }
-// Create `TxBuilder` client
-export async function initTxBuilder({
-  url, force: ignoreVersion, native: nativeMode = true, showWarning = true,
-}) {
-  return Transaction({
-    nodes: [{ name: 'test-node', instance: await Node({ url, ignoreVersion }) }],
-    nativeMode,
-    ignoreVersion,
-    showWarning,
-  });
-}
-// Create `OfflineTxBuilder` client
-export function initOfflineTxBuilder() {
-  return TxBuilder;
-}
-// Create `ChainNode` client
-export async function initChain({ url, force: ignoreVersion }) {
-  return ChainNode({
-    nodes: [{ name: 'test-node', instance: await Node({ url, ignoreVersion }) }],
-    ignoreVersion,
-  });
+
+export async function getAccountByWalletFile(walletPath, options) {
+  const keypair = await getWalletByPathAndDecrypt(walletPath, options.password);
+  const accounts = [new MemoryAccount({ ...options, keypair })];
+  return { account: accounts[0], keypair };
 }
 
 // ## Get account files and decrypt it using password
-// After that create `Universal` client using this `keyPair`
+// After that create sdk instance using this `keyPair`
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
-export async function initClientByWalletFile(walletPath, options, returnKeyPair = false) {
-  const {
-    password, accountOnly = false, networkId, debug = true,
-  } = options;
-
-  const keypair = await getWalletByPathAndDecrypt(walletPath, password);
-  const accounts = [MemoryAccount({ ...options, keypair, networkId })];
-
-  const client = accountOnly
-    ? accounts[0]
-    : await initClient({ ...options, accounts, debug });
-  if (returnKeyPair) {
-    return { client, keypair };
-  }
-  return client;
+export async function initSdkByWalletFile(walletPath, options) {
+  const { account } = await getAccountByWalletFile(walletPath, options);
+  return initSdk({ ...options, accounts: [account] });
 }

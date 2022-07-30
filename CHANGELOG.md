@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.1.0](https://github.com/aeternity/aepp-cli-js/compare/v4.0.0...v4.1.0) (2022-07-28)
+
+
+### Features
+
+* don't print stack traces for cli errors ([e62be74](https://github.com/aeternity/aepp-cli-js/commit/e62be74a103672f005bc89781a047c57fb02b5e7))
+
+
+### Bug Fixes
+
+* commands in crypto module ([6d6da0c](https://github.com/aeternity/aepp-cli-js/commit/6d6da0cdacd195f012de801e3ce2673a67cdebdd))
+* **contract:** always store aci in descriptor, override descr by options ([278a6ff](https://github.com/aeternity/aepp-cli-js/commit/278a6ff55268a8814cf7bd97ef2dd686850ff75b))
+* **contract:** clear error when can't parse call arguments ([34ae285](https://github.com/aeternity/aepp-cli-js/commit/34ae28502e97fb4a64419d014790ce2cef99d1ef))
+* **contract:** create file descriptor at not existing path ([485117e](https://github.com/aeternity/aepp-cli-js/commit/485117ee118ecf8ba2af3680df1c72b02f12347d))
+* **contract:** fall if descriptor file specified but not exists ([37b490f](https://github.com/aeternity/aepp-cli-js/commit/37b490fc4491ebfb9c91106cc0211c690b1b2ec4))
+* remove broken `crypto decrypt` command ([03c645c](https://github.com/aeternity/aepp-cli-js/commit/03c645cbc30e0088a034135d3b26edcc9aa08f55))
+* remove broken `crypto genkey` command ([32e5b0f](https://github.com/aeternity/aepp-cli-js/commit/32e5b0f368286d3a3ab5fa88a8e7d19664b7c554))
+
 ## [4.0.0](https://github.com/aeternity/aepp-cli-js/compare/v3.0.0...v4.0.0) (2022-04-07)
 
 

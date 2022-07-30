@@ -15,16 +15,14 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { Crypto } from '@aeternity/aepp-sdk';
-import {
-  after, before, describe, it,
-} from 'mocha';
+import { generateKeyPair } from '@aeternity/aepp-sdk';
+import { before, describe, it } from 'mocha';
 import { executeProgram, getSdk, WALLET_NAME } from './index';
-import oracleProgramFactory from '../src/commands/oracle';
+import oracleProgram from '../src/commands/oracle';
 
-const executeOracle = (args) => executeProgram(oracleProgramFactory, args);
+const executeOracle = (args) => executeProgram(oracleProgram, args);
 
-describe('CLI Oracle Module', () => {
+describe('Oracle Module', () => {
   const oracleFormat = 'string';
   const responseFormat = 'string';
   let sdk;
@@ -34,8 +32,6 @@ describe('CLI Oracle Module', () => {
   before(async () => {
     sdk = await getSdk();
   });
-
-  after(() => sdk.removeWallet());
 
   it('Oracle create', async () => {
     const oracleCreate = await executeOracle([
@@ -79,7 +75,7 @@ describe('CLI Oracle Module', () => {
   });
 
   it('Get non existed Oracle', async () => {
-    const fakeOracleId = Crypto.generateKeyPair().publicKey.replace('ak_', 'ok_');
+    const fakeOracleId = generateKeyPair().publicKey.replace('ak_', 'ok_');
     await executeOracle(['get', fakeOracleId, '--json'])
       .should.be.rejectedWith('error: Oracle not found');
     await executeOracle(['get', 'oq_d1sadasdasda', '--json'])

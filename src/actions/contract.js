@@ -18,42 +18,45 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import fs from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
-import { TxBuilderHelper } from '@aeternity/aepp-sdk';
-import { initClient, initClientByWalletFile } from '../utils/cli';
+import { encode } from '@aeternity/aepp-sdk';
+import { initSdk, initSdkByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
 
 const resolve = (filename) => path.resolve(process.cwd(), filename);
-const readFile = (filename, encoding = 'utf-8') => fs.readFileSync(resolve(filename), encoding);
 
 // ## Function which compile your `source` code
 export async function compile(filename, options) {
-  const sdk = await initClient(options);
-  const { bytecode } = await sdk.compilerApi.compileContract({ code: readFile(filename) });
+  const sdk = await initSdk(options);
+  const { bytecode } = await sdk.compilerApi.compileContract({
+    code: (await fs.readFile(resolve(filename))).toString(), options: {},
+  });
   if (options.json) print({ bytecode });
   else print(`Contract bytecode: ${bytecode}`);
 }
 
-function getContractParams({
+async function getContractParams({
   descrPath, contractAddress, contractSource, contractBytecode, contractAci,
-}, { dummySource } = {}) {
-  if (descrPath && fs.existsSync(resolve(descrPath))) {
-    const { address, ...other } = JSON.parse(readFile(descrPath));
-    return { contractAddress: address, ...other };
+}, { dummySource, descrMayNotExist } = {}) {
+  let descriptor = {};
+  if (descrPath && (!descrMayNotExist || await fs.exists(resolve(descrPath)))) {
+    descriptor = await fs.readJson(resolve(descrPath));
   }
   return {
-    contractAddress,
+    contractAddress: contractAddress ?? descriptor.address,
     // TODO: either remove calldata methods in cli or reconsider getContractInstance requirements
-    source: (contractSource && readFile(contractSource)) ?? (dummySource && 'invalid-source'),
-    bytecode: contractBytecode && TxBuilderHelper.encode(readFile(contractBytecode, null), 'cb'),
-    aci: contractAci && JSON.parse(readFile(contractAci)),
+    ...dummySource && { source: 'invalid-source' },
+    ...descriptor,
+    ...contractSource && { source: (await fs.readFile(resolve(contractSource))).toString() },
+    ...contractBytecode && { bytecode: encode(await fs.readFile(resolve(contractBytecode)), 'cb') },
+    ...contractAci && { aci: await fs.readJson(resolve(contractAci)) },
   };
 }
 
 export async function encodeCalldata(fn, args, options) {
-  const sdk = await initClient(options);
-  const contract = await sdk.getContractInstance(getContractParams(options, { dummySource: true }));
+  const sdk = await initSdk(options);
+  const contract = await sdk.getContractInstance(await getContractParams(options, { dummySource: true }));
   // eslint-disable-next-line no-underscore-dangle
   const calldata = contract.calldata.encode(contract._name, fn, args);
   if (options.json) print({ calldata });
@@ -61,8 +64,8 @@ export async function encodeCalldata(fn, args, options) {
 }
 
 export async function decodeCallResult(fn, calldata, options) {
-  const sdk = await initClient(options);
-  const contract = await sdk.getContractInstance(getContractParams(options, { dummySource: true }));
+  const sdk = await initSdk(options);
+  const contract = await sdk.getContractInstance(await getContractParams(options, { dummySource: true }));
   // eslint-disable-next-line no-underscore-dangle
   const decoded = contract.calldata.decode(contract._name, fn, calldata);
   if (options.json) print({ decoded });
@@ -79,18 +82,19 @@ export async function deploy(walletPath, args, options) {
   // later on. The generated descriptor will be created in the same folder of the contract
   // source file or at location provided in descrPath. Multiple deploy of the same contract
   // file will generate different deploy descriptors.
-  const sdk = await initClientByWalletFile(walletPath, options);
-  const descriptor = getContractParams(options);
-  const contract = await sdk.getContractInstance(descriptor);
+  const sdk = await initSdkByWalletFile(walletPath, options);
+  const contract = await sdk.getContractInstance(await getContractParams(options, { descrMayNotExist: true }));
   const result = await contract.deploy(args, options);
-  Object.assign(descriptor, {
-    address: result.address,
-    bytecode: contract.bytecode,
-  });
   const filename = options.contractSource ?? options.contractBytecode;
   options.descrPath ||= path
     .resolve(process.cwd(), `${filename}.deploy.${result.address.slice(3)}.json`);
-  fs.writeFileSync(options.descrPath, JSON.stringify(descriptor, undefined, 2));
+  const descriptor = {
+    address: result.address,
+    bytecode: contract.bytecode,
+    // eslint-disable-next-line no-underscore-dangle
+    aci: contract._aci,
+  };
+  await fs.outputJson(options.descrPath, descriptor);
   if (options.json) print({ ...result, descrPath: options.descrPath });
   else {
     print('Contract was successfully deployed');
@@ -105,18 +109,18 @@ export async function call(walletPath, fn, args, options) {
   const {
     callStatic, json, top, ttl, gas, nonce,
   } = options;
-  const sdk = await initClientByWalletFile(walletPath, options);
-  const contract = await sdk.getContractInstance(getContractParams(options));
+  const sdk = await initSdkByWalletFile(walletPath, options);
+  const contract = await sdk.getContractInstance(await getContractParams(options));
   const callResult = await contract.call(fn, args, {
-    ttl: parseInt(ttl),
-    gas: parseInt(gas),
-    nonce: parseInt(nonce),
+    ttl: ttl && parseInt(ttl),
+    gas,
+    nonce: nonce && parseInt(nonce),
     callStatic,
     top,
   });
   if (json) print(callResult);
   else {
-    if (callResult.hash) printTransaction(await sdk.tx(callResult.hash), json);
+    if (callResult.hash) printTransaction(await sdk.api.getTransactionByHash(callResult.hash), json);
     print('----------------------Call info-----------------------');
     printUnderscored('Contract address', contract.deployInfo.address);
     printUnderscored('Gas price', callResult.result?.gasPrice);

@@ -16,8 +16,9 @@
 */
 // # Utils `print` Module
 // That script contains helper function for `console` print
-import { Crypto, TxBuilder } from '@aeternity/aepp-sdk';
+import { unpackTx } from '@aeternity/aepp-sdk';
 import { HASH_TYPES } from './constant';
+import { decode } from './helpers';
 
 // ## Row width
 const WIDTH = 40;
@@ -30,21 +31,21 @@ function getTabs(tabs) {
   return ' '.repeat(tabs * 4);
 }
 
-const JsonStringifyBigInt = (object, replacer, space) => JSON.stringify(
+const JsonStringifyBigInt = (object, spaced) => JSON.stringify(
   object,
   (key, value) => (typeof value === 'bigint' ? `${value}` : value),
-  space,
+  spaced ? 2 : undefined,
 );
 
 // Print helper
 export function print(msg, obj) {
   if (typeof msg === 'object') {
-    console.log(JsonStringifyBigInt(msg));
+    console.log(JsonStringifyBigInt(msg, true));
     return;
   }
   if (obj) {
     console.log(msg);
-    console.log(JsonStringifyBigInt(obj));
+    console.log(JsonStringifyBigInt(obj, true));
   } else {
     console.log(msg);
   }
@@ -67,7 +68,7 @@ export function printUnderscored(key, val) {
 // ## TX
 export function printValidation({ validation, transaction }) {
   print('---------------------------------------- TX DATA ↓↓↓ \n');
-  const { tx, txType: type } = TxBuilder.unpackTx(transaction);
+  const { tx, txType: type } = unpackTx(transaction);
   Object.entries({ ...tx, type }).forEach(([key, value]) => printUnderscored(key, value));
   print('\n---------------------------------------- ERRORS ↓↓↓ \n');
   validation.forEach(({ message, checkedKeys }) => {
@@ -264,7 +265,7 @@ const TX_TYPE_PRINT_MAP = {
 // ## BLOCK
 
 function replaceAt(str, index, replacement) {
-  return str.substr(0, index) + replacement + str.substr(index + replacement.length);
+  return str.substring(0, index) + replacement + str.substring(index + replacement.length);
 }
 
 function printTxInfo(tx, tabs) {
@@ -355,9 +356,9 @@ export function printQueries(queries = [], json) {
     printUnderscored('Query ID', q.id ?? 'N/A');
     printUnderscored('Fee', q.fee ?? 'N/A');
     printUnderscored('Query', q.query ?? 'N/A');
-    printUnderscored('Query decoded', Crypto.decodeBase64Check(q.query.slice(3)).toString() ?? 'N/A');
+    printUnderscored('Query decoded', decode(q.query, 'oq').toString() ?? 'N/A');
     printUnderscored('Response', q.response ?? 'N/A');
-    printUnderscored('Response decoded', Crypto.decodeBase64Check(q.response.slice(3)).toString() ?? 'N/A');
+    printUnderscored('Response decoded', decode(q.response, 'or').toString() ?? 'N/A');
     printUnderscored('Response Ttl', q.responseTtl ?? 'N/A');
     printUnderscored('Sender Id', q.senderId ?? 'N/A');
     printUnderscored('Sender Nonce', q.senderNonce ?? 'N/A');
@@ -376,16 +377,4 @@ export function printName(name, json) {
   printUnderscored('Name hash', name.id ?? 'N/A');
   printUnderscored('Pointers', JSON.stringify(name.pointers) ?? 'N/A');
   printUnderscored('TTL', name.ttl ?? 0);
-}
-
-// Print `Buider Transaction`
-export function printBuilderTransaction({ tx, txObject }, type) {
-  printUnderscored('Transaction type', type);
-  print('Summary');
-  Object
-    .entries(txObject)
-    .forEach(([key, value]) => printUnderscored(`    ${key.toUpperCase()}`, value));
-  print('Output');
-  printUnderscored('    Encoded', tx);
-  print('This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.');
 }

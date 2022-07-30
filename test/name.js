@@ -15,34 +15,30 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { Crypto } from '@aeternity/aepp-sdk';
-import {
-  after, before, describe, it,
-} from 'mocha';
+import { generateKeyPair, MemoryAccount } from '@aeternity/aepp-sdk';
+import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import {
   executeProgram, randomName, getSdk, WALLET_NAME,
 } from './index';
-import nameProgramFactory from '../src/commands/name';
-import inspectProgramFactory from '../src/commands/inspect';
-import accountProgramFactory from '../src/commands/account';
+import nameProgram from '../src/commands/name';
+import inspectProgram from '../src/commands/inspect';
+import accountProgram from '../src/commands/account';
 
-const executeName = (args) => executeProgram(nameProgramFactory, args);
-const executeInspect = (args) => executeProgram(inspectProgramFactory, args);
-const executeAccount = (args) => executeProgram(accountProgramFactory, args);
+const executeName = (args) => executeProgram(nameProgram, args);
+const executeInspect = (args) => executeProgram(inspectProgram, args);
+const executeAccount = (args) => executeProgram(accountProgram, args);
 
-describe('CLI AENS Module', () => {
-  const { publicKey } = Crypto.generateKeyPair();
+describe('AENS Module', () => {
+  const { publicKey } = generateKeyPair();
   const name = randomName(12);
   const name2 = randomName(13);
-  let sdk; let
-    salt;
+  let sdk;
+  let salt;
 
   before(async () => {
     sdk = await getSdk();
   });
-
-  after(() => sdk.removeWallet());
 
   it('Full claim', async () => {
     const updateTx = await executeName([
@@ -191,7 +187,7 @@ describe('CLI AENS Module', () => {
   });
 
   it('Transfer name', async () => {
-    const keypair = Crypto.generateKeyPair();
+    const keypair = generateKeyPair();
 
     const transferTx = await executeName([
       'transfer',
@@ -206,7 +202,8 @@ describe('CLI AENS Module', () => {
     transferTx.blockHeight.should.be.gt(0);
     await sdk.spend(1, keypair.publicKey, { denomination: 'ae' });
     const claim2 = await sdk.aensQuery(name2);
-    const transferBack = await claim2.transfer(await sdk.address(), { onAccount: keypair });
+    const transferBack = await claim2
+      .transfer(await sdk.address(), { onAccount: new MemoryAccount({ keypair }) });
     transferBack.blockHeight.should.be.gt(0);
   });
 
@@ -230,10 +227,10 @@ describe('CLI AENS Module', () => {
     const nameFee = '3665700000000000000';
 
     it('Open auction', async () => {
-      const keypair = Crypto.generateKeyPair();
+      const keypair = generateKeyPair();
       await sdk.spend('30000000000000000000000', keypair.publicKey);
       const preclaim = await sdk.aensPreclaim(name, { onAccount: keypair });
-      const claim = await preclaim.claim({ onAccount: keypair });
+      const claim = await preclaim.claim({ onAccount: new MemoryAccount({ keypair }) });
       claim.blockHeight.should.be.gt(0);
     }).timeout(10000);
 

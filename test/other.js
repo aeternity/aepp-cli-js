@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * ISC License (ISC)
  * Copyright (c) 2022 aeternity developers
@@ -15,7 +14,18 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
-import program from './commands/account';
-import { runProgram } from './utils/CliError';
 
-await runProgram(program);
+import { describe, it } from 'mocha';
+import { expect } from 'chai';
+import { executeProgram } from './index';
+import mainProgram from '../src/commands/main';
+
+describe('Other tests', () => {
+  it('Config', async () => {
+    const config = await executeProgram(mainProgram, ['config']);
+    expect(config).to.include('NODE_URL');
+    expect(config).to.include('COMPILER_URL');
+    expect(config).to.not.include('undefined');
+    expect(config.split('http')).to.have.length(3);
+  });
+});

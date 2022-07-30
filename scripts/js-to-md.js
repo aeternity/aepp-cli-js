@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 function splitCodeIntoBlocks(text) {
   const content = [];
@@ -12,11 +12,11 @@ function splitCodeIntoBlocks(text) {
         content.push({ type: 'code', content: text });
         return content;
       case 0:
-        text = text.slice(commentIndex).trimLeft().slice(1);
+        text = text.slice(commentIndex).trimStart().slice(1);
         break;
       default:
         content.push({ type: 'code', content: text.slice(0, commentIndex) });
-        text = text.slice(commentIndex).trimLeft().slice(1);
+        text = text.slice(commentIndex).trimStart().slice(1);
         break;
     }
     switch (text[0]) {
@@ -35,9 +35,9 @@ function splitCodeIntoBlocks(text) {
   return content;
 }
 
-process.argv.slice(2).forEach((fileName) => {
+process.argv.slice(2).forEach(async (fileName) => {
   const inputFilePath = path.resolve(process.cwd(), fileName);
-  const text = fs.readFileSync(inputFilePath).toString();
+  const text = await fs.readFile(inputFilePath).toString();
 
   const textMd = splitCodeIntoBlocks(text)
     .map(({ type, content }) => ({
@@ -51,9 +51,7 @@ process.argv.slice(2).forEach((fileName) => {
     .join('\n');
 
   const fileParsedPath = path.parse(path.resolve(process.cwd(), 'docs', fileName));
-  fs.mkdirSync(fileParsedPath.dir, { recursive: true });
-
   const outputFilePath = path.format({ ...fileParsedPath, base: undefined, ext: '.md' });
-  fs.writeFileSync(outputFilePath, Buffer.from(textMd));
+  await fs.outputFile(outputFilePath, Buffer.from(textMd));
   console.log(`${inputFilePath} -> ${outputFilePath}`);
 });

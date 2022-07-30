@@ -17,60 +17,40 @@
 // # Utils `helpers` Module
 // That script contains base helper function
 
-import fs from 'fs';
-import { TxBuilderHelper } from '@aeternity/aepp-sdk';
+import { decode as _decode } from '@aeternity/aepp-sdk';
 import { HASH_TYPES } from './constant';
-
-export function readFile(filePath, encoding = null) {
-  try {
-    return fs.readFileSync(
-      filePath,
-      encoding,
-    );
-  } catch (e) {
-    switch (e.code) {
-      case 'ENOENT':
-        throw new Error('File not found');
-      default:
-        throw e;
-    }
-  }
-}
-
-export function readJSONFile(filePath) {
-  return JSON.parse(readFile(filePath));
-}
+import CliError from './CliError';
 
 // ## Method which retrieve block info by hash
 // if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`
 //
 // if it's `BLOCK` call `getKeyBlockByHash`
-export async function getBlock(hash, client) {
+export async function getBlock(hash, sdk) {
   const type = hash.split('_')[0];
   switch (type) {
     case HASH_TYPES.block:
-      return client.api.getKeyBlockByHash(hash);
+      return sdk.api.getKeyBlockByHash(hash);
     case HASH_TYPES.micro_block:
       return {
-        ...await client.api.getMicroBlockHeaderByHash(hash),
-        ...await client.api.getMicroBlockTransactionsByHash(hash),
+        ...await sdk.api.getMicroBlockHeaderByHash(hash),
+        ...await sdk.api.getMicroBlockTransactionsByHash(hash),
       };
     default:
-      throw new Error(`Unknown block hash type: ${type}`);
+      throw new CliError(`Unknown block hash type: ${type}`);
   }
 }
 
 // ## Method which validate `hash`
 export function checkPref(hash, hashType) {
   if (hash.length < 3 || hash.indexOf('_') === -1) {
-    throw new Error('Invalid input, likely you forgot to escape the $ sign (use \\_)');
+    throw new CliError('Invalid input, likely you forgot to escape the $ sign (use \\_)');
   }
 
   /* block and micro block check */
   if (Array.isArray(hashType)) {
     const res = hashType.find((ht) => hash.slice(0, 3) === `${ht}_`);
     if (res) return;
-    throw new Error('Invalid block hash, it should be like: mh_.... or kh._...');
+    throw new CliError('Invalid block hash, it should be like: mh_.... or kh._...');
   }
 
   if (hash.slice(0, 3) !== `${hashType}_`) {
@@ -78,16 +58,16 @@ export function checkPref(hash, hashType) {
       [HASH_TYPES.transaction]: 'Invalid transaction hash, it should be like: th_....',
       [HASH_TYPES.account]: 'Invalid account address, it should be like: ak_....',
     }[hashType] || `Invalid hash, it should be like: ${hashType}_....`;
-    throw new Error(msg);
+    throw new CliError(msg);
   }
 }
 
 // ## AENS helpers methods
 
 // Get `name` status
-export async function updateNameStatus(name, client) {
+export async function updateNameStatus(name, sdk) {
   try {
-    return { ...await client.getName(name), status: 'CLAIMED' };
+    return { ...await sdk.getName(name), status: 'CLAIMED' };
   } catch (e) {
     if (e.response && e.response.status === 404) {
       return { name, status: 'AVAILABLE' };
@@ -101,5 +81,15 @@ export function isAvailable(name) { return name.status === 'AVAILABLE'; }
 
 // Validate `name`
 export function validateName(name) {
-  TxBuilderHelper.ensureNameValid(name);
+  if (typeof name !== 'string') throw new CliError('Name must be a string');
+  if (!name.endsWith('.chain')) throw new CliError(`Name should end with .chain: ${name}`);
+}
+
+export function decode(data, requiredPrefix) {
+  if (typeof data !== 'string') throw new CliError('Data must be a string');
+  const prefix = data.split('_')[0];
+  if (prefix !== requiredPrefix) {
+    throw new CliError(`Encoded string have a wrong type: ${prefix} (expected: ${requiredPrefix})`);
+  }
+  return _decode(data);
 }

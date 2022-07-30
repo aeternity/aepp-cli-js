@@ -15,16 +15,17 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import fs from 'fs';
+import fs from 'fs-extra';
 import {
   after, before, describe, it,
 } from 'mocha';
 import { expect } from 'chai';
-import { TxBuilderHelper } from '@aeternity/aepp-sdk';
+import { decode } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk, WALLET_NAME } from './index';
-import contractProgramFactory from '../src/commands/contract';
+import contractProgram from '../src/commands/contract';
+import CliError from '../src/utils/CliError';
 
-const executeContract = (args) => executeProgram(contractProgramFactory, args);
+const executeContract = (args) => executeProgram(contractProgram, args);
 
 const testContractSource = `
 @compiler >= 6
@@ -36,27 +37,26 @@ contract Identity =
   entrypoint test(x : int, y: int) = x + y + state.z
 `;
 
-describe('CLI Contract Module', () => {
-  const contractSourceFile = 'testContract';
-  const contractAciFile = 'testContractAci';
+describe('Contract Module', function contractTests() {
+  this.timeout(4000);
+  const contractSourceFile = 'test-artifacts/contract.aes';
+  const contractAciFile = 'test-artifacts/contract-aci.json';
   let deployDescriptorFile;
   let sdk;
   let contractBytecode;
   let contractAddress;
 
   before(async () => {
-    fs.writeFileSync(contractSourceFile, testContractSource);
+    await fs.outputFile(contractSourceFile, testContractSource);
     sdk = await getSdk();
-    fs.writeFileSync(contractAciFile, JSON.stringify(
-      await sdk.compilerApi.generateACI({ code: testContractSource }),
-    ));
+    await fs.outputJson(
+      contractAciFile,
+      await sdk.compilerApi.generateACI({ code: testContractSource, options: {} }),
+    );
   });
 
-  after(() => {
-    sdk.removeWallet();
-    if (fs.existsSync(deployDescriptorFile)) fs.unlinkSync(deployDescriptorFile);
-    if (fs.existsSync(contractSourceFile)) fs.unlinkSync(contractSourceFile);
-    if (fs.existsSync(contractAciFile)) fs.unlinkSync(contractAciFile);
+  after(async () => {
+    await fs.remove(deployDescriptorFile);
   });
 
   it('compiles contract', async () => {
@@ -75,17 +75,16 @@ describe('CLI Contract Module', () => {
         '--json',
       ]);
       deployDescriptorFile = descrPath;
-      const [name, pref, add] = deployDescriptorFile.split('.');
+      const [name, add] = deployDescriptorFile.split('.deploy.');
       contractAddress = address;
       address.should.be.a('string');
       transaction.should.be.a('string');
       name.should.satisfy((n) => n.endsWith(contractSourceFile));
-      pref.should.be.equal('deploy');
-      add.should.be.equal(address.split('_')[1]);
-    }).timeout(4000);
+      add.should.be.equal(`${address.split('_')[1]}.json`);
+    });
 
     it('deploys contract with custom descrPath', async () => {
-      const descrPath = './testDescriptor.json';
+      const descrPath = './not-existing/testDescriptor.json';
       await executeContract([
         'deploy',
         WALLET_NAME, '--password', 'test',
@@ -94,18 +93,18 @@ describe('CLI Contract Module', () => {
         '[3]',
         '--json',
       ]);
-      expect(fs.existsSync(descrPath)).to.be.equal(true);
-      const descriptor = JSON.parse(fs.readFileSync(descrPath, 'utf-8'));
+      expect(await fs.exists(descrPath)).to.be.equal(true);
+      const descriptor = await fs.readJson(descrPath);
       expect(descriptor.address).to.satisfy((b) => b.startsWith('ct_'));
       expect(descriptor.bytecode).to.satisfy((b) => b.startsWith('cb_'));
-      expect(descriptor.source).to.satisfy((b) => b.includes('contract Identity'));
-      fs.unlinkSync(descrPath);
-    }).timeout(4000);
+      expect(descriptor.aci).to.an('object');
+      await fs.remove(descrPath);
+    });
 
     it('deploys contract by bytecode', async () => {
-      const contractBytecodeFile = './bytecode.bin';
-      fs.writeFileSync(contractBytecodeFile, TxBuilderHelper.decode(contractBytecode));
-      const { descrPath } = await executeContract([
+      const contractBytecodeFile = 'test-artifacts/bytecode.bin';
+      await fs.outputFile(contractBytecodeFile, decode(contractBytecode));
+      await executeContract([
         'deploy',
         WALLET_NAME, '--password', 'test',
         '--contractAci', contractAciFile,
@@ -113,8 +112,16 @@ describe('CLI Contract Module', () => {
         '[3]',
         '--json',
       ]);
-      fs.unlinkSync(descrPath);
-      fs.unlinkSync(contractBytecodeFile);
+    });
+
+    it('throws error if arguments invalid', async () => {
+      await expect(executeContract([
+        'deploy',
+        WALLET_NAME, '--password', 'test',
+        '--contractSource', contractSourceFile,
+        '[3',
+        '--json',
+      ])).to.be.rejectedWith(CliError, 'Can\'t parse contract arguments: Unexpected end of JSON input');
     });
   });
 
@@ -129,6 +136,27 @@ describe('CLI Contract Module', () => {
       ]);
       callResponse.result.returnValue.should.contain('cb_');
       callResponse.decodedResult.should.be.equal('6');
+    });
+
+    it('overrides descriptor\'s address using --contractAddress', async () => {
+      await expect(executeContract([
+        'call',
+        WALLET_NAME, '--password', 'test',
+        '--json',
+        '--contractAddress', 'ct_test',
+        '--descrPath', deployDescriptorFile,
+        'test', '[1, 2]',
+      ])).to.be.rejectedWith('Invalid name or address: ct_test');
+    });
+
+    it('throws error if descriptor file not exists', async () => {
+      await expect(executeContract([
+        'call',
+        WALLET_NAME, '--password', 'test',
+        '--json',
+        '--descrPath', `${deployDescriptorFile}test`,
+        'test', '[1, 2]',
+      ])).to.be.rejectedWith('ENOENT: no such file or directory, open');
     });
 
     it('calls contract static', async () => {

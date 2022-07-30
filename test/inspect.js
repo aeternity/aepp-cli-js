@@ -15,18 +15,16 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import fs from 'fs';
-import {
-  after, before, describe, it,
-} from 'mocha';
+import fs from 'fs-extra';
+import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { Crypto } from '@aeternity/aepp-sdk';
+import { generateKeyPair } from '@aeternity/aepp-sdk';
 import { executeProgram, parseBlock, getSdk } from './index';
-import inspectProgramFactory from '../src/commands/inspect';
-import chainProgramFactory from '../src/commands/chain';
+import inspectProgram from '../src/commands/inspect';
+import chainProgram from '../src/commands/chain';
 
-const executeInspect = (args) => executeProgram(inspectProgramFactory, args);
-const executeChain = (args) => executeProgram(chainProgramFactory, args);
+const executeInspect = (args) => executeProgram(inspectProgram, args);
+const executeChain = (args) => executeProgram(chainProgram, args);
 
 const contractDescriptor = {
   descPath: 'testc.deploy.MA8Qe8ac7e9EARYK7fQxEqFufRGrG1i6qFvHA21eXXMDcnmuc.json',
@@ -39,26 +37,24 @@ const contractDescriptor = {
   createdAt: '2018-09-04T11:32:17.207Z',
 };
 
-describe('CLI Inspect Module', () => {
+describe('Inspect Module', () => {
   let sdk;
 
   before(async () => {
     sdk = await getSdk();
   });
 
-  after(() => sdk.removeWallet());
-
   it('Inspect Account', async () => {
     const address = await sdk.address();
-    const balance = await sdk.balance(address);
+    const balance = await sdk.getBalance(address);
     const { balance: cliBalance } = await executeInspect([address, '--json']);
     const isEqual = `${balance}` === `${cliBalance}`;
     isEqual.should.equal(true);
   });
 
   it('Inspect Transaction', async () => {
-    const recipient = (Crypto.generateKeyPair()).publicKey;
-    const amount = 420;
+    const recipient = (generateKeyPair()).publicKey;
+    const amount = '420';
     const { hash } = await sdk.spend(amount, recipient);
 
     const res = await executeInspect([hash, '--json']);
@@ -81,9 +77,9 @@ describe('CLI Inspect Module', () => {
 
   it.skip('Inspect Deploy', async () => {
     const fileName = 'test.deploy.json';
-    fs.writeFileSync(fileName, JSON.stringify(contractDescriptor));
+    await fs.outputJson(fileName, contractDescriptor);
     const descriptor = parseBlock(await executeInspect(['deploy', fileName]));
-    fs.unlinkSync(fileName);
+    await fs.remove(fileName);
     descriptor.source.should.equal(contractDescriptor.source);
     descriptor.bytecode.should.equal(contractDescriptor.bytecode);
     descriptor.address.should.equal(contractDescriptor.address);

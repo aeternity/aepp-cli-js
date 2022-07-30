@@ -18,9 +18,9 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { TxBuilder } from '@aeternity/aepp-sdk';
+import { unpackTx as _unpackTx } from '@aeternity/aepp-sdk';
 import { HASH_TYPES } from '../utils/constant';
-import { initChain } from '../utils/cli';
+import { initSdk } from '../utils/cli';
 import {
   print,
   printBlock,
@@ -33,14 +33,15 @@ import {
 import {
   checkPref, getBlock, updateNameStatus, validateName,
 } from '../utils/helpers';
+import CliError from '../utils/CliError';
 
 // ## Inspect helper function's
 async function getBlockByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, [HASH_TYPES.block, HASH_TYPES.micro_block]);
-    const client = await initChain(options);
-    printBlock(await getBlock(hash, client), json);
+    const sdk = await initSdk(options);
+    printBlock(await getBlock(hash, sdk), json);
   } catch (e) {
     printError(e.message);
   }
@@ -50,8 +51,8 @@ async function getTransactionByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, HASH_TYPES.transaction);
-    const client = await initChain(options);
-    printTransaction(await client.tx(hash), json);
+    const sdk = await initSdk(options);
+    printTransaction(await sdk.api.getTransactionByHash(hash), json);
   } catch (e) {
     printError(e.message);
   }
@@ -61,7 +62,7 @@ async function unpackTx(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, HASH_TYPES.rawTransaction);
-    const { tx, txType: type } = TxBuilder.unpackTx(hash);
+    const { tx, txType: type } = _unpackTx(hash);
     if (json) {
       print({ tx, type });
       return;
@@ -77,10 +78,10 @@ async function getAccountByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, HASH_TYPES.account);
-    const client = await initChain(options);
-    const { nonce } = await client.api.getAccountByPubkey(hash);
-    const balance = await client.balance(hash);
-    const { transactions } = await client.api.getPendingAccountTransactionsByPubkey(hash);
+    const sdk = await initSdk(options);
+    const { nonce } = await sdk.api.getAccountByPubkey(hash);
+    const balance = await sdk.getBalance(hash);
+    const { transactions } = await sdk.api.getPendingAccountTransactionsByPubkey(hash);
     if (json) {
       print({
         hash,
@@ -104,9 +105,9 @@ async function getBlockByHeight(height, options) {
   const { json } = options;
   height = parseInt(height);
   try {
-    const client = await initChain(options);
+    const sdk = await initSdk(options);
 
-    printBlock(await client.api.getKeyBlockByHeight(height), json);
+    printBlock(await sdk.api.getKeyBlockByHeight(height), json);
   } catch (e) {
     printError(e.message);
   }
@@ -115,10 +116,10 @@ async function getBlockByHeight(height, options) {
 async function getName(name, options) {
   const { json } = options;
   validateName(name);
-  const client = await initChain(options);
+  const sdk = await initSdk(options);
   try {
     printName(
-      await updateNameStatus(name, client),
+      await updateNameStatus(name, sdk),
       json,
     );
   } catch (e) {
@@ -132,9 +133,9 @@ async function getName(name, options) {
 async function getContract(contractId, options) {
   const { json } = options;
   try {
-    const client = await initChain(options);
+    const sdk = await initSdk(options);
 
-    printTransaction(await client.api.getContract(contractId), json);
+    printTransaction(await sdk.api.getContract(contractId), json);
   } catch (e) {
     printError(e.message);
   }
@@ -143,11 +144,11 @@ async function getContract(contractId, options) {
 async function getOracle(oracleId, options) {
   const { json } = options;
   try {
-    const client = await initChain(options);
+    const sdk = await initSdk(options);
 
-    // printTransaction(await client.api.getContract(contractId), json)
-    printOracle(await client.api.getOracleByPubkey(oracleId), json);
-    const { oracleQueries: queries } = await client.api.getOracleQueriesByPubkey(oracleId);
+    // printTransaction(await sdk.api.getContract(contractId), json)
+    printOracle(await sdk.api.getOracleByPubkey(oracleId), json);
+    const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
     if (queries) printQueries(queries, json);
   } catch (e) {
     printError(e.message);
@@ -157,7 +158,7 @@ async function getOracle(oracleId, options) {
 // ## Inspect function
 // That function get the param(`hash`, `height` or `name`) and show you info about it
 export default async function inspect(hash, option) {
-  if (!hash) throw new Error('Hash required');
+  if (!hash) throw new CliError('Hash required');
 
   // Get `block` by `height`
   if (!isNaN(hash)) {

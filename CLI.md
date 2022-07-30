@@ -36,7 +36,7 @@ Usage:
 
 Available Commands:
   chain       Query the state of the chain
-  config      Print the configuration of the client
+  config      Print the configuration of the sdk
   help        Help concerning any command
   inspect     Inspect an object of the blockchain
   name        A brief description of your command
@@ -58,7 +58,7 @@ Use "aecli [command] --help" for more information about a command.
 
 The general groupings of commands are:
 - `chain` commands do not require a public or private key and give information about the state of the chain. None of the chain commands changes the state of the chain at all.
-- `config` displays the client's configuration file and can write the configuration to disk.
+- `config` displays the sdk's configuration file and can write the configuration to disk.
 - `help` does what one would expect and is described here no further.
 - `inspect` allows you to look at the objects on the blockchain.
 - `name` allows interaction with the naming system.

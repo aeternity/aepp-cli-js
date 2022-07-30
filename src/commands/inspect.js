@@ -19,37 +19,35 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { NODE_URL } from '../utils/constant';
 import inspect from '../actions/inspect';
+import { nodeOption, jsonOption } from '../arguments';
 
-export default () => {
-  const program = new Command().name('aecli inspect');
+const program = new Command().name('aecli inspect');
 
-  // ## Initialize `options`
-  program
-    .option('-u --url [hostname]', 'Node to connect to', NODE_URL)
-    .option('-f --force', 'Ignore node version compatibility check')
-    .option('--json', 'Print result in json format');
+// ## Initialize `options`
+program
+  .addOption(nodeOption)
+  .option('-f --force', 'Ignore node version compatibility check')
+  .addOption(jsonOption);
 
-  // ## Initialize `inspect` command
-  //
-  // You can use this command to get info about account, block, transaction or name
-  //
-  // Example: `aecli inspect testName.chain` --> get info about AENS `name`
-  //
-  // Example: `aecli inspect ak_134defawsgf34gfq4f` --> get info about `account`
-  //
-  // Example: `aecli inspect kh_134defawsgf34gfq4f` --> get info about `key block` by block `hash`
-  //
-  // Example: `aecli inspect mh_134defawsgf34gfq4f` --> get info about `micro block` by block `hash`
-  //
-  // Example: `aecli inspect 1234` --> get info about `block` by block `height`
-  //
-  // Example: `aecli inspect th_asfwegfj34234t34t` --> get info about `transaction` by transaction `hash`
-  program
-    .arguments('<hash>')
-    .description('Hash or Name to inspect (eg: ak_..., mk_..., name.chain)')
-    .action((hash, cmd) => inspect(hash, cmd));
+// ## Initialize `inspect` command
+//
+// You can use this command to get info about account, block, transaction or name
+//
+// Example: `aecli inspect testName.chain` --> get info about AENS `name`
+//
+// Example: `aecli inspect ak_134defawsgf34gfq4f` --> get info about `account`
+//
+// Example: `aecli inspect kh_134defawsgf34gfq4f` --> get info about `key block` by block `hash`
+//
+// Example: `aecli inspect mh_134defawsgf34gfq4f` --> get info about `micro block` by block `hash`
+//
+// Example: `aecli inspect 1234` --> get info about `block` by block `height`
+//
+// Example: `aecli inspect th_asfwegfj34234t34t` --> get info about `transaction` by transaction `hash`
+program
+  .arguments('<hash>')
+  .description('Hash or Name to inspect (eg: ak_..., mk_..., name.chain)')
+  .action((hash, cmd) => inspect(hash, cmd));
 
-  return program;
-};
+export default program;
