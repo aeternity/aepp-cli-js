@@ -265,7 +265,7 @@ const TX_TYPE_PRINT_MAP = {
 // ## BLOCK
 
 function replaceAt(str, index, replacement) {
-  return str.substr(0, index) + replacement + str.substr(index + replacement.length);
+  return str.substring(0, index) + replacement + str.substring(index + replacement.length);
 }
 
 function printTxInfo(tx, tabs) {

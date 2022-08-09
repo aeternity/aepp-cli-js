@@ -18,7 +18,7 @@
 import { Command } from 'commander';
 import fs from 'fs-extra';
 import {
-  decryptKey, sign, buildTx, unpackTx, decode, TX_TYPE,
+  decryptKey, sign, buildTx, unpackTx, decode, Tag,
 } from '@aeternity/aepp-sdk';
 import { print } from '../utils/print';
 import CliError from '../utils/CliError';
@@ -53,7 +53,7 @@ program
     const decryptedKey = password ? decryptKey(password, binaryKey) : binaryKey;
     const encodedTx = decode(tx, 'tx');
     const signature = sign(Buffer.concat([Buffer.from(networkId), encodedTx]), decryptedKey);
-    console.log(buildTx({ encodedTx, signatures: [signature] }, TX_TYPE.signed).tx);
+    console.log(buildTx({ encodedTx, signatures: [signature] }, Tag.SignedTx).tx);
   });
 
 program
@@ -62,7 +62,7 @@ program
   // This helper function deserialized the transaction `tx` and prints the result.
   .action((tx) => {
     const unpackedTx = unpackTx(tx);
-    unpackedTx.txType = TX_TYPE[unpackedTx.txType];
+    unpackedTx.txType = Tag[unpackedTx.txType];
     delete unpackedTx.rlpEncoded;
     delete unpackedTx.binary;
     print(unpackedTx);
