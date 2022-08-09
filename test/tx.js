@@ -109,14 +109,14 @@ describe('Transaction Module', () => {
     ]);
     contractId = cId;
     await signAndPost(tx);
-  });
+  }).timeout(8000);
 
   it('Build contract call tx offline and send on-chain', async () => {
     // eslint-disable-next-line no-underscore-dangle
     const callData = contract.calldata.encode(contract._name, 'test', ['1', '2']);
     const { tx } = await executeTx(['contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']);
     await signAndPost(tx);
-  });
+  }).timeout(4000);
 
   it('Build oracle register tx offline and send on-chain', async () => {
     const { tx } = await executeTx(['oracle-register', TX_KEYS.publicKey, '{city: "str"}', '{tmp:""num}', nonce, '--json']);

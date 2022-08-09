@@ -17,8 +17,7 @@
 // # Utils `helpers` Module
 // That script contains base helper function
 
-import { decode as _decode } from '@aeternity/aepp-sdk';
-import { HASH_TYPES } from './constant';
+import { Encoding, decode as _decode } from '@aeternity/aepp-sdk';
 import CliError from './CliError';
 
 // ## Method which retrieve block info by hash
@@ -28,9 +27,9 @@ import CliError from './CliError';
 export async function getBlock(hash, sdk) {
   const type = hash.split('_')[0];
   switch (type) {
-    case HASH_TYPES.block:
+    case Encoding.KeyBlockHash:
       return sdk.api.getKeyBlockByHash(hash);
-    case HASH_TYPES.micro_block:
+    case Encoding.MicroBlockHash:
       return {
         ...await sdk.api.getMicroBlockHeaderByHash(hash),
         ...await sdk.api.getMicroBlockTransactionsByHash(hash),
@@ -41,6 +40,7 @@ export async function getBlock(hash, sdk) {
 }
 
 // ## Method which validate `hash`
+// TODO: move to sdk side (combine with decode)
 export function checkPref(hash, hashType) {
   if (hash.length < 3 || hash.indexOf('_') === -1) {
     throw new CliError('Invalid input, likely you forgot to escape the $ sign (use \\_)');
@@ -48,15 +48,15 @@ export function checkPref(hash, hashType) {
 
   /* block and micro block check */
   if (Array.isArray(hashType)) {
-    const res = hashType.find((ht) => hash.slice(0, 3) === `${ht}_`);
+    const res = hashType.find((ht) => hash.startsWith(`${ht}_`));
     if (res) return;
     throw new CliError('Invalid block hash, it should be like: mh_.... or kh._...');
   }
 
-  if (hash.slice(0, 3) !== `${hashType}_`) {
+  if (!hash.startsWith(`${hashType}_`)) {
     const msg = {
-      [HASH_TYPES.transaction]: 'Invalid transaction hash, it should be like: th_....',
-      [HASH_TYPES.account]: 'Invalid account address, it should be like: ak_....',
+      [Encoding.TxHash]: 'Invalid transaction hash, it should be like: th_....',
+      [Encoding.AccountAddress]: 'Invalid account address, it should be like: ak_....',
     }[hashType] || `Invalid hash, it should be like: ${hashType}_....`;
     throw new CliError(msg);
   }

@@ -16,8 +16,7 @@
 */
 // # Utils `print` Module
 // That script contains helper function for `console` print
-import { unpackTx } from '@aeternity/aepp-sdk';
-import { HASH_TYPES } from './constant';
+import { Encoding, unpackTx } from '@aeternity/aepp-sdk';
 import { decode } from './helpers';
 
 // ## Row width
@@ -305,11 +304,11 @@ export function printBlock(block, json) {
     print(block);
     return;
   }
-  const type = Object.keys(HASH_TYPES).find((t) => block.hash.split('_')[0] === HASH_TYPES[t]);
-  const tabs = type === 'MICRO_BLOCK' ? 1 : 0;
+  const encoding = block.hash.split('_')[0];
+  const tabs = encoding === Encoding.MicroBlockHash ? 1 : 0;
   const tabString = getTabs(tabs);
 
-  print(`${tabString}<<--------------- ${type.toUpperCase()} --------------->>`);
+  print(`${tabString}<<--------------- ${Encoding[encoding]} --------------->>`);
 
   printUnderscored(`${tabString}Block hash`, block.hash);
   printUnderscored(`${tabString}Block height`, block.height);

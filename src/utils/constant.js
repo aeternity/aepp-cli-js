@@ -17,20 +17,6 @@
 // # Utils `constant` Module
 // That script contains default configuration for `CLI`
 
-// ## HAST TYPES
-export const HASH_TYPES = {
-  transaction: 'th',
-  rawTransaction: 'tx',
-  contract: 'ct',
-  block: 'kh',
-  micro_block: 'mh',
-  signature: 'sg',
-  account: 'ak',
-  oracle: 'ok',
-  oracleQuery: 'oq',
-  stateHash: 'bs',
-};
-
 // ## CONNECTION
 export const NODE_URL = 'https://testnet.aeternity.io';
 export const COMPILER_URL = 'https://compiler.aepps.com';
