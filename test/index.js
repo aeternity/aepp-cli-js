@@ -87,7 +87,7 @@ export async function executeProgram(program, args) {
   const options = getProgramOptions(program);
   try {
     const allArgs = [
-      ...args,
+      ...args.map((arg) => arg.toString()),
       ...['config', 'decode', 'sign', 'unpack'].includes(args[0]) ? [] : ['--url', url],
       ...args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [],
     ];

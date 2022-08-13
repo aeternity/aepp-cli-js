@@ -24,7 +24,7 @@ import { Command } from 'commander';
 import { TX_TTL, NAME_TTL, CLIENT_TTL } from '@aeternity/aepp-sdk';
 import { getCmdFromArguments } from '../utils/cli';
 import * as AENS from '../actions/aens';
-import { nodeOption, jsonOption } from '../arguments';
+import { nodeOption, jsonOption, feeOption } from '../arguments';
 
 const program = new Command().name('aecli name');
 
@@ -32,7 +32,7 @@ const program = new Command().name('aecli name');
 program
   .addOption(nodeOption)
   .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', TX_TTL)
-  .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
+  .addOption(feeOption)
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-P, --password [password]', 'Wallet Password')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')

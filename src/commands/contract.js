@@ -24,7 +24,9 @@ import { COMPILER_URL } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import CliError from '../utils/CliError';
 import * as Contract from '../actions/contract';
-import { nodeOption, jsonOption, gasOption } from '../arguments';
+import {
+  nodeOption, jsonOption, gasOption, feeOption,
+} from '../arguments';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
   .argParser((argsText) => {
@@ -117,7 +119,7 @@ program
   .addOption(gasOption)
   .option('-s --callStatic', 'Call static')
   .option('-t --topHash', 'Hash of block to make call')
-  .option('-F, --fee [fee]', 'Spend transaction fee.')
+  .addOption(feeOption)
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Execute a function of the contract')
@@ -145,7 +147,7 @@ program
   .option('-P, --password [password]', 'Wallet Password')
   .addOption(gasOption)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
-  .option('-F, --fee [fee]', 'Spend transaction fee.')
+  .addOption(feeOption)
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Deploy a contract on the chain')
