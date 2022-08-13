@@ -1,3 +1,5 @@
+import { InvalidPasswordError } from '@aeternity/aepp-sdk';
+
 export default class CliError extends Error {
   constructor(message) {
     super(message);
@@ -11,6 +13,7 @@ export async function runProgram(program) {
   } catch (error) {
     if (
       error instanceof CliError
+      || error instanceof InvalidPasswordError
       || error.code === 'ENOENT'
     ) {
       program.error(error.message);
