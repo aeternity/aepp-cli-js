@@ -18,7 +18,7 @@
 import fs from 'fs-extra';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { generateKeyPair, AE_AMOUNT_FORMATS, formatAmount } from '@aeternity/aepp-sdk';
+import { generateKeyPair } from '@aeternity/aepp-sdk';
 import { getSdk, executeProgram, WALLET_NAME } from './index';
 import accountProgram from '../src/commands/account';
 
@@ -76,19 +76,18 @@ describe('Account Module', () => {
     (+receiverBalance).should.equal(amount);
   });
 
-  it('Spend coins to another wallet using denomination', async () => {
-    const amount = 1; // 1 AE
-    const denomination = AE_AMOUNT_FORMATS.AE;
+  it('Spend coins to another wallet in ae', async () => {
     const receiverKeys = generateKeyPair();
-    await executeAccount(['spend', WALLET_NAME, '--password', 'test', '-D', denomination, receiverKeys.publicKey, amount]);
-    const receiverBalance = await sdk.getBalance(receiverKeys.publicKey);
-    receiverBalance.should.equal(
-      formatAmount(amount, { denomination: AE_AMOUNT_FORMATS.AE }),
-    );
+    const { tx: { tx: { fee } } } = await executeAccount([
+      'spend', WALLET_NAME, '--password', 'test', '--json',
+      receiverKeys.publicKey, '1ae', '--fee', '0.02ae',
+    ]);
+    expect(await sdk.getBalance(receiverKeys.publicKey)).to.be.equal('1000000000000000000');
+    expect(fee).to.be.equal('20000000000000000');
   });
 
   it('Spend fraction of coins to account by name', async () => {
-    const fraction = 0.0001;
+    const fraction = 0.000001;
     const { publicKey } = generateKeyPair();
     const balanceBefore = await sdk.getBalance(await sdk.address());
     await executeAccount(['transfer', WALLET_NAME, '--password', 'test', publicKey, fraction]);

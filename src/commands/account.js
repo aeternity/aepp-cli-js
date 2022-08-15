@@ -19,10 +19,12 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { AE_AMOUNT_FORMATS, TX_TTL } from '@aeternity/aepp-sdk';
+import { TX_TTL } from '@aeternity/aepp-sdk';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Account from '../actions/account';
-import { nodeOption, jsonOption } from '../arguments';
+import {
+  nodeOption, jsonOption, coinAmountParser, feeOption,
+} from '../arguments';
 
 const program = new Command().name('aecli account');
 
@@ -45,13 +47,13 @@ program
 //
 // Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
 program
-  .command('spend <wallet_path> <receiverIdOrName> <amount>')
+  .command('spend <wallet_path> <receiverIdOrName>')
+  .argument('<amount>', 'Amount of coins to send in aettos or in ae (example: 1.2ae)', coinAmountParser)
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--payload [payload]', 'Transaction payload.', '')
-  .option('-F, --fee [fee]', 'Spend transaction fee.')
+  .addOption(feeOption)
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .option('-D, --denomination [denomination]', 'Denomination of amount', AE_AMOUNT_FORMATS.AETTOS)
   .action((walletPath, receiverIdOrName, amount, ...args) => Account.spend(walletPath, receiverIdOrName, amount, getCmdFromArguments(args)));
 
 // ## Initialize `transfer` command
@@ -69,7 +71,7 @@ program
   .argument('<fraction>', 'Fraction of balance to spend (between 0 and 1)', (v) => +v)
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--payload [payload]', 'Transaction payload.', '')
-  .option('-F, --fee [fee]', 'Spend transaction fee.')
+  .addOption(feeOption)
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .action((walletPath, receiver, percentage, ...args) => Account.transferFunds(walletPath, receiver, percentage, getCmdFromArguments(args)));

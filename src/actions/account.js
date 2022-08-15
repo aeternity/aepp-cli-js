@@ -19,7 +19,7 @@
  */
 
 import fs from 'fs-extra';
-import { generateKeyPair, AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk';
+import { generateKeyPair } from '@aeternity/aepp-sdk';
 import CliError from '../utils/CliError';
 import { writeWallet } from '../utils/account';
 import { initSdkByWalletFile, getAccountByWalletFile } from '../utils/cli';
@@ -96,12 +96,12 @@ export async function sign(walletPath, tx, options) {
 // this function allow you to `send` token's to another `account`
 export async function spend(walletPath, receiverNameOrAddress, amount, options) {
   const {
-    ttl, json, nonce, fee, payload = '', denomination = AE_AMOUNT_FORMATS.AETTOS,
+    ttl, json, nonce, fee, payload = '',
   } = options;
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   let tx = await sdk.spend(amount, receiverNameOrAddress, {
-    ttl, nonce, payload, fee, denomination,
+    ttl, nonce, payload, fee,
   });
   // if waitMined false
   if (typeof tx !== 'object') {

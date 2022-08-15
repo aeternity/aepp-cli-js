@@ -25,7 +25,7 @@ import {
 import { RESPONSE_TTL } from '../utils/constant';
 import { getCmdFromArguments } from '../utils/cli';
 import * as Oracle from '../actions/oracle';
-import { nodeOption, jsonOption } from '../arguments';
+import { nodeOption, jsonOption, feeOption } from '../arguments';
 
 const program = new Command().name('aecli oracle');
 
@@ -33,7 +33,7 @@ const program = new Command().name('aecli oracle');
 program
   .addOption(nodeOption)
   .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', TX_TTL)
-  .option('--fee [fee]', 'Override the fee that the transaction is going to be sent with')
+  .addOption(feeOption)
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-P, --password [password]', 'Wallet Password')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
