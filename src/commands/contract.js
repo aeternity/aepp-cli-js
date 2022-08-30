@@ -107,8 +107,10 @@ program
 // You can preset gas, nonce and ttl for that call. If not set use default.
 // Example: `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json --gas 2222222 --nonce 4 --ttl 1243`
 program
-  .command('call <wallet_path> <fn>')
+  .command('call')
+  .argument('<fn>', 'Name of contract entrypoint to call')
   .addArgument(callArgs)
+  .argument('[wallet_path]', 'Path to secret storage file')
   .addOption(descriptorPathOption)
   .option('--contractAddress [contractAddress]', 'Contract address to call')
   .addOption(contractSourceFilenameOption)

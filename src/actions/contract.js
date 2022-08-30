@@ -23,6 +23,7 @@ import path from 'path';
 import { encode } from '@aeternity/aepp-sdk';
 import { initSdk, initSdkByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
+import CliError from '../utils/CliError';
 
 const resolve = (filename) => path.resolve(process.cwd(), filename);
 
@@ -105,10 +106,13 @@ export async function deploy(walletPath, args, options) {
 }
 
 // ## Function which `call` contract
-export async function call(walletPath, fn, args, options) {
+export async function call(fn, args, walletPath, options) {
   const {
     callStatic, json, top, ttl, gas, nonce,
   } = options;
+  if (callStatic !== true && walletPath == null) {
+    throw new CliError('wallet_path is required for on-chain calls');
+  }
   const sdk = await initSdkByWalletFile(walletPath, options);
   const contract = await sdk.getContractInstance(await getContractParams(options));
   const callResult = await contract.call(fn, args, {

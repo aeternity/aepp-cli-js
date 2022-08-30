@@ -129,10 +129,10 @@ describe('Contract Module', function contractTests() {
     it('calls contract', async () => {
       const callResponse = await executeContract([
         'call',
-        WALLET_NAME, '--password', 'test',
         '--json',
         '--descrPath', deployDescriptorFile,
         'test', '[1, 2]',
+        WALLET_NAME, '--password', 'test',
       ]);
       callResponse.result.returnValue.should.contain('cb_');
       callResponse.decodedResult.should.be.equal('6');
@@ -141,45 +141,67 @@ describe('Contract Module', function contractTests() {
     it('overrides descriptor\'s address using --contractAddress', async () => {
       await expect(executeContract([
         'call',
-        WALLET_NAME, '--password', 'test',
         '--json',
         '--contractAddress', 'ct_test',
         '--descrPath', deployDescriptorFile,
         'test', '[1, 2]',
+        WALLET_NAME, '--password', 'test',
       ])).to.be.rejectedWith('Invalid name or address: ct_test');
     });
 
     it('throws error if descriptor file not exists', async () => {
       await expect(executeContract([
         'call',
-        WALLET_NAME, '--password', 'test',
         '--json',
         '--descrPath', `${deployDescriptorFile}test`,
         'test', '[1, 2]',
+        WALLET_NAME, '--password', 'test',
       ])).to.be.rejectedWith('ENOENT: no such file or directory, open');
+    });
+
+    it('throws error when calls contract without wallet', async () => {
+      await expect(executeContract([
+        'call',
+        '--json',
+        '--descrPath', deployDescriptorFile,
+        'test', '[1, 2]',
+      ])).to.be.rejectedWith(CliError, 'wallet_path is required for on-chain calls');
     });
 
     it('calls contract static', async () => {
       const callResponse = await executeContract([
         'call',
+        '--json',
+        '--descrPath', deployDescriptorFile,
+        'test', '[1, 2]',
+        '--callStatic',
         WALLET_NAME, '--password', 'test',
+      ]);
+      callResponse.result.returnValue.should.contain('cb_');
+      callResponse.decodedResult.should.equal('6');
+    });
+
+    it('calls contract static with dry run account', async () => {
+      const callResponse = await executeContract([
+        'call',
         '--json',
         '--descrPath', deployDescriptorFile,
         'test', '[1, 2]',
         '--callStatic',
       ]);
       callResponse.result.returnValue.should.contain('cb_');
+      expect(callResponse.result.callerId).to.equal('ak_11111111111111111111111111111111273Yts');
       callResponse.decodedResult.should.equal('6');
     });
 
     it('calls contract by contract source and address', async () => {
       const callResponse = await executeContract([
         'call',
-        WALLET_NAME, '--password', 'test',
         '--json',
         '--contractAddress', contractAddress,
         '--contractSource', contractSourceFile,
         'test', '[1, 2]',
+        WALLET_NAME, '--password', 'test',
       ]);
       callResponse.decodedResult.should.equal('6');
     });
@@ -187,11 +209,11 @@ describe('Contract Module', function contractTests() {
     it('calls contract by contract ACI and address', async () => {
       const callResponse = await executeContract([
         'call',
-        WALLET_NAME, '--password', 'test',
         '--json',
         '--contractAddress', contractAddress,
         '--contractAci', contractAciFile,
         'test', '[1, 2]',
+        WALLET_NAME, '--password', 'test',
       ]);
       callResponse.decodedResult.should.equal('6');
     });

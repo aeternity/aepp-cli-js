@@ -48,6 +48,8 @@ export async function getAccountByWalletFile(walletPath, options) {
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 export async function initSdkByWalletFile(walletPath, options) {
-  const { account } = await getAccountByWalletFile(walletPath, options);
-  return initSdk({ ...options, accounts: [account] });
+  return initSdk({
+    ...options,
+    accounts: walletPath ? [(await getAccountByWalletFile(walletPath, options)).account] : [],
+  });
 }
