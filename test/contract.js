@@ -27,14 +27,21 @@ import CliError from '../src/utils/CliError';
 
 const executeContract = (args) => executeProgram(contractProgram, args);
 
+const testLibSource = `
+namespace TestLib =
+  function sum(x: int, y: int) : int = x + y
+`;
+
 const testContractSource = `
 @compiler >= 6
 @compiler < 7
 
+include "testLib.aes"
+
 contract Identity =
   record state = { z: int }
   entrypoint init(_z: int) = { z = _z }
-  entrypoint test(x : int, y: int) = x + y + state.z
+  entrypoint test(x : int, y: int) = TestLib.sum(x, TestLib.sum(y, state.z))
   entrypoint getMap(): map(int, int) = {[1] = 2, [3] = 4}
 `;
 
@@ -49,10 +56,14 @@ describe('Contract Module', function contractTests() {
 
   before(async () => {
     await fs.outputFile(contractSourceFile, testContractSource);
+    await fs.outputFile('test-artifacts/testLib.aes', testLibSource);
     sdk = await getSdk();
     await fs.outputJson(
       contractAciFile,
-      await sdk.compilerApi.generateACI({ code: testContractSource, options: {} }),
+      await sdk.compilerApi.generateACI({
+        code: testContractSource,
+        options: { fileSystem: { 'testLib.aes': testLibSource } },
+      }),
     );
   });
 
