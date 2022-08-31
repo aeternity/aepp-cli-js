@@ -35,6 +35,7 @@ contract Identity =
   record state = { z: int }
   entrypoint init(_z: int) = { z = _z }
   entrypoint test(x : int, y: int) = x + y + state.z
+  entrypoint getMap(): map(int, int) = {[1] = 2, [3] = 4}
 `;
 
 describe('Contract Module', function contractTests() {
@@ -192,6 +193,17 @@ describe('Contract Module', function contractTests() {
       callResponse.result.returnValue.should.contain('cb_');
       expect(callResponse.result.callerId).to.equal('ak_11111111111111111111111111111111273Yts');
       callResponse.decodedResult.should.equal('6');
+    });
+
+    it('returns Maps correctly', async () => {
+      const callResponse = await executeContract([
+        'call',
+        '--json',
+        '--descrPath', deployDescriptorFile,
+        'getMap',
+        '--callStatic',
+      ]);
+      expect(callResponse.decodedResult).to.be.eql([['1', '2'], ['3', '4']]);
     });
 
     it('calls contract by contract source and address', async () => {

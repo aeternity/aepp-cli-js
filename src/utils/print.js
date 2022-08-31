@@ -30,21 +30,25 @@ function getTabs(tabs) {
   return ' '.repeat(tabs * 4);
 }
 
-const JsonStringifyBigInt = (object, spaced) => JSON.stringify(
+const JsonStringifyEs = (object, spaced) => JSON.stringify(
   object,
-  (key, value) => (typeof value === 'bigint' ? `${value}` : value),
+  (key, value) => {
+    if (typeof value === 'bigint') return `${value}`;
+    if (value instanceof Map) return [...value.entries()];
+    return value;
+  },
   spaced ? 2 : undefined,
 );
 
 // Print helper
 export function print(msg, obj) {
   if (typeof msg === 'object') {
-    console.log(JsonStringifyBigInt(msg, true));
+    console.log(JsonStringifyEs(msg, true));
     return;
   }
   if (obj) {
     console.log(msg);
-    console.log(JsonStringifyBigInt(obj, true));
+    console.log(JsonStringifyEs(obj, true));
   } else {
     console.log(msg);
   }
@@ -60,7 +64,7 @@ export function printUnderscored(key, val) {
   print([
     key,
     '_'.repeat(WIDTH - key.length),
-    typeof val !== 'object' ? val : JsonStringifyBigInt(val),
+    typeof val !== 'object' ? val : JsonStringifyEs(val),
   ].join(' '));
 }
 
