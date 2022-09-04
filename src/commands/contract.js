@@ -21,7 +21,7 @@
 import { Argument, Option, Command } from 'commander';
 import { TX_TTL, MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
 import { COMPILER_URL } from '../utils/constant';
-import { getCmdFromArguments } from '../utils/cli';
+import { withGlobalOpts } from '../utils/cli';
 import CliError from '../utils/CliError';
 import * as Contract from '../actions/contract';
 import {
@@ -62,7 +62,7 @@ program
 program
   .command('compile <file>')
   .description('Compile a contract')
-  .action((file, ...args) => Contract.compile(file, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Contract.compile));
 
 // ## Initialize `encode-calldata` command
 //
@@ -76,7 +76,7 @@ program
   .addOption(contractSourceFilenameOption)
   .addOption(contractAciFilenameOption)
   .description('Encode contract calldata')
-  .action((fn, args, ...otherArgs) => Contract.encodeCalldata(fn, args, getCmdFromArguments(otherArgs)));
+  .action(withGlobalOpts(Contract.encodeCalldata));
 
 // ## Initialize `decode-calldata` command
 //
@@ -90,7 +90,7 @@ program
   .addOption(contractSourceFilenameOption)
   .addOption(contractAciFilenameOption)
   .description('Decode contract calldata')
-  .action((fn, data, ...args) => Contract.decodeCallResult(fn, data, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Contract.decodeCallResult));
 
 // ## Initialize `call` command
 //
@@ -125,7 +125,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Execute a function of the contract')
-  .action((walletPath, fn, args, ...otherArgs) => Contract.call(walletPath, fn, args, getCmdFromArguments(otherArgs)));
+  .action(withGlobalOpts(Contract.call));
 
 //
 // ## Initialize `deploy` command
@@ -153,6 +153,6 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Deploy a contract on the chain')
-  .action((walletPath, args, ...otherArgs) => Contract.deploy(walletPath, args, getCmdFromArguments(otherArgs)));
+  .action(withGlobalOpts(Contract.deploy));
 
 export default program;

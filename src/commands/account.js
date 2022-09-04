@@ -20,7 +20,7 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
 import { TX_TTL } from '@aeternity/aepp-sdk';
-import { getCmdFromArguments } from '../utils/cli';
+import { withGlobalOpts } from '../utils/cli';
 import * as Account from '../actions/account';
 import {
   nodeOption, jsonOption, coinAmountParser, feeOption,
@@ -54,7 +54,7 @@ program
   .addOption(feeOption)
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .action((walletPath, receiverIdOrName, amount, ...args) => Account.spend(walletPath, receiverIdOrName, amount, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Account.spend));
 
 // ## Initialize `transfer` command
 //
@@ -74,7 +74,7 @@ program
   .addOption(feeOption)
   .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .action((walletPath, receiver, percentage, ...args) => Account.transferFunds(walletPath, receiver, percentage, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Account.transferFunds));
 
 // ## Initialize `sign` command
 //
@@ -85,7 +85,7 @@ program
   .command('sign <wallet_path> <tx>')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .description('Create a transaction to another wallet')
-  .action((walletPath, tx, ...args) => Account.sign(walletPath, tx, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Account.sign));
 
 // ## Initialize `sign-message` command
 //
@@ -96,7 +96,7 @@ program
   .command('sign-message <wallet_path> [data...]')
   .option('--filePath [path]', 'Specify the path to the file for signing(ignore command message argument and use file instead)')
   .description('Create a transaction to another wallet')
-  .action((walletPath, data, ...args) => Account.signMessage(walletPath, data, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Account.signMessage));
 
 // ## Initialize `verify-message` command
 //
@@ -107,7 +107,7 @@ program
   .command('verify-message <wallet_path> <hexSignature> [data...]')
   .option('--filePath [path]', 'Specify the path to the file(ignore comm and message argument and use file instead)')
   .description('Create a transaction to another wallet')
-  .action((walletPath, hexSignature, data, ...args) => Account.verifyMessage(walletPath, hexSignature, data, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Account.verifyMessage));
 
 // ## Initialize `balance` command
 //
@@ -119,7 +119,7 @@ program
   .option('--height [height]', 'Specific block height')
   .option('--hash [hash]', 'Specific block hash')
   .description('Get wallet balance')
-  .action((walletPath, ...args) => Account.getBalance(walletPath, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Account.getBalance));
 
 // ## Initialize `address` command
 //
@@ -133,7 +133,7 @@ program
   .option('--privateKey', 'Print private key')
   .option('--forcePrompt', 'Force prompting')
   .description('Get wallet address')
-  .action((walletPath, ...args) => Account.getAddress(walletPath, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Account.getAddress));
 
 // ## Initialize `create` command
 //
@@ -150,7 +150,7 @@ program
   .option('-O, --output [output]', 'Output directory', '.')
   .option('--overwrite', 'Overwrite if exist')
   .description('Create a secure wallet')
-  .action((walletPath, ...args) => Account.createSecureWallet(walletPath, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Account.createSecureWallet));
 
 // ## Initialize `save` command
 //
@@ -167,7 +167,7 @@ program
   .option('-O, --output [output]', 'Output directory', '.')
   .option('--overwrite', 'Overwrite if exist')
   .description('Save a private keys string to a password protected file wallet')
-  .action((walletPath, priv, ...args) => Account.createSecureWalletByPrivKey(walletPath, priv, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Account.createSecureWalletByPrivKey));
 
 // ## Initialize `nonce` command
 //
@@ -179,7 +179,7 @@ program
 program
   .command('nonce <wallet_path>')
   .description('Get account nonce')
-  .action((walletPath, ...args) => Account.getAccountNonce(walletPath, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Account.getAccountNonce));
 
 // ## Initialize `generateKeyPairs` command
 //
@@ -190,6 +190,6 @@ program
   .command('generate <count>')
   .option('--forcePrompt', 'Force prompting')
   .description('Generate keyPairs')
-  .action((count, ...args) => Account.generateKeyPairs(count, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Account.generateKeyPairs));
 
 export default program;

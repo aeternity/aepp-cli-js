@@ -25,7 +25,7 @@ import {
   TX_TTL, NAME_TTL, CLIENT_TTL, MIN_GAS_PRICE, QUERY_FEE, ORACLE_TTL, QUERY_TTL,
 } from '@aeternity/aepp-sdk';
 import { RESPONSE_TTL } from '../utils/constant';
-import { getCmdFromArguments } from '../utils/cli';
+import { withGlobalOpts } from '../utils/cli';
 import * as Transaction from '../actions/transaction';
 import {
   nodeOption, jsonOption, gasOption, nonceArgument, feeOption,
@@ -52,7 +52,7 @@ program
   .addArgument(nonceArgument)
   .option('--payload [payload]', 'Transaction payload.', '')
   .description('Build Spend Transaction')
-  .action((senderId, receiverId, amount, nonce, ...args) => Transaction.spend(senderId, receiverId, amount, nonce, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.spend));
 
 // ## Initialize `name-preclaim` command
 //
@@ -63,7 +63,7 @@ program
   .command('name-preclaim <accountId> <domain>')
   .addArgument(nonceArgument)
   .description('Build name preclaim transaction.')
-  .action((accountId, domain, nonce, ...args) => Transaction.namePreClaim(accountId, domain, nonce, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.namePreClaim));
 
 // ## Initialize `name-update` command
 //
@@ -79,7 +79,7 @@ program
   .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
   .description('Build name update transaction.')
-  .action((accountId, domain, nonce, pointers, ...args) => Transaction.nameUpdate(accountId, domain, nonce, pointers, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.nameUpdate));
 
 // ## Initialize `name-claim` command
 //
@@ -93,7 +93,7 @@ program
   .addOption(feeOption)
   .option('--nameFee [nameFee]', 'Name fee.')
   .description('Build name claim transaction.')
-  .action((accountId, salt, domain, nonce, ...args) => Transaction.nameClaim(accountId, salt, domain, nonce, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.nameClaim));
 
 // ## Initialize `name-transfer` command
 //
@@ -106,7 +106,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .addOption(feeOption)
   .description('Build name tansfer transaction.')
-  .action((accountId, transferId, domain, nonce, ...args) => Transaction.nameTransfer(accountId, transferId, domain, nonce, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.nameTransfer));
 
 // ## Initialize `name-revoke` command
 //
@@ -119,7 +119,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .addOption(feeOption)
   .description('Build name revoke transaction.')
-  .action((accountId, domain, nonce, ...args) => Transaction.nameRevoke(accountId, domain, nonce, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.nameRevoke));
 
 // ## Initialize `contract-deploy` command
 //
@@ -135,7 +135,7 @@ program
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
-  .action((ownerId, contractBytecode, initCallData, nonce, ...args) => Transaction.contractDeploy(ownerId, contractBytecode, initCallData, nonce, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.contractDeploy));
 
 // ## Initialize `contract-call` command
 //
@@ -151,7 +151,7 @@ program
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
-  .action((callerId, contractId, callData, nonce, ...args) => Transaction.contractCall(callerId, contractId, callData, nonce, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.contractCall));
 
 // ## Initialize `oracle-register` command
 //
@@ -166,7 +166,7 @@ program
   .option('--queryFee [queryFee]', 'Oracle Query fee.', QUERY_FEE)
   .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', ORACLE_TTL.value)
   .description('Build oracle register transaction.')
-  .action((accountId, queryFormat, responseFormat, nonce, ...args) => Transaction.oracleRegister(accountId, queryFormat, responseFormat, nonce, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.oracleRegister));
 
 // ## Initialize `oracle-post-query` command
 //
@@ -182,7 +182,7 @@ program
   .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', QUERY_TTL.value)
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL)
   .description('Build oracle post query transaction.')
-  .action((accountId, oracleId, query, nonce, ...args) => Transaction.oraclePostQuery(accountId, oracleId, query, nonce, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.oraclePostQuery));
 
 // ## Initialize `oracle-extend` command
 //
@@ -195,7 +195,7 @@ program
   .option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default forever)', TX_TTL)
   .addOption(feeOption)
   .description('Build oracle extend transaction.')
-  .action((callerId, oracleId, oracleTtl, nonce, ...args) => Transaction.oracleExtend(callerId, oracleId, oracleTtl, nonce, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.oracleExtend));
 
 // ## Initialize `oracle-respond` command
 //
@@ -209,7 +209,7 @@ program
   .addOption(feeOption)
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL)
   .description('Build oracle extend transaction.')
-  .action((callerId, oracleId, queryId, response, nonce, ...args) => Transaction.oracleRespond(callerId, oracleId, queryId, response, nonce, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.oracleRespond));
 
 // ## Initialize `verify` command
 //
@@ -220,6 +220,6 @@ program
   .command('verify <tx>')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .description('Verify transaction')
-  .action((tx, ...args) => Transaction.verify(tx, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Transaction.verify));
 
 export default program;

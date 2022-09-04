@@ -19,7 +19,7 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { getCmdFromArguments } from '../utils/cli';
+import { withGlobalOpts } from '../utils/cli';
 import * as Chain from '../actions/chain';
 import { nodeOption, jsonOption } from '../arguments';
 
@@ -40,7 +40,7 @@ program
 program
   .command('top')
   .description('Get top of Chain')
-  .action((...args) => Chain.top(getCmdFromArguments(args)));
+  .action(withGlobalOpts(Chain.top));
 
 // ## Initialize `status` command
 //
@@ -50,7 +50,7 @@ program
 program
   .command('status')
   .description('Get node version')
-  .action((...args) => Chain.version(getCmdFromArguments(args)));
+  .action(withGlobalOpts(Chain.version));
 
 // ## Initialize `ttl` command
 //
@@ -60,7 +60,7 @@ program
 program
   .command('ttl <absoluteTtl>')
   .description('Get relative ttl')
-  .action((absoluteTtl, ...args) => Chain.ttl(absoluteTtl, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Chain.ttl));
 
 // ## Initialize `ttl` command
 //
@@ -70,7 +70,7 @@ program
 program
   .command('network_id')
   .description('Get network ID')
-  .action((...args) => Chain.getNetworkId(getCmdFromArguments(args)));
+  .action(withGlobalOpts(Chain.getNetworkId));
 
 // ## Initialize `play` command
 //
@@ -83,7 +83,7 @@ program
   .command('play')
   .option('-P --height [playToHeight]', 'Play to selected height')
   .description('Real-time block monitoring')
-  .action((...args) => Chain.play(getCmdFromArguments(args)));
+  .action(withGlobalOpts(Chain.play));
 
 // ## Initialize `broadcast` command
 //
@@ -95,6 +95,6 @@ program
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .option('--verify', 'Verify Transaction before broadcast.')
   .description('Send transaction to the chain')
-  .action((tx, ...args) => Chain.broadcast(tx, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Chain.broadcast));
 
 export default program;

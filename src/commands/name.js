@@ -22,7 +22,7 @@
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander';
 import { TX_TTL, NAME_TTL, CLIENT_TTL } from '@aeternity/aepp-sdk';
-import { getCmdFromArguments } from '../utils/cli';
+import { withGlobalOpts } from '../utils/cli';
 import * as AENS from '../actions/aens';
 import { nodeOption, jsonOption, feeOption } from '../arguments';
 
@@ -55,7 +55,7 @@ program
   .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
   .description('Claim a domain name')
-  .action((walletPath, name, ...args) => AENS.fullClaim(walletPath, name, getCmdFromArguments(args)));
+  .action(withGlobalOpts(AENS.fullClaim));
 
 // ## Initialize `pre-claim` command
 //
@@ -71,7 +71,7 @@ program
   .command('pre-claim <wallet_path> <name>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Pre-Claim a domain name')
-  .action((walletPath, name, ...args) => AENS.preClaim(walletPath, name, getCmdFromArguments(args)));
+  .action(withGlobalOpts(AENS.preClaim));
 
 // ## Initialize `claim` command
 //
@@ -87,7 +87,7 @@ program
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--nameFee [nameFee]', 'Amount of coins to pay for name')
   .description('Claim a domain name')
-  .action((walletPath, name, salt, ...args) => AENS.claim(walletPath, name, salt, getCmdFromArguments(args)));
+  .action(withGlobalOpts(AENS.claim));
 
 // ## Initialize `claim` command
 //
@@ -102,7 +102,7 @@ program
   .command('bid <wallet_path> <name> <nameFee>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Bid on name')
-  .action((walletPath, name, nameFee, ...args) => AENS.nameBid(walletPath, name, nameFee, getCmdFromArguments(args)));
+  .action(withGlobalOpts(AENS.nameBid));
 
 // ## Initialize `update` command
 //
@@ -116,7 +116,7 @@ program
   .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
   .description('Update a name pointer')
-  .action((walletPath, name, addresses, ...args) => AENS.updateName(walletPath, name, addresses, getCmdFromArguments(args)));
+  .action(withGlobalOpts(AENS.updateName));
 
 // ## Initialize `extend` command
 //
@@ -128,7 +128,7 @@ program
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
   .description('Extend name ttl')
-  .action((walletPath, name, nameTtl, ...args) => AENS.extendName(walletPath, name, nameTtl, getCmdFromArguments(args)));
+  .action(withGlobalOpts(AENS.extendName));
 
 // ## Initialize `revoke` command
 //
@@ -139,7 +139,7 @@ program
   .command('revoke  <wallet_path> <name>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Revoke a domain name')
-  .action((walletPath, name, ...args) => AENS.revokeName(walletPath, name, getCmdFromArguments(args)));
+  .action(withGlobalOpts(AENS.revokeName));
 
 // ## Initialize `transfer` command
 //
@@ -150,7 +150,7 @@ program
   .command('transfer <wallet_path> <name> <address>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Transfer a name to another account')
-  .action((walletPath, name, address, ...args) => AENS.transferName(walletPath, name, address, getCmdFromArguments(args)));
+  .action(withGlobalOpts(AENS.transferName));
 
 // ## Initialize `lookup` command
 //
@@ -160,6 +160,6 @@ program
 program
   .command('lookup <name>')
   .description('Look up name')
-  .action((name, ...args) => AENS.lookUp(name, getCmdFromArguments(args)));
+  .action(withGlobalOpts(AENS.lookUp));
 
 export default program;

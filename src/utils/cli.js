@@ -19,10 +19,11 @@
 import { AeSdk, Node, MemoryAccount } from '@aeternity/aepp-sdk';
 import { getWalletByPathAndDecrypt } from './account';
 
-// ## Merge options with parent options.
-export function getCmdFromArguments([options, commander]) {
-  return { ...options, ...commander.parent.opts() };
-}
+export const withGlobalOpts = (fn) => (...args) => {
+  const commander = args.pop();
+  args.pop();
+  return fn(...args, commander.optsWithGlobals());
+};
 
 export async function initSdk({
   url, keypair, compilerUrl, force: ignoreVersion, networkId, accounts = [],

@@ -23,7 +23,7 @@ import {
   TX_TTL, ORACLE_TTL, QUERY_FEE, QUERY_TTL,
 } from '@aeternity/aepp-sdk';
 import { RESPONSE_TTL } from '../utils/constant';
-import { getCmdFromArguments } from '../utils/cli';
+import { withGlobalOpts } from '../utils/cli';
 import * as Oracle from '../actions/oracle';
 import { nodeOption, jsonOption, feeOption } from '../arguments';
 
@@ -55,7 +55,7 @@ program
   .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', ORACLE_TTL)
   .option('--queryFee [queryFee]', 'Oracle query fee', QUERY_FEE)
   .description('Register Oracle')
-  .action((walletPath, queryFormat, responseFormat, ...args) => Oracle.createOracle(walletPath, queryFormat, responseFormat, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Oracle.createOracle));
 
 // ## Initialize `extend oracle` command
 //
@@ -70,7 +70,7 @@ program
   .command('extend <wallet_path> <oracleId> <oracleTtl>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Extend Oracle')
-  .action((walletPath, oracleId, oracleTtl, ...args) => Oracle.extendOracle(walletPath, oracleId, oracleTtl, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Oracle.extendOracle));
 
 // ## Initialize `create oracle query` command
 //
@@ -88,7 +88,7 @@ program
   .option('--queryTtl [queryTtl]', 'Query time to leave', QUERY_TTL)
   .option('--queryFee [queryFee]', 'Oracle query fee', QUERY_FEE)
   .description('Create Oracle query')
-  .action((walletPath, oracleId, query, ...args) => Oracle.createOracleQuery(walletPath, oracleId, query, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Oracle.createOracleQuery));
 
 // ## Initialize `respond query` command
 //
@@ -104,7 +104,7 @@ program
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL)
   .description('Respond to  Oracle Query')
-  .action((walletPath, oracleId, queryId, response, ...args) => Oracle.respondToQuery(walletPath, oracleId, queryId, response, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Oracle.respondToQuery));
 
 // ## Initialize `get oracle` command
 //
@@ -118,6 +118,6 @@ program
 program
   .command('get <oracleId>')
   .description('Get Oracle')
-  .action((oracleId, ...args) => Oracle.queryOracle(oracleId, getCmdFromArguments(args)));
+  .action(withGlobalOpts(Oracle.queryOracle));
 
 export default program;
