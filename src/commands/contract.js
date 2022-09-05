@@ -20,7 +20,6 @@
 // We'll use `commander` for parsing options
 import { Argument, Option, Command } from 'commander';
 import { MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
-import { withGlobalOpts } from '../utils/cli';
 import CliError from '../utils/CliError';
 import * as Contract from '../actions/contract';
 import {
@@ -54,8 +53,7 @@ const contractAciFilenameOption = new Option('--contractAci [contractAci]', 'Con
 
 const program = new Command().name('aecli contract');
 
-// ## Initialize `options`
-program
+const addCommonOptions = (p) => p
   .addOption(nodeOption)
   .addOption(compilerOption)
   .addOption(forceOption)
@@ -66,24 +64,24 @@ program
 // You can use this command to compile your `contract` to `bytecode`
 //
 // Example: `aecli contract compile ./mycontract.contract`
-program
+addCommonOptions(program
   .command('compile <file>')
   .description('Compile a contract')
-  .action(withGlobalOpts(Contract.compile));
+  .action(Contract.compile));
 
 // ## Initialize `encode-calldata` command
 //
 // You can use this command to prepare `callData`
 //
 // Example: `aecli contract encodeData ./mycontract.contract testFn 1 2`
-program
+addCommonOptions(program
   .command('encode-calldata <fn>')
   .addArgument(callArgs)
   .addOption(descriptorPathOption)
   .addOption(contractSourceFilenameOption)
   .addOption(contractAciFilenameOption)
   .description('Encode contract calldata')
-  .action(withGlobalOpts(Contract.encodeCalldata));
+  .action(Contract.encodeCalldata));
 
 // ## Initialize `decode-calldata` command
 //
@@ -91,13 +89,13 @@ program
 //
 // Example bytecode: `aecli contract decodeCallData cb_asdasdasd... --code cb_asdasdasdasd....`
 // Example source code: `aecli contract decodeCallData cb_asdasdasd... --sourcePath ./contractSource --fn someFunction`
-program
+addCommonOptions(program
   .command('decode-call-result <fn> <data>')
   .addOption(descriptorPathOption)
   .addOption(contractSourceFilenameOption)
   .addOption(contractAciFilenameOption)
   .description('Decode contract calldata')
-  .action(withGlobalOpts(Contract.decodeCallResult));
+  .action(Contract.decodeCallResult));
 
 // ## Initialize `call` command
 //
@@ -113,7 +111,7 @@ program
 //    `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 --callStatic` --> Static call using contract address
 // You can preset gas, nonce and ttl for that call. If not set use default.
 // Example: `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json --gas 2222222 --nonce 4 --ttl 1243`
-program
+addCommonOptions(program
   .command('call')
   .argument('<fn>', 'Name of contract entrypoint to call')
   .addArgument(callArgs)
@@ -132,7 +130,7 @@ program
   .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Execute a function of the contract')
-  .action(withGlobalOpts(Contract.call));
+  .action(Contract.call));
 
 //
 // ## Initialize `deploy` command
@@ -144,7 +142,7 @@ program
 // You can preset gas and initState for deploy
 //
 // Example: `aecli contract deploy ./myWalletFile --password tstpass ./contractSourceCodeFile --gas 2222222`
-program
+addCommonOptions(program
   .command('deploy <wallet_path>')
   .addArgument(callArgs)
   .addOption(descriptorPathOption)
@@ -160,6 +158,6 @@ program
   .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Deploy a contract on the chain')
-  .action(withGlobalOpts(Contract.deploy));
+  .action(Contract.deploy));
 
 export default program;

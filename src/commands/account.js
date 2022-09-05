@@ -19,7 +19,6 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { withGlobalOpts } from '../utils/cli';
 import * as Account from '../actions/account';
 import {
   nodeOption,
@@ -35,7 +34,7 @@ import {
 const program = new Command().name('aecli account');
 
 // ## Initialize `options`
-program
+const addCommonOptions = (p) => p
   .addOption(nodeOption)
   .addOption(passwordOption)
   .addOption(forceOption)
@@ -52,7 +51,7 @@ program
 // You can set transaction `ttl(Time to leave)`. If not set use default.
 //
 // Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
-program
+addCommonOptions(program
   .command('spend <wallet_path> <receiverIdOrName>')
   .argument('<amount>', 'Amount of coins to send in aettos or in ae (example: 1.2ae)', coinAmountParser)
   .addOption(networkIdOption)
@@ -60,7 +59,7 @@ program
   .addOption(feeOption)
   .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .action(withGlobalOpts(Account.spend));
+  .action(Account.spend));
 
 // ## Initialize `transfer` command
 //
@@ -71,7 +70,7 @@ program
 // You can set transaction `ttl(Time to leave)`. If not set use default.
 //
 // Example: `aecli account transfer ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 0.5 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
-program
+addCommonOptions(program
   .command('transfer <wallet_path>')
   .argument('<receiver>', 'Address or name of recipient account')
   .argument('<fraction>', 'Fraction of balance to spend (between 0 and 1)', (v) => +v)
@@ -80,52 +79,52 @@ program
   .addOption(feeOption)
   .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .action(withGlobalOpts(Account.transferFunds));
+  .action(Account.transferFunds));
 
 // ## Initialize `sign` command
 //
 // You can use this command to sign your transaction's
 //
 // Example: `aecli account sign ./myWalletKeyFile tx_1241rioefwj23f2wfdsfsdsdfsasdf --password testpassword`
-program
+addCommonOptions(program
   .command('sign <wallet_path> <tx>')
   .addOption(networkIdOption)
   .description('Create a transaction to another wallet')
-  .action(withGlobalOpts(Account.sign));
+  .action(Account.sign));
 
 // ## Initialize `sign-message` command
 //
 // You can use this command to sign message
 //
 // Example: `aecli account sign-message ./myWalletKeyFile Hello --password testpassword`
-program
+addCommonOptions(program
   .command('sign-message <wallet_path> [data...]')
   .option('--filePath [path]', 'Specify the path to the file for signing(ignore command message argument and use file instead)')
   .description('Create a transaction to another wallet')
-  .action(withGlobalOpts(Account.signMessage));
+  .action(Account.signMessage));
 
 // ## Initialize `verify-message` command
 //
 // You can use this command to sign message
 //
 // Example: `aecli account verify-message ./myWalletKeyFile asd1dasfadfsdasdasdasHexSig... Hello --password testpassword`
-program
+addCommonOptions(program
   .command('verify-message <wallet_path> <hexSignature> [data...]')
   .option('--filePath [path]', 'Specify the path to the file(ignore comm and message argument and use file instead)')
   .description('Create a transaction to another wallet')
-  .action(withGlobalOpts(Account.verifyMessage));
+  .action(Account.verifyMessage));
 
 // ## Initialize `balance` command
 //
 // You can use this command to retrieve balance of account
 //
 // Example: `aecli account balance ./myWalletKeyFile --password testpassword`
-program
+addCommonOptions(program
   .command('balance <wallet_path>')
   .option('--height [height]', 'Specific block height')
   .option('--hash [hash]', 'Specific block hash')
   .description('Get wallet balance')
-  .action(withGlobalOpts(Account.getBalance));
+  .action(Account.getBalance));
 
 // ## Initialize `address` command
 //
@@ -134,12 +133,12 @@ program
 // Example: `aecli account address ./myWalletKeyFile --password testpassword` --> show only public key
 //
 // Example: `aecli account address ./myWalletKeyFile --password testpassword --privateKey` --> show  public key and private key
-program
+addCommonOptions(program
   .command('address <wallet_path>')
   .option('--privateKey', 'Print private key')
   .option('--forcePrompt', 'Force prompting')
   .description('Get wallet address')
-  .action(withGlobalOpts(Account.getAddress));
+  .action(Account.getAddress));
 
 // ## Initialize `create` command
 //
@@ -151,12 +150,12 @@ program
 // Example: `aecli account create myWalletName --password testpassword`
 //
 // Example: `aecli account create myWalletName --password testpassword --output ./mykeys` --> create `key-file` in `mykeys` directory
-program
+addCommonOptions(program
   .command('create <wallet_path>')
   .option('-O, --output [output]', 'Output directory', '.')
   .option('--overwrite', 'Overwrite if exist')
   .description('Create a secure wallet')
-  .action(withGlobalOpts(Account.createSecureWallet));
+  .action(Account.createSecureWallet));
 
 // ## Initialize `save` command
 //
@@ -168,12 +167,12 @@ program
 // Example: `aecli account save myWalletName 1902855723940510273412074210842018342148234  --password testpassword`
 //
 // Example: `aecli account save myWalletName 1902855723940510273412074210842018342148234 --password testpassword --output ./mykeys` --> create `key-file` in `mykeys` directory
-program
+addCommonOptions(program
   .command('save <wallet_path> <privkey>')
   .option('-O, --output [output]', 'Output directory', '.')
   .option('--overwrite', 'Overwrite if exist')
   .description('Save a private keys string to a password protected file wallet')
-  .action(withGlobalOpts(Account.createSecureWalletByPrivKey));
+  .action(Account.createSecureWalletByPrivKey));
 
 // ## Initialize `nonce` command
 //
@@ -182,20 +181,20 @@ program
 // You can use `--output ./keys` to set directory to save you key
 //
 // Example: `aecli account nonce myWalletName --password testpassword
-program
+addCommonOptions(program
   .command('nonce <wallet_path>')
   .description('Get account nonce')
-  .action(withGlobalOpts(Account.getAccountNonce));
+  .action(Account.getAccountNonce));
 
 // ## Initialize `generateKeyPairs` command
 //
 // You can use this command to generate KeyPair's.
 //
 // Example: `aecli account generate 10 --force
-program
+addCommonOptions(program
   .command('generate <count>')
   .option('--forcePrompt', 'Force prompting')
   .description('Generate keyPairs')
-  .action(withGlobalOpts(Account.generateKeyPairs));
+  .action(Account.generateKeyPairs));
 
 export default program;

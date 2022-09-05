@@ -21,7 +21,6 @@
 import { Command } from 'commander';
 import { ORACLE_TTL, QUERY_FEE, QUERY_TTL } from '@aeternity/aepp-sdk';
 import { RESPONSE_TTL } from '../utils/constant';
-import { withGlobalOpts } from '../utils/cli';
 import * as Oracle from '../actions/oracle';
 import {
   nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption, networkIdOption,
@@ -30,7 +29,7 @@ import {
 const program = new Command().name('aecli oracle');
 
 // ## Initialize `options`
-program
+const addCommonOptions = (p) => p
   .addOption(nodeOption)
   .addOption(ttlOption)
   .addOption(feeOption)
@@ -49,13 +48,13 @@ program
 // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
-program
+addCommonOptions(program
   .command('create <wallet_path> <queryFormat> <responseFormat>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', ORACLE_TTL)
   .option('--queryFee [queryFee]', 'Oracle query fee', QUERY_FEE)
   .description('Register Oracle')
-  .action(withGlobalOpts(Oracle.createOracle));
+  .action(Oracle.createOracle));
 
 // ## Initialize `extend oracle` command
 //
@@ -66,11 +65,11 @@ program
 // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
-program
+addCommonOptions(program
   .command('extend <wallet_path> <oracleId> <oracleTtl>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Extend Oracle')
-  .action(withGlobalOpts(Oracle.extendOracle));
+  .action(Oracle.extendOracle));
 
 // ## Initialize `create oracle query` command
 //
@@ -81,14 +80,14 @@ program
 // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
-program
+addCommonOptions(program
   .command('create-query <wallet_path> <oracleId> <query>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL)
   .option('--queryTtl [queryTtl]', 'Query time to leave', QUERY_TTL)
   .option('--queryFee [queryFee]', 'Oracle query fee', QUERY_FEE)
   .description('Create Oracle query')
-  .action(withGlobalOpts(Oracle.createOracleQuery));
+  .action(Oracle.createOracleQuery));
 
 // ## Initialize `respond query` command
 //
@@ -99,12 +98,12 @@ program
 // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
-program
+addCommonOptions(program
   .command('respond-query <wallet_path> <oracleId> <queryId> <response>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL)
   .description('Respond to  Oracle Query')
-  .action(withGlobalOpts(Oracle.respondToQuery));
+  .action(Oracle.respondToQuery));
 
 // ## Initialize `get oracle` command
 //
@@ -115,9 +114,9 @@ program
 // And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
-program
+addCommonOptions(program
   .command('get <oracleId>')
   .description('Get Oracle')
-  .action(withGlobalOpts(Oracle.queryOracle));
+  .action(Oracle.queryOracle));
 
 export default program;

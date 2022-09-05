@@ -25,7 +25,6 @@ import {
   NAME_TTL, CLIENT_TTL, MIN_GAS_PRICE, QUERY_FEE, ORACLE_TTL, QUERY_TTL,
 } from '@aeternity/aepp-sdk';
 import { RESPONSE_TTL } from '../utils/constant';
-import { withGlobalOpts } from '../utils/cli';
 import * as Transaction from '../actions/transaction';
 import {
   nodeOption,
@@ -41,7 +40,7 @@ import {
 const program = new Command().name('aecli tx');
 
 // ## Initialize `options`
-program
+const addCommonOptions = (p) => p
   .addOption(nodeOption)
 // .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .addOption(feeOption)
@@ -54,30 +53,30 @@ program
 // You can use this command to build `spend` transaction
 //
 // Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
-program
+addCommonOptions(program
   .command('spend <senderId> <recieverId> <amount>')
   .addArgument(nonceArgument)
   .option('--payload [payload]', 'Transaction payload.', '')
   .description('Build Spend Transaction')
-  .action(withGlobalOpts(Transaction.spend));
+  .action(Transaction.spend));
 
 // ## Initialize `name-preclaim` command
 //
 // You can use this command to build `preclaim` transaction
 //
 // Example: `aecli tx name-preclaim ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.chain`
-program
+addCommonOptions(program
   .command('name-preclaim <accountId> <domain>')
   .addArgument(nonceArgument)
   .description('Build name preclaim transaction.')
-  .action(withGlobalOpts(Transaction.namePreClaim));
+  .action(Transaction.namePreClaim));
 
 // ## Initialize `name-update` command
 //
 // You can use this command to build `update` transaction
 //
 // Example: `aecli tx name-update ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.chain`
-program
+addCommonOptions(program
   .command('name-update <accountId> <nameId>')
   .addArgument(nonceArgument)
   .argument('[pointers...]')
@@ -86,54 +85,54 @@ program
   .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
   .description('Build name update transaction.')
-  .action(withGlobalOpts(Transaction.nameUpdate));
+  .action(Transaction.nameUpdate));
 
 // ## Initialize `name-claim` command
 //
 // You can use this command to build `claim` transaction
 //
 // Example: `aecli tx name-claim ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi 12327389123 testname.chain`
-program
+addCommonOptions(program
   .command('name-claim <accountId> <salt> <domain>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
   .addOption(feeOption)
   .option('--nameFee [nameFee]', 'Name fee.')
   .description('Build name claim transaction.')
-  .action(withGlobalOpts(Transaction.nameClaim));
+  .action(Transaction.nameClaim));
 
 // ## Initialize `name-transfer` command
 //
 // You can use this command to build `tansfer` transaction
 //
 // Example: `aecli tx name-transfer ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.chain`
-program
+addCommonOptions(program
   .command('name-transfer <accountId> <recipientId> <domain>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
   .addOption(feeOption)
   .description('Build name tansfer transaction.')
-  .action(withGlobalOpts(Transaction.nameTransfer));
+  .action(Transaction.nameTransfer));
 
 // ## Initialize `name-revoke` command
 //
 // You can use this command to build `revoke` transaction
 //
 // Example: `aecli tx name-revoke ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.chain`
-program
+addCommonOptions(program
   .command('name-revoke <accountId> <domain>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
   .addOption(feeOption)
   .description('Build name revoke transaction.')
-  .action(withGlobalOpts(Transaction.nameRevoke));
+  .action(Transaction.nameRevoke));
 
 // ## Initialize `contract-deploy` command
 //
 // You can use this command to build `contract create` transaction
 //
 // Example: `aecli tx contract-deploy ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi test.contract`
-program
+addCommonOptions(program
   .command('contract-deploy <ownerId> <contractBytecode> <initCallData>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
@@ -142,14 +141,14 @@ program
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
-  .action(withGlobalOpts(Transaction.contractDeploy));
+  .action(Transaction.contractDeploy));
 
 // ## Initialize `contract-call` command
 //
 // You can use this command to build `contract call` transaction
 //
 // Example: `aecli tx contract-call ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ct_2134235423dsfsdfsdf sum int 1 2`
-program
+addCommonOptions(program
   .command('contract-call <callerId> <contractId> <callData>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
@@ -158,14 +157,14 @@ program
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
-  .action(withGlobalOpts(Transaction.contractCall));
+  .action(Transaction.contractCall));
 
 // ## Initialize `oracle-register` command
 //
 // You can use this command to build `oracle-register` transaction
 //
 // Example: `aecli tx oracle-register ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  "{city: 'string'}" "{tmp: 'num'}"``
-program
+addCommonOptions(program
   .command('oracle-register <accountId> <queryFormat> <responseFormat>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
@@ -173,14 +172,14 @@ program
   .option('--queryFee [queryFee]', 'Oracle Query fee.', QUERY_FEE)
   .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', ORACLE_TTL.value)
   .description('Build oracle register transaction.')
-  .action(withGlobalOpts(Transaction.oracleRegister));
+  .action(Transaction.oracleRegister));
 
 // ## Initialize `oracle-post-query` command
 //
 // You can use this command to build `oracle-post-query` transaction
 //
 // Example: `aecli tx oracle-post-query ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad {city: 'Berlin'}`
-program
+addCommonOptions(program
   .command('oracle-post-query <accountId> <oracleId> <query>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
@@ -189,44 +188,44 @@ program
   .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', QUERY_TTL.value)
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL)
   .description('Build oracle post query transaction.')
-  .action(withGlobalOpts(Transaction.oraclePostQuery));
+  .action(Transaction.oraclePostQuery));
 
 // ## Initialize `oracle-extend` command
 //
 // You can use this command to build `oracle-extend` transaction
 //
 // Example: `aecli tx oracle-extend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad 100
-program
+addCommonOptions(program
   .command('oracle-extend <callerId> <oracleId> <oracleTtl>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
   .addOption(feeOption)
   .description('Build oracle extend transaction.')
-  .action(withGlobalOpts(Transaction.oracleExtend));
+  .action(Transaction.oracleExtend));
 
 // ## Initialize `oracle-respond` command
 //
 // You can use this command to build `oracle-respond` transaction
 //
 // Example: `aecli tx oracle-respond ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad oq_asdjn23ifsdiuhfk2h3fuksadh {tmp: 1}`
-program
+addCommonOptions(program
   .command('oracle-respond <callerId> <oracleId> <queryId> <response>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
   .addOption(feeOption)
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL)
   .description('Build oracle extend transaction.')
-  .action(withGlobalOpts(Transaction.oracleRespond));
+  .action(Transaction.oracleRespond));
 
 // ## Initialize `verify` command
 //
 // You can use this command to send `transaction` to the `chain`
 //
 // Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
-program
+addCommonOptions(program
   .command('verify <tx>')
   .addOption(networkIdOption)
   .description('Verify transaction')
-  .action(withGlobalOpts(Transaction.verify));
+  .action(Transaction.verify));
 
 export default program;
