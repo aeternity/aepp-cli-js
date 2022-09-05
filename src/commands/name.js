@@ -21,11 +21,11 @@
 //
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander';
-import { TX_TTL, NAME_TTL, CLIENT_TTL } from '@aeternity/aepp-sdk';
+import { NAME_TTL, CLIENT_TTL } from '@aeternity/aepp-sdk';
 import { withGlobalOpts } from '../utils/cli';
 import * as AENS from '../actions/aens';
 import {
-  nodeOption, jsonOption, feeOption, forceOption, passwordOption,
+  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption,
 } from '../arguments';
 
 const program = new Command().name('aecli name');
@@ -33,7 +33,7 @@ const program = new Command().name('aecli name');
 // ## Initialize `options`
 program
   .addOption(nodeOption)
-  .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', TX_TTL)
+  .addOption(ttlOption)
   .addOption(feeOption)
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .addOption(passwordOption)

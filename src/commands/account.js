@@ -19,11 +19,10 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { TX_TTL } from '@aeternity/aepp-sdk';
 import { withGlobalOpts } from '../utils/cli';
 import * as Account from '../actions/account';
 import {
-  nodeOption, jsonOption, coinAmountParser, feeOption, forceOption, passwordOption,
+  nodeOption, jsonOption, coinAmountParser, feeOption, forceOption, passwordOption, ttlOption,
 } from '../arguments';
 
 const program = new Command().name('aecli account');
@@ -52,7 +51,7 @@ program
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--payload [payload]', 'Transaction payload.', '')
   .addOption(feeOption)
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
+  .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .action(withGlobalOpts(Account.spend));
 
@@ -72,7 +71,7 @@ program
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('--payload [payload]', 'Transaction payload.', '')
   .addOption(feeOption)
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
+  .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .action(withGlobalOpts(Account.transferFunds));
 

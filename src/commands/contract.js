@@ -19,12 +19,19 @@
  */
 // We'll use `commander` for parsing options
 import { Argument, Option, Command } from 'commander';
-import { TX_TTL, MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
+import { MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
 import { withGlobalOpts } from '../utils/cli';
 import CliError from '../utils/CliError';
 import * as Contract from '../actions/contract';
 import {
-  nodeOption, compilerOption, jsonOption, gasOption, feeOption, forceOption, passwordOption,
+  nodeOption,
+  compilerOption,
+  jsonOption,
+  gasOption,
+  feeOption,
+  forceOption,
+  passwordOption,
+  ttlOption,
 } from '../arguments';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
@@ -121,7 +128,7 @@ program
   .option('-s --callStatic', 'Call static')
   .option('-t --topHash', 'Hash of block to make call')
   .addOption(feeOption)
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
+  .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Execute a function of the contract')
   .action(withGlobalOpts(Contract.call));
@@ -149,7 +156,7 @@ program
   .addOption(gasOption)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .addOption(feeOption)
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
+  .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Deploy a contract on the chain')
   .action(withGlobalOpts(Contract.deploy));

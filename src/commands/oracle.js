@@ -19,14 +19,12 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import {
-  TX_TTL, ORACLE_TTL, QUERY_FEE, QUERY_TTL,
-} from '@aeternity/aepp-sdk';
+import { ORACLE_TTL, QUERY_FEE, QUERY_TTL } from '@aeternity/aepp-sdk';
 import { RESPONSE_TTL } from '../utils/constant';
 import { withGlobalOpts } from '../utils/cli';
 import * as Oracle from '../actions/oracle';
 import {
-  nodeOption, jsonOption, feeOption, forceOption, passwordOption,
+  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption,
 } from '../arguments';
 
 const program = new Command().name('aecli oracle');
@@ -34,7 +32,7 @@ const program = new Command().name('aecli oracle');
 // ## Initialize `options`
 program
   .addOption(nodeOption)
-  .option('--ttl [ttl]', 'Override the ttl that the transaction is going to be sent with', TX_TTL)
+  .addOption(ttlOption)
   .addOption(feeOption)
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .addOption(passwordOption)

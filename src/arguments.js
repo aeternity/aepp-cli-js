@@ -1,5 +1,6 @@
 import { Argument, Option } from 'commander';
 import BigNumber from 'bignumber.js';
+import { TX_TTL } from '@aeternity/aepp-sdk';
 import { NODE_URL, COMPILER_URL } from './utils/constant';
 
 export const coinAmountParser = (amount) => (
@@ -28,3 +29,6 @@ export const gasOption = new Option('-G --gas [gas]', 'Amount of gas to call/dep
 export const forceOption = new Option('-f --force', 'Ignore node version compatibility check');
 
 export const passwordOption = new Option('-P, --password [password]', 'Wallet Password');
+
+export const ttlOption = new Option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks')
+  .default(TX_TTL, 'forever');
