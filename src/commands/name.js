@@ -24,7 +24,9 @@ import { Command } from 'commander';
 import { TX_TTL, NAME_TTL, CLIENT_TTL } from '@aeternity/aepp-sdk';
 import { withGlobalOpts } from '../utils/cli';
 import * as AENS from '../actions/aens';
-import { nodeOption, jsonOption, feeOption } from '../arguments';
+import {
+  nodeOption, jsonOption, feeOption, forceOption,
+} from '../arguments';
 
 const program = new Command().name('aecli name');
 
@@ -36,7 +38,7 @@ program
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-P, --password [password]', 'Wallet Password')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
-  .option('-f --force', 'Ignore node version compatibility check')
+  .addOption(forceOption)
   .addOption(jsonOption);
 
 // ## Initialize `claim` command

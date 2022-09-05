@@ -20,14 +20,14 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
 import inspect from '../actions/inspect';
-import { nodeOption, jsonOption } from '../arguments';
+import { nodeOption, jsonOption, forceOption } from '../arguments';
 
 const program = new Command().name('aecli inspect');
 
 // ## Initialize `options`
 program
   .addOption(nodeOption)
-  .option('-f --force', 'Ignore node version compatibility check')
+  .addOption(forceOption)
   .addOption(jsonOption);
 
 // ## Initialize `inspect` command

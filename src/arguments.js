@@ -24,3 +24,5 @@ export const jsonOption = new Option('--json', 'Print result in json format');
 
 export const gasOption = new Option('-G --gas [gas]', 'Amount of gas to call/deploy the contract')
   .argParser((gas) => +gas);
+
+export const forceOption = new Option('-f --force', 'Ignore node version compatibility check');

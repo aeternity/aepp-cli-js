@@ -25,7 +25,9 @@ import {
 import { RESPONSE_TTL } from '../utils/constant';
 import { withGlobalOpts } from '../utils/cli';
 import * as Oracle from '../actions/oracle';
-import { nodeOption, jsonOption, feeOption } from '../arguments';
+import {
+  nodeOption, jsonOption, feeOption, forceOption,
+} from '../arguments';
 
 const program = new Command().name('aecli oracle');
 
@@ -37,7 +39,7 @@ program
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .option('-P, --password [password]', 'Wallet Password')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
-  .option('-f --force', 'Ignore node version compatibility check')
+  .addOption(forceOption)
   .addOption(jsonOption);
 
 // ## Initialize `create` command

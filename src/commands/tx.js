@@ -28,7 +28,7 @@ import { RESPONSE_TTL } from '../utils/constant';
 import { withGlobalOpts } from '../utils/cli';
 import * as Transaction from '../actions/transaction';
 import {
-  nodeOption, jsonOption, gasOption, nonceArgument, feeOption,
+  nodeOption, jsonOption, gasOption, nonceArgument, feeOption, forceOption,
 } from '../arguments';
 
 const program = new Command().name('aecli tx');
@@ -39,7 +39,7 @@ program
 // .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .addOption(feeOption)
   .option('--ttl [fee]', 'Override the ttl that the transaction is going to be sent with', TX_TTL)
-  .option('-f --force', 'Ignore node version compatibility check')
+  .addOption(forceOption)
   .addOption(jsonOption);
 
 // ## Initialize `spend` command

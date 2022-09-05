@@ -24,7 +24,7 @@ import { withGlobalOpts } from '../utils/cli';
 import CliError from '../utils/CliError';
 import * as Contract from '../actions/contract';
 import {
-  nodeOption, compilerOption, jsonOption, gasOption, feeOption,
+  nodeOption, compilerOption, jsonOption, gasOption, feeOption, forceOption,
 } from '../arguments';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
@@ -50,7 +50,7 @@ const program = new Command().name('aecli contract');
 program
   .addOption(nodeOption)
   .addOption(compilerOption)
-  .option('-f --force', 'Ignore node version compatibility check')
+  .addOption(forceOption)
   .addOption(jsonOption);
 
 // ## Initialize `compile` command

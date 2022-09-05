@@ -21,7 +21,7 @@
 import { Command } from 'commander';
 import { withGlobalOpts } from '../utils/cli';
 import * as Chain from '../actions/chain';
-import { nodeOption, jsonOption } from '../arguments';
+import { nodeOption, jsonOption, forceOption } from '../arguments';
 
 const program = new Command().name('aecli chain');
 
@@ -29,7 +29,7 @@ const program = new Command().name('aecli chain');
 program
   .addOption(nodeOption)
   .option('-L --limit [playlimit]', 'Limit for play command', 10)
-  .option('-f --force', 'Ignore node version compatibility check')
+  .addOption(forceOption)
   .addOption(jsonOption);
 
 // ## Initialize `top` command
