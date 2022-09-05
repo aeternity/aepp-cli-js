@@ -24,7 +24,7 @@ import { RESPONSE_TTL } from '../utils/constant';
 import { withGlobalOpts } from '../utils/cli';
 import * as Oracle from '../actions/oracle';
 import {
-  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption,
+  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption, networkIdOption,
 } from '../arguments';
 
 const program = new Command().name('aecli oracle');
@@ -36,7 +36,7 @@ program
   .addOption(feeOption)
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .addOption(passwordOption)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .addOption(networkIdOption)
   .addOption(forceOption)
   .addOption(jsonOption);
 

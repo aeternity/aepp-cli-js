@@ -28,7 +28,14 @@ import { RESPONSE_TTL } from '../utils/constant';
 import { withGlobalOpts } from '../utils/cli';
 import * as Transaction from '../actions/transaction';
 import {
-  nodeOption, jsonOption, gasOption, nonceArgument, feeOption, forceOption, ttlOption,
+  nodeOption,
+  jsonOption,
+  gasOption,
+  nonceArgument,
+  feeOption,
+  forceOption,
+  ttlOption,
+  networkIdOption,
 } from '../arguments';
 
 const program = new Command().name('aecli tx');
@@ -218,7 +225,7 @@ program
 // Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
 program
   .command('verify <tx>')
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .addOption(networkIdOption)
   .description('Verify transaction')
   .action(withGlobalOpts(Transaction.verify));
 

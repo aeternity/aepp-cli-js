@@ -25,7 +25,7 @@ import { NAME_TTL, CLIENT_TTL } from '@aeternity/aepp-sdk';
 import { withGlobalOpts } from '../utils/cli';
 import * as AENS from '../actions/aens';
 import {
-  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption,
+  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption, networkIdOption,
 } from '../arguments';
 
 const program = new Command().name('aecli name');
@@ -37,7 +37,7 @@ program
   .addOption(feeOption)
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .addOption(passwordOption)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .addOption(networkIdOption)
   .addOption(forceOption)
   .addOption(jsonOption);
 

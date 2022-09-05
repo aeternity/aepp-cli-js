@@ -32,3 +32,5 @@ export const passwordOption = new Option('-P, --password [password]', 'Wallet Pa
 
 export const ttlOption = new Option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks')
   .default(TX_TTL, 'forever');
+
+export const networkIdOption = new Option('--networkId [networkId]', 'Network id');

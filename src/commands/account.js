@@ -22,7 +22,14 @@ import { Command } from 'commander';
 import { withGlobalOpts } from '../utils/cli';
 import * as Account from '../actions/account';
 import {
-  nodeOption, jsonOption, coinAmountParser, feeOption, forceOption, passwordOption, ttlOption,
+  nodeOption,
+  jsonOption,
+  coinAmountParser,
+  feeOption,
+  forceOption,
+  passwordOption,
+  ttlOption,
+  networkIdOption,
 } from '../arguments';
 
 const program = new Command().name('aecli account');
@@ -48,7 +55,7 @@ program
 program
   .command('spend <wallet_path> <receiverIdOrName>')
   .argument('<amount>', 'Amount of coins to send in aettos or in ae (example: 1.2ae)', coinAmountParser)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .addOption(networkIdOption)
   .option('--payload [payload]', 'Transaction payload.', '')
   .addOption(feeOption)
   .addOption(ttlOption)
@@ -68,7 +75,7 @@ program
   .command('transfer <wallet_path>')
   .argument('<receiver>', 'Address or name of recipient account')
   .argument('<fraction>', 'Fraction of balance to spend (between 0 and 1)', (v) => +v)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .addOption(networkIdOption)
   .option('--payload [payload]', 'Transaction payload.', '')
   .addOption(feeOption)
   .addOption(ttlOption)
@@ -82,7 +89,7 @@ program
 // Example: `aecli account sign ./myWalletKeyFile tx_1241rioefwj23f2wfdsfsdsdfsasdf --password testpassword`
 program
   .command('sign <wallet_path> <tx>')
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .addOption(networkIdOption)
   .description('Create a transaction to another wallet')
   .action(withGlobalOpts(Account.sign));
 
