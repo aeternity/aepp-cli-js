@@ -26,3 +26,5 @@ export const gasOption = new Option('-G --gas [gas]', 'Amount of gas to call/dep
   .argParser((gas) => +gas);
 
 export const forceOption = new Option('-f --force', 'Ignore node version compatibility check');
+
+export const passwordOption = new Option('-P, --password [password]', 'Wallet Password');

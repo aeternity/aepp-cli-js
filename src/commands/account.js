@@ -23,7 +23,7 @@ import { TX_TTL } from '@aeternity/aepp-sdk';
 import { withGlobalOpts } from '../utils/cli';
 import * as Account from '../actions/account';
 import {
-  nodeOption, jsonOption, coinAmountParser, feeOption, forceOption,
+  nodeOption, jsonOption, coinAmountParser, feeOption, forceOption, passwordOption,
 } from '../arguments';
 
 const program = new Command().name('aecli account');
@@ -31,7 +31,7 @@ const program = new Command().name('aecli account');
 // ## Initialize `options`
 program
   .addOption(nodeOption)
-  .option('-P, --password [password]', 'Wallet Password')
+  .addOption(passwordOption)
   .addOption(forceOption)
   .addOption(jsonOption);
 

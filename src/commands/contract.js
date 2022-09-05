@@ -24,7 +24,7 @@ import { withGlobalOpts } from '../utils/cli';
 import CliError from '../utils/CliError';
 import * as Contract from '../actions/contract';
 import {
-  nodeOption, compilerOption, jsonOption, gasOption, feeOption, forceOption,
+  nodeOption, compilerOption, jsonOption, gasOption, feeOption, forceOption, passwordOption,
 } from '../arguments';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
@@ -116,7 +116,7 @@ program
   .addOption(contractAciFilenameOption)
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
-  .option('-P, --password [password]', 'Wallet Password')
+  .addOption(passwordOption)
   .addOption(gasOption)
   .option('-s --callStatic', 'Call static')
   .option('-t --topHash', 'Hash of block to make call')
@@ -145,7 +145,7 @@ program
   .addOption(contractAciFilenameOption)
   .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
-  .option('-P, --password [password]', 'Wallet Password')
+  .addOption(passwordOption)
   .addOption(gasOption)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .addOption(feeOption)
