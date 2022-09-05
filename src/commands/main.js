@@ -19,7 +19,11 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { NODE_URL, COMPILER_URL } from '../utils/constant';
+import prompts from 'prompts';
+import { Node, Compiler } from '@aeternity/aepp-sdk';
+import { compilerOption, nodeOption } from '../arguments';
+import { addToConfig } from '../utils/config';
+import CliError from '../utils/CliError';
 
 const program = new Command();
 
@@ -37,17 +41,109 @@ const EXECUTABLE_CMD = [
 // You get get CLI version by exec `aecli version`
 program.version(process.env.npm_package_version);
 
-// ## Initialize `config` command
-program
-  .command('config')
-  .description('Print the sdk default configuration')
-  .action(() => {
-    // TODO: show these values https://github.com/aeternity/aepp-cli-js/issues/174
-    console.log('NODE_URL', NODE_URL);
-    console.log('COMPILER_URL', COMPILER_URL);
-  });
-
 // ## Initialize `child` command's
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
+
+async function getNodeDescription(url) {
+  // TODO: remove after fixing https://github.com/aeternity/aepp-sdk-js/issues/1673
+  const omitUncaughtExceptions = () => {};
+  process.on('uncaughtException', omitUncaughtExceptions);
+  const nodeInfo = await (new Node(url)).getNodeInfo().catch(() => {});
+  process.off('uncaughtException', omitUncaughtExceptions);
+  return nodeInfo
+    ? `network id ${nodeInfo.nodeNetworkId}, version ${nodeInfo.version}`
+    : 'can\'t get node info';
+}
+
+async function getCompilerDescription(url) {
+  // TODO: remove after fixing https://github.com/aeternity/aepp-sdk-js/issues/1673
+  const omitUncaughtExceptions = () => {};
+  process.on('uncaughtException', omitUncaughtExceptions);
+  const { apiVersion } = await (new Compiler(url)).aPIVersion().catch(() => ({}));
+  process.off('uncaughtException', omitUncaughtExceptions);
+  return apiVersion ? `version ${apiVersion}` : 'can\'t get compiler version';
+}
+
+program
+  .command('config')
+  .description('Print the current sdk configuration')
+  .addOption(nodeOption)
+  .addOption(compilerOption)
+  .action(async ({ url, compilerUrl }) => {
+    console.log('Node', url, await getNodeDescription(url));
+    console.log('Compiler', compilerUrl, await getCompilerDescription(compilerUrl));
+  });
+
+async function askUrl(entity, choices, getDescription, _url) {
+  let url = _url;
+  if (url == null) {
+    const getChoices = async (withDescriptions) => [
+      ...await Promise.all(choices.map(async (choice) => ({
+        title: choice.name,
+        value: choice.url,
+        description: withDescriptions ? await getDescription(choice.url) : 'version loading...',
+      }))),
+      {
+        title: 'Enter URL',
+        value: 'custom-url',
+      },
+    ];
+
+    let loadingDescription = false;
+    url = (await prompts({
+      type: 'select',
+      name: 'url',
+      message: `Select a ${entity} to use in other commands`,
+      choices: await getChoices(false),
+      async onRender() {
+        if (loadingDescription) return;
+        loadingDescription = true;
+        this.choices = await getChoices(true);
+        this.render();
+      },
+    })).url;
+
+    if (url === 'custom-url') {
+      url = (await prompts({
+        type: 'text',
+        name: 'url',
+        message: `Enter a ${entity} url to use in other commands`,
+      })).url;
+    }
+
+    if (url == null) process.exit(0);
+  }
+  try {
+    return (new URL(url)).toString();
+  } catch (error) {
+    throw new CliError(error.message);
+  }
+}
+
+program
+  .command('select-node')
+  .argument('[nodeUrl]', 'Node URL')
+  .description('Specify node to use in other commands')
+  .action(async (url) => {
+    const nodes = [
+      { name: 'Mainnet', url: 'https://mainnet.aeternity.io/' },
+      { name: 'Testnet', url: 'https://testnet.aeternity.io/' },
+    ];
+    await addToConfig({ url: await askUrl('node', nodes, getNodeDescription, url) });
+  });
+
+program
+  .command('select-compiler')
+  .argument('[compilerUrl]', 'Compiler URL')
+  .description('Specify compiler to use in other commands')
+  .action(async (url) => {
+    const compilers = [
+      { name: 'Stable', url: 'https://compiler.aeternity.io/' },
+      { name: 'Latest', url: 'https://latest.compiler.aeternity.io/' },
+    ];
+    await addToConfig({
+      compilerUrl: await askUrl('compiler', compilers, getCompilerDescription, url),
+    });
+  });
 
 export default program;
