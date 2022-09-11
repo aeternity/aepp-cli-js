@@ -1,4 +1,5 @@
 import { InvalidPasswordError } from '@aeternity/aepp-sdk';
+import { setCommandOptions } from './config';
 
 export default class CliError extends Error {
   constructor(message) {
@@ -9,6 +10,7 @@ export default class CliError extends Error {
 
 export async function runProgram(program) {
   try {
+    await setCommandOptions(program);
     await program.parseAsync();
   } catch (error) {
     if (

@@ -28,32 +28,24 @@ The command-line interface is invoked using the command `aecli`. Depending on wh
 
 If you invoke `aecli` with no arguments, it shows basic usage:
 ```
-$ ./aecli
-The command line client for the Aeternity blockchain
+$ aecli
+Usage: aecli [options] [command]
 
-Usage:
-  aecli [command]
+Options:
+  -V, --version   output the version number
+  -h, --help      display help for command
 
-Available Commands:
-  chain       Query the state of the chain
-  config      Print the configuration of the sdk
-  help        Help concerning any command
-  inspect     Inspect an object of the blockchain
-  name        A brief description of your command
-  account     Handle wallet operations
-  contract    Compile contracts
-  crypto      Crypto helpers
-
-
-Flags:
-  -c, --config string   config file to load (defaults to $HOME/.aeternity/config.yaml
-      --debug           enable debug
-  -h, --help            help for aecli
-      --json            print output in json format
-      --version         version for aecli
-  -u, --epoch-url,      show URL of epoch
-
-Use "aecli [command] --help" for more information about a command.
+Commands:
+  config          Print the sdk default configuration
+  chain           Interact with the blockchain
+  inspect         Get information on transactions, blocks,...
+  account         Handle wallet operations
+  contract        Compile contracts
+  name            AENS system
+  tx              Transaction builder
+  oracle          Interact with oracles
+  crypto          Crypto helpers
+  help [command]  display help for command
 ```
 
 The general groupings of commands are:
@@ -263,7 +255,7 @@ $ ./aecli.mjs  contract
 
     -H, --host [hostname]             Node to connect to (default: https://localhost:3013)
     -T, --ttl [ttl]                   Validity of the transaction in number of blocks (default forever) (default: 50000)
-    -f --force                        Ignore epoch version compatibility check
+    -f --force                        Ignore node version compatibility check
     --json [json]                     Print result in json format
     -h, --help                        output usage information
 

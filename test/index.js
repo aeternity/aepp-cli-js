@@ -88,7 +88,9 @@ export async function executeProgram(program, args) {
   try {
     const allArgs = [
       ...args.map((arg) => arg.toString()),
-      ...['config', 'decode', 'sign', 'unpack'].includes(args[0]) ? [] : ['--url', url],
+      ...[
+        'config', 'decode', 'sign', 'unpack', 'select-node', 'select-compiler',
+      ].includes(args[0]) ? [] : ['--url', url],
       ...args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [],
     ];
     if (allArgs.some((a) => !['string', 'number'].includes(typeof a))) {

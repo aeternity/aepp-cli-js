@@ -22,6 +22,7 @@ import {
 } from '@aeternity/aepp-sdk';
 import { print } from '../utils/print';
 import CliError from '../utils/CliError';
+import { networkIdOption, passwordOption } from '../arguments';
 
 const program = new Command().name('aecli crypto');
 
@@ -37,9 +38,9 @@ program
 
 program
   .command('sign <tx> [privkey]')
-  .option('-p, --password [password]', 'password of the private key')
+  .addOption(passwordOption)
   .option('-f, --file [file]', 'private key file')
-  .option('--networkId [networkId]', 'Network id', 'ae_mainnet')
+  .addOption(networkIdOption.default('ae_mainnet'))
   // ## Transaction Signing
   //
   // This function shows how to use a compliant private key to sign an æternity

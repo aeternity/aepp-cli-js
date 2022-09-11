@@ -19,13 +19,19 @@
  */
 // We'll use `commander` for parsing options
 import { Argument, Option, Command } from 'commander';
-import { TX_TTL, MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
-import { COMPILER_URL } from '../utils/constant';
-import { getCmdFromArguments } from '../utils/cli';
+import { MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
 import CliError from '../utils/CliError';
 import * as Contract from '../actions/contract';
 import {
-  nodeOption, jsonOption, gasOption, feeOption,
+  nodeOption,
+  compilerOption,
+  jsonOption,
+  gasOption,
+  feeOption,
+  forceOption,
+  passwordOption,
+  ttlOption,
+  networkIdOption,
 } from '../arguments';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
@@ -47,11 +53,10 @@ const contractAciFilenameOption = new Option('--contractAci [contractAci]', 'Con
 
 const program = new Command().name('aecli contract');
 
-// ## Initialize `options`
-program
+const addCommonOptions = (p) => p
   .addOption(nodeOption)
-  .option('--compilerUrl [compilerUrl]', 'Compiler URL', COMPILER_URL)
-  .option('-f --force', 'Ignore node version compatibility check')
+  .addOption(compilerOption)
+  .addOption(forceOption)
   .addOption(jsonOption);
 
 // ## Initialize `compile` command
@@ -59,24 +64,24 @@ program
 // You can use this command to compile your `contract` to `bytecode`
 //
 // Example: `aecli contract compile ./mycontract.contract`
-program
+addCommonOptions(program
   .command('compile <file>')
   .description('Compile a contract')
-  .action((file, ...args) => Contract.compile(file, getCmdFromArguments(args)));
+  .action(Contract.compile));
 
 // ## Initialize `encode-calldata` command
 //
 // You can use this command to prepare `callData`
 //
 // Example: `aecli contract encodeData ./mycontract.contract testFn 1 2`
-program
+addCommonOptions(program
   .command('encode-calldata <fn>')
   .addArgument(callArgs)
   .addOption(descriptorPathOption)
   .addOption(contractSourceFilenameOption)
   .addOption(contractAciFilenameOption)
   .description('Encode contract calldata')
-  .action((fn, args, ...otherArgs) => Contract.encodeCalldata(fn, args, getCmdFromArguments(otherArgs)));
+  .action(Contract.encodeCalldata));
 
 // ## Initialize `decode-calldata` command
 //
@@ -84,13 +89,13 @@ program
 //
 // Example bytecode: `aecli contract decodeCallData cb_asdasdasd... --code cb_asdasdasdasd....`
 // Example source code: `aecli contract decodeCallData cb_asdasdasd... --sourcePath ./contractSource --fn someFunction`
-program
+addCommonOptions(program
   .command('decode-call-result <fn> <data>')
   .addOption(descriptorPathOption)
   .addOption(contractSourceFilenameOption)
   .addOption(contractAciFilenameOption)
   .description('Decode contract calldata')
-  .action((fn, data, ...args) => Contract.decodeCallResult(fn, data, getCmdFromArguments(args)));
+  .action(Contract.decodeCallResult));
 
 // ## Initialize `call` command
 //
@@ -106,7 +111,7 @@ program
 //    `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 --callStatic` --> Static call using contract address
 // You can preset gas, nonce and ttl for that call. If not set use default.
 // Example: `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json --gas 2222222 --nonce 4 --ttl 1243`
-program
+addCommonOptions(program
   .command('call')
   .argument('<fn>', 'Name of contract entrypoint to call')
   .addArgument(callArgs)
@@ -116,16 +121,16 @@ program
   .addOption(contractSourceFilenameOption)
   .addOption(contractAciFilenameOption)
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
-  .option('-P, --password [password]', 'Wallet Password')
+  .addOption(networkIdOption)
+  .addOption(passwordOption)
   .addOption(gasOption)
   .option('-s --callStatic', 'Call static')
   .option('-t --topHash', 'Hash of block to make call')
   .addOption(feeOption)
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
+  .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Execute a function of the contract')
-  .action((walletPath, fn, args, ...otherArgs) => Contract.call(walletPath, fn, args, getCmdFromArguments(otherArgs)));
+  .action(Contract.call));
 
 //
 // ## Initialize `deploy` command
@@ -137,22 +142,22 @@ program
 // You can preset gas and initState for deploy
 //
 // Example: `aecli contract deploy ./myWalletFile --password tstpass ./contractSourceCodeFile --gas 2222222`
-program
+addCommonOptions(program
   .command('deploy <wallet_path>')
   .addArgument(callArgs)
   .addOption(descriptorPathOption)
   .addOption(contractSourceFilenameOption)
   .option('--contractBytecode [contractBytecode]', 'Contract bytecode file name')
   .addOption(contractAciFilenameOption)
-  .option('--networkId [networkId]', 'Network id (default: ae_mainnet)')
+  .addOption(networkIdOption)
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
-  .option('-P, --password [password]', 'Wallet Password')
+  .addOption(passwordOption)
   .addOption(gasOption)
   .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
   .addOption(feeOption)
-  .option('-T, --ttl [ttl]', 'Validity of the spend transaction in number of blocks (default forever)', TX_TTL)
+  .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Deploy a contract on the chain')
-  .action((walletPath, args, ...otherArgs) => Contract.deploy(walletPath, args, getCmdFromArguments(otherArgs)));
+  .action(Contract.deploy));
 
 export default program;

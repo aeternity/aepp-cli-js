@@ -20,14 +20,14 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
 import inspect from '../actions/inspect';
-import { nodeOption, jsonOption } from '../arguments';
+import { nodeOption, jsonOption, forceOption } from '../arguments';
 
 const program = new Command().name('aecli inspect');
 
 // ## Initialize `options`
-program
+const addCommonOptions = (p) => p
   .addOption(nodeOption)
-  .option('-f --force', 'Ignore node version compatibility check')
+  .addOption(forceOption)
   .addOption(jsonOption);
 
 // ## Initialize `inspect` command
@@ -45,9 +45,9 @@ program
 // Example: `aecli inspect 1234` --> get info about `block` by block `height`
 //
 // Example: `aecli inspect th_asfwegfj34234t34t` --> get info about `transaction` by transaction `hash`
-program
+addCommonOptions(program
   .arguments('<hash>')
   .description('Hash or Name to inspect (eg: ak_..., mk_..., name.chain)')
-  .action((hash, cmd) => inspect(hash, cmd));
+  .action(inspect));
 
 export default program;
