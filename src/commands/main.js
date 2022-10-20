@@ -32,7 +32,7 @@ const EXECUTABLE_CMD = [
   { name: 'chain', desc: 'Interact with the blockchain' },
   { name: 'inspect', desc: 'Get information on transactions, blocks,...' },
   { name: 'account', desc: 'Handle wallet operations' },
-  { name: 'contract', desc: 'Compile contracts' },
+  { name: 'contract', desc: 'Contract interactions' },
   { name: 'name', desc: 'AENS system' },
   { name: 'tx', desc: 'Transaction builder' },
   { name: 'oracle', desc: 'Interact with oracles' },

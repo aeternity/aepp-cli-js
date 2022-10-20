@@ -56,7 +56,7 @@ The general groupings of commands are:
 - `name` allows interaction with the naming system.
 - `account` commands cover a set of functions which operate with a key pair, from transferring tokens to registering names and invoking smart contracts.
 - `oracle` allows you to interact with the oracles.
-- `contract` allows compiling the smart contracts.
+- `contract` allows deploying and calling the smart contracts.
 
 
 ## The chain group
