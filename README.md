@@ -44,17 +44,22 @@ You can install, use and work on this `CLI` tool, by following these instruction
 Usage: aecli [options] [command]
 
 Options:
-  -V, --version  output the version number
-  -h, --help     output usage information
+  -V, --version                  output the version number
+  -h, --help                     display help for command
 
 Commands:
-  chain          Interact with the blockchain
-  inspect        Get information on transactions, blocks,...
-  account        Handle wallet operations
-  contract       Compile contracts
-  name           AENS system
-  crypto         Crypto helpers
-  help [cmd]     display help for [cmd]
+  chain                          Interact with the blockchain
+  inspect                        Get information on transactions, blocks,...
+  account                        Handle wallet operations
+  contract                       Contract interactions
+  name                           AENS system
+  tx                             Transaction builder
+  oracle                         Interact with oracles
+  crypto                         Crypto helpers
+  config [options]               Print the current sdk configuration
+  select-node [nodeUrl]          Specify node to use in other commands
+  select-compiler [compilerUrl]  Specify compiler to use in other commands
+  help [command]                 display help for command
 ```
 
 4. To read documentation of other commands and sub-commands, you can append `--help`. For example, type `bin/aecli.mjs account --help` to get a list of `account`'s available sub-commands.
