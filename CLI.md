@@ -32,20 +32,22 @@ $ aecli
 Usage: aecli [options] [command]
 
 Options:
-  -V, --version   output the version number
-  -h, --help      display help for command
+  -V, --version                  output the version number
+  -h, --help                     display help for command
 
 Commands:
-  config          Print the sdk default configuration
-  chain           Interact with the blockchain
-  inspect         Get information on transactions, blocks,...
-  account         Handle wallet operations
-  contract        Compile contracts
-  name            AENS system
-  tx              Transaction builder
-  oracle          Interact with oracles
-  crypto          Crypto helpers
-  help [command]  display help for command
+  chain                          Interact with the blockchain
+  inspect                        Get information on transactions, blocks,...
+  account                        Handle wallet operations
+  contract                       Contract interactions
+  name                           AENS system
+  tx                             Transaction builder
+  oracle                         Interact with oracles
+  crypto                         Crypto helpers
+  config [options]               Print the current sdk configuration
+  select-node [nodeUrl]          Specify node to use in other commands
+  select-compiler [compilerUrl]  Specify compiler to use in other commands
+  help [command]                 display help for command
 ```
 
 The general groupings of commands are:
@@ -56,7 +58,7 @@ The general groupings of commands are:
 - `name` allows interaction with the naming system.
 - `account` commands cover a set of functions which operate with a key pair, from transferring tokens to registering names and invoking smart contracts.
 - `oracle` allows you to interact with the oracles.
-- `contract` allows compiling the smart contracts.
+- `contract` allows deploying and calling the smart contracts.
 
 
 ## The chain group
