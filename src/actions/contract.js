@@ -21,21 +21,12 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { encode } from '@aeternity/aepp-sdk';
+import { utils } from '@aeternity/aeproject';
 import { initSdk, initSdkByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
 import CliError from '../utils/CliError';
 
 const resolve = (filename) => path.resolve(process.cwd(), filename);
-
-// ## Function which compile your `source` code
-export async function compile(filename, options) {
-  const sdk = await initSdk(options);
-  const { bytecode } = await sdk.compilerApi.compileContract({
-    code: (await fs.readFile(resolve(filename))).toString(), options: {},
-  });
-  if (options.json) print({ bytecode });
-  else print(`Contract bytecode: ${bytecode}`);
-}
 
 async function getContractParams({
   descrPath, contractAddress, contractSource, contractBytecode, contractAci,
@@ -44,15 +35,32 @@ async function getContractParams({
   if (descrPath && (!descrMayNotExist || await fs.exists(resolve(descrPath)))) {
     descriptor = await fs.readJson(resolve(descrPath));
   }
+  if (contractSource) {
+    const contractSourcePath = resolve(contractSource);
+    descriptor.source = (await fs.readFile(contractSourcePath)).toString();
+    // TODO: remove after fixing https://github.com/aeternity/aeproject/issues/435
+    const originalConsoleLog = console.log;
+    console.log = () => {};
+    descriptor.fileSystem = utils.getFilesystem(contractSourcePath);
+    console.log = originalConsoleLog;
+  }
   return {
     contractAddress: contractAddress ?? descriptor.address,
     // TODO: either remove calldata methods in cli or reconsider getContractInstance requirements
     ...dummySource && { source: 'invalid-source' },
     ...descriptor,
-    ...contractSource && { source: (await fs.readFile(resolve(contractSource))).toString() },
     ...contractBytecode && { bytecode: encode(await fs.readFile(resolve(contractBytecode)), 'cb') },
     ...contractAci && { aci: await fs.readJson(resolve(contractAci)) },
   };
+}
+
+// ## Function which compile your `source` code
+export async function compile(contractSource, options) {
+  const sdk = await initSdk(options);
+  const contract = await sdk.getContractInstance(await getContractParams({ contractSource }));
+  const bytecode = await contract.compile();
+  if (options.json) print({ bytecode });
+  else print(`Contract bytecode: ${bytecode}`);
 }
 
 export async function encodeCalldata(fn, args, options) {
