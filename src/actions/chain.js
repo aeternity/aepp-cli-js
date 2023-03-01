@@ -112,8 +112,8 @@ async function playWithHeight(height, blockHash, sdk, json) {
 // ## This function `Play`(print all block) from `top` block to some condition(reach some `height` or `limit`)
 export async function play(options) {
   let { height, limit, json } = options;
-  limit = parseInt(limit);
-  height = parseInt(height);
+  limit = +limit;
+  height = +height;
   const sdk = await initSdk(options);
 
   // Get top block from `node`. It is a start point for play.

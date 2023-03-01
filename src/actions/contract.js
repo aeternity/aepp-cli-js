@@ -124,9 +124,9 @@ export async function call(fn, args, walletPath, options) {
   const sdk = await initSdkByWalletFile(walletPath, options);
   const contract = await sdk.getContractInstance(await getContractParams(options));
   const callResult = await contract.call(fn, args, {
-    ttl: ttl && parseInt(ttl),
+    ttl: ttl && +ttl,
     gas,
-    nonce: nonce && parseInt(nonce),
+    nonce: nonce && +nonce,
     callStatic,
     top,
   });

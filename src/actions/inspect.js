@@ -102,7 +102,7 @@ async function getAccountByHash(hash, options) {
 
 async function getBlockByHeight(height, options) {
   const { json } = options;
-  height = parseInt(height);
+  height = +height;
   try {
     const sdk = await initSdk(options);
 

@@ -236,7 +236,7 @@ export async function generateKeyPairs(count = 1, { forcePrompt, json }) {
     throw new CliError('Count must be an Number');
   }
   if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-    const accounts = Array.from(Array(parseInt(count))).map(() => generateKeyPair(false));
+    const accounts = Array.from(Array(+count)).map(() => generateKeyPair(false));
     if (json) {
       print(accounts);
     } else {

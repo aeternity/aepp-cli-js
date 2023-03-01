@@ -185,8 +185,8 @@ export function oracleRegister(accountId, queryFormat, responseFormat, nonce, {
     accountId,
     nonce,
     oracleTtlType: ORACLE_TTL_TYPES.delta,
-    oracleTtlValue: parseInt(oracleTtl),
-    queryFee: parseInt(queryFee),
+    oracleTtlValue: +oracleTtl,
+    queryFee: +queryFee,
     queryFormat,
     responseFormat,
   };
@@ -203,11 +203,11 @@ export function oraclePostQuery(senderId, oracleId, query, nonce, {
     nonce,
     oracleId,
     query,
-    queryFee: parseInt(queryFee),
+    queryFee: +queryFee,
     queryTtlType: ORACLE_TTL_TYPES.delta,
-    queryTtlValue: parseInt(queryTtl),
+    queryTtlValue: +queryTtl,
     responseTtlType: ORACLE_TTL_TYPES.delta,
-    responseTtlValue: parseInt(responseTtl),
+    responseTtlValue: +responseTtl,
   };
   buildAndPrintTx(Tag.OracleQueryTx, params, json);
 }
@@ -219,7 +219,7 @@ export function oracleExtend(callerId, oracleId, oracleTtl, nonce, { json, ...op
     callerId,
     oracleId,
     oracleTtlType: ORACLE_TTL_TYPES.delta,
-    oracleTtlValue: parseInt(oracleTtl),
+    oracleTtlValue: +oracleTtl,
     nonce,
   };
   buildAndPrintTx(Tag.OracleExtendTx, params, json);
@@ -233,7 +233,7 @@ export function oracleRespond(callerId, oracleId, queryId, response, nonce, {
     ...options,
     oracleId,
     responseTtlType: ORACLE_TTL_TYPES.delta,
-    responseTtlValue: parseInt(responseTtl),
+    responseTtlValue: +responseTtl,
     callerId,
     queryId,
     response,

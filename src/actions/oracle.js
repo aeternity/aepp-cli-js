@@ -39,7 +39,7 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
     waitMined,
     nonce,
     fee,
-    oracleTtl: isNaN(parseInt(oracleTtl))
+    oracleTtl: isNaN(+oracleTtl)
       ? oracleTtl
       : BUILD_ORACLE_TTL(oracleTtl),
     queryFee,
@@ -90,10 +90,10 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
     waitMined,
     nonce,
     fee,
-    queryTll: isNaN(parseInt(queryTll))
+    queryTll: isNaN(+queryTll)
       ? queryTll
       : BUILD_ORACLE_TTL(queryTll),
-    responseTtl: isNaN(parseInt(responseTtl))
+    responseTtl: isNaN(+responseTtl)
       ? responseTtl
       : BUILD_ORACLE_TTL(responseTtl),
     queryFee,
@@ -127,7 +127,7 @@ export async function respondToQuery(
     waitMined,
     nonce,
     fee,
-    responseTtl: isNaN(parseInt(responseTtl))
+    responseTtl: isNaN(+responseTtl)
       ? responseTtl
       : BUILD_ORACLE_TTL(responseTtl),
   });
