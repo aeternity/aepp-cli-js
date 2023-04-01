@@ -81,12 +81,13 @@ export async function sign(walletPath, tx, options) {
 
   const signedTx = await account.signTransaction(tx);
   const address = await account.address();
-  const networkId = account.getNetworkId();
+  const networkId = await account.getNetworkId();
   if (json) {
     print({ signedTx, address, networkId });
   } else {
     printUnderscored('Signing account address', address);
     printUnderscored('Network ID', networkId);
+    // TODO: remove unsigned tx because it is already accepted in arguments
     printUnderscored('Unsigned', tx);
     printUnderscored('Signed', signedTx);
   }

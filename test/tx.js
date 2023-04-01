@@ -103,14 +103,14 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     expect(responseJson.signedTx).to.satisfy((s) => s.startsWith(Encoding.Transaction));
     expect(responseJson).to.eql({
       address: TX_KEYS.publicKey,
-      networkId: {},
+      networkId: 'ae_devnet',
       signedTx: responseJson.signedTx,
     });
 
     const response = await executeProgram(accountProgram, args);
     expect(response).to.equal(`
 Signing account address _________________ ${TX_KEYS.publicKey}
-Network ID ______________________________ {}
+Network ID ______________________________ ae_devnet
 Unsigned ________________________________ ${tx}
 Signed __________________________________ ${responseJson.signedTx}
     `.trim());
