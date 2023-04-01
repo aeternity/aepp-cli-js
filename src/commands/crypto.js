@@ -18,10 +18,11 @@
 import { Command } from 'commander';
 import fs from 'fs-extra';
 import {
-  decryptKey, sign, buildTx, unpackTx, decode, Tag,
+  sign, buildTx, unpackTx, decode, Tag,
 } from '@aeternity/aepp-sdk';
 import { print } from '../utils/print';
 import CliError from '../utils/CliError';
+import { decryptKey } from '../utils/encrypt-key';
 import { networkIdOption, passwordOption } from '../arguments';
 
 const program = new Command().name('aecli crypto');

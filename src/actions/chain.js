@@ -71,7 +71,7 @@ export async function ttl(absoluteTtl, options) {
   const { json } = options;
   // Initialize `Ae`
   const sdk = await initSdk(options);
-  const height = await sdk.height();
+  const height = await sdk.getHeight();
   if (json) {
     print({ absoluteTtl, relativeTtl: +height + +absoluteTtl });
   } else {

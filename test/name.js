@@ -137,7 +137,7 @@ describe('AENS Module', () => {
   });
 
   it('extend name ttl', async () => {
-    const height = await sdk.height();
+    const height = await sdk.getHeight();
     const extendTx = await executeName([
       'extend',
       WALLET_NAME,
