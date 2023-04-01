@@ -113,7 +113,6 @@ function printContractCallTransaction(tx = {}, tabs = '') {
   printUnderscored(`${tabs}Caller Account`, tx?.tx?.callerId ?? 'N/A');
   printUnderscored(`${tabs}Contract Hash`, tx?.tx?.contractId ?? 'N/A');
   printUnderscored(`${tabs}Amount`, tx?.tx?.amount ?? 0);
-  printUnderscored(`${tabs}Deposit`, tx?.tx?.deposit ?? 0);
   printUnderscored(`${tabs}Gas`, tx?.tx?.gas ?? 0);
   printUnderscored(`${tabs}Gas Price`, tx?.tx?.gasPrice ?? 0);
   printUnderscored(`${tabs}Call data`, tx.tx.callData);
