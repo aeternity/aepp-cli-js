@@ -78,7 +78,7 @@ describe('Transaction Module', () => {
 
     const response = await executeTx(args);
     expect(response).to.equal(`
-Transaction type ________________________ 12
+Transaction type ________________________ SpendTx
 Summary
     TAG _________________________________ 12
     VSN _________________________________ 1

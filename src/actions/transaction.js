@@ -57,7 +57,7 @@ function buildAndPrintTx(txType, params, json, extraKeys = {}) {
     print({ tx, txObject, ...extraKeys });
     return;
   }
-  printUnderscored('Transaction type', txType);
+  printUnderscored('Transaction type', Tag[txType]);
   print('Summary');
   Object
     .entries({ ...txObject, ...extraKeys })
