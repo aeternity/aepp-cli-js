@@ -41,6 +41,13 @@ const EXECUTABLE_CMD = [
 // You get get CLI version by exec `aecli version`
 program.version(process.env.npm_package_version);
 
+// TODO: switch to usual import after dropping CJS in tests
+import('update-notifier').then(({ default: updateNotifier }) => {
+  updateNotifier({
+    pkg: { name: process.env.npm_package_name, version: process.env.npm_package_version },
+  }).notify();
+});
+
 // ## Initialize `child` command's
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
 

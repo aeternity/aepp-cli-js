@@ -7,7 +7,7 @@ module.exports = {
   ],
   plugins: [
     ['transform-inline-environment-variables', {
-      include: ['npm_package_version'],
+      include: ['npm_package_name', 'npm_package_version'],
     }],
     ['add-import-extension', { extension: 'mjs' }],
     ['module-resolver', {

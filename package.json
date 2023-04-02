@@ -14,7 +14,8 @@
     "env-paths": "^2.2.1",
     "fs-extra": "^11.1.1",
     "prompts": "^2.4.2",
-    "sha.js": "^2.4.11"
+    "sha.js": "^2.4.11",
+    "update-notifier": "^6.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.21.0",
