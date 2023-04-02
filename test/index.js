@@ -36,6 +36,10 @@ export const WALLET_NAME = 'test-artifacts/wallet.json';
 
 const Sdk = async (params = {}) => {
   const sdk = new AeSdk({
+    /* eslint-disable no-underscore-dangle */
+    _expectedMineRate: process.env._EXPECTED_MINE_RATE,
+    _microBlockCycle: process.env._MICRO_BLOCK_CYCLE,
+    /* eslint-enable no-underscore-dangle */
     ignoreVersion,
     compilerUrl,
     nodes: [{ name: 'test', instance: new Node(url) }],

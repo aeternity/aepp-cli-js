@@ -23,6 +23,10 @@ export async function initSdk({
   url, keypair, compilerUrl, force: ignoreVersion, networkId, accounts = [],
 } = {}) {
   const sdk = new AeSdk({
+    /* eslint-disable no-underscore-dangle */
+    _expectedMineRate: process.env._EXPECTED_MINE_RATE,
+    _microBlockCycle: process.env._MICRO_BLOCK_CYCLE,
+    /* eslint-enable no-underscore-dangle */
     nodes: url ? [{ name: 'test-node', instance: new Node(url, { ignoreVersion }) }] : [],
     compilerUrl,
     networkId,
