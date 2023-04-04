@@ -26,6 +26,7 @@ import { initSdk, initSdkByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
 import CliError from '../utils/CliError';
 
+const DESCRIPTOR_VERSION = 0;
 const resolve = (filename) => path.resolve(process.cwd(), filename);
 
 async function getContractParams({
@@ -34,6 +35,9 @@ async function getContractParams({
   let descriptor = {};
   if (descrPath && (!descrMayNotExist || await fs.exists(resolve(descrPath)))) {
     descriptor = await fs.readJson(resolve(descrPath));
+    if (descriptor.version !== DESCRIPTOR_VERSION) {
+      throw new CliError(`Unsupported contract descriptor: version ${descriptor.version}, supported ${DESCRIPTOR_VERSION}`);
+    }
   }
   if (contractSource) {
     const contractSourcePath = resolve(contractSource);
@@ -44,11 +48,12 @@ async function getContractParams({
     descriptor.fileSystem = utils.getFilesystem(contractSourcePath);
     console.log = originalConsoleLog;
   }
+  const { address, version, ...other } = descriptor;
   return {
-    contractAddress: contractAddress ?? descriptor.address,
+    contractAddress: contractAddress ?? address,
     // TODO: either remove calldata methods in cli or reconsider getContractInstance requirements
     ...dummySource && { source: 'invalid-source' },
-    ...descriptor,
+    ...other,
     ...contractBytecode && { bytecode: encode(await fs.readFile(resolve(contractBytecode)), 'cb') },
     ...contractAci && { aci: await fs.readJson(resolve(contractAci)) },
   };
@@ -98,6 +103,7 @@ export async function deploy(walletPath, args, options) {
   options.descrPath ||= path
     .resolve(process.cwd(), `${filename}.deploy.${result.address.slice(3)}.json`);
   const descriptor = {
+    version: DESCRIPTOR_VERSION,
     address: result.address,
     bytecode: contract.bytecode,
     // eslint-disable-next-line no-underscore-dangle
