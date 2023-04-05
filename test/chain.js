@@ -58,7 +58,7 @@ describe('Chain Module', () => {
   });
 
   it('NETWORK ID', async () => {
-    const nodeNetworkId = await sdk.getNetworkId();
+    const nodeNetworkId = await sdk.api.getNetworkId();
     const { networkId } = await executeChain(['network_id', '--json']);
     nodeNetworkId.should.equal(networkId);
   });

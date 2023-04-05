@@ -16,39 +16,38 @@
 *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 *  PERFORMANCE OF THIS SOFTWARE.
 */
-import { AeSdk, Node, MemoryAccount } from '@aeternity/aepp-sdk';
+import {
+  AeSdk, Node, MemoryAccount, CompilerHttpNode,
+} from '@aeternity/aepp-sdk';
 import { getWalletByPathAndDecrypt } from './account';
 
-export async function initSdk({
+export function initSdk({
   url, keypair, compilerUrl, force: ignoreVersion, networkId, accounts = [],
 } = {}) {
-  const sdk = new AeSdk({
+  return new AeSdk({
     /* eslint-disable no-underscore-dangle */
     _expectedMineRate: process.env._EXPECTED_MINE_RATE,
     _microBlockCycle: process.env._MICRO_BLOCK_CYCLE,
     /* eslint-enable no-underscore-dangle */
     nodes: url ? [{ name: 'test-node', instance: new Node(url, { ignoreVersion }) }] : [],
-    compilerUrl,
+    ...compilerUrl && { onCompiler: new CompilerHttpNode(compilerUrl) },
     networkId,
+    accounts: [...keypair ? [new MemoryAccount(keypair.secretKey)] : [], ...accounts],
   });
-  await Promise.all([...keypair ? [new MemoryAccount({ keypair })] : [], ...accounts]
-    .map((account, idx) => sdk.addAccount(account, { select: idx === 0 })));
-  return sdk;
 }
 
-export async function getAccountByWalletFile(walletPath, options) {
-  const keypair = await getWalletByPathAndDecrypt(walletPath, options.password);
-  const accounts = [new MemoryAccount({ ...options, keypair })];
-  return { account: accounts[0], keypair };
+export async function getAccountByWalletFile(walletPath, password) {
+  const keypair = await getWalletByPathAndDecrypt(walletPath, password);
+  return { account: new MemoryAccount(keypair.secretKey), keypair };
 }
 
 // ## Get account files and decrypt it using password
 // After that create sdk instance using this `keyPair`
 //
 // We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
-export async function initSdkByWalletFile(walletPath, options) {
+export async function initSdkByWalletFile(walletPath, { password, ...options }) {
   return initSdk({
     ...options,
-    accounts: walletPath ? [(await getAccountByWalletFile(walletPath, options)).account] : [],
+    accounts: walletPath ? [(await getAccountByWalletFile(walletPath, password)).account] : [],
   });
 }

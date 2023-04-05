@@ -141,7 +141,7 @@ export async function respondToQuery(
 // ## Get oracle
 export async function queryOracle(oracleId, options) {
   decode(oracleId, 'ok');
-  const sdk = await initSdk(options);
+  const sdk = initSdk(options);
   const oracle = await sdk.api.getOracleByPubkey(oracleId);
   const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
   if (options.json) {

@@ -24,7 +24,7 @@ describe('Other tests', () => {
   it('Config', async () => {
     expect(await executeProgram(mainProgram, ['config'])).to.equal(
       'Node https://testnet.aeternity.io network id ae_uat, version 6.8.1\n'
-      + 'Compiler https://compiler.aepps.com version 6.1.0',
+      + 'Compiler https://v7.compiler.aepps.com version 7.1.0',
     );
   });
 

@@ -49,11 +49,10 @@ describe('AENS Module', () => {
       randomName(13),
       '--json',
     ]);
-    const address = await sdk.address();
 
     updateTx.blockHeight.should.be.gt(0);
-    const pointer = updateTx.pointers.find(({ id }) => id === address);
-    expect(pointer).to.be.eql({ id: address, key: 'account_pubkey' });
+    const pointer = updateTx.pointers.find(({ id }) => id === sdk.address);
+    expect(pointer).to.be.eql({ id: sdk.address, key: 'account_pubkey' });
   }).timeout(10000);
 
   it('Full claim with options', async () => {
@@ -71,13 +70,12 @@ describe('AENS Module', () => {
       '--clientTtl',
       50,
     ]);
-    const address = await sdk.address();
 
     updateTx.blockHeight.should.be.gt(0);
     updateTx.tx.nameTtl.should.be.equal(50);
     updateTx.tx.clientTtl.should.be.equal(50);
-    const pointer = updateTx.pointers.find(({ id }) => id === address);
-    expect(pointer).to.be.eql({ id: address, key: 'account_pubkey' });
+    const pointer = updateTx.pointers.find(({ id }) => id === sdk.address);
+    expect(pointer).to.be.eql({ id: sdk.address, key: 'account_pubkey' });
   }).timeout(10000);
 
   it('Pre Claim Name', async () => {
@@ -97,7 +95,7 @@ describe('AENS Module', () => {
     preClaim.commitmentId.should.contain('cm');
     nameResult.name.should.be.equal(name2);
     nameResult.status.should.equal('AVAILABLE');
-  });
+  }).timeout(4000);
 
   it('Claim Name', async () => {
     const claim = await executeName([
@@ -203,7 +201,7 @@ describe('AENS Module', () => {
     await sdk.spend(1, keypair.publicKey, { denomination: 'ae' });
     const claim2 = await sdk.aensQuery(name2);
     const transferBack = await claim2
-      .transfer(await sdk.address(), { onAccount: new MemoryAccount({ keypair }) });
+      .transfer(sdk.address, { onAccount: new MemoryAccount(keypair.secretKey) });
     transferBack.blockHeight.should.be.gt(0);
   });
 
@@ -227,10 +225,10 @@ describe('AENS Module', () => {
     const nameFee = '3665700000000000000';
 
     it('Open auction', async () => {
-      const keypair = generateKeyPair();
-      await sdk.spend('30000000000000000000000', keypair.publicKey);
-      const preclaim = await sdk.aensPreclaim(name, { onAccount: keypair });
-      const claim = await preclaim.claim({ onAccount: new MemoryAccount({ keypair }) });
+      const onAccount = MemoryAccount.generate();
+      await sdk.spend('30000000000000000000000', onAccount.address);
+      const preclaim = await sdk.aensPreclaim(name, { onAccount });
+      const claim = await preclaim.claim({ onAccount });
       claim.blockHeight.should.be.gt(0);
     }).timeout(10000);
 
@@ -266,7 +264,7 @@ describe('AENS Module', () => {
         name,
         preClaim.salt,
         '--json',
-      ]).should.be.rejectedWith('error: Transaction not found');
-    }).timeout(30000);
+      ]).should.be.rejectedWith('Giving up after 5 blocks mined, transaction hash:');
+    }).timeout(15000);
   });
 });

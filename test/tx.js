@@ -64,7 +64,7 @@ describe('Transaction Module', () => {
     expect(responseJson).to.eql({
       tx: responseJson.tx,
       txObject: {
-        VSN: 1,
+        version: 1,
         amount: '100',
         fee: '16660000000000',
         nonce,
@@ -81,7 +81,7 @@ describe('Transaction Module', () => {
 Transaction type ________________________ SpendTx
 Summary
     TAG _________________________________ 12
-    VSN _________________________________ 1
+    VERSION _____________________________ 1
     SENDERID ____________________________ ${TX_KEYS.publicKey}
     RECIPIENTID _________________________ ${TX_KEYS.publicKey}
     AMOUNT ______________________________ ${amount}
@@ -317,10 +317,10 @@ Version _________________________________ 1
   let contract;
   it('builds contract create tx and sends', async () => {
     nonce += 1;
-    contract = await sdk.getContractInstance({ source: testContract });
-    const bytecode = await contract.compile();
+    contract = await sdk.initializeContract({ sourceCode: testContract });
+    const bytecode = await contract.$compile();
     // eslint-disable-next-line no-underscore-dangle
-    const callData = contract.calldata.encode(contract._name, 'init', []);
+    const callData = contract._calldata.encode(contract._name, 'init', []);
     const { tx, contractId: cId } = await executeTx([
       'contract-deploy',
       TX_KEYS.publicKey,
@@ -368,7 +368,7 @@ ABI Version _____________________________ 3
   it('builds contract call tx and sends', async () => {
     nonce += 1;
     // eslint-disable-next-line no-underscore-dangle
-    const callData = contract.calldata.encode(contract._name, 'test', ['1', '2']);
+    const callData = contract._calldata.encode(contract._name, 'test', ['1', '2']);
     const { tx } = await executeTx(['contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);

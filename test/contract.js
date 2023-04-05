@@ -33,8 +33,8 @@ namespace TestLib =
 `;
 
 const testContractSource = `
-@compiler >= 6
-@compiler < 7
+@compiler >= 7
+@compiler < 8
 
 include "testLib.aes"
 
@@ -60,10 +60,10 @@ describe('Contract Module', function contractTests() {
     sdk = await getSdk();
     await fs.outputJson(
       contractAciFile,
-      await sdk.compilerApi.generateACI({
-        code: testContractSource,
-        options: { fileSystem: { 'testLib.aes': testLibSource } },
-      }),
+      (await sdk.compilerApi.compileBySourceCode(
+        testContractSource,
+        { 'testLib.aes': testLibSource },
+      )).aci,
     );
   });
 
@@ -108,43 +108,39 @@ describe('Contract Module', function contractTests() {
       expect(await fs.exists(descrPath)).to.be.equal(true);
       const descriptor = await fs.readJson(descrPath);
       expect(descriptor).to.eql({
-        version: 0,
+        version: 1,
         address,
-        bytecode: 'cb_+L5GA6DW8xFr9ZDBic0l5WTm/5EvGm6k52N0ZwO2agbcg2M00cC4kbhX/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYItC8EEUTWRB8RaW5pdBGSiyA2EXRlc3QR0OKCUjEuVGVzdExpYi5zdW0R6YyQGxlnZXRNYXCCLwCFNi4xLjAAxRDrZA==',
-        aci: {
-          encodedAci: {
-            contract: {
-              functions: [{
-                arguments: [{ name: '_z', type: 'int' }],
-                name: 'init',
-                payable: false,
-                returns: 'Identity.state',
-                stateful: false,
-              }, {
-                arguments: [{ name: 'x', type: 'int' }, { name: 'y', type: 'int' }],
-                name: 'test',
-                payable: false,
-                returns: 'int',
-                stateful: false,
-              }, {
-                arguments: [],
-                name: 'getMap',
-                payable: false,
-                returns: { map: ['int', 'int'] },
-                stateful: false,
-              }],
-              kind: 'contract_main',
-              name: 'Identity',
+        bytecode: 'cb_+L5GA6BBf3GW9I6fo4TZBejjzPtb4sVLycthaPcbJPMW921AUcC4kbhX/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYItC8EEUTWRB8RaW5pdBGSiyA2EXRlc3QR0OKCUjEuVGVzdExpYi5zdW0R6YyQGxlnZXRNYXCCLwCFNy4xLjAAKmhsfQ==',
+        aci: [{
+          namespace: { name: 'TestLib', typedefs: [] },
+        }, {
+          contract: {
+            functions: [{
+              arguments: [{ name: '_z', type: 'int' }],
+              name: 'init',
               payable: false,
-              state: { record: [{ name: 'z', type: 'int' }] },
-              type_defs: [],
-            },
+              returns: 'Identity.state',
+              stateful: false,
+            }, {
+              arguments: [{ name: 'x', type: 'int' }, { name: 'y', type: 'int' }],
+              name: 'test',
+              payable: false,
+              returns: 'int',
+              stateful: false,
+            }, {
+              arguments: [],
+              name: 'getMap',
+              payable: false,
+              returns: { map: ['int', 'int'] },
+              stateful: false,
+            }],
+            kind: 'contract_main',
+            name: 'Identity',
+            payable: false,
+            state: { record: [{ name: 'z', type: 'int' }] },
+            typedefs: [],
           },
-          externalEncodedAci: [{
-            namespace: { name: 'TestLib', type_defs: [] },
-          }],
-          interface: '\nmain contract Identity =\n  record state = {z : int}\n  entrypoint init : (int) => Identity.state\n  entrypoint test : (int, int) => int\n  entrypoint getMap : () => map(int, int)\n',
-        },
+        }],
       });
       await fs.remove(descrPath);
     });

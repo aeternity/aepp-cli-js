@@ -20,7 +20,7 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
 import prompts from 'prompts';
-import { Node, Compiler } from '@aeternity/aepp-sdk';
+import { Node, CompilerHttpNode } from '@aeternity/aepp-sdk';
 import { compilerOption, nodeOption } from '../arguments';
 import { addToConfig } from '../utils/config';
 import CliError from '../utils/CliError';
@@ -63,12 +63,8 @@ async function getNodeDescription(url) {
 }
 
 async function getCompilerDescription(url) {
-  // TODO: remove after fixing https://github.com/aeternity/aepp-sdk-js/issues/1673
-  const omitUncaughtExceptions = () => {};
-  process.on('uncaughtException', omitUncaughtExceptions);
-  const { apiVersion } = await (new Compiler(url)).aPIVersion().catch(() => ({}));
-  process.off('uncaughtException', omitUncaughtExceptions);
-  return apiVersion ? `version ${apiVersion}` : 'can\'t get compiler version';
+  const version = await (new CompilerHttpNode(url)).version().catch(() => {});
+  return version ? `version ${version}` : 'can\'t get compiler version';
 }
 
 program
@@ -145,7 +141,7 @@ program
   .description('Specify compiler to use in other commands')
   .action(async (url) => {
     const compilers = [
-      { name: 'Stable', url: 'https://compiler.aeternity.io/' },
+      { name: 'Stable v7', url: 'https://v7.compiler.aepps.com/' },
       { name: 'Latest', url: 'https://latest.compiler.aeternity.io/' },
     ];
     await addToConfig({
