@@ -20,7 +20,7 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
 import prompts from 'prompts';
-import { Node, CompilerHttpNode } from '@aeternity/aepp-sdk';
+import { Node, CompilerCli, CompilerHttpNode } from '@aeternity/aepp-sdk';
 import { compilerOption, nodeOption } from '../arguments';
 import { addToConfig } from '../utils/config';
 import CliError from '../utils/CliError';
@@ -63,7 +63,8 @@ async function getNodeDescription(url) {
 }
 
 async function getCompilerDescription(url) {
-  const version = await (new CompilerHttpNode(url)).version().catch(() => {});
+  const compiler = url === 'cli' ? new CompilerCli() : new CompilerHttpNode(url);
+  const version = await compiler.version().catch(() => {});
   return version ? `version ${version}` : 'can\'t get compiler version';
 }
 
@@ -116,6 +117,7 @@ async function askUrl(entity, choices, getDescription, _url) {
 
     if (url == null) process.exit(0);
   }
+  if (choices.map((c) => c.url).includes(url)) return url;
   try {
     return (new URL(url)).toString();
   } catch (error) {
@@ -142,6 +144,7 @@ program
   .action(async (url) => {
     const compilers = [
       { name: 'Stable v7', url: 'https://v7.compiler.aepps.com/' },
+      { name: 'Integrated compiler (requires Erlang installed)', url: 'cli' },
       { name: 'Latest', url: 'https://latest.compiler.aeternity.io/' },
     ];
     await addToConfig({

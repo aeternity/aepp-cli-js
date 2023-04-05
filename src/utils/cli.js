@@ -17,7 +17,7 @@
 *  PERFORMANCE OF THIS SOFTWARE.
 */
 import {
-  AeSdk, Node, MemoryAccount, CompilerHttpNode,
+  AeSdk, Node, MemoryAccount, CompilerCli, CompilerHttpNode,
 } from '@aeternity/aepp-sdk';
 import { getWalletByPathAndDecrypt } from './account';
 
@@ -30,7 +30,9 @@ export function initSdk({
     _microBlockCycle: process.env._MICRO_BLOCK_CYCLE,
     /* eslint-enable no-underscore-dangle */
     nodes: url ? [{ name: 'test-node', instance: new Node(url, { ignoreVersion }) }] : [],
-    ...compilerUrl && { onCompiler: new CompilerHttpNode(compilerUrl) },
+    ...compilerUrl && {
+      onCompiler: compilerUrl === 'cli' ? new CompilerCli() : new CompilerHttpNode(compilerUrl),
+    },
     networkId,
     accounts: [...keypair ? [new MemoryAccount(keypair.secretKey)] : [], ...accounts],
   });

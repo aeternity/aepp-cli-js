@@ -77,6 +77,13 @@ describe('Contract Module', function contractTests() {
     expect(bytecode).to.satisfy((b) => b.startsWith('cb_'));
   });
 
+  it('compiles contract using cli compiler', async () => {
+    const { bytecode } = await executeContract([
+      'compile', contractSourceFile, '--json', '--compilerUrl', 'cli',
+    ]);
+    expect(bytecode).to.equal(contractBytecode);
+  });
+
   describe('Deploy', () => {
     it('deploys contract', async () => {
       const { address, transaction, descrPath } = await executeContract([

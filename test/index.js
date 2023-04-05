@@ -94,7 +94,7 @@ export async function executeProgram(program, args) {
       ].includes(args[0]) ? [] : ['--url', url],
       ...[
         'compile', 'deploy', 'call', 'encode-calldata', 'decode-call-result',
-      ].includes(args[0]) ? ['--compilerUrl', compilerUrl] : [],
+      ].includes(args[0]) && !args.includes('--compilerUrl') ? ['--compilerUrl', compilerUrl] : [],
     ];
     if (allArgs.some((a) => !['string', 'number'].includes(typeof a))) {
       throw new Error(`Invalid arguments: [${allArgs.join(', ')}]`);
