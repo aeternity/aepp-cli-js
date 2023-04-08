@@ -18,6 +18,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
+import { verifyTransaction } from '@aeternity/aepp-sdk';
 import { initSdk } from '../utils/cli';
 import {
   printBlock, print, printUnderscored, printTransaction, printValidation,
@@ -29,7 +30,7 @@ import CliError from '../utils/CliError';
 export async function version(options) {
   const { json } = options;
   // Initialize `Ae`
-  const sdk = await initSdk(options);
+  const sdk = initSdk(options);
   // Call `getStatus` API and print it
   const status = await sdk.api.getStatus();
   const { consensusProtocolVersion } = sdk.getNodeInfo();
@@ -59,7 +60,7 @@ export async function version(options) {
 export async function getNetworkId(options) {
   const { json } = options;
   // Initialize `Ae`
-  const sdk = await initSdk(options);
+  const sdk = initSdk(options);
   // Call `getStatus` API and print it
   const { networkId } = await sdk.api.getStatus();
   if (json) print({ networkId });
@@ -70,8 +71,8 @@ export async function getNetworkId(options) {
 export async function ttl(absoluteTtl, options) {
   const { json } = options;
   // Initialize `Ae`
-  const sdk = await initSdk(options);
-  const height = await sdk.height();
+  const sdk = initSdk(options);
+  const height = await sdk.getHeight();
   if (json) {
     print({ absoluteTtl, relativeTtl: +height + +absoluteTtl });
   } else {
@@ -84,7 +85,7 @@ export async function ttl(absoluteTtl, options) {
 export async function top(options) {
   const { json } = options;
   // Initialize `Ae`
-  const sdk = await initSdk(options);
+  const sdk = initSdk(options);
   // Call `getTopBlock` API and print it
   printBlock(await sdk.api.getTopHeader(), json);
 }
@@ -112,9 +113,9 @@ async function playWithHeight(height, blockHash, sdk, json) {
 // ## This function `Play`(print all block) from `top` block to some condition(reach some `height` or `limit`)
 export async function play(options) {
   let { height, limit, json } = options;
-  limit = parseInt(limit);
-  height = parseInt(height);
-  const sdk = await initSdk(options);
+  limit = +limit;
+  height = +height;
+  const sdk = initSdk(options);
 
   // Get top block from `node`. It is a start point for play.
   const topHeader = await sdk.api.getTopHeader();
@@ -134,24 +135,19 @@ export async function play(options) {
 export async function broadcast(signedTx, options) {
   const { json, waitMined, verify } = options;
   // Initialize `Ae`
-  const sdk = await initSdk(options);
-  // Call `getStatus` API and print it
-  try {
-    const tx = await sdk.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify });
-    if (waitMined) printTransaction(tx, json);
-    else print(`Transaction send to the chain. Tx hash: ${tx.hash}`);
-  } catch (e) {
-    if (e.verifyTx) {
-      const validation = await e.verifyTx();
-      if (validation.length) {
-        printValidation({ validation, transaction: signedTx });
-        return;
-      }
-    }
-    if (e.code === 'TX_VERIFICATION_ERROR') {
-      printValidation(e);
+  const sdk = initSdk(options);
+
+  if (verify) {
+    const validation = await verifyTransaction(signedTx, sdk.api);
+    if (validation.length) {
+      printValidation({ validation, transaction: signedTx });
       return;
     }
-    throw e;
   }
+
+  const { txHash } = await sdk.api.postTransaction({ tx: signedTx });
+  const tx = await (waitMined ? sdk.poll(txHash) : sdk.api.getTransactionByHash(txHash));
+
+  printTransaction(tx, json);
+  if (!waitMined && !json) print('Transaction send to the chain.');
 }

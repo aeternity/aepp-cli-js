@@ -266,7 +266,7 @@ export async function fullClaim(walletPath, domain, options) {
   });
   nonce = nonce && nonce + 1;
   const updateTx = await nameInstance.update(
-    { account_pubkey: await sdk.address() },
+    { account_pubkey: sdk.address },
     {
       nonce, ttl, fee, nameTtl, clientTtl,
     },
@@ -281,7 +281,7 @@ export async function fullClaim(walletPath, domain, options) {
 export async function lookUp(domain, options) {
   const { json } = options;
   validateName(domain);
-  const sdk = await initSdk(options);
+  const sdk = initSdk(options);
 
   // Check if `name` is unavailable and we can revoke it
   printName(

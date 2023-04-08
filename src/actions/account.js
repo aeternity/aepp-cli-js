@@ -19,25 +19,25 @@
  */
 
 import fs from 'fs-extra';
-import { generateKeyPair } from '@aeternity/aepp-sdk';
+import {
+  generateKeyPair, encode, Encoding, verifyMessage as _verifyMessage,
+} from '@aeternity/aepp-sdk';
 import CliError from '../utils/CliError';
 import { writeWallet } from '../utils/account';
 import { initSdkByWalletFile, getAccountByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
-import { decode } from '../utils/helpers';
 import { PROMPT_TYPE, prompt } from '../utils/prompt';
 
 // ## `Sign message` function
 // this function allow you to `sign` arbitrary data
 export async function signMessage(walletPath, data = [], options) {
-  const { json, filePath } = options;
+  const { json, filePath, password } = options;
   const dataForSign = filePath ? await fs.readFile(filePath) : data.join(' ');
-  const { account } = await getAccountByWalletFile(walletPath, options);
+  const { account } = await getAccountByWalletFile(walletPath, password);
   const signedMessage = await account.signMessage(dataForSign);
-  const address = await account.address();
   const result = {
     data: typeof dataForSign !== 'string' ? Array.from(dataForSign) : dataForSign,
-    address,
+    address: account.address,
     signature: Array.from(signedMessage),
     signatureHex: Buffer.from(signedMessage).toString('hex'),
   };
@@ -53,40 +53,32 @@ export async function signMessage(walletPath, data = [], options) {
 
 // ## `Verify` function
 // this function allow you to `verify` signed data
-export async function verifyMessage(walletPath, hexSignature, data = [], options) {
-  const { json, filePath } = options;
-  const dataForVerify = filePath ? await fs.readFile(filePath) : data.join(' ');
-  const { account } = await getAccountByWalletFile(walletPath, options);
-  const isCorrect = await account.verifyMessage(dataForVerify, hexSignature);
-  const result = {
-    data: typeof dataForVerify !== 'string' ? Array.from(dataForVerify) : dataForVerify,
-    isCorrect,
-  };
+export async function verifyMessage(walletPath, hexSignature, dataArray = [], options) {
+  const { json, filePath, password } = options;
+  const data = filePath ? await fs.readFile(filePath) : dataArray.join(' ');
+  const { account } = await getAccountByWalletFile(walletPath, password);
+  const isCorrect = _verifyMessage(data, Buffer.from(hexSignature, 'hex'), account.address);
   if (json) {
-    print(result);
+    print({ data, isCorrect });
   } else {
     printUnderscored('Valid signature', isCorrect);
-    printUnderscored('Data', dataForVerify);
+    printUnderscored('Data', data);
   }
 }
 
 // ## `Sign` function
 // this function allow you to `sign` transaction's
-export async function sign(walletPath, tx, options) {
-  const { json } = options;
-  // Validate `tx` hash
-  decode(tx, 'tx');
-
-  const { account } = await getAccountByWalletFile(walletPath, options);
-
-  const signedTx = await account.signTransaction(tx);
-  const address = await account.address();
-  const networkId = account.getNetworkId();
+export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...options }) {
+  const sdk = await initSdkByWalletFile(walletPath, options);
+  const networkId = networkIdOpt ?? await sdk.api.getNetworkId();
+  const signedTx = await sdk.signTransaction(tx, { networkId });
+  const { address } = sdk;
   if (json) {
     print({ signedTx, address, networkId });
   } else {
     printUnderscored('Signing account address', address);
     printUnderscored('Network ID', networkId);
+    // TODO: remove unsigned tx because it is already accepted in arguments
     printUnderscored('Unsigned', tx);
     printUnderscored('Signed', signedTx);
   }
@@ -96,33 +88,30 @@ export async function sign(walletPath, tx, options) {
 // this function allow you to `send` token's to another `account`
 export async function spend(walletPath, receiverNameOrAddress, amount, options) {
   const {
-    ttl, json, nonce, fee, payload = '',
+    ttl, json, nonce, fee, payload,
   } = options;
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   let tx = await sdk.spend(amount, receiverNameOrAddress, {
-    ttl, nonce, payload, fee,
+    ttl, nonce, payload: encode(Buffer.from(payload), Encoding.Bytearray), fee,
   });
-  // if waitMined false
-  if (typeof tx !== 'object') {
-    tx = await sdk.api.getTransactionByHash(tx);
-  } else if (!json) {
-    print('Transaction mined');
-  }
   if (json) print({ tx });
-  else printTransaction(tx, json);
+  else {
+    print('Transaction mined');
+    printTransaction(tx, json);
+  }
 }
 
 // ## `Transfer` function
 // this function allow you to `send` % of balance to another `account`
 export async function transferFunds(walletPath, receiver, fraction, options) {
   const {
-    ttl, json, nonce, fee, payload = '',
+    ttl, json, nonce, fee, payload,
   } = options;
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   let tx = await sdk.transferFunds(fraction, receiver, {
-    ttl, nonce, payload, fee,
+    ttl, nonce, payload: encode(Buffer.from(payload), Encoding.Bytearray), fee,
   });
   // if waitMined false
   if (typeof tx !== 'object') {
@@ -142,14 +131,13 @@ export async function transferFunds(walletPath, receiver, fraction, options) {
 export async function getBalance(walletPath, options) {
   const { height, hash, json } = options;
   const sdk = await initSdkByWalletFile(walletPath, options);
-  const address = await sdk.address();
-  const { nextNonce: nonce } = await sdk.api.getAccountNextNonce(address);
-  const balance = await sdk.getBalance(address, { height: height && +height, hash });
+  const { nextNonce: nonce } = await sdk.api.getAccountNextNonce(sdk.address);
+  const balance = await sdk.getBalance(sdk.address, { height: height && +height, hash });
   if (json) {
-    print({ address, nonce, balance });
+    print({ address: sdk.address, nonce, balance });
   } else {
     printUnderscored('Balance', balance);
-    printUnderscored('ID', address);
+    printUnderscored('ID', sdk.address);
     printUnderscored('Nonce', nonce);
   }
 }
@@ -157,18 +145,20 @@ export async function getBalance(walletPath, options) {
 // ## Get `address` function
 // This function allow you retrieve account `public` and `private` keys
 export async function getAddress(walletPath, options) {
-  const { privateKey, forcePrompt = false, json } = options;
-  const { account, keypair } = await getAccountByWalletFile(walletPath, options);
+  const {
+    privateKey, forcePrompt = false, json, password,
+  } = options;
+  const { account, keypair } = await getAccountByWalletFile(walletPath, password);
   const printPrivateKey = privateKey && (forcePrompt
     || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' }));
 
   if (json) {
     print({
-      publicKey: await account.address(),
+      publicKey: account.address,
       ...printPrivateKey && { secretKey: keypair.secretKey },
     });
   } else {
-    printUnderscored('Address', await account.address());
+    printUnderscored('Address', account.address);
     if (printPrivateKey) printUnderscored('Secret Key', keypair.secretKey);
   }
 }
@@ -178,16 +168,15 @@ export async function getAddress(walletPath, options) {
 export async function getAccountNonce(walletPath, options) {
   const { json } = options;
   const sdk = await initSdkByWalletFile(walletPath, options);
-  const address = await sdk.address();
-  const { nextNonce: nonce } = await sdk.api.getAccountNextNonce(address);
+  const { nextNonce: nonce } = await sdk.api.getAccountNextNonce(sdk.address);
   if (json) {
     print({
-      id: address,
+      id: sdk.address,
       nonce: nonce - 1,
       nextNonce: nonce,
     });
   } else {
-    printUnderscored('ID', address);
+    printUnderscored('ID', sdk.address);
     printUnderscored('Nonce', nonce - 1);
     printUnderscored('Next Nonce', nonce);
   }
@@ -236,7 +225,7 @@ export async function generateKeyPairs(count = 1, { forcePrompt, json }) {
     throw new CliError('Count must be an Number');
   }
   if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-    const accounts = Array.from(Array(parseInt(count))).map(() => generateKeyPair(false));
+    const accounts = Array.from(Array(+count)).map(() => generateKeyPair(false));
     if (json) {
       print(accounts);
     } else {

@@ -20,7 +20,7 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
 import prompts from 'prompts';
-import { Node, Compiler } from '@aeternity/aepp-sdk';
+import { Node, CompilerCli, CompilerHttpNode } from '@aeternity/aepp-sdk';
 import { compilerOption, nodeOption } from '../arguments';
 import { addToConfig } from '../utils/config';
 import CliError from '../utils/CliError';
@@ -41,6 +41,13 @@ const EXECUTABLE_CMD = [
 // You get get CLI version by exec `aecli version`
 program.version(process.env.npm_package_version);
 
+// TODO: switch to usual import after dropping CJS in tests
+import('update-notifier').then(({ default: updateNotifier }) => {
+  updateNotifier({
+    pkg: { name: process.env.npm_package_name, version: process.env.npm_package_version },
+  }).notify();
+});
+
 // ## Initialize `child` command's
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
 
@@ -56,12 +63,9 @@ async function getNodeDescription(url) {
 }
 
 async function getCompilerDescription(url) {
-  // TODO: remove after fixing https://github.com/aeternity/aepp-sdk-js/issues/1673
-  const omitUncaughtExceptions = () => {};
-  process.on('uncaughtException', omitUncaughtExceptions);
-  const { apiVersion } = await (new Compiler(url)).aPIVersion().catch(() => ({}));
-  process.off('uncaughtException', omitUncaughtExceptions);
-  return apiVersion ? `version ${apiVersion}` : 'can\'t get compiler version';
+  const compiler = url === 'cli' ? new CompilerCli() : new CompilerHttpNode(url);
+  const version = await compiler.version().catch(() => {});
+  return version ? `version ${version}` : 'can\'t get compiler version';
 }
 
 program
@@ -113,6 +117,7 @@ async function askUrl(entity, choices, getDescription, _url) {
 
     if (url == null) process.exit(0);
   }
+  if (choices.map((c) => c.url).includes(url)) return url;
   try {
     return (new URL(url)).toString();
   } catch (error) {
@@ -138,7 +143,8 @@ program
   .description('Specify compiler to use in other commands')
   .action(async (url) => {
     const compilers = [
-      { name: 'Stable', url: 'https://compiler.aeternity.io/' },
+      { name: 'Stable v7', url: 'https://v7.compiler.aepps.com/' },
+      { name: 'Integrated compiler (requires Erlang installed)', url: 'cli' },
       { name: 'Latest', url: 'https://latest.compiler.aeternity.io/' },
     ];
     await addToConfig({

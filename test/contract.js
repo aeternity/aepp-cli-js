@@ -33,8 +33,8 @@ namespace TestLib =
 `;
 
 const testContractSource = `
-@compiler >= 6
-@compiler < 7
+@compiler >= 7
+@compiler < 8
 
 include "testLib.aes"
 
@@ -60,10 +60,10 @@ describe('Contract Module', function contractTests() {
     sdk = await getSdk();
     await fs.outputJson(
       contractAciFile,
-      await sdk.compilerApi.generateACI({
-        code: testContractSource,
-        options: { fileSystem: { 'testLib.aes': testLibSource } },
-      }),
+      (await sdk.compilerApi.compileBySourceCode(
+        testContractSource,
+        { 'testLib.aes': testLibSource },
+      )).aci,
     );
   });
 
@@ -75,6 +75,13 @@ describe('Contract Module', function contractTests() {
     const { bytecode } = await executeContract(['compile', contractSourceFile, '--json']);
     contractBytecode = bytecode;
     expect(bytecode).to.satisfy((b) => b.startsWith('cb_'));
+  });
+
+  it('compiles contract using cli compiler', async () => {
+    const { bytecode } = await executeContract([
+      'compile', contractSourceFile, '--json', '--compilerUrl', 'cli',
+    ]);
+    expect(bytecode).to.equal(contractBytecode);
   });
 
   describe('Deploy', () => {
@@ -97,7 +104,7 @@ describe('Contract Module', function contractTests() {
 
     it('deploys contract with custom descrPath', async () => {
       const descrPath = './not-existing/testDescriptor.json';
-      await executeContract([
+      const { address } = await executeContract([
         'deploy',
         WALLET_NAME, '--password', 'test',
         '--contractSource', contractSourceFile,
@@ -107,9 +114,41 @@ describe('Contract Module', function contractTests() {
       ]);
       expect(await fs.exists(descrPath)).to.be.equal(true);
       const descriptor = await fs.readJson(descrPath);
-      expect(descriptor.address).to.satisfy((b) => b.startsWith('ct_'));
-      expect(descriptor.bytecode).to.satisfy((b) => b.startsWith('cb_'));
-      expect(descriptor.aci).to.an('object');
+      expect(descriptor).to.eql({
+        version: 1,
+        address,
+        bytecode: 'cb_+L5GA6BBf3GW9I6fo4TZBejjzPtb4sVLycthaPcbJPMW921AUcC4kbhX/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYItC8EEUTWRB8RaW5pdBGSiyA2EXRlc3QR0OKCUjEuVGVzdExpYi5zdW0R6YyQGxlnZXRNYXCCLwCFNy4xLjAAKmhsfQ==',
+        aci: [{
+          namespace: { name: 'TestLib', typedefs: [] },
+        }, {
+          contract: {
+            functions: [{
+              arguments: [{ name: '_z', type: 'int' }],
+              name: 'init',
+              payable: false,
+              returns: 'Identity.state',
+              stateful: false,
+            }, {
+              arguments: [{ name: 'x', type: 'int' }, { name: 'y', type: 'int' }],
+              name: 'test',
+              payable: false,
+              returns: 'int',
+              stateful: false,
+            }, {
+              arguments: [],
+              name: 'getMap',
+              payable: false,
+              returns: { map: ['int', 'int'] },
+              stateful: false,
+            }],
+            kind: 'contract_main',
+            name: 'Identity',
+            payable: false,
+            state: { record: [{ name: 'z', type: 'int' }] },
+            typedefs: [],
+          },
+        }],
+      });
       await fs.remove(descrPath);
     });
 

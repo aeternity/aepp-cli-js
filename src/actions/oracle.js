@@ -39,7 +39,7 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
     waitMined,
     nonce,
     fee,
-    oracleTtl: isNaN(parseInt(oracleTtl))
+    oracleTtl: isNaN(+oracleTtl)
       ? oracleTtl
       : BUILD_ORACLE_TTL(oracleTtl),
     queryFee,
@@ -90,10 +90,10 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
     waitMined,
     nonce,
     fee,
-    queryTll: isNaN(parseInt(queryTll))
+    queryTll: isNaN(+queryTll)
       ? queryTll
       : BUILD_ORACLE_TTL(queryTll),
-    responseTtl: isNaN(parseInt(responseTtl))
+    responseTtl: isNaN(+responseTtl)
       ? responseTtl
       : BUILD_ORACLE_TTL(responseTtl),
     queryFee,
@@ -127,7 +127,7 @@ export async function respondToQuery(
     waitMined,
     nonce,
     fee,
-    responseTtl: isNaN(parseInt(responseTtl))
+    responseTtl: isNaN(+responseTtl)
       ? responseTtl
       : BUILD_ORACLE_TTL(responseTtl),
   });
@@ -141,7 +141,7 @@ export async function respondToQuery(
 // ## Get oracle
 export async function queryOracle(oracleId, options) {
   decode(oracleId, 'ok');
-  const sdk = await initSdk(options);
+  const sdk = initSdk(options);
   const oracle = await sdk.api.getOracleByPubkey(oracleId);
   const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
   if (options.json) {

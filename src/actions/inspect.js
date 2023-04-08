@@ -39,7 +39,7 @@ async function getBlockByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, [Encoding.KeyBlockHash, Encoding.MicroBlockHash]);
-    const sdk = await initSdk(options);
+    const sdk = initSdk(options);
     printBlock(await getBlock(hash, sdk), json);
   } catch (e) {
     printError(e.message);
@@ -50,7 +50,7 @@ async function getTransactionByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, Encoding.TxHash);
-    const sdk = await initSdk(options);
+    const sdk = initSdk(options);
     printTransaction(await sdk.api.getTransactionByHash(hash), json);
   } catch (e) {
     printError(e.message);
@@ -77,7 +77,7 @@ async function getAccountByHash(hash, options) {
   const { json } = options;
   try {
     checkPref(hash, Encoding.AccountAddress);
-    const sdk = await initSdk(options);
+    const sdk = initSdk(options);
     const { nonce } = await sdk.api.getAccountByPubkey(hash);
     const balance = await sdk.getBalance(hash);
     const { transactions } = await sdk.api.getPendingAccountTransactionsByPubkey(hash);
@@ -102,9 +102,9 @@ async function getAccountByHash(hash, options) {
 
 async function getBlockByHeight(height, options) {
   const { json } = options;
-  height = parseInt(height);
+  height = +height;
   try {
-    const sdk = await initSdk(options);
+    const sdk = initSdk(options);
 
     printBlock(await sdk.api.getKeyBlockByHeight(height), json);
   } catch (e) {
@@ -115,7 +115,7 @@ async function getBlockByHeight(height, options) {
 async function getName(name, options) {
   const { json } = options;
   validateName(name);
-  const sdk = await initSdk(options);
+  const sdk = initSdk(options);
   try {
     printName(
       await updateNameStatus(name, sdk),
@@ -132,7 +132,7 @@ async function getName(name, options) {
 async function getContract(contractId, options) {
   const { json } = options;
   try {
-    const sdk = await initSdk(options);
+    const sdk = initSdk(options);
 
     printTransaction(await sdk.api.getContract(contractId), json);
   } catch (e) {
@@ -143,7 +143,7 @@ async function getContract(contractId, options) {
 async function getOracle(oracleId, options) {
   const { json } = options;
   try {
-    const sdk = await initSdk(options);
+    const sdk = initSdk(options);
 
     // printTransaction(await sdk.api.getContract(contractId), json)
     printOracle(await sdk.api.getOracleByPubkey(oracleId), json);

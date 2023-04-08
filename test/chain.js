@@ -52,13 +52,13 @@ describe('Chain Module', () => {
 
   it('TTL', async () => {
     const { relativeTtl } = await executeChain(['ttl', 10, '--json']);
-    const height = await sdk.height();
+    const height = await sdk.getHeight();
     const isValid = [relativeTtl + 1, relativeTtl, relativeTtl - 1].includes(height + 10);
     isValid.should.equal(true);
   });
 
   it('NETWORK ID', async () => {
-    const nodeNetworkId = await sdk.getNetworkId();
+    const nodeNetworkId = await sdk.api.getNetworkId();
     const { networkId } = await executeChain(['network_id', '--json']);
     nodeNetworkId.should.equal(networkId);
   });

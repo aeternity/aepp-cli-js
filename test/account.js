@@ -54,7 +54,7 @@ describe('Account Module', () => {
 
   it('Check Wallet Address', async () => {
     expect((await executeAccount(['address', WALLET_NAME, '--password', 'test', '--json'])).publicKey)
-      .to.equal(await sdk.address());
+      .to.equal(sdk.address);
   });
 
   it('Check Wallet Address with Private Key', async () => {
@@ -63,7 +63,7 @@ describe('Account Module', () => {
   });
 
   it('Check Wallet Balance', async () => {
-    const balance = await sdk.getBalance(await sdk.address());
+    const balance = await sdk.getBalance(sdk.address);
     expect((await executeAccount(['balance', WALLET_NAME, '--password', 'test', '--json'])).balance)
       .to.equal(balance);
   });
@@ -89,13 +89,13 @@ describe('Account Module', () => {
   it('Spend fraction of coins to account by name', async () => {
     const fraction = 0.000001;
     const { publicKey } = generateKeyPair();
-    const balanceBefore = await sdk.getBalance(await sdk.address());
+    const balanceBefore = await sdk.getBalance(sdk.address);
     await executeAccount(['transfer', WALLET_NAME, '--password', 'test', publicKey, fraction]);
     expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * fraction);
   });
 
   it('Get account nonce', async () => {
-    const { nextNonce } = await sdk.api.getAccountNextNonce(await sdk.address());
+    const { nextNonce } = await sdk.api.getAccountNextNonce(sdk.address);
     expect((await executeAccount(['nonce', WALLET_NAME, '--password', 'test', '--json'])).nextNonce)
       .to.equal(nextNonce);
   });
@@ -111,7 +111,7 @@ describe('Account Module', () => {
     const signedUsingSDK = Array.from(await sdk.signMessage(data));
     sig = signedMessage.signatureHex;
     signedMessage.data.should.be.equal(data);
-    signedMessage.address.should.be.equal(await sdk.address());
+    signedMessage.address.should.be.equal(sdk.address);
     Array.isArray(signedMessage.signature).should.be.equal(true);
     signedMessage.signature.toString().should.be.equal(signedUsingSDK.toString());
     signedMessage.signatureHex.should.be.a('string');
@@ -125,7 +125,7 @@ describe('Account Module', () => {
     sigFromFile = signatureHex;
     signature.toString().should.be.equal(signedUsingSDK.toString());
     data.toString().should.be.equal(Array.from(Buffer.from(fileData)).toString());
-    address.should.be.equal(await sdk.address());
+    address.should.be.equal(sdk.address);
     Array.isArray(signature).should.be.equal(true);
     signatureHex.should.be.a('string');
   });

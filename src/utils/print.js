@@ -97,7 +97,8 @@ function printContractCreateTransaction(tx = {}, tabs = '') {
   printUnderscored(`${tabs}Deposit`, tx?.tx?.deposit ?? 'N/A');
   printUnderscored(`${tabs}Gas`, tx?.tx?.gas ?? 'N/A');
   printUnderscored(`${tabs}Gas Price`, tx?.tx?.gasPrice ?? 'N/A');
-  printUnderscored(`${tabs}Payload`, tx?.tx?.payload ?? 'N/A');
+  printUnderscored(`${tabs}Bytecode`, tx.tx.code);
+  printUnderscored(`${tabs}Call data`, tx.tx.callData);
 
   printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
   printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
@@ -112,10 +113,9 @@ function printContractCallTransaction(tx = {}, tabs = '') {
   printUnderscored(`${tabs}Caller Account`, tx?.tx?.callerId ?? 'N/A');
   printUnderscored(`${tabs}Contract Hash`, tx?.tx?.contractId ?? 'N/A');
   printUnderscored(`${tabs}Amount`, tx?.tx?.amount ?? 0);
-  printUnderscored(`${tabs}Deposit`, tx?.tx?.deposit ?? 0);
   printUnderscored(`${tabs}Gas`, tx?.tx?.gas ?? 0);
   printUnderscored(`${tabs}Gas Price`, tx?.tx?.gasPrice ?? 0);
-  printUnderscored(`${tabs}Payload`, tx?.tx?.payload ?? 'N/A');
+  printUnderscored(`${tabs}Call data`, tx.tx.callData);
 
   printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
   printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');

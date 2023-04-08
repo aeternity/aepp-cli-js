@@ -19,7 +19,7 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { ORACLE_TTL, QUERY_FEE, QUERY_TTL } from '@aeternity/aepp-sdk';
+import { ORACLE_TTL, QUERY_TTL } from '@aeternity/aepp-sdk';
 import { RESPONSE_TTL } from '../utils/constant';
 import * as Oracle from '../actions/oracle';
 import {
@@ -52,7 +52,7 @@ addCommonOptions(program
   .command('create <wallet_path> <queryFormat> <responseFormat>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', ORACLE_TTL)
-  .option('--queryFee [queryFee]', 'Oracle query fee', QUERY_FEE)
+  .option('--queryFee [queryFee]', 'Oracle query fee', 0)
   .description('Register Oracle')
   .action(Oracle.createOracle));
 
@@ -85,7 +85,7 @@ addCommonOptions(program
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL)
   .option('--queryTtl [queryTtl]', 'Query time to leave', QUERY_TTL)
-  .option('--queryFee [queryFee]', 'Oracle query fee', QUERY_FEE)
+  .option('--queryFee [queryFee]', 'Oracle query fee', 0)
   .description('Create Oracle query')
   .action(Oracle.createOracleQuery));
 
