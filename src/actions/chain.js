@@ -63,16 +63,17 @@ export async function getNetworkId(options) {
 }
 
 // ## Retrieve `ttl` version
-export async function ttl(absoluteTtl, options) {
-  const { json } = options;
+export async function ttl(_absoluteTtl, { json, ...options }) {
   // Initialize `Ae`
   const sdk = initSdk(options);
   const height = await sdk.getHeight();
+  const absoluteTtl = +_absoluteTtl;
+  const relativeTtl = absoluteTtl - height;
   if (json) {
-    print({ absoluteTtl, relativeTtl: +height + +absoluteTtl });
+    print({ absoluteTtl, relativeTtl });
   } else {
     printUnderscored('Absolute TTL', absoluteTtl);
-    printUnderscored('Relative TTL', +height + +absoluteTtl);
+    printUnderscored('Relative TTL', relativeTtl);
   }
 }
 

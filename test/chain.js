@@ -100,10 +100,18 @@ Syncing _________________________________ false
   }).timeout(10000);
 
   it('calculates ttl', async () => {
-    const { relativeTtl } = await executeChain(['ttl', 10, '--json']);
     const height = await sdk.getHeight();
-    const isValid = [relativeTtl + 1, relativeTtl, relativeTtl - 1].includes(height + 10);
-    isValid.should.equal(true);
+    const resJson = await executeChain(['ttl', 10, '--json']);
+    expect(resJson).to.eql({
+      absoluteTtl: 10,
+      relativeTtl: 10 - height,
+    });
+
+    const res = await executeChain(['ttl', 10]);
+    expect(res).to.equal(`
+Absolute TTL ____________________________ 10
+Relative TTL ____________________________ ${resJson.relativeTtl}
+    `.trim());
   });
 
   it('prints network id', async () => {
