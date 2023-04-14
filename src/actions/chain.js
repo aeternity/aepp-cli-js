@@ -18,7 +18,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { verifyTransaction } from '@aeternity/aepp-sdk';
+import { verifyTransaction, ConsensusProtocolVersion } from '@aeternity/aepp-sdk';
 import { initSdk } from '../utils/cli';
 import {
   printBlock, print, printUnderscored, printTransaction, printValidation,
@@ -33,19 +33,14 @@ export async function version(options) {
   const sdk = initSdk(options);
   // Call `getStatus` API and print it
   const status = await sdk.api.getStatus();
-  const { consensusProtocolVersion } = sdk.getNodeInfo();
+  const { consensusProtocolVersion } = await sdk.getNodeInfo();
   if (json) {
     print(status);
     return;
   }
-  const FORKS = {
-    3: 'Fortuna',
-    4: 'Lima',
-    5: 'Iris',
-  };
   printUnderscored('Difficulty', status.difficulty);
   printUnderscored('Node version', status.nodeVersion);
-  printUnderscored('Consensus protocol version', `${consensusProtocolVersion} (${FORKS[consensusProtocolVersion]})`);
+  printUnderscored('Consensus protocol version', `${consensusProtocolVersion} (${ConsensusProtocolVersion[consensusProtocolVersion]})`);
   printUnderscored('Node revision', status.nodeRevision);
   printUnderscored('Genesis hash', status.genesisKeyBlockHash);
   printUnderscored('Network ID', status.networkId);
@@ -87,6 +82,7 @@ export async function top(options) {
   // Initialize `Ae`
   const sdk = initSdk(options);
   // Call `getTopBlock` API and print it
+  // TODO: shouldn't be padded
   printBlock(await sdk.api.getTopHeader(), json);
 }
 
