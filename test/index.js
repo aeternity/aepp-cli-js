@@ -124,21 +124,6 @@ export async function getSdk() {
   return sdk;
 }
 
-export const parseBlock = (res) => Object.fromEntries(res
-  .trim()
-  .split('\n')
-  .map((a) => a.trim())
-  .filter((a) => !a.startsWith('<<--') && !a.startsWith('--'))
-  .map((a) => a.split(/ [_]+ /))
-  .map(([key, value]) => [
-    key
-      .toLowerCase()
-      .split(' ')
-      .map((el, i) => (i === 0 ? el : el[0].toUpperCase() + el.slice(1)))
-      .join(''),
-    value,
-  ]));
-
 export function randomName(length = 18) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const random = new Array(length).fill()

@@ -27,7 +27,6 @@ const program = new Command().name('aecli chain');
 // ## Initialize `options`
 const addCommonOptions = (p) => p
   .addOption(nodeOption)
-  .option('-L --limit [playlimit]', 'Limit for play command', 10)
   .addOption(forceOption)
   .addOption(jsonOption);
 
@@ -73,13 +72,14 @@ addCommonOptions(program
 
 // ## Initialize `play` command
 //
-// You can use this command to get list of block by some condition(by `limit` or `height`)
+// You can use this command to get list of block by some condition (by `limit` or `height`)
 //
 // Example: `aecli chain play --limit 10` --> print 10 blocks starting from top
 //
-// Example: `aecli chain play --height` --> print blocks until reach some height starting from top
+// Example: `aecli chain play --height 100` --> print blocks until reach height 100 starting from top
 addCommonOptions(program
   .command('play')
+  .option('-L --limit [playlimit]', 'Limit for play command', 10)
   .option('-P --height [playToHeight]', 'Play to selected height')
   .description('Real-time block monitoring')
   .action(Chain.play));

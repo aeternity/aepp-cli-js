@@ -17,7 +17,7 @@
 
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { executeProgram, parseBlock, getSdk } from './index';
+import { executeProgram, getSdk } from './index';
 import chainProgram from '../src/commands/chain';
 
 const executeChain = (args) => executeProgram(chainProgram, args);
@@ -36,7 +36,7 @@ describe('Chain Module', () => {
 
     const res = await executeChain(['top']);
     expect(res).to.equal(`
-<<--------------- ${resJson.hash.startsWith('mh_') ? 'MicroBlockHash' : 'KeyBlockHash'} --------------->>
+<<--------------- ${resJson.hash.startsWith('mh_') ? 'MicroBlock' : 'KeyBlock'} --------------->>
 Block hash ______________________________ ${resJson.hash}
 Block height ____________________________ ${resJson.height}
 State hash ______________________________ ${resJson.stateHash}
@@ -48,7 +48,6 @@ Previous key block hash _________________ ${resJson.prevKeyHash}
 Version _________________________________ 5
 Target __________________________________ ${resJson.target ?? 'N/A'}
 Transactions ____________________________ 0
-<<------------------------------------->>
     `.trim());
   });
 
@@ -89,15 +88,20 @@ Syncing _________________________________ false
     `.trim());
   });
 
-  it('plays', async () => {
+  it('plays by limit', async () => {
     const res = await executeChain(['play', '--limit', '4']);
-    res.split('<<------------------------------------->>').length.should.equal(5);
+    const blockCount = (output) => (output.match(/(Key|Micro)Block/g) || []).length;
+    expect(blockCount(res)).to.be.equal(4);
+  });
 
-    const parsed = res.split('<<------------------------------------->>').map(parseBlock);
-    parsed[0].previousBlockHash.should.equal(parsed[1].blockHash);
-    parsed[1].previousBlockHash.should.equal(parsed[2].blockHash);
-    parsed[2].previousBlockHash.should.equal(parsed[3].blockHash);
-  }).timeout(10000);
+  it('plays by height', async () => {
+    const res = await executeChain(['play', '--height', await sdk.getHeight() - 4]);
+    const heights = res
+      .split('\n')
+      .filter((l) => l.includes('Block height'))
+      .map((l) => +l.split(' ').at(-1));
+    expect(new Set(heights).size).to.be.equal(5);
+  });
 
   it('calculates ttl', async () => {
     const height = await sdk.getHeight();

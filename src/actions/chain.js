@@ -24,7 +24,6 @@ import {
   printBlock, print, printUnderscored, printTransaction, printValidation,
 } from '../utils/print';
 import { getBlock } from '../utils/helpers';
-import CliError from '../utils/CliError';
 
 // ## Retrieve `node` version
 export async function version(options) {
@@ -85,27 +84,7 @@ export async function top({ json, ...options }) {
   printBlock(await sdk.api.getTopHeader(), json, true);
 }
 
-// # Play by `limit`
-async function playWithLimit(limit, blockHash, sdk, json) {
-  if (!limit) return;
-  const block = await getBlock(blockHash, sdk);
-
-  await new Promise((resolve) => { setTimeout(resolve, 1000); });
-  printBlock(block, json);
-  await playWithLimit(limit - 1, block.prevHash, sdk, json);
-}
-
-// # Play by `height`
-async function playWithHeight(height, blockHash, sdk, json) {
-  const block = await getBlock(blockHash, sdk);
-  if (parseInt(block.height) < height) return;
-
-  await new Promise((resolve) => { setTimeout(resolve, 1000); });
-  printBlock(block, json);
-  await playWithHeight(height, block.prevHash, sdk, json);
-}
-
-// ## This function `Play`(print all block) from `top` block to some condition(reach some `height` or `limit`)
+// ## This function `Play` (print all block) from `top` block to some condition (reach some `height` or `limit`)
 export async function play(options) {
   let { height, limit, json } = options;
   limit = +limit;
@@ -113,17 +92,14 @@ export async function play(options) {
   const sdk = initSdk(options);
 
   // Get top block from `node`. It is a start point for play.
-  const topHeader = await sdk.api.getTopHeader();
-
-  if (height && height > parseInt(topHeader.height)) {
-    throw new CliError('Height is bigger then height of top block');
-  }
-
-  printBlock(topHeader, json);
+  let block = await sdk.api.getTopHeader();
 
   // Play by `height` or by `limit` using `top` block as start point
-  if (height) await playWithHeight(height, topHeader.prevHash, sdk, json);
-  else await playWithLimit(limit - 1, topHeader.prevHash, sdk, json);
+  while (height ? block.height >= height : limit) {
+    if (!height) limit -= 1;
+    printBlock(block, json);
+    block = await getBlock(block.prevHash, sdk); // eslint-disable-line no-await-in-loop
+  }
 }
 
 // ## Send 'transaction' to the chain

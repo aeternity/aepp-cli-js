@@ -294,13 +294,10 @@ export function printBlockTransactions(ts, json, tabs = 0) {
     return;
   }
   const tabsString = getTabs(tabs);
-  ts.forEach(
-    (tx) => {
-      print(`${tabsString}----------------  TX  ----------------`);
-      printTransaction(tx, false, tabs + 1);
-      print(`${tabsString}--------------------------------------`);
-    },
-  );
+  ts.forEach((tx) => {
+    print(`${tabsString}<<--------------- Transaction --------------->>`);
+    printTransaction(tx, false, tabs);
+  });
 }
 
 export function printBlock(block, json, isRoot = false) {
@@ -313,7 +310,8 @@ export function printBlock(block, json, isRoot = false) {
   const tabString = getTabs(tabs);
 
   const reverseEncoding = Object.fromEntries(Object.entries(Encoding).map(([k, v]) => [v, k]));
-  print(`${tabString}<<--------------- ${reverseEncoding[encoding]} --------------->>`);
+  const name = reverseEncoding[encoding].replace('Hash', '');
+  print(`${tabString}<<--------------- ${name} --------------->>`);
 
   printUnderscored(`${tabString}Block hash`, block.hash);
   printUnderscored(`${tabString}Block height`, block.height);
@@ -328,8 +326,6 @@ export function printBlock(block, json, isRoot = false) {
   const txCount = block.transactions?.length ?? 0;
   printUnderscored(`${tabString}Transactions`, txCount);
   if (txCount) printBlockTransactions(block.transactions, false, tabs + 1);
-
-  print(`${tabString}<<------------------------------------->>`);
 }
 
 // ##OTHER
