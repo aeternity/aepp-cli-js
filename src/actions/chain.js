@@ -77,13 +77,11 @@ export async function ttl(absoluteTtl, options) {
 }
 
 // ## Retrieve `TOP` block
-export async function top(options) {
-  const { json } = options;
+export async function top({ json, ...options }) {
   // Initialize `Ae`
   const sdk = initSdk(options);
   // Call `getTopBlock` API and print it
-  // TODO: shouldn't be padded
-  printBlock(await sdk.api.getTopHeader(), json);
+  printBlock(await sdk.api.getTopHeader(), json, true);
 }
 
 // # Play by `limit`

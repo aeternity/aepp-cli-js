@@ -40,7 +40,7 @@ async function getBlockByHash(hash, options) {
   try {
     checkPref(hash, [Encoding.KeyBlockHash, Encoding.MicroBlockHash]);
     const sdk = initSdk(options);
-    printBlock(await getBlock(hash, sdk), json);
+    printBlock(await getBlock(hash, sdk), json, true);
   } catch (e) {
     printError(e.message);
   }

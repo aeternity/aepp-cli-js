@@ -30,10 +30,26 @@ describe('Chain Module', () => {
   });
 
   it('prints top', async () => {
-    const res = await executeChain(['top', '--json']);
-    res.should.be.a('object');
-    res.hash.should.be.a('string');
-    res.height.should.be.a('number');
+    const resJson = await executeChain(['top', '--json']);
+    expect(resJson.hash).to.be.a('string');
+    expect(resJson.height).to.be.a('number');
+
+    const res = await executeChain(['top']);
+    expect(res).to.equal(`
+<<--------------- ${resJson.hash.startsWith('mh_') ? 'MicroBlockHash' : 'KeyBlockHash'} --------------->>
+Block hash ______________________________ ${resJson.hash}
+Block height ____________________________ ${resJson.height}
+State hash ______________________________ ${resJson.stateHash}
+Nonce ___________________________________ ${resJson.nonce ?? 'N/A'}
+Miner ___________________________________ ${resJson.miner ?? 'N/A'}
+Time ____________________________________ ${new Date(resJson.time).toString()}
+Previous block hash _____________________ ${resJson.prevHash}
+Previous key block hash _________________ ${resJson.prevKeyHash}
+Version _________________________________ 5
+Target __________________________________ ${resJson.target ?? 'N/A'}
+Transactions ____________________________ 0
+<<------------------------------------->>
+    `.trim());
   });
 
   it('prints status', async () => {

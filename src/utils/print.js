@@ -303,32 +303,33 @@ export function printBlockTransactions(ts, json, tabs = 0) {
   );
 }
 
-export function printBlock(block, json) {
+export function printBlock(block, json, isRoot = false) {
   if (json) {
     print(block);
     return;
   }
   const encoding = block.hash.split('_')[0];
-  const tabs = encoding === Encoding.MicroBlockHash ? 1 : 0;
+  const tabs = !isRoot && encoding === Encoding.MicroBlockHash ? 1 : 0;
   const tabString = getTabs(tabs);
 
-  print(`${tabString}<<--------------- ${Encoding[encoding]} --------------->>`);
+  const reverseEncoding = Object.fromEntries(Object.entries(Encoding).map(([k, v]) => [v, k]));
+  print(`${tabString}<<--------------- ${reverseEncoding[encoding]} --------------->>`);
 
   printUnderscored(`${tabString}Block hash`, block.hash);
   printUnderscored(`${tabString}Block height`, block.height);
   printUnderscored(`${tabString}State hash`, block.stateHash);
   printUnderscored(`${tabString}Nonce`, block.nonce ?? 'N/A');
   printUnderscored(`${tabString}Miner`, block.miner ?? 'N/A');
-  printUnderscored(`${tabString}Time`, new Date(block.time));
+  printUnderscored(`${tabString}Time`, new Date(block.time).toString());
   printUnderscored(`${tabString}Previous block hash`, block.prevHash);
   printUnderscored(`${tabString}Previous key block hash`, block.prevKeyHash);
   printUnderscored(`${tabString}Version`, block.version);
   printUnderscored(`${tabString}Target`, block.target ?? 'N/A');
-  const txCount = block?.transactions?.length ?? 0;
+  const txCount = block.transactions?.length ?? 0;
   printUnderscored(`${tabString}Transactions`, txCount);
   if (txCount) printBlockTransactions(block.transactions, false, tabs + 1);
 
-  print('<<------------------------------------->>');
+  print(`${tabString}<<------------------------------------->>`);
 }
 
 // ##OTHER
