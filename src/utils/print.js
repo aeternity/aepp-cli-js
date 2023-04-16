@@ -163,7 +163,9 @@ function printNameUpdateTransaction(tx = {}, tabs = '') {
   printUnderscored(`${tabs}Client TTL`, tx?.tx?.clientTtl ?? 'N/A');
   printUnderscored(`${tabs}Name ID`, tx?.tx?.nameId ?? 'N/A');
   printUnderscored(`${tabs}Name TTL`, tx?.tx?.nameTtl ?? 'N/A');
-  printUnderscored(`${tabs}Pointers`, JSON.stringify(tx?.tx?.pointers) ?? 'N/A');
+  const pointers = tx?.tx?.pointers;
+  if (pointers?.length) pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
+  else printUnderscored('Pointers', 'N/A');
 
   printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
   printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
@@ -370,6 +372,7 @@ export function printName(name, json) {
   }
   printUnderscored('Status', name.status ?? 'N/A');
   printUnderscored('Name hash', name.id ?? 'N/A');
-  printUnderscored('Pointers', JSON.stringify(name.pointers) ?? 'N/A');
+  if (name.pointers?.length) name.pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
+  else printUnderscored('Pointers', 'N/A');
   printUnderscored('TTL', name.ttl ?? 0);
 }

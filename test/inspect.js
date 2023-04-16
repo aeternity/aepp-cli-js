@@ -253,7 +253,9 @@ TTL _____________________________________ 0
     expect(res).to.equal(`
 Status __________________________________ CLAIMED
 Name hash _______________________________ ${resJson.id}
-Pointers ________________________________ [{"key":"myKey","id":"${sdk.address}"},{"key":"account_pubkey","id":"${sdk.address}"},{"key":"oracle_pubkey","id":"${sdk.address}"}]
+Pointer myKey ___________________________ ${sdk.address}
+Pointer account_pubkey __________________ ${sdk.address}
+Pointer oracle_pubkey ___________________ ${sdk.address}
 TTL _____________________________________ ${resJson.ttl}
     `.trim());
   }).timeout(4000);
