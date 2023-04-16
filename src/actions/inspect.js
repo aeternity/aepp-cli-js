@@ -18,7 +18,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { Encoding, unpackTx as _unpackTx } from '@aeternity/aepp-sdk';
+import { Encoding, unpackTx as _unpackTx, Tag } from '@aeternity/aepp-sdk';
 import { initSdk } from '../utils/cli';
 import {
   print,
@@ -33,6 +33,10 @@ import {
 } from '../utils/helpers';
 import CliError from '../utils/CliError';
 
+function printEntries(object) {
+  Object.entries(object).forEach((entry) => printUnderscored(...entry));
+}
+
 // ## Inspect helper function's
 async function getBlockByHash(hash, { json, ...options }) {
   checkPref(hash, [Encoding.KeyBlockHash, Encoding.MicroBlockHash]);
@@ -46,15 +50,11 @@ async function getTransactionByHash(hash, { json, ...options }) {
   printTransaction(await sdk.api.getTransactionByHash(hash), json);
 }
 
-async function unpackTx(hash, { json }) {
-  checkPref(hash, Encoding.Transaction);
-  const { tx, txType: type } = _unpackTx(hash);
-  if (json) {
-    print({ tx, type });
-    return;
-  }
-  printUnderscored('Tx Type', type);
-  Object.entries(tx).forEach((entry) => printUnderscored(...entry));
+async function unpackTx(encodedTx, { json }) {
+  checkPref(encodedTx, Encoding.Transaction);
+  const txUnpacked = _unpackTx(encodedTx);
+  if (json) print(txUnpacked);
+  else printEntries({ 'Tx Type': Tag[txUnpacked.tag], ...txUnpacked });
 }
 
 async function getAccountByHash(hash, { json, ...options }) {
@@ -92,15 +92,21 @@ async function getName(name, { json, ...options }) {
 
 async function getContract(contractId, { json, ...options }) {
   const sdk = initSdk(options);
-  printTransaction(await sdk.api.getContract(contractId), json);
+  const contract = await sdk.api.getContract(contractId);
+  if (json) print(contract);
+  else printEntries(contract);
 }
 
 async function getOracle(oracleId, { json, ...options }) {
   const sdk = initSdk(options);
-  // printTransaction(await sdk.api.getContract(contractId), json)
-  printOracle(await sdk.api.getOracleByPubkey(oracleId), json);
-  const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
-  if (queries) printQueries(queries, json);
+  const oracle = await sdk.api.getOracleByPubkey(oracleId);
+  oracle.queries = (await sdk.api.getOracleQueriesByPubkey(oracleId)).oracleQueries;
+  if (json) {
+    print(oracle);
+    return;
+  }
+  printOracle(oracle);
+  if (oracle.queries) printQueries(oracle.queries);
 }
 
 // ## Inspect function
