@@ -154,15 +154,14 @@ export async function respondToQuery(
 }
 
 // ## Get oracle
-export async function queryOracle(oracleId, options) {
+export async function queryOracle(oracleId, { json, ...options }) {
   decode(oracleId, 'ok');
   const sdk = initSdk(options);
   const oracle = await sdk.api.getOracleByPubkey(oracleId);
   const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
-  if (options.json) {
-    print({ ...oracle, queries });
-  } else {
-    printOracle(oracle, options.json);
-    printQueries(queries, options.json);
+  if (json) print({ ...oracle, queries });
+  else {
+    printOracle(oracle, json);
+    printQueries(queries, json);
   }
 }

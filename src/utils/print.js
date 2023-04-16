@@ -353,9 +353,9 @@ export function printQueries(queries = [], json) {
     printUnderscored('Query ID', q.id ?? 'N/A');
     printUnderscored('Fee', q.fee ?? 'N/A');
     printUnderscored('Query', q.query ?? 'N/A');
-    printUnderscored('Query decoded', decode(q.query, 'oq').toString() ?? 'N/A');
+    printUnderscored('Query decoded', decode(q.query, Encoding.OracleQuery).toString() ?? 'N/A');
     printUnderscored('Response', q.response ?? 'N/A');
-    printUnderscored('Response decoded', decode(q.response, 'or').toString() ?? 'N/A');
+    printUnderscored('Response decoded', decode(q.response, Encoding.OracleResponse).toString() ?? 'N/A');
     printUnderscored('Response Ttl', q.responseTtl ?? 'N/A');
     printUnderscored('Sender Id', q.senderId ?? 'N/A');
     printUnderscored('Sender Nonce', q.senderNonce ?? 'N/A');
