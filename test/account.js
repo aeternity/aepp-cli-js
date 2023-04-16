@@ -101,7 +101,7 @@ describe('Account Module', () => {
   });
 
   it('Generate accounts', async () => {
-    const accounts = await executeAccount(['generate', 2, '--forcePrompt', '--json']);
+    const accounts = await executeAccount(['generate', 2, '--json']);
     accounts.length.should.be.equal(2);
   });
 

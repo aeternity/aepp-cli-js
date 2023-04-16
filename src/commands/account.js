@@ -193,7 +193,6 @@ addCommonOptions(program
 // Example: `aecli account generate 10 --force
 addCommonOptions(program
   .command('generate <count>')
-  .option('--forcePrompt', 'Force prompting')
   .description('Generate account key pairs')
   .action(Account.generateKeyPairs));
 

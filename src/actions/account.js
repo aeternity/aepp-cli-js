@@ -218,23 +218,17 @@ export async function createSecureWalletByPrivKey(walletPath, secretKey, {
   }
 }
 
-// ## Create secure `wallet` file from `private-key`
-// This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
-export async function generateKeyPairs(count, { forcePrompt, json }) {
+export async function generateKeyPairs(count, { json }) {
   if (!Number.isInteger(+count)) {
-    throw new CliError('Count must be an Number');
+    throw new CliError(`Count must be a number, got ${count} instead`);
   }
-  if (forcePrompt || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' })) {
-    const accounts = Array.from(Array(+count)).map(() => generateKeyPair(false));
-    if (json) {
-      print(accounts);
-    } else {
-      accounts.forEach((acc, i) => {
-        printUnderscored('Account index', i);
-        printUnderscored('Public Key', acc.publicKey);
-        printUnderscored('Secret Key', acc.secretKey);
-        print('');
-      });
-    }
+  const accounts = new Array(+count).fill().map(() => generateKeyPair());
+  if (json) print(accounts);
+  else {
+    accounts.forEach((acc, i) => {
+      if (i) print('');
+      printUnderscored(`Account #${i + 1} address`, acc.publicKey);
+      printUnderscored(`Account #${i + 1} secret key`, acc.secretKey);
+    });
   }
 }
