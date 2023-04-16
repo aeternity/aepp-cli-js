@@ -54,11 +54,6 @@ export function print(msg, obj) {
   }
 }
 
-// Print error helper
-export function printError(msg, obj) {
-  console.log(msg, obj || '');
-}
-
 // Print `underscored`
 export function printUnderscored(key, val) {
   print([
