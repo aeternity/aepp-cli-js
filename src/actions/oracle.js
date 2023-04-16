@@ -18,13 +18,17 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
+import { ORACLE_TTL_TYPES } from '@aeternity/aepp-sdk';
 import { initSdk, initSdkByWalletFile } from '../utils/cli';
-import { BUILD_ORACLE_TTL } from '../utils/constant';
 import { decode } from '../utils/helpers';
 import {
   print, printOracle, printQueries, printTransaction,
 } from '../utils/print';
 import CliError from '../utils/CliError';
+
+function ensureTtlANumber(ttl, name) {
+  if (isNaN(+ttl)) throw new CliError(`${name} TTL should be a number`);
+}
 
 // ## Create Oracle
 export async function createOracle(walletPath, queryFormat, responseFormat, options) {
@@ -32,6 +36,7 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
     ttl, fee, nonce, waitMined, json, oracleTtl, queryFee,
   } = options;
 
+  ensureTtlANumber(oracleTtl, 'Oracle');
   const sdk = await initSdkByWalletFile(walletPath, options);
   // Register Oracle
   const oracle = await sdk.registerOracle(queryFormat, responseFormat, {
@@ -39,9 +44,10 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
     waitMined,
     nonce,
     fee,
-    oracleTtl: isNaN(+oracleTtl)
-      ? oracleTtl
-      : BUILD_ORACLE_TTL(oracleTtl),
+    ...oracleTtl && {
+      oracleTtlType: ORACLE_TTL_TYPES.delta,
+      oracleTtlValue: oracleTtl,
+    },
     queryFee,
   });
   if (waitMined) {
@@ -57,7 +63,7 @@ export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
     ttl, fee, nonce, waitMined, json,
   } = options;
 
-  if (isNaN(+oracleTtl)) throw new CliError('Oracle Ttl should be a number');
+  ensureTtlANumber(oracleTtl, 'Oracle');
   decode(oracleId, 'ok');
   const sdk = await initSdkByWalletFile(walletPath, options);
   const oracle = await sdk.getOracleObject(oracleId);
@@ -66,7 +72,10 @@ export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
     waitMined,
     nonce,
     fee,
-    ...BUILD_ORACLE_TTL(oracleTtl),
+    ...oracleTtl && {
+      oracleTtlType: ORACLE_TTL_TYPES.delta,
+      oracleTtlValue: oracleTtl,
+    },
   });
   if (waitMined) {
     printTransaction(extended, json);
@@ -78,24 +87,28 @@ export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
 // ## Create Oracle Query
 export async function createOracleQuery(walletPath, oracleId, query, options) {
   const {
-    ttl, fee, nonce, waitMined, json, queryTll, queryFee, responseTtl,
+    ttl, fee, nonce, waitMined, json, queryTtl, queryFee, responseTtl,
   } = options;
 
   decode(oracleId, 'ok');
   const sdk = await initSdkByWalletFile(walletPath, options);
 
+  ensureTtlANumber(queryTtl, 'Query');
+  ensureTtlANumber(responseTtl, 'Response');
   const oracle = await sdk.getOracleObject(oracleId);
   const oracleQuery = await oracle.postQuery(query, {
     ttl,
     waitMined,
     nonce,
     fee,
-    queryTll: isNaN(+queryTll)
-      ? queryTll
-      : BUILD_ORACLE_TTL(queryTll),
-    responseTtl: isNaN(+responseTtl)
-      ? responseTtl
-      : BUILD_ORACLE_TTL(responseTtl),
+    ...queryTtl && {
+      queryTtlType: ORACLE_TTL_TYPES.delta,
+      queryTtlValue: queryTtl,
+    },
+    ...responseTtl && {
+      responseTtlType: ORACLE_TTL_TYPES.delta,
+      responseTtlValue: responseTtl,
+    },
     queryFee,
   });
   if (waitMined) {
@@ -119,6 +132,7 @@ export async function respondToQuery(
 
   decode(oracleId, 'ok');
   decode(queryId, 'oq');
+  ensureTtlANumber(responseTtl, 'Response');
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   const oracle = await sdk.getOracleObject(oracleId);
@@ -127,9 +141,10 @@ export async function respondToQuery(
     waitMined,
     nonce,
     fee,
-    responseTtl: isNaN(+responseTtl)
-      ? responseTtl
-      : BUILD_ORACLE_TTL(responseTtl),
+    ...responseTtl && {
+      responseTtlType: ORACLE_TTL_TYPES.delta,
+      responseTtlValue: responseTtl,
+    },
   });
   if (waitMined) {
     printTransaction(queryResponse, json);

@@ -22,9 +22,8 @@
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander';
 import {
-  NAME_TTL, CLIENT_TTL, MIN_GAS_PRICE, ORACLE_TTL, QUERY_TTL,
+  NAME_TTL, CLIENT_TTL, MIN_GAS_PRICE, ORACLE_TTL, QUERY_TTL, RESPONSE_TTL,
 } from '@aeternity/aepp-sdk';
-import { RESPONSE_TTL } from '../utils/constant';
 import * as Transaction from '../actions/transaction';
 import {
   nodeOption,
@@ -186,7 +185,7 @@ addCommonOptions(program
   .addOption(feeOption)
   .option('--queryFee [queryFee]', 'Oracle Query fee.', 0)
   .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', QUERY_TTL.value)
-  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL)
+  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL.value)
   .description('Build oracle post query transaction.')
   .action(Transaction.oraclePostQuery));
 
@@ -213,7 +212,7 @@ addCommonOptions(program
   .addArgument(nonceArgument)
   .addOption(ttlOption)
   .addOption(feeOption)
-  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL)
+  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL.value)
   .description('Build oracle extend transaction.')
   .action(Transaction.oracleRespond));
 
