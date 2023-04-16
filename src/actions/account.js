@@ -220,7 +220,7 @@ export async function createSecureWalletByPrivKey(walletPath, secretKey, {
 
 // ## Create secure `wallet` file from `private-key`
 // This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
-export async function generateKeyPairs(count = 1, { forcePrompt, json }) {
+export async function generateKeyPairs(count, { forcePrompt, json }) {
   if (!Number.isInteger(+count)) {
     throw new CliError('Count must be an Number');
   }
