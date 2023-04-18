@@ -43,7 +43,6 @@ Commands:
   name                           AENS system
   tx                             Transaction builder
   oracle                         Interact with oracles
-  crypto                         Crypto helpers
   config [options]               Print the current sdk configuration
   select-node [nodeUrl]          Specify node to use in other commands
   select-compiler [compilerUrl]  Specify compiler to use in other commands

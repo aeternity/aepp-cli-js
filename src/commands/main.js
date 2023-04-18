@@ -20,7 +20,6 @@ const EXECUTABLE_CMD = [
   { name: 'name', desc: 'AENS system' },
   { name: 'tx', desc: 'Transaction builder' },
   { name: 'oracle', desc: 'Interact with oracles' },
-  { name: 'crypto', desc: 'Crypto helpers' },
 ];
 // You get get CLI version by exec `aecli version`
 program.version(process.env.npm_package_version);
