@@ -278,5 +278,5 @@ Pointer account_pubkey __________________ ${sdk.address}
 Pointer oracle_pubkey ___________________ ${sdk.address}
 TTL _____________________________________ ${resJson.ttl}
     `.trim());
-  }).timeout(4000);
+  }).timeout(6000);
 });

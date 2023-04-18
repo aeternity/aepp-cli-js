@@ -3,21 +3,10 @@ import fs from 'fs-extra';
 import { unpackTx, Tag, MemoryAccount } from '@aeternity/aepp-sdk';
 import { print } from '../utils/print';
 import CliError from '../utils/CliError';
-import { decode } from '../utils/helpers';
 import { decryptKey } from '../utils/encrypt-key';
 import { networkIdOption, passwordOption } from '../arguments';
 
 const program = new Command().name('aecli crypto');
-
-program
-  .command('decode <base58address>')
-  .description('Decodes base58 address to hex')
-  // ## Address decoder
-  // This helper function decodes address(base58) to hex
-  .action((address) => {
-    const decoded = decode(address, 'ak').toString('hex');
-    console.log(`Decoded address (hex): ${decoded}`);
-  });
 
 program
   .command('sign <tx> [privkey]')

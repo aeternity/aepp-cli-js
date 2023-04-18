@@ -7,13 +7,6 @@ import cryptoProgramFactory from '../src/commands/crypto';
 const executeCrypto = (args) => executeProgram(cryptoProgramFactory, args);
 
 describe('Crypto Module', () => {
-  it('decodes address', async () => {
-    const output = await executeCrypto([
-      'decode', 'ak_MA8Qe8ac7e9EARYK7fQxEqFufRGrG1i6qFvHA21eXXMDcnmuc',
-    ]);
-    expect(output).to.include('2dc51099d9b3921f5578d5968c2b0b5a37d11a6cc514f13862f3a9af7f0ab05f');
-  });
-
   it('signs transaction', async () => {
     const { secretKey } = generateKeyPair();
     const output = await executeCrypto([

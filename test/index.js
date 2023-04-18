@@ -86,7 +86,7 @@ export async function executeProgram(program, args) {
     const allArgs = [
       ...args.map((arg) => arg.toString()),
       ...[
-        'config', 'decode', 'sign', 'unpack', 'select-node', 'select-compiler',
+        'config', 'sign', 'unpack', 'select-node', 'select-compiler',
       ].includes(args[0]) ? [] : ['--url', url],
       ...[
         'compile', 'deploy', 'call', 'encode-calldata', 'decode-call-result',
