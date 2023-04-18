@@ -129,11 +129,6 @@ Version _________________________________ 1
     expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * 0.42);
   });
 
-  it('Generate accounts', async () => {
-    const accounts = await executeAccount(['generate', 2, '--json']);
-    accounts.length.should.be.equal(2);
-  });
-
   it('Sign message', async () => {
     const data = 'Hello world';
     const signedMessage = await executeAccount(['sign-message', WALLET_NAME, data, '--json', '--password', 'test']);

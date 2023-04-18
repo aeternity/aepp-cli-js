@@ -6,7 +6,6 @@ import fs from 'fs-extra';
 import {
   generateKeyPair, encode, Encoding, verifyMessage as _verifyMessage,
 } from '@aeternity/aepp-sdk';
-import CliError from '../utils/CliError';
 import { writeWallet } from '../utils/account';
 import { initSdkByWalletFile, getAccountByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
@@ -146,20 +145,5 @@ export async function createSecureWalletByPrivKey(
   } else {
     printUnderscored('Address', publicKey);
     printUnderscored('Path', path);
-  }
-}
-
-export async function generateKeyPairs(count, { json }) {
-  if (!Number.isInteger(+count)) {
-    throw new CliError(`Count must be a number, got ${count} instead`);
-  }
-  const accounts = new Array(+count).fill().map(() => generateKeyPair());
-  if (json) print(accounts);
-  else {
-    accounts.forEach((acc, i) => {
-      if (i) print('');
-      printUnderscored(`Account #${i + 1} address`, acc.publicKey);
-      printUnderscored(`Account #${i + 1} secret key`, acc.secretKey);
-    });
   }
 }

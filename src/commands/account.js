@@ -124,14 +124,4 @@ addCommonOptions(program
   .description('Save a private keys string to a password protected file wallet')
   .action(Account.createSecureWalletByPrivKey));
 
-// ## Initialize `generateKeyPairs` command
-//
-// You can use this command to generate KeyPair's.
-//
-// Example: `aecli account generate 10 --force
-addCommonOptions(program
-  .command('generate <count>')
-  .description('Generate account key pairs')
-  .action(Account.generateKeyPairs));
-
 export default program;
