@@ -16,8 +16,7 @@
 */
 // # Utils `print` Module
 // That script contains helper function for `console` print
-import { unpackTx } from '@aeternity/aepp-sdk';
-import { HASH_TYPES } from './constant';
+import { Encoding, unpackTx } from '@aeternity/aepp-sdk';
 import { decode } from './helpers';
 
 // ## Row width
@@ -31,29 +30,28 @@ function getTabs(tabs) {
   return ' '.repeat(tabs * 4);
 }
 
-const JsonStringifyBigInt = (object, spaced) => JSON.stringify(
+const JsonStringifyEs = (object, spaced) => JSON.stringify(
   object,
-  (key, value) => (typeof value === 'bigint' ? `${value}` : value),
+  (key, value) => {
+    if (typeof value === 'bigint') return `${value}`;
+    if (value instanceof Map) return [...value.entries()];
+    return value;
+  },
   spaced ? 2 : undefined,
 );
 
 // Print helper
 export function print(msg, obj) {
   if (typeof msg === 'object') {
-    console.log(JsonStringifyBigInt(msg, true));
+    console.log(JsonStringifyEs(msg, true));
     return;
   }
   if (obj) {
     console.log(msg);
-    console.log(JsonStringifyBigInt(obj, true));
+    console.log(JsonStringifyEs(obj, true));
   } else {
     console.log(msg);
   }
-}
-
-// Print error helper
-export function printError(msg, obj) {
-  console.log(msg, obj || '');
 }
 
 // Print `underscored`
@@ -61,7 +59,7 @@ export function printUnderscored(key, val) {
   print([
     key,
     '_'.repeat(WIDTH - key.length),
-    typeof val !== 'object' ? val : JsonStringifyBigInt(val),
+    typeof val !== 'object' ? val : JsonStringifyEs(val),
   ].join(' '));
 }
 
@@ -94,7 +92,8 @@ function printContractCreateTransaction(tx = {}, tabs = '') {
   printUnderscored(`${tabs}Deposit`, tx?.tx?.deposit ?? 'N/A');
   printUnderscored(`${tabs}Gas`, tx?.tx?.gas ?? 'N/A');
   printUnderscored(`${tabs}Gas Price`, tx?.tx?.gasPrice ?? 'N/A');
-  printUnderscored(`${tabs}Payload`, tx?.tx?.payload ?? 'N/A');
+  printUnderscored(`${tabs}Bytecode`, tx.tx.code);
+  printUnderscored(`${tabs}Call data`, tx.tx.callData);
 
   printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
   printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
@@ -109,10 +108,9 @@ function printContractCallTransaction(tx = {}, tabs = '') {
   printUnderscored(`${tabs}Caller Account`, tx?.tx?.callerId ?? 'N/A');
   printUnderscored(`${tabs}Contract Hash`, tx?.tx?.contractId ?? 'N/A');
   printUnderscored(`${tabs}Amount`, tx?.tx?.amount ?? 0);
-  printUnderscored(`${tabs}Deposit`, tx?.tx?.deposit ?? 0);
   printUnderscored(`${tabs}Gas`, tx?.tx?.gas ?? 0);
   printUnderscored(`${tabs}Gas Price`, tx?.tx?.gasPrice ?? 0);
-  printUnderscored(`${tabs}Payload`, tx?.tx?.payload ?? 'N/A');
+  printUnderscored(`${tabs}Call data`, tx.tx.callData);
 
   printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
   printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
@@ -165,7 +163,9 @@ function printNameUpdateTransaction(tx = {}, tabs = '') {
   printUnderscored(`${tabs}Client TTL`, tx?.tx?.clientTtl ?? 'N/A');
   printUnderscored(`${tabs}Name ID`, tx?.tx?.nameId ?? 'N/A');
   printUnderscored(`${tabs}Name TTL`, tx?.tx?.nameTtl ?? 'N/A');
-  printUnderscored(`${tabs}Pointers`, JSON.stringify(tx?.tx?.pointers) ?? 'N/A');
+  const pointers = tx?.tx?.pointers;
+  if (pointers?.length) pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
+  else printUnderscored('Pointers', 'N/A');
 
   printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
   printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
@@ -291,41 +291,38 @@ export function printBlockTransactions(ts, json, tabs = 0) {
     return;
   }
   const tabsString = getTabs(tabs);
-  ts.forEach(
-    (tx) => {
-      print(`${tabsString}----------------  TX  ----------------`);
-      printTransaction(tx, false, tabs + 1);
-      print(`${tabsString}--------------------------------------`);
-    },
-  );
+  ts.forEach((tx) => {
+    print(`${tabsString}<<--------------- Transaction --------------->>`);
+    printTransaction(tx, false, tabs);
+  });
 }
 
-export function printBlock(block, json) {
+export function printBlock(block, json, isRoot = false) {
   if (json) {
     print(block);
     return;
   }
-  const type = Object.keys(HASH_TYPES).find((t) => block.hash.split('_')[0] === HASH_TYPES[t]);
-  const tabs = type === 'MICRO_BLOCK' ? 1 : 0;
+  const encoding = block.hash.split('_')[0];
+  const tabs = !isRoot && encoding === Encoding.MicroBlockHash ? 1 : 0;
   const tabString = getTabs(tabs);
 
-  print(`${tabString}<<--------------- ${type.toUpperCase()} --------------->>`);
+  const reverseEncoding = Object.fromEntries(Object.entries(Encoding).map(([k, v]) => [v, k]));
+  const name = reverseEncoding[encoding].replace('Hash', '');
+  print(`${tabString}<<--------------- ${name} --------------->>`);
 
   printUnderscored(`${tabString}Block hash`, block.hash);
   printUnderscored(`${tabString}Block height`, block.height);
   printUnderscored(`${tabString}State hash`, block.stateHash);
   printUnderscored(`${tabString}Nonce`, block.nonce ?? 'N/A');
   printUnderscored(`${tabString}Miner`, block.miner ?? 'N/A');
-  printUnderscored(`${tabString}Time`, new Date(block.time));
+  printUnderscored(`${tabString}Time`, new Date(block.time).toString());
   printUnderscored(`${tabString}Previous block hash`, block.prevHash);
   printUnderscored(`${tabString}Previous key block hash`, block.prevKeyHash);
   printUnderscored(`${tabString}Version`, block.version);
   printUnderscored(`${tabString}Target`, block.target ?? 'N/A');
-  const txCount = block?.transactions?.length ?? 0;
+  const txCount = block.transactions?.length ?? 0;
   printUnderscored(`${tabString}Transactions`, txCount);
   if (txCount) printBlockTransactions(block.transactions, false, tabs + 1);
-
-  print('<<------------------------------------->>');
 }
 
 // ##OTHER
@@ -356,9 +353,9 @@ export function printQueries(queries = [], json) {
     printUnderscored('Query ID', q.id ?? 'N/A');
     printUnderscored('Fee', q.fee ?? 'N/A');
     printUnderscored('Query', q.query ?? 'N/A');
-    printUnderscored('Query decoded', decode(q.query, 'oq').toString() ?? 'N/A');
+    printUnderscored('Query decoded', decode(q.query, Encoding.OracleQuery).toString() ?? 'N/A');
     printUnderscored('Response', q.response ?? 'N/A');
-    printUnderscored('Response decoded', decode(q.response, 'or').toString() ?? 'N/A');
+    printUnderscored('Response decoded', decode(q.response, Encoding.OracleResponse).toString() ?? 'N/A');
     printUnderscored('Response Ttl', q.responseTtl ?? 'N/A');
     printUnderscored('Sender Id', q.senderId ?? 'N/A');
     printUnderscored('Sender Nonce', q.senderNonce ?? 'N/A');
@@ -375,6 +372,7 @@ export function printName(name, json) {
   }
   printUnderscored('Status', name.status ?? 'N/A');
   printUnderscored('Name hash', name.id ?? 'N/A');
-  printUnderscored('Pointers', JSON.stringify(name.pointers) ?? 'N/A');
+  if (name.pointers?.length) name.pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
+  else printUnderscored('Pointers', 'N/A');
   printUnderscored('TTL', name.ttl ?? 0);
 }

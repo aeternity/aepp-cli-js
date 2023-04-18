@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0](https://github.com/aeternity/aepp-cli-js/compare/v4.1.0...v5.0.0) (2023-04-08)
+
+
+### ⚠ BREAKING CHANGES
+
+#### The format of contract descriptor file changed
+
+Contract descriptors needs to be regenerated.
+#### **contract:** `contract call` accepts `wallet_path` as the last argument
+
+For example, replace
+```
+$ aecli contract call ./myWalletFile --password testpass foo '[1, 2]'
+```
+with
+```
+$ aecli contract call --password testpass foo '[1, 2]' ./myWalletFile
+```
+#### `account spend` doesn't accept `denomination` parameter
+
+### Features
+
+* accept amount suffixed with `ae` instead of `denomination` option ([70ceb67](https://github.com/aeternity/aepp-cli-js/commit/70ceb67223e2b6a8554822198bc150b1706dcd43))
+* add `select-node`, `select-compiler` commands ([87b2ede](https://github.com/aeternity/aepp-cli-js/commit/87b2edee61fcf8317a2e8339b7192ec1a6398b5e))
+* add update-notifier to ask user to switch to the latest version ([2516446](https://github.com/aeternity/aepp-cli-js/commit/25164460eab8e11706fc8a71e6566de7651fb5ce))
+* aesophia_cli support ([a74fc2b](https://github.com/aeternity/aepp-cli-js/commit/a74fc2b45928ea208ce9e9bfeefca23c8d3a4474))
+* **contract:** includes support ([818f375](https://github.com/aeternity/aepp-cli-js/commit/818f37561c8f9ebff336e3cfef4ae5749e1cf286))
+* get urls from AECLI_NODE_URL, AECLI_COMPILER_URL env variables ([78a9953](https://github.com/aeternity/aepp-cli-js/commit/78a9953878b15b0d8e3ae7094147fcf1db4b78ef))
+* specify and check contract descriptor file version ([ea17f80](https://github.com/aeternity/aepp-cli-js/commit/ea17f80fba43477ec0972acf7a42a9c43b868e62))
+
+
+### Bug Fixes
+
+* **account:** show network id in sign call output ([836f421](https://github.com/aeternity/aepp-cli-js/commit/836f4215c9bd05fa832f66be6e1fdeccc7bd7d96))
+* **contract:** allow to static calls without wallet ([7bf7bb6](https://github.com/aeternity/aepp-cli-js/commit/7bf7bb65a1dddbcaee48bb318b973f30acf26755))
+* **contract:** stringify maps as arrays ([b80e3b4](https://github.com/aeternity/aepp-cli-js/commit/b80e3b408eb1ced6ebfa56235eaebc6105caf27a))
+* don't show stack trace when entered an invalid password to wallet ([8d24bec](https://github.com/aeternity/aepp-cli-js/commit/8d24beca28d7f8c918c09c912c67a16aa66e9482))
+* **tx:** remove missed `deposit` field in contract call tx ([a1aa7c7](https://github.com/aeternity/aepp-cli-js/commit/a1aa7c7b89aa4a59b9e2595226f0c1d82deb748f))
+* **tx:** show bytecode and call data instead of missed payload ([75f5eee](https://github.com/aeternity/aepp-cli-js/commit/75f5eeed9004346b5e903836d42ac6e8fa902678))
+* **tx:** show name of transaction type ([18ee736](https://github.com/aeternity/aepp-cli-js/commit/18ee73652a137d138cedc441566f15fb5b0ec5d9))
+* **chain:** calculation of relative ttl ([651ba1a](https://github.com/aeternity/aepp-cli-js/commit/651ba1a5d8642763c7643114c7f37f7bde7e0b26))
+* **chain:** height calculation, improve markup, remove confusing timeout ([4f5329d](https://github.com/aeternity/aepp-cli-js/commit/4f5329d83f954814c2b544f7219115ed3c8e4424))
+* **chain:** padding of top output ([ca661d7](https://github.com/aeternity/aepp-cli-js/commit/ca661d7a34611a76effda47c589d45ff9f7fbb04))
+* **chain:** show correctly consensus protocol version ([a5fa358](https://github.com/aeternity/aepp-cli-js/commit/a5fa3588a23b8b8f66201cd9ebb41d947f43edf4))
+* don't override files by default ([d09eabe](https://github.com/aeternity/aepp-cli-js/commit/d09eabe97c36461bc6aaa95ba383248983a0e3ef))
+* **inspect:** encoded tx, plain contract output, oracle queries in json ([dae4df9](https://github.com/aeternity/aepp-cli-js/commit/dae4df97fd3de1f69cfd96a470aafabe9b209b73))
+* **oracle:** decoding of oracle query ([fa2764b](https://github.com/aeternity/aepp-cli-js/commit/fa2764b6cc5aa933239c46f2e0f36735b96ccbc4))
+* **oracle:** providing oracleTtl, queryTtl, responseTtl ([a0cc66c](https://github.com/aeternity/aepp-cli-js/commit/a0cc66c45c44d0d63e1218e0d6fa26f4dafd3513))
+* show name pointers line by line ([9dbcf41](https://github.com/aeternity/aepp-cli-js/commit/9dbcf419c6ad617362437f28643bffd105621d87))
+
 ## [4.1.0](https://github.com/aeternity/aepp-cli-js/compare/v4.0.0...v4.1.0) (2022-07-28)
 
 

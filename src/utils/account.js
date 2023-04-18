@@ -19,7 +19,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import {
-  generateKeyPairFromSecret, getAddressFromPriv, dump, recover, encode,
+  generateKeyPairFromSecret, getAddressFromPriv, dump, recover, encode, Encoding,
 } from '@aeternity/aepp-sdk';
 import { PROMPT_TYPE, prompt } from './prompt';
 import CliError from './CliError';
@@ -32,7 +32,7 @@ export async function writeWallet(name, secretKey, output, password, overwrite) 
   password ||= await prompt(PROMPT_TYPE.askPassword);
   await fs.outputJson(walletPath, await dump(name, password, secretKey));
   const { publicKey } = generateKeyPairFromSecret(secretKey);
-  return { publicKey: encode(publicKey, 'ak'), path: walletPath };
+  return { publicKey: encode(publicKey, Encoding.AccountAddress), path: walletPath };
 }
 
 // Get account file by path, decrypt it using password and return `keypair`

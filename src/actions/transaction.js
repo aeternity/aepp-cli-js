@@ -19,45 +19,23 @@
  */
 
 import {
-  Tag, TX_SCHEMA, PROTOCOL_VM_ABI, PROTOCOL_VERSIONS, ORACLE_TTL_TYPES,
+  Tag, ORACLE_TTL_TYPES,
   Node, genSalt, unpackTx, commitmentHash, buildContractId, verifyTransaction,
-  getDefaultPointerKey, buildTx,
+  getDefaultPointerKey, buildTx, encode, Encoding,
 } from '@aeternity/aepp-sdk';
 import { print, printUnderscored, printValidation } from '../utils/print';
 import { validateName, decode } from '../utils/helpers';
 
-const vmAbi = Object.fromEntries(
-  Object.entries(PROTOCOL_VM_ABI[PROTOCOL_VERSIONS.IRIS])
-    .map(([txType, { vmVersion, abiVersion }]) => [
-      txType, { vmVersion: vmVersion[0], abiVersion: abiVersion[0] },
-    ]),
-);
-
 // Print `Buider Transaction`
-function buildAndPrintTx(txType, params, json, extraKeys = {}) {
-  const vsn = Math.max(...Object.keys(TX_SCHEMA[txType]).map((a) => +a));
-
-  // TODO: move to SDK side
-  switch (txType) {
-    case Tag.ContractCreateTx:
-      params.ctVersion = vmAbi[Tag.ContractCreateTx];
-      break;
-    case Tag.ContractCallTx:
-      params.abiVersion = vmAbi[Tag.ContractCallTx].abiVersion;
-      break;
-    case Tag.OracleRegisterTx:
-      params.abiVersion = vmAbi[Tag.OracleRegisterTx].abiVersion;
-      break;
-    default:
-  }
-
-  const { tx, txObject } = buildTx(params, txType, { vsn });
+function buildAndPrintTx(params, json, extraKeys = {}) {
+  const tx = buildTx(params);
+  const txObject = unpackTx(tx);
 
   if (json) {
     print({ tx, txObject, ...extraKeys });
     return;
   }
-  printUnderscored('Transaction type', txType);
+  printUnderscored('Transaction type', Tag[params.tag]);
   print('Summary');
   Object
     .entries({ ...txObject, ...extraKeys })
@@ -68,16 +46,18 @@ function buildAndPrintTx(txType, params, json, extraKeys = {}) {
 }
 
 // ## Build `spend` transaction
-export function spend(senderId, recipientId, amount, nonce, { json, ...options }) {
+export function spend(senderId, recipientId, amount, nonce, { json, payload, ...options }) {
   // Build params
   const params = {
+    tag: Tag.SpendTx,
     ...options,
+    payload: encode(Buffer.from(payload), Encoding.Bytearray),
     senderId,
     recipientId,
     amount,
     nonce,
   };
-  buildAndPrintTx(Tag.SpendTx, params, json);
+  buildAndPrintTx(params, json);
 }
 
 // ## Build `namePreClaim` transaction
@@ -90,12 +70,13 @@ export function namePreClaim(accountId, name, nonce, { json, ...options }) {
   const commitmentId = commitmentHash(name, salt);
 
   const params = {
+    tag: Tag.NamePreclaimTx,
     ...options,
     accountId,
     commitmentId,
     nonce,
   };
-  buildAndPrintTx(Tag.NamePreclaimTx, params, json, { salt });
+  buildAndPrintTx(params, json, { salt });
 }
 
 // ## Build `nameClaim` transaction
@@ -103,54 +84,59 @@ export function nameClaim(accountId, nameSalt, name, nonce, { json, ...options }
   // Validate `name`(check if `name` end on `.chain`)
   validateName(name);
   const params = {
+    tag: Tag.NameClaimTx,
     ...options,
     accountId,
     nameSalt,
     name,
     nonce,
   };
-  buildAndPrintTx(Tag.NameClaimTx, params, json);
+  buildAndPrintTx(params, json);
 }
 
 // ## Build `nameUpdate` transaction
 export function nameUpdate(accountId, nameId, nonce, pointers, { json, ...options }) {
   const params = {
+    tag: Tag.NameUpdateTx,
     ...options,
     nameId,
     accountId,
     pointers: pointers.map((id) => ({ id, key: getDefaultPointerKey(id) })),
     nonce,
   };
-  buildAndPrintTx(Tag.NameUpdateTx, params, json);
+  buildAndPrintTx(params, json);
 }
 
 // ## Build `nameTransfer` transaction
 export function nameTransfer(accountId, recipientId, nameId, nonce, { json, ...options }) {
   // Create `transfer` transaction
   const params = {
+    tag: Tag.NameTransferTx,
     ...options,
     accountId,
     recipientId,
     nameId,
     nonce,
   };
-  buildAndPrintTx(Tag.NameTransferTx, params, json);
+  buildAndPrintTx(params, json);
 }
 
 // ## Build `nameRevoke` transaction
 export function nameRevoke(accountId, nameId, nonce, { json, ...options }) {
   const params = {
+    tag: Tag.NameRevokeTx,
     ...options,
     accountId,
     nameId,
     nonce,
   };
-  buildAndPrintTx(Tag.NameRevokeTx, params, json);
+  buildAndPrintTx(params, json);
 }
 
 // ## Build `contractDeploy` transaction
 export function contractDeploy(ownerId, code, callData, nonce, { json, gas, ...options }) {
   const params = {
+    tag: Tag.ContractCreateTx,
     ...options,
     gasLimit: gas,
     code,
@@ -158,7 +144,7 @@ export function contractDeploy(ownerId, code, callData, nonce, { json, gas, ...o
     nonce,
     callData,
   };
-  buildAndPrintTx(Tag.ContractCreateTx, params, json, {
+  buildAndPrintTx(params, json, {
     contractId: buildContractId(ownerId, nonce),
   });
 }
@@ -166,6 +152,7 @@ export function contractDeploy(ownerId, code, callData, nonce, { json, gas, ...o
 // ## Build `contractCall` transaction
 export function contractCall(callerId, contractId, callData, nonce, { json, gas, ...options }) {
   const params = {
+    tag: Tag.ContractCallTx,
     ...options,
     gasLimit: gas,
     callerId,
@@ -173,56 +160,57 @@ export function contractCall(callerId, contractId, callData, nonce, { json, gas,
     callData,
     contractId,
   };
-  buildAndPrintTx(Tag.ContractCallTx, params, json);
+  buildAndPrintTx(params, json);
 }
 
 // ## Build `oracleRegister` transaction
 export function oracleRegister(accountId, queryFormat, responseFormat, nonce, {
-  json, queryFee, oracleTtl, ...options
+  json, oracleTtl, ...options
 }) {
   const params = {
+    tag: Tag.OracleRegisterTx,
     ...options,
     accountId,
     nonce,
     oracleTtlType: ORACLE_TTL_TYPES.delta,
-    oracleTtlValue: parseInt(oracleTtl),
-    queryFee: parseInt(queryFee),
+    oracleTtlValue: oracleTtl,
     queryFormat,
     responseFormat,
   };
-  buildAndPrintTx(Tag.OracleRegisterTx, params, json);
+  buildAndPrintTx(params, json);
 }
 
 // ## Build `oraclePostQuery` transaction
 export function oraclePostQuery(senderId, oracleId, query, nonce, {
-  json, queryFee, queryTtl, responseTtl, ...options
+  json, queryTtl, responseTtl, ...options
 }) {
   const params = {
+    tag: Tag.OracleQueryTx,
     ...options,
     senderId,
     nonce,
     oracleId,
     query,
-    queryFee: parseInt(queryFee),
     queryTtlType: ORACLE_TTL_TYPES.delta,
-    queryTtlValue: parseInt(queryTtl),
+    queryTtlValue: queryTtl,
     responseTtlType: ORACLE_TTL_TYPES.delta,
-    responseTtlValue: parseInt(responseTtl),
+    responseTtlValue: responseTtl,
   };
-  buildAndPrintTx(Tag.OracleQueryTx, params, json);
+  buildAndPrintTx(params, json);
 }
 
 // ## Build `oracleExtend` transaction
 export function oracleExtend(callerId, oracleId, oracleTtl, nonce, { json, ...options }) {
   const params = {
+    tag: Tag.OracleExtendTx,
     ...options,
     callerId,
     oracleId,
     oracleTtlType: ORACLE_TTL_TYPES.delta,
-    oracleTtlValue: parseInt(oracleTtl),
+    oracleTtlValue: oracleTtl,
     nonce,
   };
-  buildAndPrintTx(Tag.OracleExtendTx, params, json);
+  buildAndPrintTx(params, json);
 }
 
 // ## Build `oracleRespond` transaction
@@ -230,16 +218,17 @@ export function oracleRespond(callerId, oracleId, queryId, response, nonce, {
   json, responseTtl, ...options
 }) {
   const params = {
+    tag: Tag.OracleResponseTx,
     ...options,
     oracleId,
     responseTtlType: ORACLE_TTL_TYPES.delta,
-    responseTtlValue: parseInt(responseTtl),
+    responseTtlValue: responseTtl,
     callerId,
     queryId,
     response,
     nonce,
   };
-  buildAndPrintTx(Tag.OracleResponseTx, params, json);
+  buildAndPrintTx(params, json);
 }
 
 // ## Verify 'transaction'
@@ -247,10 +236,10 @@ export async function verify(transaction, { json, ...options }) {
   // Validate input
   decode(transaction, 'tx');
   // Call `getStatus` API and print it
-  const validation = await verifyTransaction(transaction, await Node(options));
-  const { tx, txType: type } = unpackTx(transaction);
+  const validation = await verifyTransaction(transaction, new Node(options.url));
+  const { tag, ...tx } = unpackTx(transaction);
   if (json) {
-    print({ validation, tx, type });
+    print({ validation, tx, type: Tag[tag] });
     return;
   }
   printValidation({ validation, transaction });

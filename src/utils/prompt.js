@@ -8,7 +8,9 @@ export const PROMPT_TYPE = {
 
 const PROMPT_SCHEMA = {
   [PROMPT_TYPE.askOverwrite]: () => ({
-    name: 'value', message: 'File with that name already exist, do you want to overwrite?', type: 'confirm', initial: true,
+    name: 'value',
+    message: 'File with that name already exist, do you want to overwrite?',
+    type: 'confirm',
   }),
   [PROMPT_TYPE.askPassword]: () => ({ name: 'password', message: 'Enter your password', type: 'password' }),
   [PROMPT_TYPE.confirm]: ({ message }) => ({ name: 'value', message, type: 'confirm' }),

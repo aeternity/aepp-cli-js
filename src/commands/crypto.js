@@ -17,11 +17,12 @@
 
 import { Command } from 'commander';
 import fs from 'fs-extra';
-import {
-  decryptKey, sign, buildTx, unpackTx, decode, Tag,
-} from '@aeternity/aepp-sdk';
+import { unpackTx, Tag, MemoryAccount } from '@aeternity/aepp-sdk';
 import { print } from '../utils/print';
 import CliError from '../utils/CliError';
+import { decode } from '../utils/helpers';
+import { decryptKey } from '../utils/encrypt-key';
+import { networkIdOption, passwordOption } from '../arguments';
 
 const program = new Command().name('aecli crypto');
 
@@ -37,9 +38,9 @@ program
 
 program
   .command('sign <tx> [privkey]')
-  .option('-p, --password [password]', 'password of the private key')
+  .addOption(passwordOption)
   .option('-f, --file [file]', 'private key file')
-  .option('--networkId [networkId]', 'Network id', 'ae_mainnet')
+  .addOption(networkIdOption.default('ae_mainnet'))
   // ## Transaction Signing
   //
   // This function shows how to use a compliant private key to sign an æternity
@@ -51,9 +52,8 @@ program
       throw new CliError('Must provide either [privkey] or [file]');
     })();
     const decryptedKey = password ? decryptKey(password, binaryKey) : binaryKey;
-    const encodedTx = decode(tx, 'tx');
-    const signature = sign(Buffer.concat([Buffer.from(networkId), encodedTx]), decryptedKey);
-    console.log(buildTx({ encodedTx, signatures: [signature] }, Tag.SignedTx).tx);
+    const account = new MemoryAccount(decryptedKey);
+    console.log(await account.signTransaction(tx, { networkId }));
   });
 
 program
@@ -62,9 +62,7 @@ program
   // This helper function deserialized the transaction `tx` and prints the result.
   .action((tx) => {
     const unpackedTx = unpackTx(tx);
-    unpackedTx.txType = Tag[unpackedTx.txType];
-    delete unpackedTx.rlpEncoded;
-    delete unpackedTx.binary;
+    unpackedTx.txType = Tag[unpackedTx.tag];
     print(unpackedTx);
   });
 

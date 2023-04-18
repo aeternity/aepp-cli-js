@@ -28,32 +28,26 @@ The command-line interface is invoked using the command `aecli`. Depending on wh
 
 If you invoke `aecli` with no arguments, it shows basic usage:
 ```
-$ ./aecli
-The command line client for the Aeternity blockchain
+$ aecli
+Usage: aecli [options] [command]
 
-Usage:
-  aecli [command]
+Options:
+  -V, --version                  output the version number
+  -h, --help                     display help for command
 
-Available Commands:
-  chain       Query the state of the chain
-  config      Print the configuration of the sdk
-  help        Help concerning any command
-  inspect     Inspect an object of the blockchain
-  name        A brief description of your command
-  account     Handle wallet operations
-  contract    Compile contracts
-  crypto      Crypto helpers
-
-
-Flags:
-  -c, --config string   config file to load (defaults to $HOME/.aeternity/config.yaml
-      --debug           enable debug
-  -h, --help            help for aecli
-      --json            print output in json format
-      --version         version for aecli
-  -u, --epoch-url,      show URL of epoch
-
-Use "aecli [command] --help" for more information about a command.
+Commands:
+  chain                          Interact with the blockchain
+  inspect                        Get information on transactions, blocks,...
+  account                        Handle wallet operations
+  contract                       Contract interactions
+  name                           AENS system
+  tx                             Transaction builder
+  oracle                         Interact with oracles
+  crypto                         Crypto helpers
+  config [options]               Print the current sdk configuration
+  select-node [nodeUrl]          Specify node to use in other commands
+  select-compiler [compilerUrl]  Specify compiler to use in other commands
+  help [command]                 display help for command
 ```
 
 The general groupings of commands are:
@@ -64,7 +58,7 @@ The general groupings of commands are:
 - `name` allows interaction with the naming system.
 - `account` commands cover a set of functions which operate with a key pair, from transferring tokens to registering names and invoking smart contracts.
 - `oracle` allows you to interact with the oracles.
-- `contract` allows compiling the smart contracts.
+- `contract` allows deploying and calling the smart contracts.
 
 
 ## The chain group
@@ -216,8 +210,8 @@ $ ./aecli.mjs name
 
   Commands:
 
-    claim <wallet_path> <name>               Claim a domain name
-    revoke <wallet_path> <name>              Revoke a domain name
+    claim <wallet_path> <name>               Claim an AENS name
+    revoke <wallet_path> <name>              Revoke an AENS name
     transfer <wallet_path> <name> <address>  Transfer a name to another account
     update <wallet_path> <name> <address>    Update a name pointer
 
@@ -263,7 +257,7 @@ $ ./aecli.mjs  contract
 
     -H, --host [hostname]             Node to connect to (default: https://localhost:3013)
     -T, --ttl [ttl]                   Validity of the transaction in number of blocks (default forever) (default: 50000)
-    -f --force                        Ignore epoch version compatibility check
+    -f --force                        Ignore node version compatibility check
     --json [json]                     Print result in json format
     -h, --help                        output usage information
 

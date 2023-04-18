@@ -18,33 +18,28 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
+import { verifyTransaction, ConsensusProtocolVersion } from '@aeternity/aepp-sdk';
 import { initSdk } from '../utils/cli';
 import {
   printBlock, print, printUnderscored, printTransaction, printValidation,
 } from '../utils/print';
 import { getBlock } from '../utils/helpers';
-import CliError from '../utils/CliError';
 
 // ## Retrieve `node` version
 export async function version(options) {
   const { json } = options;
   // Initialize `Ae`
-  const sdk = await initSdk(options);
+  const sdk = initSdk(options);
   // Call `getStatus` API and print it
   const status = await sdk.api.getStatus();
-  const { consensusProtocolVersion } = sdk.getNodeInfo();
+  const { consensusProtocolVersion } = await sdk.getNodeInfo();
   if (json) {
     print(status);
     return;
   }
-  const FORKS = {
-    3: 'Fortuna',
-    4: 'Lima',
-    5: 'Iris',
-  };
   printUnderscored('Difficulty', status.difficulty);
   printUnderscored('Node version', status.nodeVersion);
-  printUnderscored('Consensus protocol version', `${consensusProtocolVersion} (${FORKS[consensusProtocolVersion]})`);
+  printUnderscored('Consensus protocol version', `${consensusProtocolVersion} (${ConsensusProtocolVersion[consensusProtocolVersion]})`);
   printUnderscored('Node revision', status.nodeRevision);
   printUnderscored('Genesis hash', status.genesisKeyBlockHash);
   printUnderscored('Network ID', status.networkId);
@@ -59,7 +54,7 @@ export async function version(options) {
 export async function getNetworkId(options) {
   const { json } = options;
   // Initialize `Ae`
-  const sdk = await initSdk(options);
+  const sdk = initSdk(options);
   // Call `getStatus` API and print it
   const { networkId } = await sdk.api.getStatus();
   if (json) print({ networkId });
@@ -67,91 +62,63 @@ export async function getNetworkId(options) {
 }
 
 // ## Retrieve `ttl` version
-export async function ttl(absoluteTtl, options) {
-  const { json } = options;
+export async function ttl(_absoluteTtl, { json, ...options }) {
   // Initialize `Ae`
-  const sdk = await initSdk(options);
-  const height = await sdk.height();
+  const sdk = initSdk(options);
+  const height = await sdk.getHeight();
+  const absoluteTtl = +_absoluteTtl;
+  const relativeTtl = absoluteTtl - height;
   if (json) {
-    print({ absoluteTtl, relativeTtl: +height + +absoluteTtl });
+    print({ absoluteTtl, relativeTtl });
   } else {
     printUnderscored('Absolute TTL', absoluteTtl);
-    printUnderscored('Relative TTL', +height + +absoluteTtl);
+    printUnderscored('Relative TTL', relativeTtl);
   }
 }
 
 // ## Retrieve `TOP` block
-export async function top(options) {
-  const { json } = options;
+export async function top({ json, ...options }) {
   // Initialize `Ae`
-  const sdk = await initSdk(options);
+  const sdk = initSdk(options);
   // Call `getTopBlock` API and print it
-  printBlock(await sdk.api.getTopHeader(), json);
+  printBlock(await sdk.api.getTopHeader(), json, true);
 }
 
-// # Play by `limit`
-async function playWithLimit(limit, blockHash, sdk, json) {
-  if (!limit) return;
-  const block = await getBlock(blockHash, sdk);
-
-  await new Promise((resolve) => { setTimeout(resolve, 1000); });
-  printBlock(block, json);
-  await playWithLimit(limit - 1, block.prevHash, sdk, json);
-}
-
-// # Play by `height`
-async function playWithHeight(height, blockHash, sdk, json) {
-  const block = await getBlock(blockHash, sdk);
-  if (parseInt(block.height) < height) return;
-
-  await new Promise((resolve) => { setTimeout(resolve, 1000); });
-  printBlock(block, json);
-  await playWithHeight(height, block.prevHash, sdk, json);
-}
-
-// ## This function `Play`(print all block) from `top` block to some condition(reach some `height` or `limit`)
+// ## This function `Play` (print all block) from `top` block to some condition (reach some `height` or `limit`)
 export async function play(options) {
   let { height, limit, json } = options;
-  limit = parseInt(limit);
-  height = parseInt(height);
-  const sdk = await initSdk(options);
+  limit = +limit;
+  height = +height;
+  const sdk = initSdk(options);
 
   // Get top block from `node`. It is a start point for play.
-  const topHeader = await sdk.api.getTopHeader();
-
-  if (height && height > parseInt(topHeader.height)) {
-    throw new CliError('Height is bigger then height of top block');
-  }
-
-  printBlock(topHeader, json);
+  let block = await sdk.api.getTopHeader();
 
   // Play by `height` or by `limit` using `top` block as start point
-  if (height) await playWithHeight(height, topHeader.prevHash, sdk, json);
-  else await playWithLimit(limit - 1, topHeader.prevHash, sdk, json);
+  while (height ? block.height >= height : limit) {
+    if (!height) limit -= 1;
+    printBlock(block, json);
+    block = await getBlock(block.prevHash, sdk); // eslint-disable-line no-await-in-loop
+  }
 }
 
 // ## Send 'transaction' to the chain
 export async function broadcast(signedTx, options) {
   const { json, waitMined, verify } = options;
   // Initialize `Ae`
-  const sdk = await initSdk(options);
-  // Call `getStatus` API and print it
-  try {
-    const tx = await sdk.sendTransaction(signedTx, { waitMined: !!waitMined, verify: !!verify });
-    if (waitMined) printTransaction(tx, json);
-    else print(`Transaction send to the chain. Tx hash: ${tx.hash}`);
-  } catch (e) {
-    if (e.verifyTx) {
-      const validation = await e.verifyTx();
-      if (validation.length) {
-        printValidation({ validation, transaction: signedTx });
-        return;
-      }
-    }
-    if (e.code === 'TX_VERIFICATION_ERROR') {
-      printValidation(e);
+  const sdk = initSdk(options);
+
+  if (verify) {
+    const validation = await verifyTransaction(signedTx, sdk.api);
+    if (validation.length) {
+      printValidation({ validation, transaction: signedTx });
       return;
     }
-    throw e;
   }
+
+  const { txHash } = await sdk.api.postTransaction({ tx: signedTx });
+  const tx = await (waitMined ? sdk.poll(txHash) : sdk.api.getTransactionByHash(txHash));
+
+  printTransaction(tx, json);
+  if (!waitMined && !json) print('Transaction send to the chain.');
 }

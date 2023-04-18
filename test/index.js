@@ -18,7 +18,7 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import {
-  AeSdk, MemoryAccount, Node, generateKeyPair,
+  AeSdk, MemoryAccount, Node, generateKeyPair, CompilerHttpNode,
 } from '@aeternity/aepp-sdk';
 import accountProgram from '../src/commands/account';
 
@@ -27,29 +27,30 @@ chai.should();
 
 const url = process.env.TEST_URL || 'http://localhost:3013';
 const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080';
-const publicKey = process.env.PUBLIC_KEY || 'ak_2dATVcZ9KJU5a8hdsVtTv21pYiGWiPbmVcU1Pz72FFqpk9pSRR';
 const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876bb84e3cdf71efb12f56c7335fad54d5cf08400e988222f26eb4b02c8f89077457467211a6e6d955edb70749c6a33b';
 export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet';
 const ignoreVersion = process.env.IGNORE_VERSION || false;
 const keypair = generateKeyPair();
 export const WALLET_NAME = 'test-artifacts/wallet.json';
 
-const Sdk = async (params = {}) => {
-  const sdk = new AeSdk({
+const Sdk = (params = {}) => {
+  params.accounts ??= [new MemoryAccount(secretKey)];
+  return new AeSdk({
+    /* eslint-disable no-underscore-dangle */
+    _expectedMineRate: process.env._EXPECTED_MINE_RATE,
+    _microBlockCycle: process.env._MICRO_BLOCK_CYCLE,
+    /* eslint-enable no-underscore-dangle */
     ignoreVersion,
-    compilerUrl,
+    onCompiler: new CompilerHttpNode(compilerUrl),
     nodes: [{ name: 'test', instance: new Node(url) }],
     ...params,
   });
-  params.accounts ??= [new MemoryAccount({ keypair: { publicKey, secretKey } })];
-  await Promise.all(params.accounts.map((acc, idx) => sdk.addAccount(acc, { select: idx === 0 })));
-  return sdk;
 };
 
 const spendPromise = (async () => {
-  const sdk = await Sdk();
+  const sdk = Sdk();
   await sdk.awaitHeight(2);
-  await sdk.spend(1e26, keypair.publicKey);
+  await sdk.spend(1e28, keypair.publicKey);
 })();
 
 function getProgramOptions(command) {
@@ -87,9 +88,13 @@ export async function executeProgram(program, args) {
   const options = getProgramOptions(program);
   try {
     const allArgs = [
-      ...args,
-      ...['config', 'decode', 'sign', 'unpack'].includes(args[0]) ? [] : ['--url', url],
-      ...args[0] === 'contract' ? ['--compilerUrl', compilerUrl] : [],
+      ...args.map((arg) => arg.toString()),
+      ...[
+        'config', 'decode', 'sign', 'unpack', 'select-node', 'select-compiler',
+      ].includes(args[0]) ? [] : ['--url', url],
+      ...[
+        'compile', 'deploy', 'call', 'encode-calldata', 'decode-call-result',
+      ].includes(args[0]) && !args.includes('--compilerUrl') ? ['--compilerUrl', compilerUrl] : [],
     ];
     if (allArgs.some((a) => !['string', 'number'].includes(typeof a))) {
       throw new Error(`Invalid arguments: [${allArgs.join(', ')}]`);
@@ -111,28 +116,16 @@ export async function executeProgram(program, args) {
 
 export async function getSdk() {
   await spendPromise;
-
-  const sdk = await Sdk({
-    accounts: [new MemoryAccount({ keypair })],
+  const tempKeyPair = generateKeyPair();
+  const sdk = Sdk({
+    accounts: [new MemoryAccount(tempKeyPair.secretKey)],
   });
-  await executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', keypair.secretKey, '--overwrite']);
+  await Promise.all([
+    executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', tempKeyPair.secretKey, '--overwrite']),
+    sdk.spend(1e26, tempKeyPair.publicKey, { onAccount: new MemoryAccount(keypair.secretKey) }),
+  ]);
   return sdk;
 }
-
-export const parseBlock = (res) => Object.fromEntries(res
-  .trim()
-  .split('\n')
-  .map((a) => a.trim())
-  .filter((a) => !a.startsWith('<<--') && !a.startsWith('--'))
-  .map((a) => a.split(/ [_]+ /))
-  .map(([key, value]) => [
-    key
-      .toLowerCase()
-      .split(' ')
-      .map((el, i) => (i === 0 ? el : el[0].toUpperCase() + el.slice(1)))
-      .join(''),
-    value,
-  ]));
 
 export function randomName(length = 18) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

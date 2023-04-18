@@ -38,7 +38,7 @@ describe('Crypto Module', () => {
       'tx_+F0MAaEB4TK48d23oE5jt/qWR5pUu8UlpTGn8bwM5JISGQMGf7ChAeEyuPHdt6BOY7f6lkeaVLvFJaUxp/G8DOSSEhkDBn+wiBvBbWdOyAAAhg9e1n8oAAABhHRlc3QLK3OW',
       secretKey.toString('hex'),
     ]);
-    expect(unpackTx(output).txType).to.equal(Tag.SignedTx);
+    expect(unpackTx(output).tag).to.equal(Tag.SignedTx);
   });
 
   it('unpacks transaction', async () => {

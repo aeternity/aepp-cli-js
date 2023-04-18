@@ -27,14 +27,22 @@ import CliError from '../src/utils/CliError';
 
 const executeContract = (args) => executeProgram(contractProgram, args);
 
+const testLibSource = `
+namespace TestLib =
+  function sum(x: int, y: int) : int = x + y
+`;
+
 const testContractSource = `
-@compiler >= 6
-@compiler < 7
+@compiler >= 7
+@compiler < 8
+
+include "testLib.aes"
 
 contract Identity =
   record state = { z: int }
   entrypoint init(_z: int) = { z = _z }
-  entrypoint test(x : int, y: int) = x + y + state.z
+  entrypoint test(x : int, y: int) = TestLib.sum(x, TestLib.sum(y, state.z))
+  entrypoint getMap(): map(int, int) = {[1] = 2, [3] = 4}
 `;
 
 describe('Contract Module', function contractTests() {
@@ -48,10 +56,14 @@ describe('Contract Module', function contractTests() {
 
   before(async () => {
     await fs.outputFile(contractSourceFile, testContractSource);
+    await fs.outputFile('test-artifacts/testLib.aes', testLibSource);
     sdk = await getSdk();
     await fs.outputJson(
       contractAciFile,
-      await sdk.compilerApi.generateACI({ code: testContractSource, options: {} }),
+      (await sdk.compilerApi.compileBySourceCode(
+        testContractSource,
+        { 'testLib.aes': testLibSource },
+      )).aci,
     );
   });
 
@@ -63,6 +75,13 @@ describe('Contract Module', function contractTests() {
     const { bytecode } = await executeContract(['compile', contractSourceFile, '--json']);
     contractBytecode = bytecode;
     expect(bytecode).to.satisfy((b) => b.startsWith('cb_'));
+  });
+
+  it('compiles contract using cli compiler', async () => {
+    const { bytecode } = await executeContract([
+      'compile', contractSourceFile, '--json', '--compilerUrl', 'cli',
+    ]);
+    expect(bytecode).to.equal(contractBytecode);
   });
 
   describe('Deploy', () => {
@@ -81,11 +100,11 @@ describe('Contract Module', function contractTests() {
       transaction.should.be.a('string');
       name.should.satisfy((n) => n.endsWith(contractSourceFile));
       add.should.be.equal(`${address.split('_')[1]}.json`);
-    });
+    }).timeout(8000);
 
     it('deploys contract with custom descrPath', async () => {
       const descrPath = './not-existing/testDescriptor.json';
-      await executeContract([
+      const { address } = await executeContract([
         'deploy',
         WALLET_NAME, '--password', 'test',
         '--contractSource', contractSourceFile,
@@ -95,9 +114,41 @@ describe('Contract Module', function contractTests() {
       ]);
       expect(await fs.exists(descrPath)).to.be.equal(true);
       const descriptor = await fs.readJson(descrPath);
-      expect(descriptor.address).to.satisfy((b) => b.startsWith('ct_'));
-      expect(descriptor.bytecode).to.satisfy((b) => b.startsWith('cb_'));
-      expect(descriptor.aci).to.an('object');
+      expect(descriptor).to.eql({
+        version: 1,
+        address,
+        bytecode: 'cb_+L5GA6BBf3GW9I6fo4TZBejjzPtb4sVLycthaPcbJPMW921AUcC4kbhX/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYItC8EEUTWRB8RaW5pdBGSiyA2EXRlc3QR0OKCUjEuVGVzdExpYi5zdW0R6YyQGxlnZXRNYXCCLwCFNy4xLjAAKmhsfQ==',
+        aci: [{
+          namespace: { name: 'TestLib', typedefs: [] },
+        }, {
+          contract: {
+            functions: [{
+              arguments: [{ name: '_z', type: 'int' }],
+              name: 'init',
+              payable: false,
+              returns: 'Identity.state',
+              stateful: false,
+            }, {
+              arguments: [{ name: 'x', type: 'int' }, { name: 'y', type: 'int' }],
+              name: 'test',
+              payable: false,
+              returns: 'int',
+              stateful: false,
+            }, {
+              arguments: [],
+              name: 'getMap',
+              payable: false,
+              returns: { map: ['int', 'int'] },
+              stateful: false,
+            }],
+            kind: 'contract_main',
+            name: 'Identity',
+            payable: false,
+            state: { record: [{ name: 'z', type: 'int' }] },
+            typedefs: [],
+          },
+        }],
+      });
       await fs.remove(descrPath);
     });
 
@@ -129,10 +180,10 @@ describe('Contract Module', function contractTests() {
     it('calls contract', async () => {
       const callResponse = await executeContract([
         'call',
-        WALLET_NAME, '--password', 'test',
         '--json',
         '--descrPath', deployDescriptorFile,
         'test', '[1, 2]',
+        WALLET_NAME, '--password', 'test',
       ]);
       callResponse.result.returnValue.should.contain('cb_');
       callResponse.decodedResult.should.be.equal('6');
@@ -141,45 +192,78 @@ describe('Contract Module', function contractTests() {
     it('overrides descriptor\'s address using --contractAddress', async () => {
       await expect(executeContract([
         'call',
-        WALLET_NAME, '--password', 'test',
         '--json',
         '--contractAddress', 'ct_test',
         '--descrPath', deployDescriptorFile,
         'test', '[1, 2]',
+        WALLET_NAME, '--password', 'test',
       ])).to.be.rejectedWith('Invalid name or address: ct_test');
     });
 
     it('throws error if descriptor file not exists', async () => {
       await expect(executeContract([
         'call',
-        WALLET_NAME, '--password', 'test',
         '--json',
         '--descrPath', `${deployDescriptorFile}test`,
         'test', '[1, 2]',
+        WALLET_NAME, '--password', 'test',
       ])).to.be.rejectedWith('ENOENT: no such file or directory, open');
+    });
+
+    it('throws error when calls contract without wallet', async () => {
+      await expect(executeContract([
+        'call',
+        '--json',
+        '--descrPath', deployDescriptorFile,
+        'test', '[1, 2]',
+      ])).to.be.rejectedWith(CliError, 'wallet_path is required for on-chain calls');
     });
 
     it('calls contract static', async () => {
       const callResponse = await executeContract([
         'call',
+        '--json',
+        '--descrPath', deployDescriptorFile,
+        'test', '[1, 2]',
+        '--callStatic',
         WALLET_NAME, '--password', 'test',
+      ]);
+      callResponse.result.returnValue.should.contain('cb_');
+      callResponse.decodedResult.should.equal('6');
+    });
+
+    it('calls contract static with dry run account', async () => {
+      const callResponse = await executeContract([
+        'call',
         '--json',
         '--descrPath', deployDescriptorFile,
         'test', '[1, 2]',
         '--callStatic',
       ]);
       callResponse.result.returnValue.should.contain('cb_');
+      expect(callResponse.result.callerId).to.equal('ak_11111111111111111111111111111111273Yts');
       callResponse.decodedResult.should.equal('6');
+    });
+
+    it('returns Maps correctly', async () => {
+      const callResponse = await executeContract([
+        'call',
+        '--json',
+        '--descrPath', deployDescriptorFile,
+        'getMap',
+        '--callStatic',
+      ]);
+      expect(callResponse.decodedResult).to.be.eql([['1', '2'], ['3', '4']]);
     });
 
     it('calls contract by contract source and address', async () => {
       const callResponse = await executeContract([
         'call',
-        WALLET_NAME, '--password', 'test',
         '--json',
         '--contractAddress', contractAddress,
         '--contractSource', contractSourceFile,
         'test', '[1, 2]',
+        WALLET_NAME, '--password', 'test',
       ]);
       callResponse.decodedResult.should.equal('6');
     });
@@ -187,11 +271,11 @@ describe('Contract Module', function contractTests() {
     it('calls contract by contract ACI and address', async () => {
       const callResponse = await executeContract([
         'call',
-        WALLET_NAME, '--password', 'test',
         '--json',
         '--contractAddress', contractAddress,
         '--contractAci', contractAciFile,
         'test', '[1, 2]',
+        WALLET_NAME, '--password', 'test',
       ]);
       callResponse.decodedResult.should.equal('6');
     });

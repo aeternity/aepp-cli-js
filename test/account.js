@@ -18,7 +18,7 @@
 import fs from 'fs-extra';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { generateKeyPair, AE_AMOUNT_FORMATS, formatAmount } from '@aeternity/aepp-sdk';
+import { generateKeyPair } from '@aeternity/aepp-sdk';
 import { getSdk, executeProgram, WALLET_NAME } from './index';
 import accountProgram from '../src/commands/account';
 
@@ -54,7 +54,7 @@ describe('Account Module', () => {
 
   it('Check Wallet Address', async () => {
     expect((await executeAccount(['address', WALLET_NAME, '--password', 'test', '--json'])).publicKey)
-      .to.equal(await sdk.address());
+      .to.equal(sdk.address);
   });
 
   it('Check Wallet Address with Private Key', async () => {
@@ -63,7 +63,7 @@ describe('Account Module', () => {
   });
 
   it('Check Wallet Balance', async () => {
-    const balance = await sdk.getBalance(await sdk.address());
+    const balance = await sdk.getBalance(sdk.address);
     expect((await executeAccount(['balance', WALLET_NAME, '--password', 'test', '--json'])).balance)
       .to.equal(balance);
   });
@@ -76,33 +76,32 @@ describe('Account Module', () => {
     (+receiverBalance).should.equal(amount);
   });
 
-  it('Spend coins to another wallet using denomination', async () => {
-    const amount = 1; // 1 AE
-    const denomination = AE_AMOUNT_FORMATS.AE;
+  it('Spend coins to another wallet in ae', async () => {
     const receiverKeys = generateKeyPair();
-    await executeAccount(['spend', WALLET_NAME, '--password', 'test', '-D', denomination, receiverKeys.publicKey, amount]);
-    const receiverBalance = await sdk.getBalance(receiverKeys.publicKey);
-    receiverBalance.should.equal(
-      formatAmount(amount, { denomination: AE_AMOUNT_FORMATS.AE }),
-    );
+    const { tx: { tx: { fee } } } = await executeAccount([
+      'spend', WALLET_NAME, '--password', 'test', '--json',
+      receiverKeys.publicKey, '1ae', '--fee', '0.02ae',
+    ]);
+    expect(await sdk.getBalance(receiverKeys.publicKey)).to.be.equal('1000000000000000000');
+    expect(fee).to.be.equal('20000000000000000');
   });
 
   it('Spend fraction of coins to account by name', async () => {
-    const fraction = 0.0001;
+    const fraction = 0.000001;
     const { publicKey } = generateKeyPair();
-    const balanceBefore = await sdk.getBalance(await sdk.address());
+    const balanceBefore = await sdk.getBalance(sdk.address);
     await executeAccount(['transfer', WALLET_NAME, '--password', 'test', publicKey, fraction]);
     expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * fraction);
   });
 
   it('Get account nonce', async () => {
-    const { nextNonce } = await sdk.api.getAccountNextNonce(await sdk.address());
+    const { nextNonce } = await sdk.api.getAccountNextNonce(sdk.address);
     expect((await executeAccount(['nonce', WALLET_NAME, '--password', 'test', '--json'])).nextNonce)
       .to.equal(nextNonce);
   });
 
   it('Generate accounts', async () => {
-    const accounts = await executeAccount(['generate', 2, '--forcePrompt', '--json']);
+    const accounts = await executeAccount(['generate', 2, '--json']);
     accounts.length.should.be.equal(2);
   });
 
@@ -112,7 +111,7 @@ describe('Account Module', () => {
     const signedUsingSDK = Array.from(await sdk.signMessage(data));
     sig = signedMessage.signatureHex;
     signedMessage.data.should.be.equal(data);
-    signedMessage.address.should.be.equal(await sdk.address());
+    signedMessage.address.should.be.equal(sdk.address);
     Array.isArray(signedMessage.signature).should.be.equal(true);
     signedMessage.signature.toString().should.be.equal(signedUsingSDK.toString());
     signedMessage.signatureHex.should.be.a('string');
@@ -126,7 +125,7 @@ describe('Account Module', () => {
     sigFromFile = signatureHex;
     signature.toString().should.be.equal(signedUsingSDK.toString());
     data.toString().should.be.equal(Array.from(Buffer.from(fileData)).toString());
-    address.should.be.equal(await sdk.address());
+    address.should.be.equal(sdk.address);
     Array.isArray(signature).should.be.equal(true);
     signatureHex.should.be.a('string');
   });
