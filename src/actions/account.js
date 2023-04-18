@@ -92,22 +92,6 @@ export async function spend(
   printTransaction(tx, json);
 }
 
-// ## Get `balance` function
-// This function allow you retrieve account `balance`
-export async function getBalance(walletPath, options) {
-  const { height, hash, json } = options;
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  const { nextNonce: nonce } = await sdk.api.getAccountNextNonce(sdk.address);
-  const balance = await sdk.getBalance(sdk.address, { height: height && +height, hash });
-  if (json) {
-    print({ address: sdk.address, nonce, balance });
-  } else {
-    printUnderscored('Balance', balance);
-    printUnderscored('ID', sdk.address);
-    printUnderscored('Nonce', nonce);
-  }
-}
-
 // ## Get `address` function
 // This function allow you retrieve account `public` and `private` keys
 export async function getAddress(walletPath, options) {
@@ -126,25 +110,6 @@ export async function getAddress(walletPath, options) {
   } else {
     printUnderscored('Address', account.address);
     if (printPrivateKey) printUnderscored('Secret Key', keypair.secretKey);
-  }
-}
-
-// ## Get `nonce` function
-// This function allow you retrieve account `nonce`
-export async function getAccountNonce(walletPath, options) {
-  const { json } = options;
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  const { nextNonce: nonce } = await sdk.api.getAccountNextNonce(sdk.address);
-  if (json) {
-    print({
-      id: sdk.address,
-      nonce: nonce - 1,
-      nextNonce: nonce,
-    });
-  } else {
-    printUnderscored('ID', sdk.address);
-    printUnderscored('Nonce', nonce - 1);
-    printUnderscored('Next Nonce', nonce);
   }
 }
 

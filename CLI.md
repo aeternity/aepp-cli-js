@@ -168,16 +168,6 @@ Wallet saved
 Wallet address________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
 Wallet path___________________ /Users/spushkar/Desktop/aepp-sdk-js-develop/bin/test
  ```
-#### balance
-
-This command is used to check the balance of your wallet.
-```
-$ aecli account balance test
-```
-You will get the account balance:
-```
-Your balance is: 998547
- ```
 #### spend
 
 Using this command, you can send coins to another wallet. Just indicate another account's address and an amount which should be sent.

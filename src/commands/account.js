@@ -86,18 +86,6 @@ addCommonOptions(program
   .description('Check if message was signed by wallet')
   .action(Account.verifyMessage));
 
-// ## Initialize `balance` command
-//
-// You can use this command to retrieve balance of account
-//
-// Example: `aecli account balance ./myWalletKeyFile --password testpassword`
-addCommonOptions(program
-  .command('balance <wallet_path>')
-  .option('--height [height]', 'Specific block height')
-  .option('--hash [hash]', 'Specific block hash')
-  .description('Get wallet balance')
-  .action(Account.getBalance));
-
 // ## Initialize `address` command
 //
 // You can use this command to retrieve get your public and private key
@@ -135,16 +123,6 @@ addCommonOptions(program
   .option('--overwrite', 'Overwrite if exist')
   .description('Save a private keys string to a password protected file wallet')
   .action(Account.createSecureWalletByPrivKey));
-
-// ## Initialize `nonce` command
-//
-// You can use this command to get `account nonce`.
-//
-// Example: `aecli account nonce myWalletName --password testpassword
-addCommonOptions(program
-  .command('nonce <wallet_path>')
-  .description('Get account nonce')
-  .action(Account.getAccountNonce));
 
 // ## Initialize `generateKeyPairs` command
 //
