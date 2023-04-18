@@ -1,7 +1,6 @@
 import { Command } from 'commander';
 import fs from 'fs-extra';
-import { unpackTx, Tag, MemoryAccount } from '@aeternity/aepp-sdk';
-import { print } from '../utils/print';
+import { MemoryAccount } from '@aeternity/aepp-sdk';
 import CliError from '../utils/CliError';
 import { decryptKey } from '../utils/encrypt-key';
 import { networkIdOption, passwordOption } from '../arguments';
@@ -26,16 +25,6 @@ program
     const decryptedKey = password ? decryptKey(password, binaryKey) : binaryKey;
     const account = new MemoryAccount(decryptedKey);
     console.log(await account.signTransaction(tx, { networkId }));
-  });
-
-program
-  .command('unpack <tx>')
-  // ## Transaction Deserialization
-  // This helper function deserialized the transaction `tx` and prints the result.
-  .action((tx) => {
-    const unpackedTx = unpackTx(tx);
-    unpackedTx.txType = Tag[unpackedTx.tag];
-    print(unpackedTx);
   });
 
 export default program;
