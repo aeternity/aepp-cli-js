@@ -21,7 +21,7 @@ import {
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import {
-  executeProgram, parseBlock, randomName, getSdk, networkId,
+  executeProgram, randomName, getSdk, networkId,
 } from './index';
 import txProgram from '../src/commands/tx';
 import accountProgram from '../src/commands/account';
@@ -121,7 +121,7 @@ Signed __________________________________ ${responseJson.signedTx}
       accountProgram,
       ['sign', WALLET_NAME, txEncoded, '--password', 'test', '--json', '--networkId', networkId],
     );
-    const broadcast = parseBlock(await executeProgram(chainProgram, ['broadcast', signedTx]));
+    const broadcast = await executeProgram(chainProgram, ['broadcast', signedTx, '--json']);
     expect(+broadcast.blockHeight).to.be.above(0);
     const txHash = buildTxHash(signedTx);
 
@@ -256,7 +256,7 @@ Account _________________________________ ${TX_KEYS.publicKey}
 Client TTL ______________________________ 84600
 Name ID _________________________________ ${nameId}
 Name TTL ________________________________ 180000
-Pointers ________________________________ [{"key":"account_pubkey","id":"${TX_KEYS.publicKey}"}]
+Pointer account_pubkey __________________ ${TX_KEYS.publicKey}
 Fee _____________________________________ 17800000000000
 Nonce ___________________________________ ${nonce}
 TTL _____________________________________ N/A

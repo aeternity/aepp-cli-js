@@ -19,8 +19,7 @@
  */
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import { ORACLE_TTL, QUERY_TTL } from '@aeternity/aepp-sdk';
-import { RESPONSE_TTL } from '../utils/constant';
+import { ORACLE_TTL, QUERY_TTL, RESPONSE_TTL } from '@aeternity/aepp-sdk';
 import * as Oracle from '../actions/oracle';
 import {
   nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption, networkIdOption,
@@ -51,7 +50,7 @@ const addCommonOptions = (p) => p
 addCommonOptions(program
   .command('create <wallet_path> <queryFormat> <responseFormat>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .option('--oracleTtl [oracleTtl]', 'Relative Oracle time to leave', ORACLE_TTL)
+  .option('--oracleTtl [oracleTtl]', 'Relative oracle time to leave', ORACLE_TTL.value)
   .option('--queryFee [queryFee]', 'Oracle query fee', 0)
   .description('Register Oracle')
   .action(Oracle.createOracle));
@@ -83,8 +82,8 @@ addCommonOptions(program
 addCommonOptions(program
   .command('create-query <wallet_path> <oracleId> <query>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL)
-  .option('--queryTtl [queryTtl]', 'Query time to leave', QUERY_TTL)
+  .option('--responseTtl [responseTtl]', 'Relative query response time to leave', RESPONSE_TTL.value)
+  .option('--queryTtl [queryTtl]', 'Relative query time to leave', QUERY_TTL.value)
   .option('--queryFee [queryFee]', 'Oracle query fee', 0)
   .description('Create Oracle query')
   .action(Oracle.createOracleQuery));
@@ -101,7 +100,7 @@ addCommonOptions(program
 addCommonOptions(program
   .command('respond-query <wallet_path> <oracleId> <queryId> <response>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL)
+  .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL.value)
   .description('Respond to  Oracle Query')
   .action(Oracle.respondToQuery));
 

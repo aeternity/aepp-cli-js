@@ -89,7 +89,7 @@ addCommonOptions(program
 addCommonOptions(program
   .command('sign <wallet_path> <tx>')
   .addOption(networkIdOption)
-  .description('Create a transaction to another wallet')
+  .description('Sign a transaction using wallet')
   .action(Account.sign));
 
 // ## Initialize `sign-message` command
@@ -100,7 +100,7 @@ addCommonOptions(program
 addCommonOptions(program
   .command('sign-message <wallet_path> [data...]')
   .option('--filePath [path]', 'Specify the path to the file for signing(ignore command message argument and use file instead)')
-  .description('Create a transaction to another wallet')
+  .description('Sign a personal message using wallet')
   .action(Account.signMessage));
 
 // ## Initialize `verify-message` command
@@ -111,7 +111,7 @@ addCommonOptions(program
 addCommonOptions(program
   .command('verify-message <wallet_path> <hexSignature> [data...]')
   .option('--filePath [path]', 'Specify the path to the file(ignore comm and message argument and use file instead)')
-  .description('Create a transaction to another wallet')
+  .description('Check if message was signed by wallet')
   .action(Account.verifyMessage));
 
 // ## Initialize `balance` command
@@ -193,8 +193,7 @@ addCommonOptions(program
 // Example: `aecli account generate 10 --force
 addCommonOptions(program
   .command('generate <count>')
-  .option('--forcePrompt', 'Force prompting')
-  .description('Generate keyPairs')
+  .description('Generate account key pairs')
   .action(Account.generateKeyPairs));
 
 export default program;

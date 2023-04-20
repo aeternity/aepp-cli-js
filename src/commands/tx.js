@@ -22,9 +22,8 @@
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander';
 import {
-  NAME_TTL, CLIENT_TTL, MIN_GAS_PRICE, ORACLE_TTL, QUERY_TTL,
+  NAME_TTL, CLIENT_TTL, MIN_GAS_PRICE, ORACLE_TTL, QUERY_TTL, RESPONSE_TTL,
 } from '@aeternity/aepp-sdk';
-import { RESPONSE_TTL } from '../utils/constant';
 import * as Transaction from '../actions/transaction';
 import {
   nodeOption,
@@ -66,7 +65,7 @@ addCommonOptions(program
 //
 // Example: `aecli tx name-preclaim ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.chain`
 addCommonOptions(program
-  .command('name-preclaim <accountId> <domain>')
+  .command('name-preclaim <accountId> <name>')
   .addArgument(nonceArgument)
   .description('Build name preclaim transaction.')
   .action(Transaction.namePreClaim));
@@ -93,7 +92,7 @@ addCommonOptions(program
 //
 // Example: `aecli tx name-claim ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi 12327389123 testname.chain`
 addCommonOptions(program
-  .command('name-claim <accountId> <salt> <domain>')
+  .command('name-claim <accountId> <salt> <name>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
   .addOption(feeOption)
@@ -107,7 +106,7 @@ addCommonOptions(program
 //
 // Example: `aecli tx name-transfer ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.chain`
 addCommonOptions(program
-  .command('name-transfer <accountId> <recipientId> <domain>')
+  .command('name-transfer <accountId> <recipientId> <name>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
   .addOption(feeOption)
@@ -120,7 +119,7 @@ addCommonOptions(program
 //
 // Example: `aecli tx name-revoke ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi testname.chain`
 addCommonOptions(program
-  .command('name-revoke <accountId> <domain>')
+  .command('name-revoke <accountId> <name>')
   .addArgument(nonceArgument)
   .addOption(ttlOption)
   .addOption(feeOption)
@@ -186,7 +185,7 @@ addCommonOptions(program
   .addOption(feeOption)
   .option('--queryFee [queryFee]', 'Oracle Query fee.', 0)
   .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', QUERY_TTL.value)
-  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL)
+  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL.value)
   .description('Build oracle post query transaction.')
   .action(Transaction.oraclePostQuery));
 
@@ -213,7 +212,7 @@ addCommonOptions(program
   .addArgument(nonceArgument)
   .addOption(ttlOption)
   .addOption(feeOption)
-  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL)
+  .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL.value)
   .description('Build oracle extend transaction.')
   .action(Transaction.oracleRespond));
 

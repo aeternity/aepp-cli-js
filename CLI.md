@@ -210,8 +210,8 @@ $ ./aecli.mjs name
 
   Commands:
 
-    claim <wallet_path> <name>               Claim a domain name
-    revoke <wallet_path> <name>              Revoke a domain name
+    claim <wallet_path> <name>               Claim an AENS name
+    revoke <wallet_path> <name>              Revoke an AENS name
     transfer <wallet_path> <name> <address>  Transfer a name to another account
     update <wallet_path> <name> <address>    Update a name pointer
 

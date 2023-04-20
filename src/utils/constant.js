@@ -20,7 +20,3 @@
 // ## CONNECTION
 export const NODE_URL = 'https://testnet.aeternity.io';
 export const COMPILER_URL = 'https://v7.compiler.aepps.com';
-
-// ## ORACLE
-export const BUILD_ORACLE_TTL = (ttl) => ({ type: 'delta', value: ttl });
-export const RESPONSE_TTL = 10;

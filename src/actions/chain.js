@@ -18,13 +18,12 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { verifyTransaction } from '@aeternity/aepp-sdk';
+import { verifyTransaction, ConsensusProtocolVersion } from '@aeternity/aepp-sdk';
 import { initSdk } from '../utils/cli';
 import {
   printBlock, print, printUnderscored, printTransaction, printValidation,
 } from '../utils/print';
 import { getBlock } from '../utils/helpers';
-import CliError from '../utils/CliError';
 
 // ## Retrieve `node` version
 export async function version(options) {
@@ -33,19 +32,14 @@ export async function version(options) {
   const sdk = initSdk(options);
   // Call `getStatus` API and print it
   const status = await sdk.api.getStatus();
-  const { consensusProtocolVersion } = sdk.getNodeInfo();
+  const { consensusProtocolVersion } = await sdk.getNodeInfo();
   if (json) {
     print(status);
     return;
   }
-  const FORKS = {
-    3: 'Fortuna',
-    4: 'Lima',
-    5: 'Iris',
-  };
   printUnderscored('Difficulty', status.difficulty);
   printUnderscored('Node version', status.nodeVersion);
-  printUnderscored('Consensus protocol version', `${consensusProtocolVersion} (${FORKS[consensusProtocolVersion]})`);
+  printUnderscored('Consensus protocol version', `${consensusProtocolVersion} (${ConsensusProtocolVersion[consensusProtocolVersion]})`);
   printUnderscored('Node revision', status.nodeRevision);
   printUnderscored('Genesis hash', status.genesisKeyBlockHash);
   printUnderscored('Network ID', status.networkId);
@@ -68,49 +62,29 @@ export async function getNetworkId(options) {
 }
 
 // ## Retrieve `ttl` version
-export async function ttl(absoluteTtl, options) {
-  const { json } = options;
+export async function ttl(_absoluteTtl, { json, ...options }) {
   // Initialize `Ae`
   const sdk = initSdk(options);
   const height = await sdk.getHeight();
+  const absoluteTtl = +_absoluteTtl;
+  const relativeTtl = absoluteTtl - height;
   if (json) {
-    print({ absoluteTtl, relativeTtl: +height + +absoluteTtl });
+    print({ absoluteTtl, relativeTtl });
   } else {
     printUnderscored('Absolute TTL', absoluteTtl);
-    printUnderscored('Relative TTL', +height + +absoluteTtl);
+    printUnderscored('Relative TTL', relativeTtl);
   }
 }
 
 // ## Retrieve `TOP` block
-export async function top(options) {
-  const { json } = options;
+export async function top({ json, ...options }) {
   // Initialize `Ae`
   const sdk = initSdk(options);
   // Call `getTopBlock` API and print it
-  printBlock(await sdk.api.getTopHeader(), json);
+  printBlock(await sdk.api.getTopHeader(), json, true);
 }
 
-// # Play by `limit`
-async function playWithLimit(limit, blockHash, sdk, json) {
-  if (!limit) return;
-  const block = await getBlock(blockHash, sdk);
-
-  await new Promise((resolve) => { setTimeout(resolve, 1000); });
-  printBlock(block, json);
-  await playWithLimit(limit - 1, block.prevHash, sdk, json);
-}
-
-// # Play by `height`
-async function playWithHeight(height, blockHash, sdk, json) {
-  const block = await getBlock(blockHash, sdk);
-  if (parseInt(block.height) < height) return;
-
-  await new Promise((resolve) => { setTimeout(resolve, 1000); });
-  printBlock(block, json);
-  await playWithHeight(height, block.prevHash, sdk, json);
-}
-
-// ## This function `Play`(print all block) from `top` block to some condition(reach some `height` or `limit`)
+// ## This function `Play` (print all block) from `top` block to some condition (reach some `height` or `limit`)
 export async function play(options) {
   let { height, limit, json } = options;
   limit = +limit;
@@ -118,17 +92,14 @@ export async function play(options) {
   const sdk = initSdk(options);
 
   // Get top block from `node`. It is a start point for play.
-  const topHeader = await sdk.api.getTopHeader();
-
-  if (height && height > parseInt(topHeader.height)) {
-    throw new CliError('Height is bigger then height of top block');
-  }
-
-  printBlock(topHeader, json);
+  let block = await sdk.api.getTopHeader();
 
   // Play by `height` or by `limit` using `top` block as start point
-  if (height) await playWithHeight(height, topHeader.prevHash, sdk, json);
-  else await playWithLimit(limit - 1, topHeader.prevHash, sdk, json);
+  while (height ? block.height >= height : limit) {
+    if (!height) limit -= 1;
+    printBlock(block, json);
+    block = await getBlock(block.prevHash, sdk); // eslint-disable-line no-await-in-loop
+  }
 }
 
 // ## Send 'transaction' to the chain

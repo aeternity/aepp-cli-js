@@ -55,7 +55,7 @@ addCommonOptions(program
   .option('--nameFee [nameFee]', 'Amount of coins to pay for name')
   .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
-  .description('Claim a domain name')
+  .description('Claim an AENS name')
   .action(AENS.fullClaim));
 
 // ## Initialize `pre-claim` command
@@ -71,7 +71,7 @@ addCommonOptions(program
 addCommonOptions(program
   .command('pre-claim <wallet_path> <name>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .description('Pre-Claim a domain name')
+  .description('Pre-Claim an AENS name')
   .action(AENS.preClaim));
 
 // ## Initialize `claim` command
@@ -87,7 +87,7 @@ addCommonOptions(program
   .command('claim <wallet_path> <name> <salt>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--nameFee [nameFee]', 'Amount of coins to pay for name')
-  .description('Claim a domain name')
+  .description('Claim an AENS name')
   .action(AENS.claim));
 
 // ## Initialize `claim` command
@@ -125,7 +125,7 @@ addCommonOptions(program
 //
 // Example: `aecli name extend ./myWalletKeyFile --password testpass testname.chain 100`
 addCommonOptions(program
-  .command('extend <wallet_path> <name> <nameTtl')
+  .command('extend <wallet_path> <name> <nameTtl>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
   .description('Extend name ttl')
@@ -139,7 +139,7 @@ addCommonOptions(program
 addCommonOptions(program
   .command('revoke  <wallet_path> <name>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .description('Revoke a domain name')
+  .description('Revoke an AENS name')
   .action(AENS.revokeName));
 
 // ## Initialize `transfer` command

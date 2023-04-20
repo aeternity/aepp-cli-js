@@ -50,7 +50,7 @@ const Sdk = (params = {}) => {
 const spendPromise = (async () => {
   const sdk = Sdk();
   await sdk.awaitHeight(2);
-  await sdk.spend(1e26, keypair.publicKey);
+  await sdk.spend(1e28, keypair.publicKey);
 })();
 
 function getProgramOptions(command) {
@@ -116,28 +116,16 @@ export async function executeProgram(program, args) {
 
 export async function getSdk() {
   await spendPromise;
-
+  const tempKeyPair = generateKeyPair();
   const sdk = Sdk({
-    accounts: [new MemoryAccount(keypair.secretKey)],
+    accounts: [new MemoryAccount(tempKeyPair.secretKey)],
   });
-  await executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', keypair.secretKey, '--overwrite']);
+  await Promise.all([
+    executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', tempKeyPair.secretKey, '--overwrite']),
+    sdk.spend(1e26, tempKeyPair.publicKey, { onAccount: new MemoryAccount(keypair.secretKey) }),
+  ]);
   return sdk;
 }
-
-export const parseBlock = (res) => Object.fromEntries(res
-  .trim()
-  .split('\n')
-  .map((a) => a.trim())
-  .filter((a) => !a.startsWith('<<--') && !a.startsWith('--'))
-  .map((a) => a.split(/ [_]+ /))
-  .map(([key, value]) => [
-    key
-      .toLowerCase()
-      .split(' ')
-      .map((el, i) => (i === 0 ? el : el[0].toUpperCase() + el.slice(1)))
-      .join(''),
-    value,
-  ]));
 
 export function randomName(length = 18) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
