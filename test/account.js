@@ -86,12 +86,11 @@ describe('Account Module', () => {
     expect(fee).to.be.equal('20000000000000000');
   });
 
-  it('Spend fraction of coins to account by name', async () => {
-    const fraction = 0.000001;
+  it('Spend percent of coins to account', async () => {
     const { publicKey } = generateKeyPair();
     const balanceBefore = await sdk.getBalance(sdk.address);
-    await executeAccount(['transfer', WALLET_NAME, '--password', 'test', publicKey, fraction]);
-    expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * fraction);
+    await executeAccount(['spend', WALLET_NAME, '--password', 'test', publicKey, '42%']);
+    expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * 0.42);
   });
 
   it('Get account nonce', async () => {

@@ -2,9 +2,10 @@ import { Argument, Option } from 'commander';
 import BigNumber from 'bignumber.js';
 import { NODE_URL, COMPILER_URL } from './utils/constant';
 
-export const coinAmountParser = (amount) => (
-  new BigNumber(amount.replace(/ae$/, '')).shiftedBy(amount.endsWith('ae') ? 18 : 0)
-);
+export const coinAmountParser = (amount) => {
+  if (amount.endsWith('ae')) return new BigNumber(amount.slice(0, -2)).shiftedBy(18);
+  return new BigNumber(amount);
+};
 
 export const feeOption = new Option('-F, --fee [fee]', 'Override the transaction fee')
   .argParser(coinAmountParser);
