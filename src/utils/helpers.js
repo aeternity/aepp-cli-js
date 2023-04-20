@@ -1,6 +1,7 @@
 // # Utils `helpers` Module
 // That script contains base helper function
 
+import { resolve } from 'path';
 import { Encoding, decode as _decode } from '@aeternity/aepp-sdk';
 import CliError from './CliError';
 
@@ -77,3 +78,5 @@ export function decode(data, requiredPrefix) {
   }
   return _decode(data);
 }
+
+export const getFullPath = (path) => resolve(process.cwd(), path);

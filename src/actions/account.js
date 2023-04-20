@@ -150,11 +150,9 @@ export async function getAccountNonce(walletPath, options) {
 
 // ## Create secure `wallet` file
 // This function allow you to generate `keypair` and write it to secure `ethereum` like key-file
-export async function createSecureWallet(walletPath, {
-  output, password, overwrite, json,
-}) {
+export async function createSecureWallet(walletPath, { password, overwrite, json }) {
   const { secretKey } = generateKeyPair(true);
-  const { publicKey, path } = await writeWallet(walletPath, secretKey, output, password, overwrite);
+  const { publicKey, path } = await writeWallet(walletPath, secretKey, password, overwrite);
   if (json) {
     print({
       publicKey,
@@ -168,11 +166,13 @@ export async function createSecureWallet(walletPath, {
 
 // ## Create secure `wallet` file from `private-key`
 // This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
-export async function createSecureWalletByPrivKey(walletPath, secretKey, {
-  output, password, overwrite, json,
-}) {
+export async function createSecureWalletByPrivKey(
+  walletPath,
+  secretKey,
+  { password, overwrite, json },
+) {
   secretKey = Buffer.from(secretKey.trim(), 'hex');
-  const { publicKey, path } = await writeWallet(walletPath, secretKey, output, password, overwrite);
+  const { publicKey, path } = await writeWallet(walletPath, secretKey, password, overwrite);
   if (json) {
     print({
       publicKey,
