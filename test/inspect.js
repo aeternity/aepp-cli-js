@@ -125,32 +125,69 @@ payload _________________________________ ba_Xfbg4g==
   });
 
   it('Inspect Block', async () => {
-    const top = await executeChain(['top', '--json']);
-    const resJson = await executeInspect([top.hash, '--json']);
-    expect(resJson).to.eql({
-      hash: top.hash,
-      height: top.height,
-      pofHash: 'no_fraud',
-      prevHash: resJson.prevHash,
-      prevKeyHash: resJson.prevKeyHash,
-      signature: resJson.signature,
-      stateHash: resJson.stateHash,
-      time: resJson.time,
-      transactions: resJson.transactions,
-      txsHash: resJson.txsHash,
+    const { prevKeyHash } = await executeChain(['top', '--json']);
+
+    const keyJson = await executeInspect([prevKeyHash, '--json']);
+    expect(keyJson).to.eql({
+      beneficiary: keyJson.beneficiary,
+      hash: keyJson.hash,
+      height: keyJson.height,
+      info: keyJson.info,
+      miner: keyJson.miner,
+      nonce: keyJson.nonce,
+      pow: keyJson.pow,
+      prevHash: keyJson.prevHash,
+      prevKeyHash: keyJson.prevKeyHash,
+      stateHash: keyJson.stateHash,
+      target: keyJson.target,
+      time: keyJson.time,
       version: 5,
     });
-    const res = await executeInspect([top.hash]);
-    expect(res.split('\nTransactions')[0]).to.equal(`
+    const key = await executeInspect([prevKeyHash]);
+    expect(key.split('\nTransactions')[0]).to.equal(`
+<<--------------- KeyBlock --------------->>
+Block hash ______________________________ ${keyJson.hash}
+Block height ____________________________ ${keyJson.height}
+State hash ______________________________ ${keyJson.stateHash}
+Nonce ___________________________________ ${keyJson.nonce}
+Miner ___________________________________ ${keyJson.miner}
+Time ____________________________________ ${new Date(keyJson.time).toString()}
+Previous block hash _____________________ ${keyJson.prevHash}
+Previous key block hash _________________ ${keyJson.prevKeyHash}
+Version _________________________________ 5
+Target __________________________________ ${keyJson.target}
+    `.trim());
+
+    let microHash = keyJson.prevHash;
+    while (microHash.startsWith('kh_')) {
+      // eslint-disable-next-line no-await-in-loop
+      microHash = (await executeInspect([microHash, '--json'])).prevHash;
+    }
+    const microJson = await executeInspect([microHash, '--json']);
+    expect(microJson).to.eql({
+      hash: microJson.hash,
+      height: microJson.height,
+      pofHash: 'no_fraud',
+      prevHash: microJson.prevHash,
+      prevKeyHash: microJson.prevKeyHash,
+      signature: microJson.signature,
+      stateHash: microJson.stateHash,
+      time: microJson.time,
+      transactions: microJson.transactions,
+      txsHash: microJson.txsHash,
+      version: 5,
+    });
+    const micro = await executeInspect([microHash]);
+    expect(micro.split('\nTransactions')[0]).to.equal(`
 <<--------------- MicroBlock --------------->>
-Block hash ______________________________ ${top.hash}
-Block height ____________________________ ${top.height}
-State hash ______________________________ ${resJson.stateHash}
+Block hash ______________________________ ${microJson.hash}
+Block height ____________________________ ${microJson.height}
+State hash ______________________________ ${microJson.stateHash}
 Nonce ___________________________________ N/A
 Miner ___________________________________ N/A
-Time ____________________________________ ${new Date(resJson.time).toString()}
-Previous block hash _____________________ ${resJson.prevHash}
-Previous key block hash _________________ ${resJson.prevKeyHash}
+Time ____________________________________ ${new Date(microJson.time).toString()}
+Previous block hash _____________________ ${microJson.prevHash}
+Previous key block hash _________________ ${microJson.prevKeyHash}
 Version _________________________________ 5
 Target __________________________________ N/A
     `.trim());
