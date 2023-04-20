@@ -71,9 +71,52 @@ describe('Account Module', () => {
   it('Spend coins to another wallet', async () => {
     const amount = 100;
     const { publicKey } = generateKeyPair();
-    await executeAccount(['spend', WALLET_NAME, '--password', 'test', publicKey, amount]);
+    const resJson = await executeAccount([
+      'spend', WALLET_NAME, '--password', 'test', publicKey, amount, '--json',
+    ]);
     const receiverBalance = await sdk.getBalance(publicKey);
-    (+receiverBalance).should.equal(amount);
+    expect(+receiverBalance).to.be.equal(amount);
+
+    expect(resJson).to.eql({
+      tx: {
+        blockHash: resJson.tx.blockHash,
+        blockHeight: resJson.tx.blockHeight,
+        hash: resJson.tx.hash,
+        rawTx: resJson.tx.rawTx,
+        signatures: [resJson.tx.signatures[0]],
+        tx: {
+          amount: '100',
+          fee: '16660000000000',
+          nonce: 1,
+          payload: 'ba_Xfbg4g==',
+          recipientId: resJson.tx.tx.recipientId,
+          senderId: resJson.tx.tx.senderId,
+          type: 'SpendTx',
+          version: 1,
+        },
+      },
+    });
+    
+    const res = await executeAccount([
+      'spend', WALLET_NAME, '--password', 'test', publicKey, amount,
+    ]);
+    const lineEndings = res.split('\n').map((l) => l.split(' ').at(-1));
+    expect(res).to.be.equal(`
+Transaction mined
+Tx hash _________________________________ ${lineEndings[1]}
+Block hash ______________________________ ${lineEndings[2]}
+Block height ____________________________ ${lineEndings[3]}
+Signatures ______________________________ ${lineEndings[4]}
+Tx Type _________________________________ SpendTx
+Sender account __________________________ ${resJson.tx.tx.senderId}
+Recipient account _______________________ ${resJson.tx.tx.recipientId}
+Amount __________________________________ 100
+Payload _________________________________ ba_Xfbg4g==
+Fee _____________________________________ 16660000000000
+Nonce ___________________________________ 2
+TTL _____________________________________ N/A
+Version _________________________________ 1
+    `.trim());
   });
 
   it('Spend coins to another wallet in ae', async () => {
