@@ -279,4 +279,21 @@ Pointer oracle_pubkey ___________________ ${sdk.address}
 TTL _____________________________________ ${resJson.ttl}
     `.trim());
   }).timeout(6000);
+
+  it('Inspect Running Auction Name', async () => {
+    const auctionName = `a${Math.random().toString().slice(2, 9)}.chain`;
+    await (await sdk.aensPreclaim(auctionName)).claim();
+    const resJson = await executeInspect([auctionName, '--json']);
+    expect(resJson).to.eql({
+      name: auctionName,
+      status: 'AVAILABLE',
+    });
+    const res = await executeInspect([auctionName]);
+    expect(res).to.equal(`
+Status __________________________________ AVAILABLE
+Name hash _______________________________ N/A
+Pointers ________________________________ N/A
+TTL _____________________________________ 0
+    `.trim());
+  }).timeout(4000);
 });
