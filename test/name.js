@@ -168,7 +168,7 @@ describe('AENS Module', () => {
 
   it('Spend by name', async () => {
     const amount = 100000009;
-    const spendTx = await executeAccount([
+    const { tx: { recipientId } } = await executeAccount([
       'spend',
       WALLET_NAME,
       '--password',
@@ -179,7 +179,7 @@ describe('AENS Module', () => {
     ]);
 
     const nameObject = await sdk.aensQuery(name2);
-    spendTx.tx.tx.recipientId.should.be.equal(nameObject.id);
+    recipientId.should.be.equal(nameObject.id);
     const balance = await sdk.getBalance(publicKey);
     balance.should.be.equal(`${amount}`);
   });

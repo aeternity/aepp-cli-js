@@ -104,12 +104,8 @@ export async function spend(
     },
   );
 
-  if (json) {
-    print({ tx });
-  } else {
-    print('Transaction mined');
-    printTransaction(tx, json);
-  }
+  if (!json) print('Transaction mined');
+  printTransaction(tx, json);
 }
 
 // ## Get `balance` function
