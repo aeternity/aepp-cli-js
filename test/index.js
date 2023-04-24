@@ -1,9 +1,22 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import { before, after } from 'mocha';
+import mockFs from 'mock-fs';
 import {
   AeSdk, MemoryAccount, Node, generateKeyPair, CompilerHttpNode,
 } from '@aeternity/aepp-sdk';
 import accountProgram from '../src/commands/account';
+
+before(() => {
+  mockFs({
+    'test-artifacts': {},
+    'test/contracts': mockFs.load('test/contracts'),
+  });
+});
+
+after(() => {
+  mockFs.restore();
+});
 
 chai.use(chaiAsPromised);
 chai.should();

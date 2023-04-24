@@ -10,27 +10,9 @@ import CliError from '../src/utils/CliError';
 
 const executeContract = (args) => executeProgram(contractProgram, args);
 
-const testLibSource = `
-namespace TestLib =
-  function sum(x: int, y: int) : int = x + y
-`;
-
-const testContractSource = `
-@compiler >= 7
-@compiler < 8
-
-include "testLib.aes"
-
-contract Identity =
-  record state = { z: int }
-  entrypoint init(_z: int) = { z = _z }
-  entrypoint test(x : int, y: int) = TestLib.sum(x, TestLib.sum(y, state.z))
-  entrypoint getMap(): map(int, int) = {[1] = 2, [3] = 4}
-`;
-
 describe('Contract Module', function contractTests() {
   this.timeout(4000);
-  const contractSourceFile = 'test-artifacts/contract.aes';
+  const contractSourceFile = 'test/contracts/contract.aes';
   const contractAciFile = 'test-artifacts/contract-aci.json';
   let deployDescriptorFile;
   let sdk;
@@ -38,15 +20,10 @@ describe('Contract Module', function contractTests() {
   let contractAddress;
 
   before(async () => {
-    await fs.outputFile(contractSourceFile, testContractSource);
-    await fs.outputFile('test-artifacts/testLib.aes', testLibSource);
     sdk = await getSdk();
     await fs.outputJson(
       contractAciFile,
-      (await sdk.compilerApi.compileBySourceCode(
-        testContractSource,
-        { 'testLib.aes': testLibSource },
-      )).aci,
+      (await sdk.compilerApi.compile(contractSourceFile)).aci,
     );
   });
 
@@ -100,7 +77,7 @@ describe('Contract Module', function contractTests() {
       expect(descriptor).to.eql({
         version: 1,
         address,
-        bytecode: 'cb_+L5GA6BBf3GW9I6fo4TZBejjzPtb4sVLycthaPcbJPMW921AUcC4kbhX/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYItC8EEUTWRB8RaW5pdBGSiyA2EXRlc3QR0OKCUjEuVGVzdExpYi5zdW0R6YyQGxlnZXRNYXCCLwCFNy4xLjAAKmhsfQ==',
+        bytecode: 'cb_+L5GA6DYM5NsuGXWxxHp3/rvzpUabt5oDeNdrc22CqVocjzKwMC4kbhX/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYItC8EEUTWRB8RaW5pdBGSiyA2EXRlc3QR0OKCUjEuVGVzdExpYi5zdW0R6YyQGxlnZXRNYXCCLwCFNy4xLjAAekHqRQ==',
         aci: [{
           namespace: { name: 'TestLib', typedefs: [] },
         }, {
@@ -190,7 +167,7 @@ describe('Contract Module', function contractTests() {
         '--descrPath', `${deployDescriptorFile}test`,
         'test', '[1, 2]',
         WALLET_NAME, '--password', 'test',
-      ])).to.be.rejectedWith('ENOENT: no such file or directory, open');
+      ])).to.be.rejectedWith('no such file or directory');
     });
 
     it('throws error when calls contract without wallet', async () => {
