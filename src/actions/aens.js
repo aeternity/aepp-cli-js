@@ -3,8 +3,8 @@
 // This script initialize all `AENS` function
 
 import { isAddressValid, getDefaultPointerKey } from '@aeternity/aepp-sdk';
-import { initSdk, initSdkByWalletFile } from '../utils/cli';
-import { print, printName, printTransaction } from '../utils/print';
+import { initSdkByWalletFile } from '../utils/cli';
+import { print, printTransaction } from '../utils/print';
 import { isAvailable, updateNameStatus, validateName } from '../utils/helpers';
 import CliError from '../utils/CliError';
 
@@ -258,18 +258,6 @@ export async function fullClaim(walletPath, name, options) {
 
   printTransaction(
     updateTx,
-    json,
-  );
-}
-
-export async function lookUp(name, options) {
-  const { json } = options;
-  validateName(name);
-  const sdk = initSdk(options);
-
-  // Check if `name` is unavailable and we can revoke it
-  printName(
-    await updateNameStatus(name, sdk),
     json,
   );
 }

@@ -43,7 +43,6 @@ Commands:
   name                           AENS system
   tx                             Transaction builder
   oracle                         Interact with oracles
-  crypto                         Crypto helpers
   config [options]               Print the current sdk configuration
   select-node [nodeUrl]          Specify node to use in other commands
   select-compiler [compilerUrl]  Specify compiler to use in other commands
@@ -167,16 +166,6 @@ You will get the following:
 Wallet saved
 Wallet address________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
 Wallet path___________________ /Users/spushkar/Desktop/aepp-sdk-js-develop/bin/test
- ```
-#### balance
-
-This command is used to check the balance of your wallet.
-```
-$ aecli account balance test
-```
-You will get the account balance:
-```
-Your balance is: 998547
  ```
 #### spend
 

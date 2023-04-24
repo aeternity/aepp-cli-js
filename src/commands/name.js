@@ -137,14 +137,4 @@ addCommonOptions(program
   .description('Transfer a name to another account')
   .action(AENS.transferName));
 
-// ## Initialize `lookup` command
-//
-// You can use this command to `update` pointer of AENS name.
-//
-// Example: `aecli lookup name.chain`
-addCommonOptions(program
-  .command('lookup <name>')
-  .description('Look up name')
-  .action(AENS.lookUp));
-
 export default program;

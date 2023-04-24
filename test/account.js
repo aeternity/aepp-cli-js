@@ -63,12 +63,6 @@ describe('Account Module', () => {
       .to.be.a('string');
   });
 
-  it('Check Wallet Balance', async () => {
-    const balance = await sdk.getBalance(sdk.address);
-    expect((await executeAccount(['balance', WALLET_NAME, '--password', 'test', '--json'])).balance)
-      .to.equal(balance);
-  });
-
   it('Spend coins to another wallet', async () => {
     const amount = 100;
     const { publicKey } = generateKeyPair();
@@ -133,17 +127,6 @@ Version _________________________________ 1
     const balanceBefore = await sdk.getBalance(sdk.address);
     await executeAccount(['spend', WALLET_NAME, '--password', 'test', publicKey, '42%']);
     expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * 0.42);
-  });
-
-  it('Get account nonce', async () => {
-    const { nextNonce } = await sdk.api.getAccountNextNonce(sdk.address);
-    expect((await executeAccount(['nonce', WALLET_NAME, '--password', 'test', '--json'])).nextNonce)
-      .to.equal(nextNonce);
-  });
-
-  it('Generate accounts', async () => {
-    const accounts = await executeAccount(['generate', 2, '--json']);
-    accounts.length.should.be.equal(2);
   });
 
   it('Sign message', async () => {
