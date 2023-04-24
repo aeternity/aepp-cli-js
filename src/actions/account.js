@@ -69,45 +69,27 @@ export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...o
 }
 
 // ## `Spend` function
-// this function allow you to `send` token's to another `account`
-export async function spend(walletPath, receiverNameOrAddress, amount, options) {
-  const {
-    ttl, json, nonce, fee, payload,
-  } = options;
+// this function allow you to `send` coins to another `account`
+export async function spend(
+  walletPath,
+  receiverNameOrAddress,
+  { amount, fraction },
+  {
+    ttl, json, nonce, fee, payload, ...options
+  },
+) {
   const sdk = await initSdkByWalletFile(walletPath, options);
 
-  let tx = await sdk.spend(amount, receiverNameOrAddress, {
-    ttl, nonce, payload: encode(Buffer.from(payload), Encoding.Bytearray), fee,
-  });
-  if (json) print({ tx });
-  else {
-    print('Transaction mined');
-    printTransaction(tx, json);
-  }
-}
+  const tx = await sdk[amount != null ? 'spend' : 'transferFunds'](
+    amount ?? fraction / 100,
+    receiverNameOrAddress,
+    {
+      ttl, nonce, payload: encode(Buffer.from(payload), Encoding.Bytearray), fee,
+    },
+  );
 
-// ## `Transfer` function
-// this function allow you to `send` % of balance to another `account`
-export async function transferFunds(walletPath, receiver, fraction, options) {
-  const {
-    ttl, json, nonce, fee, payload,
-  } = options;
-  const sdk = await initSdkByWalletFile(walletPath, options);
-
-  let tx = await sdk.transferFunds(fraction, receiver, {
-    ttl, nonce, payload: encode(Buffer.from(payload), Encoding.Bytearray), fee,
-  });
-  // if waitMined false
-  if (typeof tx !== 'object') {
-    tx = await sdk.api.getTransactionByHash(tx);
-  } else if (!json) {
-    print('Transaction mined');
-  }
-  if (json) {
-    print({ tx });
-  } else {
-    printTransaction(tx, json);
-  }
+  if (!json) print('Transaction mined');
+  printTransaction(tx, json);
 }
 
 // ## Get `balance` function

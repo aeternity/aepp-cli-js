@@ -36,34 +36,22 @@ const addCommonOptions = (p) => p
 //
 // Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
 addCommonOptions(program
-  .command('spend <wallet_path> <receiverIdOrName>')
-  .argument('<amount>', 'Amount of coins to send in aettos or in ae (example: 1.2ae)', coinAmountParser)
+  .command('spend <wallet_path>')
+  .argument('<receiver>', 'Address or name of recipient account')
+  .argument(
+    '<amountOrPercent>',
+    'Amount of coins to send in aettos/ae (example 1.2ae), or percent of sender balance (example 42%)',
+    (amount) => {
+      if (amount.endsWith('%')) return { fraction: +amount.slice(0, -1) };
+      return { amount: coinAmountParser(amount) };
+    },
+  )
   .addOption(networkIdOption)
   .option('--payload [payload]', 'Transaction payload.', '')
   .addOption(feeOption)
   .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .action(Account.spend));
-
-// ## Initialize `transfer` command
-//
-// You can use this command to send % of balance to another account
-//
-// Example: `aecli account transfer ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 0.5 --password testpassword`
-//
-// You can set transaction `ttl(Time to leave)`. If not set use default.
-//
-// Example: `aecli account transfer ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 0.5 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
-addCommonOptions(program
-  .command('transfer <wallet_path>')
-  .argument('<receiver>', 'Address or name of recipient account')
-  .argument('<fraction>', 'Fraction of balance to spend (between 0 and 1)', (v) => +v)
-  .addOption(networkIdOption)
-  .option('--payload [payload]', 'Transaction payload.', '')
-  .addOption(feeOption)
-  .addOption(ttlOption)
-  .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .action(Account.transferFunds));
 
 // ## Initialize `sign` command
 //

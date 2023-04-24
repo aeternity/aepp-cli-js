@@ -72,14 +72,55 @@ describe('Account Module', () => {
   it('Spend coins to another wallet', async () => {
     const amount = 100;
     const { publicKey } = generateKeyPair();
-    await executeAccount(['spend', WALLET_NAME, '--password', 'test', publicKey, amount]);
+    const resJson = await executeAccount([
+      'spend', WALLET_NAME, '--password', 'test', publicKey, amount, '--json',
+    ]);
     const receiverBalance = await sdk.getBalance(publicKey);
-    (+receiverBalance).should.equal(amount);
+    expect(+receiverBalance).to.be.equal(amount);
+
+    expect(resJson).to.eql({
+      blockHash: resJson.blockHash,
+      blockHeight: resJson.blockHeight,
+      hash: resJson.hash,
+      rawTx: resJson.rawTx,
+      signatures: [resJson.signatures[0]],
+      tx: {
+        amount: '100',
+        fee: '16660000000000',
+        nonce: 1,
+        payload: 'ba_Xfbg4g==',
+        recipientId: resJson.tx.recipientId,
+        senderId: resJson.tx.senderId,
+        type: 'SpendTx',
+        version: 1,
+      },
+    });
+
+    const res = await executeAccount([
+      'spend', WALLET_NAME, '--password', 'test', publicKey, amount,
+    ]);
+    const lineEndings = res.split('\n').map((l) => l.split(' ').at(-1));
+    expect(res).to.be.equal(`
+Transaction mined
+Tx hash _________________________________ ${lineEndings[1]}
+Block hash ______________________________ ${lineEndings[2]}
+Block height ____________________________ ${lineEndings[3]}
+Signatures ______________________________ ${lineEndings[4]}
+Tx Type _________________________________ SpendTx
+Sender account __________________________ ${resJson.tx.senderId}
+Recipient account _______________________ ${resJson.tx.recipientId}
+Amount __________________________________ 100
+Payload _________________________________ ba_Xfbg4g==
+Fee _____________________________________ 16660000000000
+Nonce ___________________________________ 2
+TTL _____________________________________ N/A
+Version _________________________________ 1
+    `.trim());
   });
 
   it('Spend coins to another wallet in ae', async () => {
     const receiverKeys = generateKeyPair();
-    const { tx: { tx: { fee } } } = await executeAccount([
+    const { tx: { fee } } = await executeAccount([
       'spend', WALLET_NAME, '--password', 'test', '--json',
       receiverKeys.publicKey, '1ae', '--fee', '0.02ae',
     ]);
@@ -87,12 +128,11 @@ describe('Account Module', () => {
     expect(fee).to.be.equal('20000000000000000');
   });
 
-  it('Spend fraction of coins to account by name', async () => {
-    const fraction = 0.000001;
+  it('Spend percent of coins to account', async () => {
     const { publicKey } = generateKeyPair();
     const balanceBefore = await sdk.getBalance(sdk.address);
-    await executeAccount(['transfer', WALLET_NAME, '--password', 'test', publicKey, fraction]);
-    expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * fraction);
+    await executeAccount(['spend', WALLET_NAME, '--password', 'test', publicKey, '42%']);
+    expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * 0.42);
   });
 
   it('Get account nonce', async () => {
