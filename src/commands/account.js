@@ -117,14 +117,9 @@ addCommonOptions(program
 // You can use this command to generate `keypair` and encrypt it by password.
 // This command create `ethereum like keyfile`.
 //
-// You can use `--output ./keys` to set directory to save you key.
-//
-// Example: `aecli account create myWalletName --password testpassword`
-//
-// Example: `aecli account create myWalletName --password testpassword --output ./mykeys` --> create `key-file` in `mykeys` directory
+// Example: `aecli account create ./mykeys/my-wallet.json --password testpassword`
 addCommonOptions(program
   .command('create <wallet_path>')
-  .option('-O, --output [output]', 'Output directory', '.')
   .option('--overwrite', 'Overwrite if exist')
   .description('Create a secure wallet')
   .action(Account.createSecureWallet));
@@ -134,14 +129,9 @@ addCommonOptions(program
 // You can use this command to generate `keypair` from `private-key` and encrypt it by password.
 // This command create `ethereum like keyfile`.
 //
-// You can use `--output ./keys` to set directory to save you key
-//
-// Example: `aecli account save myWalletName 1902855723940510273412074210842018342148234  --password testpassword`
-//
-// Example: `aecli account save myWalletName 1902855723940510273412074210842018342148234 --password testpassword --output ./mykeys` --> create `key-file` in `mykeys` directory
+// Example: `aecli account save ./mykeys/my-wallet.json 1902855723940510273412074210842018342148234 --password testpassword`
 addCommonOptions(program
   .command('save <wallet_path> <privkey>')
-  .option('-O, --output [output]', 'Output directory', '.')
   .option('--overwrite', 'Overwrite if exist')
   .description('Save a private keys string to a password protected file wallet')
   .action(Account.createSecureWalletByPrivKey));
@@ -149,8 +139,6 @@ addCommonOptions(program
 // ## Initialize `nonce` command
 //
 // You can use this command to get `account nonce`.
-//
-// You can use `--output ./keys` to set directory to save you key
 //
 // Example: `aecli account nonce myWalletName --password testpassword
 addCommonOptions(program

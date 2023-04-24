@@ -3,21 +3,20 @@
 // This script initialize all `contract` function
 
 import fs from 'fs-extra';
-import path from 'path';
 import { encode } from '@aeternity/aepp-sdk';
 import { initSdk, initSdkByWalletFile } from '../utils/cli';
 import { print, printTransaction, printUnderscored } from '../utils/print';
 import CliError from '../utils/CliError';
+import { getFullPath } from '../utils/helpers';
 
 const DESCRIPTOR_VERSION = 1;
-const resolve = (filename) => path.resolve(process.cwd(), filename);
 
 async function getContractParams({
   descrPath, contractAddress, contractSource, contractBytecode, contractAci,
 }, { dummyBytecode, descrMayNotExist } = {}) {
   let descriptor = {};
-  if (descrPath && (!descrMayNotExist || await fs.exists(resolve(descrPath)))) {
-    descriptor = await fs.readJson(resolve(descrPath));
+  if (descrPath && (!descrMayNotExist || await fs.exists(getFullPath(descrPath)))) {
+    descriptor = await fs.readJson(getFullPath(descrPath));
     if (descriptor.version !== DESCRIPTOR_VERSION) {
       throw new CliError(`Unsupported contract descriptor: version ${descriptor.version}, supported ${DESCRIPTOR_VERSION}`);
     }
@@ -29,8 +28,10 @@ async function getContractParams({
     ...dummyBytecode && { bytecode: 'cb_invalid-bytecode' },
     ...other,
     ...contractSource && { sourceCodePath: contractSource },
-    ...contractBytecode && { bytecode: encode(await fs.readFile(resolve(contractBytecode)), 'cb') },
-    ...contractAci && { aci: await fs.readJson(resolve(contractAci)) },
+    ...contractBytecode && {
+      bytecode: encode(await fs.readFile(getFullPath(contractBytecode)), 'cb'),
+    },
+    ...contractAci && { aci: await fs.readJson(getFullPath(contractAci)) },
   };
 }
 
@@ -75,8 +76,7 @@ export async function deploy(walletPath, args, options) {
   const contract = await sdk.initializeContract(await getContractParams(options, { descrMayNotExist: true }));
   const result = await contract.$deploy(args, options);
   const filename = options.contractSource ?? options.contractBytecode;
-  options.descrPath ||= path
-    .resolve(process.cwd(), `${filename}.deploy.${result.address.slice(3)}.json`);
+  options.descrPath ??= getFullPath(`${filename}.deploy.${result.address.slice(3)}.json`);
   const descriptor = {
     version: DESCRIPTOR_VERSION,
     address: result.address,
