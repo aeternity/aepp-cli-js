@@ -13,7 +13,7 @@ export async function writeWallet(name, secretKey, output, password, overwrite) 
   if (!overwrite && await fs.exists(walletPath) && !await prompt(PROMPT_TYPE.askOverwrite)) {
     throw new CliError(`Wallet already exist at ${walletPath}`);
   }
-  password ||= await prompt(PROMPT_TYPE.askPassword);
+  password ??= await prompt(PROMPT_TYPE.askPassword);
   await fs.outputJson(walletPath, await dump(name, password, secretKey));
   const { publicKey } = generateKeyPairFromSecret(secretKey);
   return { publicKey: encode(publicKey, Encoding.AccountAddress), path: walletPath };
@@ -23,7 +23,7 @@ export async function writeWallet(name, secretKey, output, password, overwrite) 
 export async function getWalletByPathAndDecrypt(walletPath, password) {
   const keyFile = await fs.readJson(path.resolve(process.cwd(), walletPath));
 
-  password ||= await prompt(PROMPT_TYPE.askPassword);
+  password ??= await prompt(PROMPT_TYPE.askPassword);
 
   const privKey = await recover(password, keyFile);
 

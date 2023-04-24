@@ -1,9 +1,11 @@
 import fs from 'fs-extra';
 import { before, describe, it } from 'mocha';
-import { expect } from 'chai';
+import { expect, assert } from 'chai';
+import { stub } from 'sinon';
 import { generateKeyPair } from '@aeternity/aepp-sdk';
 import { getSdk, executeProgram, WALLET_NAME } from './index';
 import accountProgram from '../src/commands/account';
+import * as promptModule from '../src/utils/prompt';
 
 const executeAccount = (args) => executeProgram(accountProgram, args);
 const walletName = 'test-artifacts/test-wallet.json';
@@ -43,6 +45,22 @@ describe('Account Module', () => {
   it('Check Wallet Address with Private Key', async () => {
     expect((await executeAccount(['address', walletName, '--password', 'test', '--privateKey', '--forcePrompt', '--json'])).secretKey)
       .to.equal(keypair.secretKey);
+  });
+
+  it('asks for password if it not provided', async () => {
+    const stubbedPrompt = stub(promptModule, 'prompt');
+    stubbedPrompt.throwsException(new Error('stubbed'));
+    await expect(executeAccount(['create', 'test-artifacts/test-wallet-1.json']))
+      .to.be.eventually.rejectedWith('stubbed');
+    assert(stubbedPrompt.alwaysCalledWith(promptModule.PROMPT_TYPE.askPassword));
+    stubbedPrompt.restore();
+  });
+
+  it('don\'t asks for password if it is empty', async () => {
+    const name = 'test-artifacts/test-wallet-2.json';
+    await executeAccount(['create', name, '--password', '', '--overwrite']);
+    expect((await executeAccount(['address', name, '--password', '', '--json'])).publicKey)
+      .to.be.a('string');
   });
 
   it('Check Wallet Balance', async () => {
