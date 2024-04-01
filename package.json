@@ -52,12 +52,15 @@
     "aeternity",
     "blockchain"
   ],
-  "author": "nduchak",
   "license": "ISC",
   "engines": {
     "node": ">=14.0.0"
   },
   "files": [
     "bin"
+  ],
+  "contributors": [
+    "Nazar Duchak <omelko39@gmail.com>",
+    "Denis Davidyuk <denis_davidyuk@hotmail.com>"
   ]
 }

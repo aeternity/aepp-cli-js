@@ -70,7 +70,7 @@ Commands:
 ## License
 
 ISC License (ISC)
-Copyright © 2023 aeternity developers
+Copyright © 2024 aeternity developers
 
 Permission to use, copy, modify, and/or distribute this software for any purpose
 with or without fee is hereby granted, provided that the above copyright notice
