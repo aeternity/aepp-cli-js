@@ -1,0 +1,45 @@
+name: Test & build
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+jobs:
+  main:
+    runs-on: ubuntu-22.04
+    steps:
+      - run: |
+          wget -q https://packages.erlang-solutions.com/erlang/debian/pool/esl-erlang_25.0.4-1~ubuntu~jammy_amd64.deb
+          sudo apt install --allow-downgrades ./esl-erlang_25.0.4-1~ubuntu~jammy_amd64.deb
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.x # minimum supported version
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.autorest
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+      - run: npm ci
+      - name: Run Commitlint
+        if: github.event_name == 'pull_request'
+        env:
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: npx commitlint --from $BASE --to $HEAD --verbose
+      - run: npm run lint
+      - run: npm run docs
+      - run: docker compose up -d --wait
+      - run: npx nyc npm test
+      - run: npx nyc report --reporter=text-lcov > coverage.lcov
+      - uses: codecov/codecov-action@v4
+        with:
+          files: coverage.lcov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - run: docker compose logs
+        if: always()

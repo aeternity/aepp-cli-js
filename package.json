@@ -40,9 +40,10 @@
   "scripts": {
     "build": "babel src --out-dir bin --out-file-extension .mjs",
     "docs": "scripts/js-to-md.js src/*.js src/commands/*.js src/actions/*.js src/utils/*.js",
-    "lint": "commitlint --from 23f6888 && eslint .",
-    "test": "nyc mocha --recursive",
-    "test:watch": "mocha --recursive --watch",
+    "commitlint": "commitlint --from develop",
+    "lint": "eslint .",
+    "test": "mocha",
+    "test:watch": "mocha --watch",
     "release": "standard-version --skip.tag",
     "prepare": "npm run build",
     "prepublishOnly": "npm run docs"
