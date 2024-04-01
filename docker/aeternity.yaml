@@ -1,20 +1,8 @@
----
-peers: []
+# yaml-language-server: $schema=https://github.com/aeternity/aeternity/raw/master/apps/aeutils/priv/aeternity_config_schema.json
 
 http:
-  external:
-    port: 3013
-  internal:
-    debug_endpoints: true
-    port: 3113
-    listen_address: 0.0.0.0
   endpoints:
     dry-run: true
-
-websocket:
-  channel:
-    listen_address: 0.0.0.0
-    port: 3014
 
 chain:
   persist: false
