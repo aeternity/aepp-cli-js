@@ -13,6 +13,7 @@ export default {
         'deps-dev',
         'oracle',
         'release',
+        'tx-builder',
       ],
     ],
   },
