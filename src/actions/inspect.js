@@ -3,7 +3,7 @@
 // This script initialize all `inspect` function
 
 import { Encoding, unpackTx as _unpackTx, Tag } from '@aeternity/aepp-sdk';
-import { initSdk } from '../utils/cli';
+import { initSdk } from '../utils/cli.js';
 import {
   print,
   printBlock,
@@ -11,11 +11,11 @@ import {
   printName, printOracle, printQueries,
   printTransaction,
   printUnderscored,
-} from '../utils/print';
+} from '../utils/print.js';
 import {
   checkPref, getBlock, updateNameStatus, validateName,
-} from '../utils/helpers';
-import CliError from '../utils/CliError';
+} from '../utils/helpers.js';
+import CliError from '../utils/CliError.js';
 
 function printEntries(object) {
   Object.entries(object).forEach((entry) => printUnderscored(...entry));

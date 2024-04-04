@@ -4,8 +4,8 @@
 // We'll use `commander` for parsing options
 import { Argument, Option, Command } from 'commander';
 import { MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
-import CliError from '../utils/CliError';
-import * as Contract from '../actions/contract';
+import CliError from '../utils/CliError.js';
+import * as Contract from '../actions/contract.js';
 import {
   nodeOption,
   compilerOption,
@@ -16,7 +16,7 @@ import {
   passwordOption,
   ttlOption,
   networkIdOption,
-} from '../arguments';
+} from '../arguments.js';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
   .argParser((argsText) => {

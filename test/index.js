@@ -5,7 +5,7 @@ import mockFs from 'mock-fs';
 import {
   AeSdk, MemoryAccount, Node, generateKeyPair, CompilerHttpNode,
 } from '@aeternity/aepp-sdk';
-import accountProgram from '../src/commands/account';
+import accountProgram from '../src/commands/account.js';
 
 before(() => {
   mockFs({

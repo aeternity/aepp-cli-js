@@ -8,7 +8,7 @@ import { Command } from 'commander';
 import {
   NAME_TTL, CLIENT_TTL, MIN_GAS_PRICE, ORACLE_TTL, QUERY_TTL, RESPONSE_TTL,
 } from '@aeternity/aepp-sdk';
-import * as Transaction from '../actions/transaction';
+import * as Transaction from '../actions/transaction.js';
 import {
   nodeOption,
   jsonOption,
@@ -18,7 +18,7 @@ import {
   forceOption,
   ttlOption,
   networkIdOption,
-} from '../arguments';
+} from '../arguments.js';
 
 const program = new Command().name('aecli tx');
 

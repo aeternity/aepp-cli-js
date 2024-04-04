@@ -3,7 +3,7 @@
 
 import { resolve } from 'path';
 import { Encoding, decode as _decode } from '@aeternity/aepp-sdk';
-import CliError from './CliError';
+import CliError from './CliError.js';
 
 // ## Method which retrieve block info by hash
 // if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`

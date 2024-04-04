@@ -3,9 +3,9 @@ import { expect } from 'chai';
 import {
   AbiVersion, generateKeyPair, Tag, VmVersion,
 } from '@aeternity/aepp-sdk';
-import { executeProgram, getSdk } from './index';
-import inspectProgram from '../src/commands/inspect';
-import chainProgram from '../src/commands/chain';
+import { executeProgram, getSdk } from './index.js';
+import inspectProgram from '../src/commands/inspect.js';
+import chainProgram from '../src/commands/chain.js';
 
 const executeInspect = (args) => executeProgram(inspectProgram, args);
 const executeChain = (args) => executeProgram(chainProgram, args);

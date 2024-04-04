@@ -1,5 +1,5 @@
 import { InvalidPasswordError } from '@aeternity/aepp-sdk';
-import { setCommandOptions } from './config';
+import { setCommandOptions } from './config.js';
 
 export default class CliError extends Error {
   constructor(message) {

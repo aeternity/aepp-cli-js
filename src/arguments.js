@@ -1,6 +1,6 @@
 import { Argument, Option } from 'commander';
 import BigNumber from 'bignumber.js';
-import { NODE_URL, COMPILER_URL } from './utils/constant';
+import { NODE_URL, COMPILER_URL } from './utils/constant.js';
 
 export const coinAmountParser = (amount) => {
   if (amount.endsWith('ae')) return new BigNumber(amount.slice(0, -2)).shiftedBy(18);

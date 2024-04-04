@@ -5,6 +5,7 @@
   "bin": {
     "aecli": "bin/aecli.mjs"
   },
+  "type": "module",
   "dependencies": {
     "@aeternity/aepp-sdk": "^13.0.0",
     "bignumber.js": "^9.1.1",

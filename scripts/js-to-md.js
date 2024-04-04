@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const path = require('path');
-const fs = require('fs-extra');
+import path from 'path';
+import fs from 'fs-extra';
 
 function splitCodeIntoBlocks(text) {
   const content = [];

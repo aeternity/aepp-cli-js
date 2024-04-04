@@ -6,10 +6,10 @@ import fs from 'fs-extra';
 import {
   generateKeyPair, encode, Encoding, verifyMessage as _verifyMessage,
 } from '@aeternity/aepp-sdk';
-import { writeWallet } from '../utils/account';
-import { initSdkByWalletFile, getAccountByWalletFile } from '../utils/cli';
-import { print, printTransaction, printUnderscored } from '../utils/print';
-import { PROMPT_TYPE, prompt } from '../utils/prompt';
+import { writeWallet } from '../utils/account.js';
+import { initSdkByWalletFile, getAccountByWalletFile } from '../utils/cli.js';
+import { print, printTransaction, printUnderscored } from '../utils/print.js';
+import { PROMPT_TYPE, prompt } from '../utils/prompt.js';
 
 // ## `Sign message` function
 // this function allow you to `sign` arbitrary data

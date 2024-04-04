@@ -3,7 +3,7 @@
 import {
   AeSdk, Node, MemoryAccount, CompilerCli, CompilerHttpNode,
 } from '@aeternity/aepp-sdk';
-import { getWalletByPathAndDecrypt } from './account';
+import { getWalletByPathAndDecrypt } from './account.js';
 
 export function initSdk({
   url, keypair, compilerUrl, force: ignoreVersion, networkId, accounts = [],

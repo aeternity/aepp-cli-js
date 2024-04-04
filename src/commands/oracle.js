@@ -4,10 +4,10 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
 import { ORACLE_TTL, QUERY_TTL, RESPONSE_TTL } from '@aeternity/aepp-sdk';
-import * as Oracle from '../actions/oracle';
+import * as Oracle from '../actions/oracle.js';
 import {
   nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption, networkIdOption,
-} from '../arguments';
+} from '../arguments.js';
 
 const program = new Command().name('aecli oracle');
 

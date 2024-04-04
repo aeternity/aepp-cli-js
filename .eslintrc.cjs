@@ -10,6 +10,7 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
+    'import/extensions': ['error', 'always'],
     // TODO: enable these rules back
     'no-console': 0,
     'max-len': 0,

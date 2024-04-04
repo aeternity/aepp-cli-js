@@ -1,8 +1,8 @@
 import { AbiVersion, generateKeyPair } from '@aeternity/aepp-sdk';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { executeProgram, getSdk, WALLET_NAME } from './index';
-import oracleProgram from '../src/commands/oracle';
+import { executeProgram, getSdk, WALLET_NAME } from './index.js';
+import oracleProgram from '../src/commands/oracle.js';
 
 const executeOracle = (args) => executeProgram(oracleProgram, args);
 

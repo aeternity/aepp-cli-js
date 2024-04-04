@@ -3,12 +3,12 @@
 // This script initialize all `contract` function
 
 import { ORACLE_TTL_TYPES } from '@aeternity/aepp-sdk';
-import { initSdk, initSdkByWalletFile } from '../utils/cli';
-import { decode } from '../utils/helpers';
+import { initSdk, initSdkByWalletFile } from '../utils/cli.js';
+import { decode } from '../utils/helpers.js';
 import {
   print, printOracle, printQueries, printTransaction,
-} from '../utils/print';
-import CliError from '../utils/CliError';
+} from '../utils/print.js';
+import CliError from '../utils/CliError.js';
 
 function ensureTtlANumber(ttl, name) {
   if (isNaN(+ttl)) throw new CliError(`${name} TTL should be a number`);

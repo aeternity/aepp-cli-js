@@ -1,7 +1,7 @@
 // # Utils `print` Module
 // That script contains helper function for `console` print
 import { Encoding, unpackTx } from '@aeternity/aepp-sdk';
-import { decode } from './helpers';
+import { decode } from './helpers.js';
 
 // ## Row width
 const WIDTH = 40;

@@ -3,7 +3,7 @@
 // This script initialize all `account` commands
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import * as Account from '../actions/account';
+import * as Account from '../actions/account.js';
 import {
   nodeOption,
   jsonOption,
@@ -13,7 +13,7 @@ import {
   passwordOption,
   ttlOption,
   networkIdOption,
-} from '../arguments';
+} from '../arguments.js';
 
 const program = new Command().name('aecli account');
 

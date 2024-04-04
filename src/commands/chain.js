@@ -3,8 +3,8 @@
 // This script initialize all `chain` command's
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import * as Chain from '../actions/chain';
-import { nodeOption, jsonOption, forceOption } from '../arguments';
+import * as Chain from '../actions/chain.js';
+import { nodeOption, jsonOption, forceOption } from '../arguments.js';
 
 const program = new Command().name('aecli chain');
 

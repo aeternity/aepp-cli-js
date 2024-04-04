@@ -7,8 +7,8 @@ import {
   Node, genSalt, unpackTx, commitmentHash, buildContractId, verifyTransaction,
   getDefaultPointerKey, buildTx, encode, Encoding,
 } from '@aeternity/aepp-sdk';
-import { print, printUnderscored, printValidation } from '../utils/print';
-import { validateName, decode } from '../utils/helpers';
+import { print, printUnderscored, printValidation } from '../utils/print.js';
+import { validateName, decode } from '../utils/helpers.js';
 
 // Print `Buider Transaction`
 function buildAndPrintTx(params, json, extraKeys = {}) {

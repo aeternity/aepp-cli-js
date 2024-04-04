@@ -5,9 +5,9 @@
 import { Command } from 'commander';
 import prompts from 'prompts';
 import { Node, CompilerCli, CompilerHttpNode } from '@aeternity/aepp-sdk';
-import { compilerOption, nodeOption } from '../arguments';
-import { addToConfig } from '../utils/config';
-import CliError from '../utils/CliError';
+import { compilerOption, nodeOption } from '../arguments.js';
+import { addToConfig } from '../utils/config.js';
+import CliError from '../utils/CliError.js';
 
 const program = new Command();
 

@@ -4,9 +4,9 @@ import {
 } from 'mocha';
 import { expect } from 'chai';
 import { decode } from '@aeternity/aepp-sdk';
-import { executeProgram, getSdk, WALLET_NAME } from './index';
-import contractProgram from '../src/commands/contract';
-import CliError from '../src/utils/CliError';
+import { executeProgram, getSdk, WALLET_NAME } from './index.js';
+import contractProgram from '../src/commands/contract.js';
+import CliError from '../src/utils/CliError.js';
 
 const executeContract = (args) => executeProgram(contractProgram, args);
 

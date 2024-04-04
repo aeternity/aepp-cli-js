@@ -1,7 +1,7 @@
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
-import { executeProgram } from './index';
-import mainProgram from '../src/commands/main';
+import { executeProgram } from './index.js';
+import mainProgram from '../src/commands/main.js';
 
 describe('Other tests', () => {
   it('Config', async () => {
