@@ -31,7 +31,7 @@ const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contrac
   })
   .default([]);
 
-const descriptorPathOption = new Option('-d --descrPath [descrPath]', 'Path to contract descriptor file');
+const descriptorPathOption = new Option('-d, --descrPath [descrPath]', 'Path to contract descriptor file');
 const contractSourceFilenameOption = new Option('--contractSource [contractSource]', 'Contract source code file name');
 const contractAciFilenameOption = new Option('--contractAci [contractAci]', 'Contract ACI file name');
 
@@ -108,8 +108,8 @@ addCommonOptions(program
   .addOption(networkIdOption)
   .addOption(passwordOption)
   .addOption(gasOption)
-  .option('-s --callStatic', 'Call static')
-  .option('-t --topHash', 'Hash of block to make call')
+  .option('-s, --callStatic', 'Call static')
+  .option('-t, --topHash', 'Hash of block to make call')
   .addOption(feeOption)
   .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')

@@ -63,8 +63,8 @@ addCommonOptions(program
 // Example: `aecli chain play --height 100` --> print blocks until reach height 100 starting from top
 addCommonOptions(program
   .command('play')
-  .option('-L --limit [playlimit]', 'Limit for play command', 10)
-  .option('-P --height [playToHeight]', 'Play to selected height')
+  .option('-L, --limit [playlimit]', 'Limit for play command', 10)
+  .option('-P, --height [playToHeight]', 'Play to selected height')
   .description('Real-time block monitoring')
   .action(Chain.play));
 

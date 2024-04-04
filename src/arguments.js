@@ -24,14 +24,14 @@ export const compilerOption = new Option('--compilerUrl [compilerUrl]', 'Compile
 
 export const jsonOption = new Option('--json', 'Print result in json format');
 
-export const gasOption = new Option('-G --gas [gas]', 'Amount of gas to call/deploy the contract')
+export const gasOption = new Option('-G, --gas [gas]', 'Amount of gas to call/deploy the contract')
   .argParser((gas) => +gas);
 
 export const gasPriceOption = new Option('--gasPrice [gasPrice]', 'Gas price to call/deploy the contract')
   .default(MIN_GAS_PRICE, 'Minimum gas price') // TODO: use gas price from the node after updating sdk to 13.3.0
   .argParser(coinAmountParser);
 
-export const forceOption = new Option('-f --force', 'Ignore node version compatibility check');
+export const forceOption = new Option('-f, --force', 'Ignore node version compatibility check');
 
 export const passwordOption = new Option('-P, --password [password]', 'Wallet Password');
 
