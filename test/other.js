@@ -6,7 +6,7 @@ import mainProgram from '../src/commands/main.js';
 describe('Other tests', () => {
   it('Config', async () => {
     expect(await executeProgram(mainProgram, ['config'])).to.equal(
-      'Node https://testnet.aeternity.io network id ae_uat, version 6.13.0\n'
+      'Node https://mainnet.aeternity.io network id ae_mainnet, version 6.13.0\n'
       + 'Compiler https://v7.compiler.aepps.com version 7.4.0',
     );
   }).timeout(4000);
