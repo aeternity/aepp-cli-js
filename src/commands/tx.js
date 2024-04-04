@@ -6,13 +6,14 @@
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander';
 import {
-  NAME_TTL, CLIENT_TTL, MIN_GAS_PRICE, ORACLE_TTL, QUERY_TTL, RESPONSE_TTL,
+  NAME_TTL, CLIENT_TTL, ORACLE_TTL, QUERY_TTL, RESPONSE_TTL,
 } from '@aeternity/aepp-sdk';
 import * as Transaction from '../actions/transaction.js';
 import {
   nodeOption,
   jsonOption,
   gasOption,
+  gasPriceOption,
   nonceArgument,
   feeOption,
   forceOption,
@@ -121,7 +122,7 @@ addCommonOptions(program
   .addOption(ttlOption)
   .addOption(feeOption)
   .addOption(gasOption)
-  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
+  .addOption(gasPriceOption)
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
   .action(Transaction.contractDeploy));
@@ -137,7 +138,7 @@ addCommonOptions(program
   .addOption(ttlOption)
   .addOption(feeOption)
   .addOption(gasOption)
-  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
+  .addOption(gasPriceOption)
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
   .action(Transaction.contractCall));
