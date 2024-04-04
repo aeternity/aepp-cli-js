@@ -3,7 +3,7 @@
   "version": "5.0.0",
   "description": "Aeternity command line interface",
   "bin": {
-    "aecli": "bin/aecli.mjs"
+    "aecli": "src/aecli.js"
   },
   "type": "module",
   "dependencies": {
@@ -16,14 +16,8 @@
     "update-notifier": "^6.0.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.21.0",
-    "@babel/core": "^7.21.3",
-    "@babel/preset-env": "^7.20.2",
-    "@babel/register": "^7.21.0",
     "@commitlint/cli": "^17.5.1",
     "@commitlint/config-conventional": "^17.4.4",
-    "babel-plugin-add-import-extension": "^1.6.0",
-    "babel-plugin-transform-inline-environment-variables": "^0.4.4",
     "chai": "^4.3.7",
     "chai-as-promised": "^7.1.1",
     "eslint": "^8.37.0",
@@ -39,14 +33,12 @@
     "url": "https://github.com/aeternity/aepp-cli-js"
   },
   "scripts": {
-    "build": "babel src --out-dir bin --out-file-extension .mjs",
     "docs": "scripts/js-to-md.js src/*.js src/commands/*.js src/actions/*.js src/utils/*.js",
     "commitlint": "commitlint --from develop",
     "lint": "eslint .",
     "test": "mocha",
     "test:watch": "mocha --watch",
     "release": "standard-version --skip.tag",
-    "prepare": "npm run build",
     "prepublishOnly": "npm run docs"
   },
   "keywords": [
@@ -59,7 +51,7 @@
     "node": ">=18.19.0"
   },
   "files": [
-    "bin"
+    "src"
   ],
   "contributors": [
     "Nazar Duchak <omelko39@gmail.com>",
