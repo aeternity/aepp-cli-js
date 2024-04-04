@@ -68,7 +68,7 @@ describe('Oracle Module', () => {
   it('Get non existed Oracle', async () => {
     const fakeOracleId = generateKeyPair().publicKey.replace('ak_', 'ok_');
     await executeOracle(['get', fakeOracleId, '--json'])
-      .should.be.rejectedWith('error: Oracle not found');
+      .should.be.rejectedWith('Oracle not found'); // TODO: add "error: " prefix after updating sdk
     await executeOracle(['get', 'oq_d1sadasdasda', '--json'])
       .should.be.rejectedWith('Encoded string have a wrong type: oq (expected: ok)');
   });
