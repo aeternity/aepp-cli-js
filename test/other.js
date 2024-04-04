@@ -6,10 +6,10 @@ import mainProgram from '../src/commands/main';
 describe('Other tests', () => {
   it('Config', async () => {
     expect(await executeProgram(mainProgram, ['config'])).to.equal(
-      'Node https://testnet.aeternity.io network id ae_uat, version 6.8.1\n'
-      + 'Compiler https://v7.compiler.aepps.com version 7.1.0',
+      'Node https://testnet.aeternity.io network id ae_uat, version 6.13.0\n'
+      + 'Compiler https://v7.compiler.aepps.com version 7.4.0',
     );
-  });
+  }).timeout(4000);
 
   it('selects node', async () => {
     expect(await executeProgram(mainProgram, ['select-node', 'http://example.com/node']))

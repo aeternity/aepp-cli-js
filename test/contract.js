@@ -126,13 +126,16 @@ describe('Contract Module', function contractTests() {
     });
 
     it('throws error if arguments invalid', async () => {
+      const expectedError = process.version.startsWith('v18.')
+        ? 'Unexpected end of JSON input'
+        : 'Can\'t parse contract arguments: Expected \',\' or \']\' after array element in JSON at position 2';
       await expect(executeContract([
         'deploy',
         WALLET_NAME, '--password', 'test',
         '--contractSource', contractSourceFile,
         '[3',
         '--json',
-      ])).to.be.rejectedWith(CliError, 'Can\'t parse contract arguments: Unexpected end of JSON input');
+      ])).to.be.rejectedWith(CliError, expectedError);
     });
   });
 
