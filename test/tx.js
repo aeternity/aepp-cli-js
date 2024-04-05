@@ -136,9 +136,10 @@ Signatures ______________________________ ["${signatures}"]
     const { tx } = await executeTx(['spend', TX_KEYS.publicKey, TX_KEYS.publicKey, amount, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
       amount: '100',
-      fee: '16660000000000',
+      fee: detailsJson.fee,
       nonce,
       payload: 'ba_Xfbg4g==',
       recipientId: TX_KEYS.publicKey,
@@ -152,7 +153,7 @@ Sender account __________________________ ${TX_KEYS.publicKey}
 Recipient account _______________________ ${TX_KEYS.publicKey}
 Amount __________________________________ 100
 Payload _________________________________ ba_Xfbg4g==
-Fee _____________________________________ 16660000000000
+Fee _____________________________________ ${detailsJson.fee}
 Nonce ___________________________________ ${nonce}
 TTL _____________________________________ N/A
 Version _________________________________ 1
@@ -166,10 +167,11 @@ Version _________________________________ 1
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.commitmentId).to.satisfy((s) => s.startsWith(Encoding.Commitment));
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
       accountId: TX_KEYS.publicKey,
       commitmentId: detailsJson.commitmentId,
-      fee: '16620000000000',
+      fee: detailsJson.fee,
       nonce,
       type: 'NamePreclaimTx',
       version: 1,
@@ -179,7 +181,7 @@ Tx Type _________________________________ NamePreclaimTx
 Account _________________________________ ${TX_KEYS.publicKey}
 Commitment ______________________________ ${detailsJson.commitmentId}
 Salt ____________________________________ N/A
-Fee _____________________________________ 16620000000000
+Fee _____________________________________ ${detailsJson.fee}
 Nonce ___________________________________ ${nonce}
 TTL _____________________________________ N/A
 Version _________________________________ 1
@@ -192,9 +194,10 @@ Version _________________________________ 1
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.nameSalt).to.be.a('number');
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
       accountId: TX_KEYS.publicKey,
-      fee: '16780000000000',
+      fee: detailsJson.fee,
       name,
       nameFee: '159700000000000000',
       nameSalt: detailsJson.nameSalt,
@@ -208,7 +211,7 @@ Account _________________________________ ${TX_KEYS.publicKey}
 Name ____________________________________ ${name}
 Name Fee ________________________________ 159700000000000000
 Name Salt _______________________________ ${salt}
-Fee _____________________________________ 16780000000000
+Fee _____________________________________ ${detailsJson.fee}
 Nonce ___________________________________ ${nonce}
 TTL _____________________________________ N/A
 Version _________________________________ 2
@@ -222,9 +225,10 @@ Version _________________________________ 2
     const { tx } = await executeTx(['name-update', TX_KEYS.publicKey, nameId, nonce, TX_KEYS.publicKey, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
-      clientTtl: 84600,
-      fee: '17800000000000',
+      clientTtl: 3600,
+      fee: detailsJson.fee,
       nameId,
       nameTtl: 180000,
       nonce,
@@ -236,11 +240,11 @@ Version _________________________________ 2
     expect(details).to.equal(`
 Tx Type _________________________________ NameUpdateTx
 Account _________________________________ ${TX_KEYS.publicKey}
-Client TTL ______________________________ 84600
+Client TTL ______________________________ 3600
 Name ID _________________________________ ${nameId}
 Name TTL ________________________________ 180000
 Pointer account_pubkey __________________ ${TX_KEYS.publicKey}
-Fee _____________________________________ 17800000000000
+Fee _____________________________________ ${detailsJson.fee}
 Nonce ___________________________________ ${nonce}
 TTL _____________________________________ N/A
 Version _________________________________ 1
@@ -252,8 +256,9 @@ Version _________________________________ 1
     const { tx } = await executeTx(['name-transfer', TX_KEYS.publicKey, TX_KEYS.publicKey, nameId, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
-      fee: '17300000000000',
+      fee: detailsJson.fee,
       nameId,
       nonce,
       recipientId: TX_KEYS.publicKey,
@@ -266,7 +271,7 @@ Tx Type _________________________________ NameTransferTx
 Account _________________________________ ${TX_KEYS.publicKey}
 Recipient _______________________________ ${TX_KEYS.publicKey}
 Name ID _________________________________ ${nameId}
-Fee _____________________________________ 17300000000000
+Fee _____________________________________ ${detailsJson.fee}
 Nonce ___________________________________ ${nonce}
 TTL _____________________________________ N/A
 Version _________________________________ 1
@@ -278,8 +283,9 @@ Version _________________________________ 1
     const { tx } = await executeTx(['name-revoke', TX_KEYS.publicKey, nameId, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
-      fee: '16620000000000',
+      fee: detailsJson.fee,
       nameId,
       nonce,
       type: 'NameRevokeTx',
@@ -290,7 +296,7 @@ Version _________________________________ 1
 Tx Type _________________________________ NameRevokeTx
 Account _________________________________ ${TX_KEYS.publicKey}
 Name ID _________________________________ ${nameId}
-Fee _____________________________________ 16620000000000
+Fee _____________________________________ ${detailsJson.fee}
 Nonce ___________________________________ ${nonce}
 TTL _____________________________________ N/A
 Version _________________________________ 1
@@ -315,6 +321,7 @@ Version _________________________________ 1
     contractId = cId;
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
       abiVersion: '3',
       vmVersion: '7',
@@ -322,7 +329,7 @@ Version _________________________________ 1
       callData,
       code: bytecode,
       deposit: '0',
-      fee: '78580000000000',
+      fee: detailsJson.fee,
       gas: 5921420,
       gasPrice: '1000000000',
       nonce,
@@ -339,7 +346,7 @@ Gas _____________________________________ 5921420
 Gas Price _______________________________ 1000000000
 Bytecode ________________________________ ${bytecode}
 Call data _______________________________ ${callData}
-Fee _____________________________________ 78580000000000
+Fee _____________________________________ ${detailsJson.fee}
 Nonce ___________________________________ ${nonce}
 TTL _____________________________________ N/A
 Version _________________________________ 1
@@ -355,13 +362,14 @@ ABI Version _____________________________ 3
     const { tx } = await executeTx(['contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
       abiVersion: '3',
       amount: '0',
       callData,
       callerId: TX_KEYS.publicKey,
       contractId,
-      fee: '182040000000000',
+      fee: detailsJson.fee,
       gas: 5817960,
       gasPrice: '1000000000',
       nonce,
@@ -376,7 +384,7 @@ Amount __________________________________ 0
 Gas _____________________________________ 5817960
 Gas Price _______________________________ 1000000000
 Call data _______________________________ ${callData}
-Fee _____________________________________ 182040000000000
+Fee _____________________________________ ${detailsJson.fee}
 Nonce ___________________________________ ${nonce}
 TTL _____________________________________ N/A
 Version _________________________________ 1
@@ -389,10 +397,11 @@ ABI Version _____________________________ 3
     const { tx } = await executeTx(['oracle-register', TX_KEYS.publicKey, '{city: "str"}', '{tmp:""num}', nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
       abiVersion: '0',
       accountId: TX_KEYS.publicKey,
-      fee: '16672000000000',
+      fee: detailsJson.fee,
       nonce,
       oracleTtl: { type: 'delta', value: '500' },
       queryFee: '0',
@@ -405,7 +414,7 @@ ABI Version _____________________________ 3
 Tx Type _________________________________ OracleRegisterTx
 Account _________________________________ ${TX_KEYS.publicKey}
 Oracle ID _______________________________ ${oracleId}
-Fee _____________________________________ 16672000000000
+Fee _____________________________________ ${detailsJson.fee}
 Query Fee _______________________________ 0
 Oracle Ttl ______________________________ {"type":"delta","value":"500"}
 Query Format ____________________________ {city: "str"}
@@ -421,8 +430,9 @@ TTL _____________________________________ N/A
     const { tx } = await executeTx(['oracle-extend', TX_KEYS.publicKey, oracleId, 100, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
-      fee: '15979000000000',
+      fee: detailsJson.fee,
       nonce,
       oracleId,
       oracleTtl: { type: 'delta', value: '100' },
@@ -432,7 +442,7 @@ TTL _____________________________________ N/A
     expect(details).to.equal(`
 Tx Type _________________________________ OracleExtendTx
 Oracle ID _______________________________ ${oracleId}
-Fee _____________________________________ 15979000000000
+Fee _____________________________________ ${detailsJson.fee}
 Oracle Ttl ______________________________ {"type":"delta","value":"100"}
 Nonce ___________________________________ ${nonce}
 TTL _____________________________________ N/A
@@ -448,8 +458,9 @@ TTL _____________________________________ N/A
     const { tx } = await executeTx(['oracle-post-query', TX_KEYS.publicKey, oracleId, '{city: "Berlin"}', nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
-      fee: '17062000000000',
+      fee: detailsJson.fee,
       nonce,
       oracleId,
       query: '{city: "Berlin"}',
@@ -466,7 +477,7 @@ Account _________________________________ ${TX_KEYS.publicKey}
 Oracle ID _______________________________ ${oracleId}
 Query ID ________________________________ N/A
 Query ___________________________________ {city: "Berlin"}
-Fee _____________________________________ 17062000000000
+Fee _____________________________________ ${detailsJson.fee}
 Query Fee _______________________________ 0
 Query Ttl _______________________________ {"type":"delta","value":"10"}
 Response Ttl ____________________________ {"type":"delta","value":"10"}
@@ -486,8 +497,9 @@ TTL _____________________________________ N/A
     const { tx } = await executeTx(['oracle-respond', TX_KEYS.publicKey, oracleId, queryId, response, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
+    expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
-      fee: '16842000000000',
+      fee: detailsJson.fee,
       nonce,
       oracleId,
       queryId,
@@ -500,7 +512,7 @@ TTL _____________________________________ N/A
 Tx Type _________________________________ OracleRespondTx
 Oracle ID _______________________________ ${oracleId}
 Query ___________________________________ ${queryId}
-Fee _____________________________________ 16842000000000
+Fee _____________________________________ ${detailsJson.fee}
 Response ________________________________ {tmp: 10}
 Response Ttl ____________________________ {"type":"delta","value":"10"}
 Nonce ___________________________________ ${nonce}

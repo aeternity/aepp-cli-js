@@ -1,5 +1,5 @@
 @compiler >= 7
-@compiler < 8
+@compiler < 9
 
 include "testLib.aes"
 

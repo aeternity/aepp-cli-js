@@ -12,7 +12,7 @@ services:
     stop_grace_period: 0s
 
   compiler:
-    image: aeternity/aesophia_http:v7.4.0
+    image: aeternity/aesophia_http:v7.6.1
     ports: [3080:3080]
     # TODO: remove after releasing https://github.com/aeternity/aesophia_http/pull/133
     healthcheck:
