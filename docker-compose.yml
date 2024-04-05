@@ -1,14 +1,13 @@
 version: '3'
 services:
   node:
-    image: aeternity/aeternity:v6.8.1
+    image: aeternity/aeternity:v6.13.0
     ports: [3013:3013]
     # TODO: remove after releasing https://github.com/aeternity/aeternity/pull/4292
     healthcheck:
       interval: 2s
     volumes:
       - ./docker/aeternity.yaml:/home/aeternity/node/aeternity.yaml
-      - ./docker/accounts.json:/home/aeternity/node/data/aecore/.genesis/accounts_test.json
     stop_grace_period: 0s
 
   compiler:

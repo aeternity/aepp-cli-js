@@ -39,10 +39,11 @@ Transactions ____________________________ 0
     expect(resJson).to.eql({
       difficulty: resJson.difficulty,
       genesisKeyBlockHash: resJson.genesisKeyBlockHash,
+      hashrate: 0,
       listening: true,
-      networkId: 'ae_devnet',
-      nodeRevision: 'a42c1b1e84dabdad350005213a2a9334113a6832',
-      nodeVersion: '6.8.1',
+      networkId: 'ae_dev',
+      nodeRevision: '805c662b260cfbdb197cfef96ed07124db4b4896',
+      nodeVersion: '6.13.0',
       peerConnections: { inbound: 0, outbound: 0 },
       peerCount: 0,
       peerPubkey: resJson.peerPubkey,
@@ -53,16 +54,17 @@ Transactions ____________________________ 0
       syncing: false,
       topBlockHeight: resJson.topBlockHeight,
       topKeyBlockHash: resJson.topKeyBlockHash,
+      uptime: resJson.uptime,
     });
 
     const res = await executeChain(['status']);
     expect(res).to.equal(`
 Difficulty ______________________________ ${resJson.difficulty}
-Node version ____________________________ 6.8.1
+Node version ____________________________ 6.13.0
 Consensus protocol version ______________ 5 (Iris)
-Node revision ___________________________ a42c1b1e84dabdad350005213a2a9334113a6832
+Node revision ___________________________ 805c662b260cfbdb197cfef96ed07124db4b4896
 Genesis hash ____________________________ ${resJson.genesisKeyBlockHash}
-Network ID ______________________________ ae_devnet
+Network ID ______________________________ ae_dev
 Listening _______________________________ true
 Peer count ______________________________ 0
 Pending transactions count ______________ 0

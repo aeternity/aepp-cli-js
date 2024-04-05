@@ -44,6 +44,7 @@ Pending transactions:
     expect(resJson).to.eql({
       blockHash: resJson.blockHash,
       blockHeight: resJson.blockHeight,
+      encodedTx: resJson.encodedTx,
       hash: resJson.hash,
       signatures: [resJson.signatures[0]],
       tx: {
@@ -119,8 +120,6 @@ payload _________________________________ ba_Xfbg4g==
       height: keyJson.height,
       info: keyJson.info,
       miner: keyJson.miner,
-      nonce: keyJson.nonce,
-      pow: keyJson.pow,
       prevHash: keyJson.prevHash,
       prevKeyHash: keyJson.prevKeyHash,
       stateHash: keyJson.stateHash,
@@ -134,7 +133,7 @@ payload _________________________________ ba_Xfbg4g==
 Block hash ______________________________ ${keyJson.hash}
 Block height ____________________________ ${keyJson.height}
 State hash ______________________________ ${keyJson.stateHash}
-Nonce ___________________________________ ${keyJson.nonce}
+Nonce ___________________________________ N/A
 Miner ___________________________________ ${keyJson.miner}
 Time ____________________________________ ${new Date(keyJson.time).toString()}
 Previous block hash _____________________ ${keyJson.prevHash}

@@ -87,6 +87,7 @@ Secret Key ______________________________ ${keypair.secretKey}
     expect(resJson).to.eql({
       blockHash: resJson.blockHash,
       blockHeight: resJson.blockHeight,
+      encodedTx: resJson.encodedTx,
       hash: resJson.hash,
       rawTx: resJson.rawTx,
       signatures: [resJson.signatures[0]],

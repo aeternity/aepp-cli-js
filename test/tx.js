@@ -86,14 +86,14 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     expect(responseJson.signedTx).to.satisfy((s) => s.startsWith(Encoding.Transaction));
     expect(responseJson).to.eql({
       address: TX_KEYS.publicKey,
-      networkId: 'ae_devnet',
+      networkId: 'ae_dev',
       signedTx: responseJson.signedTx,
     });
 
     const response = await executeProgram(accountProgram, args);
     expect(response).to.equal(`
 Signing account address _________________ ${TX_KEYS.publicKey}
-Network ID ______________________________ ae_devnet
+Network ID ______________________________ ae_dev
 Unsigned ________________________________ ${tx}
 Signed __________________________________ ${responseJson.signedTx}
     `.trim());
@@ -109,10 +109,11 @@ Signed __________________________________ ${responseJson.signedTx}
     const txHash = buildTxHash(signedTx);
 
     const {
-      blockHash, blockHeight, hash, signatures, tx, ...otherDetailsJson
+      blockHash, blockHeight, hash, signatures, tx, encodedTx, ...otherDetailsJson
     } = await executeProgram(inspectProgram, [txHash, '--json']);
     const details = await executeProgram(inspectProgram, [txHash]);
 
+    expect(encodedTx).to.be.satisfy((t) => t.startsWith('tx_'));
     expect(otherDetailsJson).to.eql({});
     expect(blockHash).to.satisfy((s) => s.startsWith(Encoding.MicroBlockHash));
     expect(blockHeight).to.greaterThan(0);
