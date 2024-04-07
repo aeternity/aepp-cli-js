@@ -1,7 +1,7 @@
 import {
   Tag, ORACLE_TTL_TYPES,
   Node, genSalt, unpackTx, commitmentHash, buildContractId, verifyTransaction,
-  getDefaultPointerKey, buildTx, encode, Encoding,
+  getDefaultPointerKey, buildTx, encode, Encoding, VmVersion, AbiVersion,
 } from '@aeternity/aepp-sdk';
 import { print, printUnderscored, printValidation } from '../utils/print.js';
 import { validateName, decode } from '../utils/helpers.js';
@@ -109,6 +109,8 @@ export function contractDeploy(ownerId, code, callData, nonce, { json, gas, ...o
     ownerId,
     nonce,
     callData,
+    // TODO: remove after updating sdk to 14
+    ctVersion: { vmVersion: VmVersion.Fate3, abiVersion: AbiVersion.Fate },
   };
   buildAndPrintTx(params, json, {
     contractId: buildContractId(ownerId, nonce),

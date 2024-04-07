@@ -302,7 +302,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
       abiVersion: '3',
-      vmVersion: '7',
+      vmVersion: '8',
       amount: '0',
       callData,
       code: bytecode,
@@ -322,7 +322,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       'Gas price _______________________________ 0.000000001ae',
       `Bytecode ________________________________ ${bytecode}`,
       `Call data _______________________________ ${callData}`,
-      'VM version ______________________________ 7 (Fate2)',
+      'VM version ______________________________ 8 (Fate3)',
       'ABI version _____________________________ 3 (Fate)',
       'Amount __________________________________ 0ae',
       /Fee _____________________________________ 0.000078\d+ae/,

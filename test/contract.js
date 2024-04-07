@@ -37,7 +37,7 @@ describe('Contract Module', function contractTests() {
   });
 
   it('compiles contract using cli compiler', async () => {
-    const { bytecode } = await executeContract('compile', contractSourceFile, '--json', '--compilerUrl', 'cli');
+    const { bytecode } = await executeContract('compile', contractSourceFile, '--json', '--compilerUrl', 'cli8');
     expect(bytecode).to.equal(contractBytecode);
   });
 
@@ -81,7 +81,7 @@ describe('Contract Module', function contractTests() {
       expect(descriptor).to.eql({
         version: 1,
         address,
-        bytecode: 'cb_+NRGA6CmFq9nCCwTbFoTpKtDko1jYl6CdmFWd0+re1zVAPUVJMC4p7hj/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYI/viMoQQENwAHAQMAuD0vBRFE1kQfEWluaXQRkosgNhF0ZXN0EdDiglIxLlRlc3RMaWIuc3VtEemMkBsZZ2V0TWFwEfiMoQQNcGF5gi8AhTcuNC4xAK21f/c=',
+        bytecode: 'cb_+NRGA6CmFq9nCCwTbFoTpKtDko1jYl6CdmFWd0+re1zVAPUVJMC4p7hj/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYI/viMoQQENwAHAQMAuD0vBRFE1kQfEWluaXQRkosgNhF0ZXN0EdDiglIxLlRlc3RMaWIuc3VtEemMkBsZZ2V0TWFwEfiMoQQNcGF5gi8AhTguMC4wALYsKqQ=',
         aci: [{
           namespace: { name: 'TestLib', typedefs: [] },
         }, {
