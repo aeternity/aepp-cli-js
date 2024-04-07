@@ -132,7 +132,6 @@ program
       { name: 'Stable v7', url: 'https://v7.compiler.aepps.com/' },
       { name: 'Integrated compiler, FATE 2 (requires Erlang)', url: 'cli' },
       { name: 'Integrated compiler, FATE 3 (requires Erlang)', url: 'cli8' },
-      { name: 'Latest', url: 'https://latest.compiler.aeternity.io/' },
     ];
     await addToConfig({
       compilerUrl: await askUrl('compiler', compilers, getCompilerDescription, url),
