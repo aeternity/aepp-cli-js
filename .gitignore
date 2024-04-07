@@ -10,4 +10,5 @@ docs
 /docker-compose.override.yml
 /pnpm-debug.log
 bin
-/.nyc_output
+/coverage
+/coverage.lcov

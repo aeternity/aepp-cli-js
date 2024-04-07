@@ -1,9 +1,7 @@
 name: Test
 on:
   push:
-    branches:
-      - master
-      - develop
+    branches: [master, develop]
   pull_request:
 jobs:
   main:
@@ -34,8 +32,8 @@ jobs:
       - run: npm run lint
       - run: npm run docs
       - run: docker compose up -d --wait
-      - run: npx nyc npm test
-      - run: npx nyc report --reporter=text-lcov > coverage.lcov
+      - run: npx c8 npm test
+      - run: npx c8 report --reporter=text-lcov > coverage.lcov
       - uses: codecov/codecov-action@v4
         with:
           files: coverage.lcov
