@@ -1,8 +1,8 @@
 import { AbiVersion, generateKeyPair } from '@aeternity/aepp-sdk';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { executeProgram, getSdk, WALLET_NAME } from './index';
-import oracleProgram from '../src/commands/oracle';
+import { executeProgram, getSdk, WALLET_NAME } from './index.js';
+import oracleProgram from '../src/commands/oracle.js';
 
 const executeOracle = (args) => executeProgram(oracleProgram, args);
 
@@ -68,7 +68,7 @@ describe('Oracle Module', () => {
   it('Get non existed Oracle', async () => {
     const fakeOracleId = generateKeyPair().publicKey.replace('ak_', 'ok_');
     await executeOracle(['get', fakeOracleId, '--json'])
-      .should.be.rejectedWith('error: Oracle not found');
+      .should.be.rejectedWith('Oracle not found'); // TODO: add "error: " prefix after updating sdk
     await executeOracle(['get', 'oq_d1sadasdasda', '--json'])
       .should.be.rejectedWith('Encoded string have a wrong type: oq (expected: ok)');
   });

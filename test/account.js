@@ -1,11 +1,11 @@
 import fs from 'fs-extra';
 import { before, describe, it } from 'mocha';
-import { expect, assert } from 'chai';
-import { stub } from 'sinon';
+import { expect } from 'chai';
+import prompts from 'prompts';
+import { resolve } from 'path';
 import { generateKeyPair } from '@aeternity/aepp-sdk';
-import { getSdk, executeProgram, WALLET_NAME } from './index';
-import accountProgram from '../src/commands/account';
-import * as promptModule from '../src/utils/prompt';
+import { getSdk, executeProgram, WALLET_NAME } from './index.js';
+import accountProgram from '../src/commands/account.js';
 
 const executeAccount = (args) => executeProgram(accountProgram, args);
 const walletName = 'test-artifacts/test-wallet.json';
@@ -24,10 +24,18 @@ describe('Account Module', () => {
   });
 
   it('Create Wallet', async () => {
-    await executeAccount(['create', walletName, '--password', 'test', '--overwrite']);
+    const createRes = await executeAccount(['create', walletName, '--password', 'test']);
     expect(await fs.exists(walletName)).to.be.equal(true);
-    expect((await executeAccount(['address', walletName, '--password', 'test', '--json'])).publicKey)
-      .to.be.a('string');
+    const resJson = await executeAccount(['address', walletName, '--password', 'test', '--json']);
+    expect(resJson.publicKey).to.be.a('string');
+    expect(createRes).to.be.equal(`
+Address _________________________________ ${resJson.publicKey}
+Path ____________________________________ ${resolve(walletName)}
+    `.trim());
+    const res = await executeAccount(['address', walletName, '--password', 'test']);
+    expect(res).to.be.equal(`
+Address _________________________________ ${resJson.publicKey}
+    `.trim());
   });
 
   it('Create Wallet From Private Key', async () => {
@@ -43,22 +51,25 @@ describe('Account Module', () => {
   });
 
   it('Check Wallet Address with Private Key', async () => {
-    expect((await executeAccount(['address', walletName, '--password', 'test', '--privateKey', '--forcePrompt', '--json'])).secretKey)
-      .to.equal(keypair.secretKey);
+    const resJson = await executeAccount(['address', walletName, '--password', 'test', '--privateKey', '--forcePrompt', '--json']);
+    expect(resJson.secretKey).to.equal(keypair.secretKey);
+    const res = await executeAccount(['address', walletName, '--password', 'test', '--privateKey', '--forcePrompt']);
+    expect(res).to.be.equal(`
+Address _________________________________ ${keypair.publicKey}
+Secret Key ______________________________ ${keypair.secretKey}
+    `.trim());
   });
 
   it('asks for password if it not provided', async () => {
-    const stubbedPrompt = stub(promptModule, 'prompt');
-    stubbedPrompt.throwsException(new Error('stubbed'));
-    await expect(executeAccount(['create', 'test-artifacts/test-wallet-1.json']))
-      .to.be.eventually.rejectedWith('stubbed');
-    assert(stubbedPrompt.alwaysCalledWith(promptModule.PROMPT_TYPE.askPassword));
-    stubbedPrompt.restore();
+    const walletPath = 'test-artifacts/test-wallet-1.json';
+    prompts.inject(['test-password', 'test-password', 'y']);
+    const { publicKey } = await executeAccount(['create', walletPath, '--json']);
+    expect(await executeAccount(['address', walletPath, '--privateKey'])).to.include(publicKey);
   });
 
   it('don\'t asks for password if it is empty', async () => {
     const name = 'test-artifacts/test-wallet-2.json';
-    await executeAccount(['create', name, '--password', '', '--overwrite']);
+    await executeAccount(['create', name, '--password', '']);
     expect((await executeAccount(['address', name, '--password', '', '--json'])).publicKey)
       .to.be.a('string');
   });

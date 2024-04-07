@@ -5,7 +5,7 @@ import mockFs from 'mock-fs';
 import {
   AeSdk, MemoryAccount, Node, generateKeyPair, CompilerHttpNode,
 } from '@aeternity/aepp-sdk';
-import accountProgram from '../src/commands/account';
+import accountProgram from '../src/commands/account.js';
 
 before(() => {
   mockFs({
@@ -21,11 +21,10 @@ after(() => {
 chai.use(chaiAsPromised);
 chai.should();
 
-const url = process.env.TEST_URL || 'http://localhost:3013';
-const compilerUrl = process.env.COMPILER_URL || 'http://localhost:3080';
-const secretKey = process.env.SECRET_KEY || 'bf66e1c256931870908a649572ed0257876bb84e3cdf71efb12f56c7335fad54d5cf08400e988222f26eb4b02c8f89077457467211a6e6d955edb70749c6a33b';
-export const networkId = process.env.TEST_NETWORK_ID || 'ae_devnet';
-const ignoreVersion = process.env.IGNORE_VERSION || false;
+const url = 'http://localhost:3013';
+const compilerUrl = 'http://localhost:3080';
+const secretKey = 'bf66e1c256931870908a649572ed0257876bb84e3cdf71efb12f56c7335fad54d5cf08400e988222f26eb4b02c8f89077457467211a6e6d955edb70749c6a33b';
+export const networkId = 'ae_devnet';
 const keypair = generateKeyPair();
 export const WALLET_NAME = 'test-artifacts/wallet.json';
 
@@ -36,7 +35,6 @@ const Sdk = (params = {}) => {
     _expectedMineRate: process.env._EXPECTED_MINE_RATE,
     _microBlockCycle: process.env._MICRO_BLOCK_CYCLE,
     /* eslint-enable no-underscore-dangle */
-    ignoreVersion,
     onCompiler: new CompilerHttpNode(compilerUrl),
     nodes: [{ name: 'test', instance: new Node(url) }],
     ...params,

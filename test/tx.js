@@ -5,11 +5,11 @@ import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import {
   executeProgram, randomName, getSdk, networkId,
-} from './index';
-import txProgram from '../src/commands/tx';
-import accountProgram from '../src/commands/account';
-import chainProgram from '../src/commands/chain';
-import inspectProgram from '../src/commands/inspect';
+} from './index.js';
+import txProgram from '../src/commands/tx.js';
+import accountProgram from '../src/commands/account.js';
+import chainProgram from '../src/commands/chain.js';
+import inspectProgram from '../src/commands/inspect.js';
 
 const executeTx = (args) => executeProgram(txProgram, args);
 
@@ -35,7 +35,7 @@ describe('Transaction Module', () => {
   before(async () => {
     sdk = await getSdk();
     await sdk.spend(1e24, TX_KEYS.publicKey);
-    await executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey, '--overwrite']);
+    await executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey]);
   });
 
   it('builds tx', async () => {

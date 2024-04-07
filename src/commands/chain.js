@@ -3,8 +3,8 @@
 // This script initialize all `chain` command's
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import * as Chain from '../actions/chain';
-import { nodeOption, jsonOption, forceOption } from '../arguments';
+import * as Chain from '../actions/chain.js';
+import { nodeOption, jsonOption, forceOption } from '../arguments.js';
 
 const program = new Command().name('aecli chain');
 
@@ -63,8 +63,8 @@ addCommonOptions(program
 // Example: `aecli chain play --height 100` --> print blocks until reach height 100 starting from top
 addCommonOptions(program
   .command('play')
-  .option('-L --limit [playlimit]', 'Limit for play command', 10)
-  .option('-P --height [playToHeight]', 'Play to selected height')
+  .option('-L, --limit [playlimit]', 'Limit for play command', 10)
+  .option('-P, --height [playToHeight]', 'Play to selected height')
   .description('Real-time block monitoring')
   .action(Chain.play));
 

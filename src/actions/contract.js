@@ -4,10 +4,10 @@
 
 import fs from 'fs-extra';
 import { encode } from '@aeternity/aepp-sdk';
-import { initSdk, initSdkByWalletFile } from '../utils/cli';
-import { print, printTransaction, printUnderscored } from '../utils/print';
-import CliError from '../utils/CliError';
-import { getFullPath } from '../utils/helpers';
+import { initSdk, initSdkByWalletFile } from '../utils/cli.js';
+import { print, printTransaction, printUnderscored } from '../utils/print.js';
+import CliError from '../utils/CliError.js';
+import { getFullPath } from '../utils/helpers.js';
 
 const DESCRIPTOR_VERSION = 1;
 

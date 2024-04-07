@@ -4,9 +4,9 @@ import fs from 'fs-extra';
 import {
   generateKeyPairFromSecret, getAddressFromPriv, dump, recover, encode, Encoding,
 } from '@aeternity/aepp-sdk';
-import { PROMPT_TYPE, prompt } from './prompt';
-import { getFullPath } from './helpers';
-import CliError from './CliError';
+import { PROMPT_TYPE, prompt } from './prompt.js';
+import { getFullPath } from './helpers.js';
+import CliError from './CliError.js';
 
 export async function writeWallet(walletPath, secretKey, password, overwrite) {
   const path = getFullPath(walletPath);

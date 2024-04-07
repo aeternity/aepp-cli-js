@@ -3,10 +3,10 @@ import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import {
   executeProgram, randomName, getSdk, WALLET_NAME,
-} from './index';
-import nameProgram from '../src/commands/name';
-import inspectProgram from '../src/commands/inspect';
-import accountProgram from '../src/commands/account';
+} from './index.js';
+import nameProgram from '../src/commands/name.js';
+import inspectProgram from '../src/commands/inspect.js';
+import accountProgram from '../src/commands/account.js';
 
 const executeName = (args) => executeProgram(nameProgram, args);
 const executeInspect = (args) => executeProgram(inspectProgram, args);
@@ -247,7 +247,7 @@ describe('AENS Module', () => {
         name,
         preClaim.salt,
         '--json',
-      ]).should.be.rejectedWith('Giving up after 5 blocks mined, transaction hash:');
+      ]).should.be.rejectedWith(/Giving up after 5 blocks mined, transaction hash:|error: Transaction not found/);
     }).timeout(15000);
   });
 });

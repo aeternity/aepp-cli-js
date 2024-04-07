@@ -3,11 +3,11 @@
 // This script initialize all `chain` function
 
 import { verifyTransaction, ConsensusProtocolVersion } from '@aeternity/aepp-sdk';
-import { initSdk } from '../utils/cli';
+import { initSdk } from '../utils/cli.js';
 import {
   printBlock, print, printUnderscored, printTransaction, printValidation,
-} from '../utils/print';
-import { getBlock } from '../utils/helpers';
+} from '../utils/print.js';
+import { getBlock } from '../utils/helpers.js';
 
 // ## Retrieve `node` version
 export async function version(options) {

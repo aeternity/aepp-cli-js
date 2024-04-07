@@ -3,8 +3,8 @@
 // This script initialize all `inspect` commands
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
-import inspect from '../actions/inspect';
-import { nodeOption, jsonOption, forceOption } from '../arguments';
+import inspect from '../actions/inspect.js';
+import { nodeOption, jsonOption, forceOption } from '../arguments.js';
 
 const program = new Command().name('aecli inspect');
 

@@ -3,20 +3,20 @@
 // This script initialize all `contract` command's
 // We'll use `commander` for parsing options
 import { Argument, Option, Command } from 'commander';
-import { MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
-import CliError from '../utils/CliError';
-import * as Contract from '../actions/contract';
+import CliError from '../utils/CliError.js';
+import * as Contract from '../actions/contract.js';
 import {
   nodeOption,
   compilerOption,
   jsonOption,
   gasOption,
+  gasPriceOption,
   feeOption,
   forceOption,
   passwordOption,
   ttlOption,
   networkIdOption,
-} from '../arguments';
+} from '../arguments.js';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
   .argParser((argsText) => {
@@ -31,7 +31,7 @@ const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contrac
   })
   .default([]);
 
-const descriptorPathOption = new Option('-d --descrPath [descrPath]', 'Path to contract descriptor file');
+const descriptorPathOption = new Option('-d, --descrPath [descrPath]', 'Path to contract descriptor file');
 const contractSourceFilenameOption = new Option('--contractSource [contractSource]', 'Contract source code file name');
 const contractAciFilenameOption = new Option('--contractAci [contractAci]', 'Contract ACI file name');
 
@@ -108,8 +108,8 @@ addCommonOptions(program
   .addOption(networkIdOption)
   .addOption(passwordOption)
   .addOption(gasOption)
-  .option('-s --callStatic', 'Call static')
-  .option('-t --topHash', 'Hash of block to make call')
+  .option('-s, --callStatic', 'Call static')
+  .option('-t, --topHash', 'Hash of block to make call')
   .addOption(feeOption)
   .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
@@ -137,7 +137,7 @@ addCommonOptions(program
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .addOption(passwordOption)
   .addOption(gasOption)
-  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
+  .addOption(gasPriceOption)
   .addOption(feeOption)
   .addOption(ttlOption)
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')

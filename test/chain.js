@@ -1,7 +1,7 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { executeProgram, getSdk } from './index';
-import chainProgram from '../src/commands/chain';
+import { executeProgram, getSdk } from './index.js';
+import chainProgram from '../src/commands/chain.js';
 
 const executeChain = (args) => executeProgram(chainProgram, args);
 

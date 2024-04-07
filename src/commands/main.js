@@ -4,10 +4,14 @@
 // We'll use `commander` for parsing options
 import { Command } from 'commander';
 import prompts from 'prompts';
+import fs from 'fs-extra';
+import { fileURLToPath } from 'url';
+import { resolve } from 'path';
+import updateNotifier from 'update-notifier';
 import { Node, CompilerCli, CompilerHttpNode } from '@aeternity/aepp-sdk';
-import { compilerOption, nodeOption } from '../arguments';
-import { addToConfig } from '../utils/config';
-import CliError from '../utils/CliError';
+import { compilerOption, nodeOption } from '../arguments.js';
+import { addToConfig } from '../utils/config.js';
+import CliError from '../utils/CliError.js';
 
 const program = new Command();
 
@@ -21,15 +25,17 @@ const EXECUTABLE_CMD = [
   { name: 'tx', desc: 'Transaction builder' },
   { name: 'oracle', desc: 'Interact with oracles' },
 ];
-// You get get CLI version by exec `aecli version`
-program.version(process.env.npm_package_version);
 
-// TODO: switch to usual import after dropping CJS in tests
-import('update-notifier').then(({ default: updateNotifier }) => {
-  updateNotifier({
-    pkg: { name: process.env.npm_package_name, version: process.env.npm_package_version },
-  }).notify();
-});
+(() => {
+  const { name, version } = fs.readJSONSync(
+    resolve(fileURLToPath(import.meta.url), '../../../package.json'),
+  );
+
+  // You get get CLI version by exec `aecli version`
+  program.version(version);
+
+  updateNotifier({ pkg: { name, version } }).notify();
+})();
 
 // ## Initialize `child` command's
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));

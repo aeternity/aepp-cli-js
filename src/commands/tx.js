@@ -6,19 +6,20 @@
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander';
 import {
-  NAME_TTL, CLIENT_TTL, MIN_GAS_PRICE, ORACLE_TTL, QUERY_TTL, RESPONSE_TTL,
+  NAME_TTL, CLIENT_TTL, ORACLE_TTL, QUERY_TTL, RESPONSE_TTL,
 } from '@aeternity/aepp-sdk';
-import * as Transaction from '../actions/transaction';
+import * as Transaction from '../actions/transaction.js';
 import {
   nodeOption,
   jsonOption,
   gasOption,
+  gasPriceOption,
   nonceArgument,
   feeOption,
   forceOption,
   ttlOption,
   networkIdOption,
-} from '../arguments';
+} from '../arguments.js';
 
 const program = new Command().name('aecli tx');
 
@@ -63,8 +64,6 @@ addCommonOptions(program
   .command('name-update <accountId> <nameId>')
   .addArgument(nonceArgument)
   .argument('[pointers...]')
-  .addOption(ttlOption)
-  .addOption(feeOption)
   .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
   .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
   .description('Build name update transaction.')
@@ -78,8 +77,6 @@ addCommonOptions(program
 addCommonOptions(program
   .command('name-claim <accountId> <salt> <name>')
   .addArgument(nonceArgument)
-  .addOption(ttlOption)
-  .addOption(feeOption)
   .option('--nameFee [nameFee]', 'Name fee.')
   .description('Build name claim transaction.')
   .action(Transaction.nameClaim));
@@ -92,8 +89,6 @@ addCommonOptions(program
 addCommonOptions(program
   .command('name-transfer <accountId> <recipientId> <name>')
   .addArgument(nonceArgument)
-  .addOption(ttlOption)
-  .addOption(feeOption)
   .description('Build name tansfer transaction.')
   .action(Transaction.nameTransfer));
 
@@ -105,8 +100,6 @@ addCommonOptions(program
 addCommonOptions(program
   .command('name-revoke <accountId> <name>')
   .addArgument(nonceArgument)
-  .addOption(ttlOption)
-  .addOption(feeOption)
   .description('Build name revoke transaction.')
   .action(Transaction.nameRevoke));
 
@@ -118,10 +111,8 @@ addCommonOptions(program
 addCommonOptions(program
   .command('contract-deploy <ownerId> <contractBytecode> <initCallData>')
   .addArgument(nonceArgument)
-  .addOption(ttlOption)
-  .addOption(feeOption)
   .addOption(gasOption)
-  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
+  .addOption(gasPriceOption)
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
   .action(Transaction.contractDeploy));
@@ -134,10 +125,8 @@ addCommonOptions(program
 addCommonOptions(program
   .command('contract-call <callerId> <contractId> <callData>')
   .addArgument(nonceArgument)
-  .addOption(ttlOption)
-  .addOption(feeOption)
   .addOption(gasOption)
-  .option('-G --gasPrice [gas]', 'Amount of gas to deploy the contract', MIN_GAS_PRICE)
+  .addOption(gasPriceOption)
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
   .action(Transaction.contractCall));
@@ -150,8 +139,6 @@ addCommonOptions(program
 addCommonOptions(program
   .command('oracle-register <accountId> <queryFormat> <responseFormat>')
   .addArgument(nonceArgument)
-  .addOption(ttlOption)
-  .addOption(feeOption)
   .option('--queryFee [queryFee]', 'Oracle Query fee.', 0)
   .option('--oracleTtl [oracleTtl]', 'Oracle Ttl.', ORACLE_TTL.value)
   .description('Build oracle register transaction.')
@@ -165,8 +152,6 @@ addCommonOptions(program
 addCommonOptions(program
   .command('oracle-post-query <accountId> <oracleId> <query>')
   .addArgument(nonceArgument)
-  .addOption(ttlOption)
-  .addOption(feeOption)
   .option('--queryFee [queryFee]', 'Oracle Query fee.', 0)
   .option('--queryTtl [oracleTtl]', 'Oracle Ttl.', QUERY_TTL.value)
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL.value)
@@ -181,8 +166,6 @@ addCommonOptions(program
 addCommonOptions(program
   .command('oracle-extend <callerId> <oracleId> <oracleTtl>')
   .addArgument(nonceArgument)
-  .addOption(ttlOption)
-  .addOption(feeOption)
   .description('Build oracle extend transaction.')
   .action(Transaction.oracleExtend));
 
@@ -194,8 +177,6 @@ addCommonOptions(program
 addCommonOptions(program
   .command('oracle-respond <callerId> <oracleId> <queryId> <response>')
   .addArgument(nonceArgument)
-  .addOption(ttlOption)
-  .addOption(feeOption)
   .option('--responseTtl [oracleTtl]', 'Oracle Ttl.', RESPONSE_TTL.value)
   .description('Build oracle extend transaction.')
   .action(Transaction.oracleRespond));

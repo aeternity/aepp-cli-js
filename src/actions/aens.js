@@ -3,10 +3,10 @@
 // This script initialize all `AENS` function
 
 import { isAddressValid, getDefaultPointerKey } from '@aeternity/aepp-sdk';
-import { initSdkByWalletFile } from '../utils/cli';
-import { print, printTransaction } from '../utils/print';
-import { isAvailable, updateNameStatus, validateName } from '../utils/helpers';
-import CliError from '../utils/CliError';
+import { initSdkByWalletFile } from '../utils/cli.js';
+import { print, printTransaction } from '../utils/print.js';
+import { isAvailable, updateNameStatus, validateName } from '../utils/helpers.js';
+import CliError from '../utils/CliError.js';
 
 // ## Claim `name` function
 export async function preClaim(walletPath, name, options) {

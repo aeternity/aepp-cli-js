@@ -6,10 +6,10 @@
 // Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander';
 import { NAME_TTL, CLIENT_TTL } from '@aeternity/aepp-sdk';
-import * as AENS from '../actions/aens';
+import * as AENS from '../actions/aens.js';
 import {
   nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption, networkIdOption,
-} from '../arguments';
+} from '../arguments.js';
 
 const program = new Command().name('aecli name');
 
