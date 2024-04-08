@@ -49,7 +49,7 @@ addCommonOptions(program
   .addOption(networkIdOption)
   .option('--payload [payload]', 'Transaction payload.', '')
   .addOption(feeOption)
-  .addOption(ttlOption)
+  .addOption(ttlOption(true))
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .action(Account.spend));
 

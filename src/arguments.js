@@ -27,14 +27,14 @@ export const jsonOption = new Option('--json', 'Print result in json format');
 export const gasOption = new Option('-G, --gas [gas]', 'Amount of gas to call/deploy the contract')
   .argParser((gas) => +gas);
 
-export const gasPriceOption = new Option('--gasPrice [gasPrice]', 'Gas price to call/deploy the contract')
-  .default(noValue, `based on network demand or ${MIN_GAS_PRICE}`);
+export const gasPriceOption = (usingNode) => new Option('--gasPrice [gasPrice]', 'Gas price to call/deploy the contract')
+  .default(noValue, usingNode ? 'based on network demand' : MIN_GAS_PRICE);
 
 export const forceOption = new Option('-f, --force', 'Ignore node version compatibility check');
 
 export const passwordOption = new Option('-P, --password [password]', 'Wallet Password');
 
-export const ttlOption = new Option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks')
-  .default(noValue, 'current height increased by 3 or infinity');
+export const ttlOption = (usingNode) => new Option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks')
+  .default(noValue, usingNode ? 'current height increased by 3' : 'infinity');
 
 export const networkIdOption = new Option('--networkId [networkId]', 'Network id');
