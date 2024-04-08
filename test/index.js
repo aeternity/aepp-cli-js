@@ -6,6 +6,7 @@ import {
   AeSdk, MemoryAccount, Node, generateKeyPair, CompilerHttpNode,
 } from '@aeternity/aepp-sdk';
 import accountProgram from '../src/commands/account.js';
+import { prepareOptions } from '../src/utils/default-option-description.js';
 
 before(() => {
   mockFs({
@@ -69,6 +70,7 @@ export async function executeProgram(program, args) {
   if (isProgramExecuting) throw new Error('Another program is already running');
   isProgramExecuting = true;
   let result = '';
+  prepareOptions(program);
   program
     .configureOutput({ writeOut: (str) => { result += str; } })
     .exitOverride();

@@ -1,6 +1,7 @@
 import { Argument, Option } from 'commander';
 import BigNumber from 'bignumber.js';
 import { MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
+import { noValue } from './utils/default-option-description.js';
 
 export const coinAmountParser = (amount) => {
   if (amount.endsWith('ae')) return new BigNumber(amount.slice(0, -2)).shiftedBy(18);
@@ -26,12 +27,14 @@ export const jsonOption = new Option('--json', 'Print result in json format');
 export const gasOption = new Option('-G, --gas [gas]', 'Amount of gas to call/deploy the contract')
   .argParser((gas) => +gas);
 
-export const gasPriceOption = new Option('--gasPrice [gasPrice]', `Gas price to call/deploy the contract (default: based on network demand or ${MIN_GAS_PRICE})`);
+export const gasPriceOption = new Option('--gasPrice [gasPrice]', 'Gas price to call/deploy the contract')
+  .default(noValue, `based on network demand or ${MIN_GAS_PRICE}`);
 
 export const forceOption = new Option('-f, --force', 'Ignore node version compatibility check');
 
 export const passwordOption = new Option('-P, --password [password]', 'Wallet Password');
 
-export const ttlOption = new Option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks (default: current height increased by 3 or infinity)');
+export const ttlOption = new Option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks')
+  .default(noValue, 'current height increased by 3 or infinity');
 
 export const networkIdOption = new Option('--networkId [networkId]', 'Network id');
