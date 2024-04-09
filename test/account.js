@@ -39,7 +39,7 @@ Address _________________________________ ${resJson.publicKey}
   });
 
   it('Create Wallet From Private Key', async () => {
-    await executeAccount(['save', walletName, '--password', 'test', keypair.secretKey, '--overwrite']);
+    await executeAccount(['create', walletName, '--password', 'test', keypair.secretKey, '--overwrite']);
     expect(await fs.exists(walletName)).to.be.equal(true);
     expect((await executeAccount(['address', walletName, '--password', 'test', '--json'])).publicKey)
       .to.equal(keypair.publicKey);

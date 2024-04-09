@@ -119,7 +119,7 @@ export async function getSdk() {
     accounts: [new MemoryAccount(tempKeyPair.secretKey)],
   });
   await Promise.all([
-    executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', tempKeyPair.secretKey, '--overwrite']),
+    executeProgram(accountProgram, ['create', WALLET_NAME, '--password', 'test', tempKeyPair.secretKey, '--overwrite']),
     sdk.spend(1e26, tempKeyPair.publicKey, { onAccount: new MemoryAccount(keypair.secretKey) }),
   ]);
   return sdk;

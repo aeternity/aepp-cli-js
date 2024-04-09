@@ -159,7 +159,7 @@ Your address is: ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
 Using this command, you can pass the private key to generate a wallet with a key pair.
 
 ```
-$ aecli account save ./wallet.json <your_private_key>
+$ aecli account create ./wallet.json <your_private_key>
  ```
 You will get the following:
 ```
