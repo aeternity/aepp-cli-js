@@ -8,7 +8,7 @@ import fs from 'fs-extra';
 import { fileURLToPath } from 'url';
 import { resolve } from 'path';
 import updateNotifier from 'update-notifier';
-import { Node } from '@aeternity/aepp-sdk';
+import { Node, ConsensusProtocolVersion } from '@aeternity/aepp-sdk';
 import { compilerOption, nodeOption } from '../arguments.js';
 import { getCompilerByUrl } from '../utils/cli.js';
 import { addToConfig } from '../utils/config.js';
@@ -44,7 +44,11 @@ EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
 async function getNodeDescription(url) {
   const nodeInfo = await new Node(url).getNodeInfo().catch(() => {});
   return nodeInfo
-    ? `network id ${nodeInfo.nodeNetworkId}, version ${nodeInfo.version}`
+    ? [
+      `network id ${nodeInfo.nodeNetworkId}`,
+      `version ${nodeInfo.version}`,
+      `protocol ${nodeInfo.consensusProtocolVersion} (${ConsensusProtocolVersion[nodeInfo.consensusProtocolVersion]})`,
+    ].join(', ')
     : 'can\'t get node info';
 }
 
