@@ -8,7 +8,7 @@ import {
 } from '@aeternity/aepp-sdk';
 import { getFullPath } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
-import { initSdkByWalletFile, getAccountByWalletFile } from '../utils/cli.js';
+import { initSdkByWalletFile, AccountCli } from '../utils/cli.js';
 import { print, printUnderscored } from '../utils/print.js';
 import { PROMPT_TYPE, prompt } from '../utils/prompt.js';
 
@@ -17,7 +17,7 @@ import { PROMPT_TYPE, prompt } from '../utils/prompt.js';
 export async function signMessage(walletPath, data = [], options) {
   const { json, filePath, password } = options;
   const dataForSign = filePath ? await fs.readFile(filePath) : data.join(' ');
-  const { account } = await getAccountByWalletFile(walletPath, password);
+  const account = await AccountCli.read(walletPath, password);
   const signedMessage = await account.signMessage(dataForSign);
   const result = {
     data: typeof dataForSign !== 'string' ? Array.from(dataForSign) : dataForSign,
@@ -40,7 +40,7 @@ export async function signMessage(walletPath, data = [], options) {
 export async function verifyMessage(walletPath, hexSignature, dataArray = [], options) {
   const { json, filePath, password } = options;
   const data = filePath ? await fs.readFile(filePath) : dataArray.join(' ');
-  const { account } = await getAccountByWalletFile(walletPath, password);
+  const account = await AccountCli.read(walletPath, password);
   const isCorrect = _verifyMessage(data, Buffer.from(hexSignature, 'hex'), account.address);
   if (json) {
     print({ data, isCorrect });
@@ -74,18 +74,18 @@ export async function getAddress(walletPath, options) {
   const {
     privateKey, forcePrompt = false, json, password,
   } = options;
-  const { account, keypair } = await getAccountByWalletFile(walletPath, password);
+  const account = await AccountCli.read(walletPath, password);
   const printPrivateKey = privateKey && (forcePrompt
     || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' }));
 
   if (json) {
     print({
       publicKey: account.address,
-      ...printPrivateKey && { secretKey: keypair.secretKey },
+      ...printPrivateKey && { secretKey: account.secretKey },
     });
   } else {
     printUnderscored('Address', account.address);
-    if (printPrivateKey) printUnderscored('Secret Key', keypair.secretKey);
+    if (printPrivateKey) printUnderscored('Secret Key', account.secretKey);
   }
 }
 

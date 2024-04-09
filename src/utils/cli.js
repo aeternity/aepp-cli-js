@@ -1,9 +1,11 @@
 // # Utils `cli` Module
 // That script contains helper function's for work with `cli`
+import fs from 'fs-extra';
 import {
-  AeSdk, Node, MemoryAccount, CompilerCli, CompilerCli8, CompilerHttpNode,
+  AeSdk, Node, MemoryAccount, CompilerCli, CompilerCli8, CompilerHttpNode, recover,
 } from '@aeternity/aepp-sdk';
-import { getWalletByPathAndDecrypt } from './account.js';
+import { PROMPT_TYPE, prompt } from './prompt.js';
+import { getFullPath } from './helpers.js';
 
 export function getCompilerByUrl(url) {
   if (url === 'cli') return new CompilerCli();
@@ -26,18 +28,26 @@ export function initSdk({
   });
 }
 
-export async function getAccountByWalletFile(walletPath, password) {
-  const keypair = await getWalletByPathAndDecrypt(walletPath, password);
-  return { account: new MemoryAccount(keypair.secretKey), keypair };
+export class AccountCli extends MemoryAccount {
+  constructor(secretKey) {
+    super(secretKey);
+    // TODO: remove after resolving https://github.com/aeternity/aepp-sdk-js/issues/1672
+    this.secretKey = secretKey;
+  }
+
+  // Get account file by path, decrypt it using password and return AccountCli
+  static async read(path, password) {
+    const keyFile = await fs.readJson(getFullPath(path));
+    password ??= await prompt(PROMPT_TYPE.askPassword);
+    return new AccountCli(await recover(password, keyFile));
+  }
 }
 
 // ## Get account files and decrypt it using password
 // After that create sdk instance using this `keyPair`
-//
-// We use `getWalletByPathAndDecrypt` from `utils/account` to get `keypair` from file
 export async function initSdkByWalletFile(walletPath, { password, ...options }) {
   return initSdk({
     ...options,
-    accounts: walletPath ? [(await getAccountByWalletFile(walletPath, password)).account] : [],
+    accounts: walletPath ? [await AccountCli.read(walletPath, password)] : [],
   });
 }
