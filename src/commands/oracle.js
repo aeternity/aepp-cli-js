@@ -6,7 +6,7 @@ import { Command } from 'commander';
 import { ORACLE_TTL, QUERY_TTL, RESPONSE_TTL } from '@aeternity/aepp-sdk';
 import * as Oracle from '../actions/oracle.js';
 import {
-  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption, networkIdOption,
+  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption,
 } from '../arguments.js';
 
 const program = new Command().name('aecli oracle');
@@ -18,7 +18,6 @@ const addCommonOptions = (p) => p
   .addOption(feeOption)
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .addOption(passwordOption)
-  .addOption(networkIdOption)
   .addOption(forceOption)
   .addOption(jsonOption);
 
@@ -85,7 +84,7 @@ addCommonOptions(program
   .command('respond-query <wallet_path> <oracleId> <queryId> <response>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL.value)
-  .description('Respond to  Oracle Query')
+  .description('Respond to Oracle Query')
   .action(Oracle.respondToQuery));
 
 // ## Initialize `get oracle` command

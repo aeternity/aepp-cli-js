@@ -46,7 +46,6 @@ addCommonOptions(program
       return { amount: coinAmountParser(amount) };
     },
   )
-  .addOption(networkIdOption)
   .option('--payload [payload]', 'Transaction payload.', '')
   .addOption(feeOption)
   .addOption(ttlOption(true))
