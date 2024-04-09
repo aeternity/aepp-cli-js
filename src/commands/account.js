@@ -5,52 +5,15 @@
 import { Command } from 'commander';
 import * as Account from '../actions/account.js';
 import {
-  nodeOption,
-  jsonOption,
-  coinAmountParser,
-  feeOption,
-  forceOption,
-  passwordOption,
-  ttlOption,
-  networkIdOption,
+  nodeOption, jsonOption, forceOption, passwordOption, networkIdOption,
 } from '../arguments.js';
 
 const program = new Command().name('aecli account');
 
 // ## Initialize `options`
 const addCommonOptions = (p) => p
-  .addOption(nodeOption)
   .addOption(passwordOption)
-  .addOption(forceOption)
   .addOption(jsonOption);
-
-// ## Initialize `spend` command
-//
-// You can use this command to send tokens to another account
-//
-// Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword`
-//
-// Example: `aecli account spend ./myWalletKeyFile aensAccountName.chain 100 --password testpassword`
-//
-// You can set transaction `ttl(Time to leave)`. If not set use default.
-//
-// Example: `aecli account spend ./myWalletKeyFile ak_1241rioefwj23f2wfdsfsdsdfsasdf 100 --password testpassword --ttl 20` --> this tx will leave for 20 blocks
-addCommonOptions(program
-  .command('spend <wallet_path>')
-  .argument('<receiver>', 'Address or name of recipient account')
-  .argument(
-    '<amountOrPercent>',
-    'Amount of coins to send in aettos/ae (example 1.2ae), or percent of sender balance (example 42%)',
-    (amount) => {
-      if (amount.endsWith('%')) return { fraction: +amount.slice(0, -1) };
-      return { amount: coinAmountParser(amount) };
-    },
-  )
-  .option('--payload [payload]', 'Transaction payload.', '')
-  .addOption(feeOption)
-  .addOption(ttlOption(true))
-  .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .action(Account.spend));
 
 // ## Initialize `sign` command
 //
@@ -59,6 +22,8 @@ addCommonOptions(program
 // Example: `aecli account sign ./myWalletKeyFile tx_1241rioefwj23f2wfdsfsdsdfsasdf --password testpassword`
 addCommonOptions(program
   .command('sign <wallet_path> <tx>')
+  .addOption(nodeOption)
+  .addOption(forceOption)
   .addOption(networkIdOption)
   .description('Sign a transaction using wallet')
   .action(Account.sign));

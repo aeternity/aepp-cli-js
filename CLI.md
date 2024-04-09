@@ -171,7 +171,7 @@ Wallet path___________________ /path-to/wallet.json
 
 Using this command, you can send coins to another wallet. Just indicate another account's address and an amount which should be sent.
 ```
-$ aecli account spend ./wallet.json --password top-secret ak_2GN72gRFHYmJd1DD2g2sLADr5ZXa13DPYNtuFajhsZT2y3FiWu 1.23ae
+$ aecli spend ./wallet.json --password top-secret ak_2GN72gRFHYmJd1DD2g2sLADr5ZXa13DPYNtuFajhsZT2y3FiWu 1.23ae
 ```
 As an option, you can set _--ttl_ parameter, which limits the lifespan of this transaction.
 
