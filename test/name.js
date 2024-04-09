@@ -247,7 +247,7 @@ describe('AENS Module', () => {
         name,
         preClaim.salt,
         '--json',
-      ]).should.be.rejectedWith(/Giving up after 5 blocks mined, transaction hash:|error: Transaction not found/);
+      ]).should.be.rejectedWith('error: Transaction not found');
     }).timeout(15000);
   });
 });

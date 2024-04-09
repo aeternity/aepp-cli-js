@@ -1,5 +1,6 @@
 import { InvalidPasswordError } from '@aeternity/aepp-sdk';
 import { setCommandOptions } from './config.js';
+import { prepareOptions } from './default-option-description.js';
 
 export default class CliError extends Error {
   constructor(message) {
@@ -10,6 +11,7 @@ export default class CliError extends Error {
 
 export async function runProgram(program) {
   try {
+    prepareOptions(program);
     await setCommandOptions(program);
     await program.parseAsync();
   } catch (error) {

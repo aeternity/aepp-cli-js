@@ -8,8 +8,9 @@ import fs from 'fs-extra';
 import { fileURLToPath } from 'url';
 import { resolve } from 'path';
 import updateNotifier from 'update-notifier';
-import { Node, CompilerCli, CompilerHttpNode } from '@aeternity/aepp-sdk';
+import { Node, ConsensusProtocolVersion } from '@aeternity/aepp-sdk';
 import { compilerOption, nodeOption } from '../arguments.js';
+import { getCompilerByUrl } from '../utils/cli.js';
 import { addToConfig } from '../utils/config.js';
 import CliError from '../utils/CliError.js';
 
@@ -41,18 +42,18 @@ const EXECUTABLE_CMD = [
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
 
 async function getNodeDescription(url) {
-  // TODO: remove after fixing https://github.com/aeternity/aepp-sdk-js/issues/1673
-  const omitUncaughtExceptions = () => {};
-  process.on('uncaughtException', omitUncaughtExceptions);
-  const nodeInfo = await (new Node(url)).getNodeInfo().catch(() => {});
-  process.off('uncaughtException', omitUncaughtExceptions);
+  const nodeInfo = await new Node(url).getNodeInfo().catch(() => {});
   return nodeInfo
-    ? `network id ${nodeInfo.nodeNetworkId}, version ${nodeInfo.version}`
+    ? [
+      `network id ${nodeInfo.nodeNetworkId}`,
+      `version ${nodeInfo.version}`,
+      `protocol ${nodeInfo.consensusProtocolVersion} (${ConsensusProtocolVersion[nodeInfo.consensusProtocolVersion]})`,
+    ].join(', ')
     : 'can\'t get node info';
 }
 
 async function getCompilerDescription(url) {
-  const compiler = url === 'cli' ? new CompilerCli() : new CompilerHttpNode(url);
+  const compiler = getCompilerByUrl(url);
   const version = await compiler.version().catch(() => {});
   return version ? `version ${version}` : 'can\'t get compiler version';
 }
@@ -122,6 +123,7 @@ program
     const nodes = [
       { name: 'Mainnet', url: 'https://mainnet.aeternity.io/' },
       { name: 'Testnet', url: 'https://testnet.aeternity.io/' },
+      { name: 'Next', url: 'https://next.aeternity.io/' },
     ];
     await addToConfig({ url: await askUrl('node', nodes, getNodeDescription, url) });
   });
@@ -133,8 +135,8 @@ program
   .action(async (url) => {
     const compilers = [
       { name: 'Stable v7', url: 'https://v7.compiler.aepps.com/' },
-      { name: 'Integrated compiler (requires Erlang installed)', url: 'cli' },
-      { name: 'Latest', url: 'https://latest.compiler.aeternity.io/' },
+      { name: 'Integrated compiler, FATE 2 (requires Erlang)', url: 'cli' },
+      { name: 'Integrated compiler, FATE 3 (requires Erlang)', url: 'cli8' },
     ];
     await addToConfig({
       compilerUrl: await askUrl('compiler', compilers, getCompilerDescription, url),

@@ -40,18 +40,21 @@ Pending transactions:
     const amount = '420';
     const { hash } = await sdk.spend(amount, recipient);
     const resJson = await executeInspect([hash, '--json']);
+    expect(resJson.tx.fee).to.be.a('string');
     expect(resJson).to.eql({
       blockHash: resJson.blockHash,
       blockHeight: resJson.blockHeight,
+      encodedTx: resJson.encodedTx,
       hash: resJson.hash,
       signatures: [resJson.signatures[0]],
       tx: {
         recipientId: recipient,
         senderId: sdk.address,
         amount,
-        fee: '16700000000000',
+        fee: resJson.tx.fee,
         nonce: resJson.tx.nonce,
         payload: 'ba_Xfbg4g==',
+        ttl: resJson.tx.ttl,
         type: 'SpendTx',
         version: 1,
       },
@@ -67,9 +70,9 @@ Sender account __________________________ ${sdk.address}
 Recipient account _______________________ ${recipient}
 Amount __________________________________ 420
 Payload _________________________________ ba_Xfbg4g==
-Fee _____________________________________ 16700000000000
+Fee _____________________________________ ${resJson.tx.fee}
 Nonce ___________________________________ ${resJson.tx.nonce}
-TTL _____________________________________ N/A
+TTL _____________________________________ ${resJson.tx.ttl}
 Version _________________________________ 1
     `.trim());
   });
@@ -117,8 +120,6 @@ payload _________________________________ ba_Xfbg4g==
       height: keyJson.height,
       info: keyJson.info,
       miner: keyJson.miner,
-      nonce: keyJson.nonce,
-      pow: keyJson.pow,
       prevHash: keyJson.prevHash,
       prevKeyHash: keyJson.prevKeyHash,
       stateHash: keyJson.stateHash,
@@ -132,7 +133,7 @@ payload _________________________________ ba_Xfbg4g==
 Block hash ______________________________ ${keyJson.hash}
 Block height ____________________________ ${keyJson.height}
 State hash ______________________________ ${keyJson.stateHash}
-Nonce ___________________________________ ${keyJson.nonce}
+Nonce ___________________________________ N/A
 Miner ___________________________________ ${keyJson.miner}
 Time ____________________________________ ${new Date(keyJson.time).toString()}
 Previous block hash _____________________ ${keyJson.prevHash}

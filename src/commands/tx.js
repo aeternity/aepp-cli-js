@@ -28,7 +28,7 @@ const addCommonOptions = (p) => p
   .addOption(nodeOption)
 // .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .addOption(feeOption)
-  .addOption(ttlOption)
+  .addOption(ttlOption(false))
   .addOption(forceOption)
   .addOption(jsonOption);
 
@@ -112,7 +112,7 @@ addCommonOptions(program
   .command('contract-deploy <ownerId> <contractBytecode> <initCallData>')
   .addArgument(nonceArgument)
   .addOption(gasOption)
-  .addOption(gasPriceOption)
+  .addOption(gasPriceOption(false))
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
   .action(Transaction.contractDeploy));
@@ -126,7 +126,7 @@ addCommonOptions(program
   .command('contract-call <callerId> <contractId> <callData>')
   .addArgument(nonceArgument)
   .addOption(gasOption)
-  .addOption(gasPriceOption)
+  .addOption(gasPriceOption(false))
   .option('--amount [amount]', 'Amount', 0)
   .description('Build contract create transaction.')
   .action(Transaction.contractCall));

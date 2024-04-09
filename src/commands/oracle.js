@@ -14,7 +14,7 @@ const program = new Command().name('aecli oracle');
 // ## Initialize `options`
 const addCommonOptions = (p) => p
   .addOption(nodeOption)
-  .addOption(ttlOption)
+  .addOption(ttlOption(true))
   .addOption(feeOption)
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .addOption(passwordOption)

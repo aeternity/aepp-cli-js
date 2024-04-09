@@ -77,7 +77,7 @@ describe('Contract Module', function contractTests() {
       expect(descriptor).to.eql({
         version: 1,
         address,
-        bytecode: 'cb_+L5GA6DYM5NsuGXWxxHp3/rvzpUabt5oDeNdrc22CqVocjzKwMC4kbhX/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYItC8EEUTWRB8RaW5pdBGSiyA2EXRlc3QR0OKCUjEuVGVzdExpYi5zdW0R6YyQGxlnZXRNYXCCLwCFNy4yLjEAKvwDWw==',
+        bytecode: 'cb_+L5GA6Ar1lCAsdVHFnIFRGVmOW8j4LcSXxgJgqPlwvI2Zeak28C4kbhX/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYItC8EEUTWRB8RaW5pdBGSiyA2EXRlc3QR0OKCUjEuVGVzdExpYi5zdW0R6YyQGxlnZXRNYXCCLwCFNy40LjEAF0MstQ==',
         aci: [{
           namespace: { name: 'TestLib', typedefs: [] },
         }, {
@@ -195,8 +195,7 @@ describe('Contract Module', function contractTests() {
       callResponse.decodedResult.should.equal('6');
     });
 
-    // TODO: enable after updating sdk, issues with instanceof not working
-    it.skip('calls contract static with dry run account', async () => {
+    it('calls contract static with dry run account', async () => {
       const callResponse = await executeContract([
         'call',
         '--json',
@@ -209,8 +208,7 @@ describe('Contract Module', function contractTests() {
       callResponse.decodedResult.should.equal('6');
     });
 
-    // TODO: enable after updating sdk, issues with instanceof not working
-    it.skip('returns Maps correctly', async () => {
+    it('returns Maps correctly', async () => {
       const callResponse = await executeContract([
         'call',
         '--json',

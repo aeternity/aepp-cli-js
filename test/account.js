@@ -83,19 +83,22 @@ Secret Key ______________________________ ${keypair.secretKey}
     const receiverBalance = await sdk.getBalance(publicKey);
     expect(+receiverBalance).to.be.equal(amount);
 
+    expect(resJson.tx.fee).to.be.a('string');
     expect(resJson).to.eql({
       blockHash: resJson.blockHash,
       blockHeight: resJson.blockHeight,
+      encodedTx: resJson.encodedTx,
       hash: resJson.hash,
       rawTx: resJson.rawTx,
       signatures: [resJson.signatures[0]],
       tx: {
         amount: '100',
-        fee: '16660000000000',
+        fee: resJson.tx.fee,
         nonce: 1,
         payload: 'ba_Xfbg4g==',
         recipientId: resJson.tx.recipientId,
         senderId: resJson.tx.senderId,
+        ttl: resJson.tx.ttl,
         type: 'SpendTx',
         version: 1,
       },
@@ -116,9 +119,9 @@ Sender account __________________________ ${resJson.tx.senderId}
 Recipient account _______________________ ${resJson.tx.recipientId}
 Amount __________________________________ 100
 Payload _________________________________ ba_Xfbg4g==
-Fee _____________________________________ 16660000000000
+Fee _____________________________________ ${resJson.tx.fee}
 Nonce ___________________________________ 2
-TTL _____________________________________ N/A
+TTL _____________________________________ ${lineEndings[12]}
 Version _________________________________ 1
     `.trim());
   });

@@ -7,7 +7,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@aeternity/aepp-sdk": "^13.2.2",
+    "@aeternity/aepp-sdk": "^13.3.0",
     "bignumber.js": "^9.1.2",
     "commander": "^12.0.0",
     "env-paths": "^3.0.0",

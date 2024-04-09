@@ -111,7 +111,7 @@ addCommonOptions(program
   .option('-s, --callStatic', 'Call static')
   .option('-t, --topHash', 'Hash of block to make call')
   .addOption(feeOption)
-  .addOption(ttlOption)
+  .addOption(ttlOption(true))
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Execute a function of the contract')
   .action(Contract.call));
@@ -137,9 +137,9 @@ addCommonOptions(program
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .addOption(passwordOption)
   .addOption(gasOption)
-  .addOption(gasPriceOption)
+  .addOption(gasPriceOption(true))
   .addOption(feeOption)
-  .addOption(ttlOption)
+  .addOption(ttlOption(true))
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .description('Deploy a contract on the chain')
   .action(Contract.deploy));

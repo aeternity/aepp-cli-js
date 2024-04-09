@@ -1,9 +1,15 @@
 // # Utils `cli` Module
 // That script contains helper function's for work with `cli`
 import {
-  AeSdk, Node, MemoryAccount, CompilerCli, CompilerHttpNode,
+  AeSdk, Node, MemoryAccount, CompilerCli, CompilerCli8, CompilerHttpNode,
 } from '@aeternity/aepp-sdk';
 import { getWalletByPathAndDecrypt } from './account.js';
+
+export function getCompilerByUrl(url) {
+  if (url === 'cli') return new CompilerCli();
+  if (url === 'cli8') return new CompilerCli8();
+  return new CompilerHttpNode(url);
+}
 
 export function initSdk({
   url, keypair, compilerUrl, force: ignoreVersion, networkId, accounts = [],
@@ -14,9 +20,7 @@ export function initSdk({
     _microBlockCycle: process.env._MICRO_BLOCK_CYCLE,
     /* eslint-enable no-underscore-dangle */
     nodes: url ? [{ name: 'test-node', instance: new Node(url, { ignoreVersion }) }] : [],
-    ...compilerUrl && {
-      onCompiler: compilerUrl === 'cli' ? new CompilerCli() : new CompilerHttpNode(compilerUrl),
-    },
+    ...compilerUrl && { onCompiler: getCompilerByUrl(compilerUrl) },
     networkId,
     accounts: [...keypair ? [new MemoryAccount(keypair.secretKey)] : [], ...accounts],
   });
