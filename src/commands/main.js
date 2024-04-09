@@ -119,6 +119,7 @@ program
     const nodes = [
       { name: 'Mainnet', url: 'https://mainnet.aeternity.io/' },
       { name: 'Testnet', url: 'https://testnet.aeternity.io/' },
+      { name: 'Next', url: 'https://next.aeternity.io/' },
     ];
     await addToConfig({ url: await askUrl('node', nodes, getNodeDescription, url) });
   });
