@@ -132,14 +132,14 @@ The account (wallet) commands are those which create and report on key pairs, an
 
 Use this command to create a new wallet.
 ```
-$ aecli account create test --password test
+$ aecli account create ./wallet.json --password top-secret
  ```
 You can specify a password for accessing your wallet or just press Enter if you do not want to set a password.
 The wallet is created in the specified directory.
 ```
 Wallet saved
 Wallet address________________ ak_2GN72gRFHYmJd1DD2g2sLADr5ZXa13DPYNtuFajhsZT2y3FiWu
-Wallet path___________________ /home/nduchak/Project/aepp-sdk-js/bin/test
+Wallet path___________________ /path-to/wallet.json
 
 ```
 Wallet address is your public key. Wallet path is the directory where the wallet is created.
@@ -148,7 +148,7 @@ Wallet address is your public key. Wallet path is the directory where the wallet
 
 View the address (public key) of your wallet using the following command:
 ```
-$ aecli account address test
+$ aecli account address ./wallet.json
 ```
 You will get the following:
 ```
@@ -159,19 +159,19 @@ Your address is: ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
 Using this command, you can pass the private key to generate a wallet with a key pair.
 
 ```
-$ aecli account save test <your_private_key>
+$ aecli account save ./wallet.json <your_private_key>
  ```
 You will get the following:
 ```
 Wallet saved
 Wallet address________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
-Wallet path___________________ /Users/spushkar/Desktop/aepp-sdk-js-develop/bin/test
+Wallet path___________________ /path-to/wallet.json
  ```
 #### spend
 
 Using this command, you can send coins to another wallet. Just indicate another account's address and an amount which should be sent.
 ```
-$ aecli account spend test --password test ak$94TQqDjzwKQYPcCdEAfxcGb3mHq2s9Rm4dybMbDWwiVRwg8RK 10
+$ aecli account spend ./wallet.json --password top-secret ak_2GN72gRFHYmJd1DD2g2sLADr5ZXa13DPYNtuFajhsZT2y3FiWu 1.23ae
 ```
 As an option, you can set _--ttl_ parameter, which limits the lifespan of this transaction.
 
@@ -208,28 +208,28 @@ $ ./aecli.mjs name
 
 Create and register a name for your account (public key):
 ```
-$ aecli name claim test --password test testname.chain
+$ aecli name claim ./wallet.json --password top-secret testname.chain
 ```
 
 #### revoke
 
 You can delete your name using the following command:
 ```
-$ aecli name revoke test --password test testname.chain
+$ aecli name revoke ./wallet.json --password top-secret testname.chain
 ```
 
 #### transfer
 
 You can transfer a name to another account or contract, just indicate another account's address. You will pass all rights regarding the name to another account:
 ```
-$ aecli name transfer test --password test testname.chain ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
+$ aecli name transfer ./wallet.json --password top-secret testname.chain ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
 ```
 
 #### update
 
 Use this command to update a name. For example, you can assign it to another account, but still you will have rights to do other operations with this name:
 ```
-$ aecli name update test --password test testname.chain ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
+$ aecli name update ./wallet.json --password top-secret testname.chain ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
 ```
 
 ## The contracts group
@@ -278,7 +278,7 @@ $ aecli contract compile file1
 
 To deploy a contract, run the following command adding the contract name:
 ```
-$ aecli contract deploy test --password test testContract
+$ aecli contract deploy ./wallet.json --password top-secret testContract
 ```
 You will get the following:
 ```
@@ -292,7 +292,7 @@ Deploy descriptor_______________ testContract.deploy.2a1j2Mk9YSmC1gioUq4PWRm3bsv
 To execute a function of the contract, run the following command. Json file is stored in `aepp-sdk-js-develop/bin`. `Main` is a function which is executed by this contract, `int 1 2` are numerical values :
 
 ```
-$ aecli contract call test --password test testContract.deploy.2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi.json main int 1 2
+$ aecli contract call ./wallet.json --password top-secret testContract.deploy.2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi.json main int 1 2
 ```
 You will get the following, where return value is a result of contract execution - it is a sum of values 1 and 2:
 ```
