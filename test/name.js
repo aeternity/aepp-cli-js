@@ -128,12 +128,18 @@ describe('AENS Module', () => {
       'test',
       '--json',
     ]);
-
+    expect(extendTx.blockHeight - height).within(0, 3);
     const nameResult = await executeInspect([name2, '--json']);
-    const isExtended = nameResult.ttl - 50 >= height;
-    isExtended.should.be.equal(true);
-    extendTx.blockHeight.should.be.gt(0);
-    nameResult.status.should.equal('CLAIMED');
+    expect(nameResult.ttl - extendTx.blockHeight).to.be.equal(50);
+    expect(nameResult.status).to.equal('CLAIMED');
+  });
+
+  it('extend name with max ttl', async () => {
+    const extendTx = await executeName([
+      'extend', WALLET_NAME, name2, '--password', 'test', '--json',
+    ]);
+    const nameResult = await executeInspect([name2, '--json']);
+    expect(nameResult.ttl - extendTx.blockHeight).to.be.equal(180000);
   });
 
   it('Fail spend by name on invalid input', async () => {

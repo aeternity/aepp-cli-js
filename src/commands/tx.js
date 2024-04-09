@@ -148,7 +148,7 @@ addCommonOptions(program
 //
 // You can use this command to build `oracle-post-query` transaction
 //
-// Example: `aecli tx oracle-post-query ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad {city: 'Berlin'}`
+// Example: `aecli tx oracle-post-query ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ok_348hrfdhisdkhasdaksdasdsad '{"city": "Berlin"}'`
 addCommonOptions(program
   .command('oracle-post-query <accountId> <oracleId> <query>')
   .addArgument(nonceArgument)
@@ -162,7 +162,7 @@ addCommonOptions(program
 //
 // You can use this command to build `oracle-extend` transaction
 //
-// Example: `aecli tx oracle-extend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad 100
+// Example: `aecli tx oracle-extend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ok_348hrfdhisdkhasdaksdasdsad 100
 addCommonOptions(program
   .command('oracle-extend <callerId> <oracleId> <oracleTtl>')
   .addArgument(nonceArgument)
@@ -173,7 +173,7 @@ addCommonOptions(program
 //
 // You can use this command to build `oracle-respond` transaction
 //
-// Example: `aecli tx oracle-respond ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi  ok_348hrfdhisdkhasdaksdasdsad oq_asdjn23ifsdiuhfk2h3fuksadh {tmp: 1}`
+// Example: `aecli tx oracle-respond ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ok_348hrfdhisdkhasdaksdasdsad oq_asdjn23ifsdiuhfk2h3fuksadh '{"tmp": 1}'`
 addCommonOptions(program
   .command('oracle-respond <callerId> <oracleId> <queryId> <response>')
   .addArgument(nonceArgument)
