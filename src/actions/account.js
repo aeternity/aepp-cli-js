@@ -78,14 +78,15 @@ export async function getAddress(walletPath, options) {
   const printPrivateKey = privateKey && (forcePrompt
     || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' }));
 
+  const secretKey = printPrivateKey && await account.getSecretKey();
   if (json) {
     print({
       publicKey: account.address,
-      ...printPrivateKey && { secretKey: account.secretKey },
+      ...printPrivateKey && { secretKey },
     });
   } else {
     printUnderscored('Address', account.address);
-    if (printPrivateKey) printUnderscored('Secret Key', account.secretKey);
+    if (printPrivateKey) printUnderscored('Secret Key', secretKey);
   }
 }
 

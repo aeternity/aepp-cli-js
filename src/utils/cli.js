@@ -2,7 +2,7 @@
 // That script contains helper function's for work with `cli`
 import fs from 'fs-extra';
 import {
-  AeSdk, Node, MemoryAccount, CompilerCli, CompilerCli8, CompilerHttpNode, recover,
+  AeSdk, Node, MemoryAccount, CompilerCli, CompilerCli8, CompilerHttpNode, recover, sign,
 } from '@aeternity/aepp-sdk';
 import { PROMPT_TYPE, prompt } from './prompt.js';
 import { getFullPath } from './helpers.js';
@@ -29,17 +29,36 @@ export function initSdk({
 }
 
 export class AccountCli extends MemoryAccount {
-  constructor(secretKey) {
-    super(secretKey);
-    // TODO: remove after resolving https://github.com/aeternity/aepp-sdk-js/issues/1672
-    this.secretKey = secretKey;
+  #keyFile;
+
+  #password;
+
+  #secretKey;
+
+  constructor(keyFile, password) {
+    super(Buffer.alloc(64));
+    this.#keyFile = keyFile;
+    this.#password = password;
+    this.address = keyFile.public_key;
+  }
+
+  async getSecretKey() {
+    this.#secretKey ??= await recover(
+      this.#password ?? await prompt(PROMPT_TYPE.askPassword),
+      this.#keyFile,
+    );
+    return this.#secretKey;
+  }
+
+  async sign(data) {
+    const secretKey = await this.getSecretKey();
+    return sign(data, Buffer.from(secretKey, 'hex'));
   }
 
   // Get account file by path, decrypt it using password and return AccountCli
   static async read(path, password) {
     const keyFile = await fs.readJson(getFullPath(path));
-    password ??= await prompt(PROMPT_TYPE.askPassword);
-    return new AccountCli(await recover(password, keyFile));
+    return new AccountCli(keyFile, password);
   }
 }
 
