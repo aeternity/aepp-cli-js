@@ -247,8 +247,6 @@ Ttl _____________________________________ ${resJson.ttl}
     expect(res).to.equal(`
 Status __________________________________ AVAILABLE
 Name hash _______________________________ ${produceNameId(name)}
-Pointers ________________________________ N/A
-TTL _____________________________________ 0
     `.trim());
   });
 
@@ -274,10 +272,11 @@ TTL _____________________________________ 0
     expect(res).to.equal(`
 Status __________________________________ CLAIMED
 Name hash _______________________________ ${resJson.id}
+Owner ___________________________________ ${sdk.address}
 Pointer myKey ___________________________ ${sdk.address}
 Pointer account_pubkey __________________ ${sdk.address}
 Pointer oracle_pubkey ___________________ ${sdk.address}
-TTL _____________________________________ ${resJson.ttl}
+TTL _____________________________________ ${resJson.ttl} (in 1 year)
     `.trim());
   }).timeout(6000);
 
@@ -285,8 +284,9 @@ TTL _____________________________________ ${resJson.ttl}
     const auctionName = `a${Math.random().toString().slice(2, 9)}.chain`;
     await (await sdk.aensPreclaim(auctionName)).claim();
     const resJson = await executeInspect([auctionName, '--json']);
+    const endsAt = +resJson.startedAt + 14880;
     expect(resJson).to.eql({
-      endsAt: String(+resJson.startedAt + 14880),
+      endsAt: String(endsAt),
       highestBid: '19641800000000000000',
       highestBidder: sdk.address,
       id: resJson.id,
@@ -297,8 +297,10 @@ TTL _____________________________________ ${resJson.ttl}
     expect(res).to.equal(`
 Status __________________________________ AUCTION
 Name hash _______________________________ ${resJson.id}
-Pointers ________________________________ N/A
-TTL _____________________________________ 0
+Highest bidder __________________________ ${sdk.address}
+Highest bid _____________________________ 19.6418ae
+Ends at height __________________________ ${endsAt} (in 1 month)
+Started at height _______________________ ${resJson.startedAt} (about now)
     `.trim());
   }).timeout(4000);
 });

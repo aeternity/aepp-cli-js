@@ -82,3 +82,27 @@ export function decode(data, requiredPrefix) {
 }
 
 export const getFullPath = (path) => resolve(process.cwd(), path);
+
+const units = [
+  ['year', 365 * 24 * 60 * 60 * 1000],
+  ['month', 30.5 * 24 * 60 * 60 * 1000],
+  ['day', 24 * 60 * 60 * 1000],
+  ['hour', 60 * 60 * 1000],
+  ['minute', 60 * 1000],
+  ['second', 1000],
+];
+
+export function timeAgo(date) {
+  const diff = Date.now() - date.getTime();
+  // TODO: revisit linter settings, the below rule is not relevant because babel is not used
+  // eslint-disable-next-line no-restricted-syntax
+  for (const [name, size] of units) {
+    const value = Math.floor(Math.abs(diff) / size);
+    if (value > 0) {
+      const plural = value > 1 ? 's' : '';
+      const description = `${value} ${name}${plural}`;
+      return diff > 0 ? `${description} ago` : `in ${description}`;
+    }
+  }
+  return 'about now';
+}

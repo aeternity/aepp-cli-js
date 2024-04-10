@@ -347,16 +347,3 @@ export function printQueries(queries = [], json) {
     print('------------------------------------------------------------------------------');
   });
 }
-
-// Print `name`
-export function printName(name, json) {
-  if (json) {
-    print(name);
-    return;
-  }
-  printUnderscored('Status', name.status ?? 'N/A');
-  printUnderscored('Name hash', name.id ?? 'N/A');
-  if (name.pointers?.length) name.pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
-  else printUnderscored('Pointers', 'N/A');
-  printUnderscored('TTL', name.ttl ?? 0);
-}
