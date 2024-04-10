@@ -1,7 +1,7 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import {
-  AbiVersion, generateKeyPair, Tag, VmVersion,
+  AbiVersion, generateKeyPair, produceNameId, Tag, VmVersion,
 } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk } from './index.js';
 import inspectProgram from '../src/commands/inspect.js';
@@ -240,13 +240,13 @@ Ttl _____________________________________ ${resJson.ttl}
   it('Inspect Unclaimed Name', async () => {
     const resJson = await executeInspect([name, '--json']);
     expect(resJson).to.eql({
-      name,
+      id: produceNameId(name),
       status: 'AVAILABLE',
     });
     const res = await executeInspect([name]);
     expect(res).to.equal(`
 Status __________________________________ AVAILABLE
-Name hash _______________________________ N/A
+Name hash _______________________________ ${produceNameId(name)}
 Pointers ________________________________ N/A
 TTL _____________________________________ 0
     `.trim());
@@ -286,13 +286,17 @@ TTL _____________________________________ ${resJson.ttl}
     await (await sdk.aensPreclaim(auctionName)).claim();
     const resJson = await executeInspect([auctionName, '--json']);
     expect(resJson).to.eql({
-      name: auctionName,
-      status: 'AVAILABLE',
+      endsAt: String(+resJson.startedAt + 14880),
+      highestBid: '19641800000000000000',
+      highestBidder: sdk.address,
+      id: resJson.id,
+      startedAt: resJson.startedAt,
+      status: 'AUCTION',
     });
     const res = await executeInspect([auctionName]);
     expect(res).to.equal(`
-Status __________________________________ AVAILABLE
-Name hash _______________________________ N/A
+Status __________________________________ AUCTION
+Name hash _______________________________ ${resJson.id}
 Pointers ________________________________ N/A
 TTL _____________________________________ 0
     `.trim());

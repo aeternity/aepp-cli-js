@@ -2,7 +2,7 @@
 // That script contains base helper function
 
 import { resolve } from 'path';
-import { Encoding, decode as _decode } from '@aeternity/aepp-sdk';
+import { Encoding, decode as _decode, produceNameId } from '@aeternity/aepp-sdk';
 import CliError from './CliError.js';
 
 // ## Method which retrieve block info by hash
@@ -49,20 +49,22 @@ export function checkPref(hash, hashType) {
 
 // ## AENS helpers methods
 
-// Get `name` status
-export async function updateNameStatus(name, sdk) {
-  try {
-    return { ...await sdk.getName(name), status: 'CLAIMED' };
-  } catch (e) {
-    if (e.response && e.response.status === 404) {
-      return { name, status: 'AVAILABLE' };
-    }
-    throw e;
-  }
+// Get `name` entry
+export async function getNameEntry(nameAsString, sdk) {
+  const handle404 = (error) => {
+    if (error.response?.status === 404) return undefined;
+    throw error;
+  };
+  const [name, auction] = await Promise.all([
+    sdk.api.getNameEntryByName(nameAsString).catch(handle404),
+    sdk.api.getAuctionEntryByName(nameAsString).catch(handle404),
+  ]);
+  return {
+    id: produceNameId(nameAsString),
+    ...name ?? auction,
+    status: (name && 'CLAIMED') || (auction && 'AUCTION') || 'AVAILABLE',
+  };
 }
-
-// Check if `name` is `AVAILABLE`
-export function isAvailable(name) { return name.status === 'AVAILABLE'; }
 
 // Validate `name`
 export function validateName(name) {

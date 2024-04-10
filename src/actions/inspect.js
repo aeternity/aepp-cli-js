@@ -13,7 +13,7 @@ import {
   printUnderscored,
 } from '../utils/print.js';
 import {
-  checkPref, getBlock, updateNameStatus, validateName,
+  checkPref, getBlock, getNameEntry, validateName,
 } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
 
@@ -71,7 +71,7 @@ async function getBlockByHeight(height, { json, ...options }) {
 async function getName(name, { json, ...options }) {
   validateName(name);
   const sdk = initSdk(options);
-  printName(await updateNameStatus(name, sdk), json);
+  printName(await getNameEntry(name, sdk), json);
 }
 
 async function getContract(contractId, { json, ...options }) {

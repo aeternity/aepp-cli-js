@@ -5,8 +5,15 @@
 import { isAddressValid, getDefaultPointerKey } from '@aeternity/aepp-sdk';
 import { initSdkByWalletFile } from '../utils/cli.js';
 import { print, printTransaction } from '../utils/print.js';
-import { isAvailable, updateNameStatus, validateName } from '../utils/helpers.js';
+import { getNameEntry, validateName } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
+
+async function ensureNameStatus(name, sdk, status, operation) {
+  const nameEntry = await getNameEntry(name, sdk);
+  if (nameEntry.status !== status) {
+    throw new CliError(`AENS name is ${nameEntry.status} and cannot be ${operation}`);
+  }
+}
 
 // ## Claim `name` function
 export async function preClaim(walletPath, name, options) {
@@ -20,10 +27,7 @@ export async function preClaim(walletPath, name, options) {
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name' available
-  const nameEntry = await updateNameStatus(name, sdk);
-  if (!isAvailable(nameEntry)) {
-    throw new CliError('AENS name not available');
-  }
+  await ensureNameStatus(name, sdk, 'AVAILABLE', 'preclaimed');
   // Create `pre-claim` transaction
   const preClaimTx = await sdk.aensPreclaim(name, {
     ttl, fee, nonce, waitMined,
@@ -49,10 +53,7 @@ export async function claim(walletPath, name, salt, options) {
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name' available
-  const nameEntry = await updateNameStatus(name, sdk);
-  if (!isAvailable(nameEntry)) {
-    throw new CliError('AENS name not available');
-  }
+  await ensureNameStatus(name, sdk, 'AVAILABLE', 'claimed');
 
   // Wait for next block and create `claimName` transaction
   const claimTx = await sdk.aensClaim(name, salt, {
@@ -82,10 +83,7 @@ export async function updateName(walletPath, name, addresses, options) {
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name` is unavailable and we can update it
-  const nameEntry = await updateNameStatus(name, sdk);
-  if (isAvailable(nameEntry)) {
-    throw new CliError(`AENS name is ${nameEntry.status} and cannot be updated`);
-  }
+  await ensureNameStatus(name, sdk, 'CLAIMED', 'updated');
 
   // Create `updateName` transaction
   const updateTx = await sdk.aensUpdate(
@@ -116,10 +114,7 @@ export async function extendName(walletPath, name, nameTtl, options) {
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name` is unavailable and we can update it
-  const nameEntry = await updateNameStatus(name, sdk);
-  if (isAvailable(nameEntry)) {
-    throw new CliError(`AENS name is ${nameEntry.status} and cannot be extended`);
-  }
+  await ensureNameStatus(name, sdk, 'CLAIMED', 'extended');
 
   // Create `updateName` transaction
   const updateTx = await sdk.aensUpdate(name, {}, {
@@ -148,10 +143,7 @@ export async function transferName(walletPath, name, address, options) {
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name` is unavailable and we can transfer it
-  const nameEntry = await updateNameStatus(name, sdk);
-  if (isAvailable(nameEntry)) {
-    throw new CliError('AENS name is available, nothing to transfer');
-  }
+  await ensureNameStatus(name, sdk, 'CLAIMED', 'transferred');
 
   // Create `transferName` transaction
   const transferTX = await sdk.aensTransfer(name, address, {
@@ -178,10 +170,7 @@ export async function revokeName(walletPath, name, options) {
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if `name` is unavailable and we can revoke it
-  const nameEntry = await updateNameStatus(name, sdk);
-  if (isAvailable(nameEntry)) {
-    throw new CliError('AENS name is available, nothing to revoke');
-  }
+  await ensureNameStatus(name, sdk, 'CLAIMED', 'revoked');
 
   // Create `revokeName` transaction
   const revokeTx = await sdk.aensRevoke(name, {
@@ -207,10 +196,7 @@ export async function nameBid(walletPath, name, nameFee, options) {
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name' available
-  const nameEntry = await updateNameStatus(name, sdk);
-  if (!isAvailable(nameEntry)) {
-    throw new CliError('Auction do not start or already end');
-  }
+  await ensureNameStatus(name, sdk, 'AUCTION', 'bidded');
 
   // Wait for next block and create `claimName` transaction
   const nameBidTx = await sdk.aensBid(name, nameFee, {
@@ -236,10 +222,7 @@ export async function fullClaim(walletPath, name, options) {
   const sdk = await initSdkByWalletFile(walletPath, options);
 
   // Check if that `name' available
-  const nameEntry = await updateNameStatus(name, sdk);
-  if (!isAvailable(nameEntry)) {
-    throw new CliError('AENS name not available');
-  }
+  await ensureNameStatus(name, sdk, 'AVAILABLE', 'claimed');
 
   // Wait for next block and create `claimName` transaction
   nonce = nonce && +nonce;
