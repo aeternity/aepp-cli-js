@@ -75,10 +75,14 @@ export async function executeProgram(program, args) {
     .configureOutput({ writeOut: (str) => { result += str; } })
     .exitOverride();
 
-  const { log } = console;
+  const { log, warn } = console;
   console.log = (...data) => {
     if (result) result += '\n';
     result += data.join(' ');
+  };
+  console.warn = (...data) => {
+    if (/Cost of .+ execution ≈ .+ae/.test(data[0])) return;
+    warn(...data);
   };
   const options = getProgramOptions(program);
   try {
@@ -100,6 +104,7 @@ export async function executeProgram(program, args) {
     await program.parseAsync(allArgs, { from: 'user' });
   } finally {
     console.log = log;
+    console.warn = warn;
     isProgramExecuting = false;
     setProgramOptions(program, options);
   }

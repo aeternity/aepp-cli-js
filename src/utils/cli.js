@@ -3,6 +3,7 @@
 import fs from 'fs-extra';
 import {
   AeSdk, Node, MemoryAccount, CompilerCli, CompilerCli8, CompilerHttpNode, recover, sign,
+  getExecutionCost, unpackTx, Tag,
 } from '@aeternity/aepp-sdk';
 import { PROMPT_TYPE, prompt } from './prompt.js';
 import { getFullPath } from './helpers.js';
@@ -53,6 +54,13 @@ export class AccountCli extends MemoryAccount {
   async sign(data) {
     const secretKey = await this.getSecretKey();
     return sign(data, Buffer.from(secretKey, 'hex'));
+  }
+
+  async signTransaction(transaction, options) {
+    const cost = Number(getExecutionCost(transaction)) / 1e18;
+    const txType = Tag[unpackTx(transaction).tag];
+    console.warn(`Cost of ${txType} execution ≈ ${cost}ae`);
+    return super.signTransaction(transaction, options);
   }
 
   // Get account file by path, decrypt it using password and return AccountCli
