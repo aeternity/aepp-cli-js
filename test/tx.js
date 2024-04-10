@@ -360,18 +360,18 @@ ABI Version _____________________________ 3
     nonce += 1;
     // eslint-disable-next-line no-underscore-dangle
     const callData = contract._calldata.encode(contract._name, 'test', ['1', '2']);
-    const { tx } = await executeTx(['contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json']);
+    const { tx } = await executeTx(['contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json', '--amount', '0.00000042ae']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
       abiVersion: '3',
-      amount: '0',
+      amount: '420000000000',
       callData,
       callerId: TX_KEYS.publicKey,
       contractId,
       fee: detailsJson.fee,
-      gas: 5817960,
+      gas: 5817860,
       gasPrice: '1000000000',
       nonce,
       type: 'ContractCallTx',
@@ -381,8 +381,8 @@ ABI Version _____________________________ 3
 Tx Type _________________________________ ContractCallTx
 Caller Account __________________________ ${TX_KEYS.publicKey}
 Contract Hash ___________________________ ${contractId}
-Amount __________________________________ 0
-Gas _____________________________________ 5817960
+Amount __________________________________ 420000000000
+Gas _____________________________________ 5817860
 Gas Price _______________________________ 1000000000
 Call data _______________________________ ${callData}
 Fee _____________________________________ ${detailsJson.fee}

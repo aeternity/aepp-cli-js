@@ -77,7 +77,7 @@ describe('Contract Module', function contractTests() {
       expect(descriptor).to.eql({
         version: 1,
         address,
-        bytecode: 'cb_+L5GA6Ar1lCAsdVHFnIFRGVmOW8j4LcSXxgJgqPlwvI2Zeak28C4kbhX/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYItC8EEUTWRB8RaW5pdBGSiyA2EXRlc3QR0OKCUjEuVGVzdExpYi5zdW0R6YyQGxlnZXRNYXCCLwCFNy40LjEAF0MstQ==',
+        bytecode: 'cb_+NRGA6CmFq9nCCwTbFoTpKtDko1jYl6CdmFWd0+re1zVAPUVJMC4p7hj/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYI/viMoQQENwAHAQMAuD0vBRFE1kQfEWluaXQRkosgNhF0ZXN0EdDiglIxLlRlc3RMaWIuc3VtEemMkBsZZ2V0TWFwEfiMoQQNcGF5gi8AhTcuNC4xAK21f/c=',
         aci: [{
           namespace: { name: 'TestLib', typedefs: [] },
         }, {
@@ -99,6 +99,12 @@ describe('Contract Module', function contractTests() {
               name: 'getMap',
               payable: false,
               returns: { map: ['int', 'int'] },
+              stateful: false,
+            }, {
+              arguments: [],
+              name: 'pay',
+              payable: true,
+              returns: 'int',
               stateful: false,
             }],
             kind: 'contract_main',
@@ -136,6 +142,18 @@ describe('Contract Module', function contractTests() {
         '[3',
         '--json',
       ])).to.be.rejectedWith(CliError, expectedError);
+    });
+
+    it('deploys contract with coins', async () => {
+      const { address } = await executeContract([
+        'deploy',
+        WALLET_NAME, '--password', 'test',
+        '--contractSource', contractSourceFile,
+        '[3]',
+        '--json',
+        '--amount', '1',
+      ]);
+      expect(await sdk.getBalance(address)).to.be.equal('1');
     });
   });
 
@@ -241,6 +259,18 @@ describe('Contract Module', function contractTests() {
         WALLET_NAME, '--password', 'test',
       ]);
       callResponse.decodedResult.should.equal('6');
+    });
+
+    it('calls contract with coins', async () => {
+      await executeContract([
+        'call',
+        '--json',
+        '--descrPath', deployDescriptorFile,
+        'pay', '[]',
+        WALLET_NAME, '--password', 'test',
+        '--amount', '0.000000001ae',
+      ]);
+      expect(await sdk.getBalance(contractAddress)).to.be.equal('1000000000');
     });
   });
 

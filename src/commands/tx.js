@@ -19,6 +19,7 @@ import {
   forceOption,
   ttlOption,
   networkIdOption,
+  amountOption,
 } from '../arguments.js';
 
 const program = new Command().name('aecli tx');
@@ -113,7 +114,7 @@ addCommonOptions(program
   .addArgument(nonceArgument)
   .addOption(gasOption)
   .addOption(gasPriceOption(false))
-  .option('--amount [amount]', 'Amount', 0)
+  .addOption(amountOption)
   .description('Build contract create transaction.')
   .action(Transaction.contractDeploy));
 
@@ -127,7 +128,7 @@ addCommonOptions(program
   .addArgument(nonceArgument)
   .addOption(gasOption)
   .addOption(gasPriceOption(false))
-  .option('--amount [amount]', 'Amount', 0)
+  .addOption(amountOption)
   .description('Build contract create transaction.')
   .action(Transaction.contractCall));
 
