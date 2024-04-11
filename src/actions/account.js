@@ -3,9 +3,12 @@
 // This script initialize all `account` function
 
 import fs from 'fs-extra';
-import { generateKeyPair, verifyMessage as _verifyMessage } from '@aeternity/aepp-sdk';
-import { writeWallet } from '../utils/account.js';
-import { initSdkByWalletFile, getAccountByWalletFile } from '../utils/cli.js';
+import {
+  generateKeyPair, verifyMessage as _verifyMessage, getAddressFromPriv, dump,
+} from '@aeternity/aepp-sdk';
+import { getFullPath } from '../utils/helpers.js';
+import CliError from '../utils/CliError.js';
+import { initSdkByWalletFile, AccountCli } from '../utils/cli.js';
 import { print, printUnderscored } from '../utils/print.js';
 import { PROMPT_TYPE, prompt } from '../utils/prompt.js';
 
@@ -14,7 +17,7 @@ import { PROMPT_TYPE, prompt } from '../utils/prompt.js';
 export async function signMessage(walletPath, data = [], options) {
   const { json, filePath, password } = options;
   const dataForSign = filePath ? await fs.readFile(filePath) : data.join(' ');
-  const { account } = await getAccountByWalletFile(walletPath, password);
+  const account = await AccountCli.read(walletPath, password);
   const signedMessage = await account.signMessage(dataForSign);
   const result = {
     data: typeof dataForSign !== 'string' ? Array.from(dataForSign) : dataForSign,
@@ -37,7 +40,7 @@ export async function signMessage(walletPath, data = [], options) {
 export async function verifyMessage(walletPath, hexSignature, dataArray = [], options) {
   const { json, filePath, password } = options;
   const data = filePath ? await fs.readFile(filePath) : dataArray.join(' ');
-  const { account } = await getAccountByWalletFile(walletPath, password);
+  const account = await AccountCli.read(walletPath, password);
   const isCorrect = _verifyMessage(data, Buffer.from(hexSignature, 'hex'), account.address);
   if (json) {
     print({ data, isCorrect });
@@ -71,53 +74,41 @@ export async function getAddress(walletPath, options) {
   const {
     privateKey, forcePrompt = false, json, password,
   } = options;
-  const { account, keypair } = await getAccountByWalletFile(walletPath, password);
+  const account = await AccountCli.read(walletPath, password);
   const printPrivateKey = privateKey && (forcePrompt
     || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' }));
 
+  const secretKey = printPrivateKey && await account.getSecretKey();
   if (json) {
     print({
       publicKey: account.address,
-      ...printPrivateKey && { secretKey: keypair.secretKey },
+      ...printPrivateKey && { secretKey },
     });
   } else {
     printUnderscored('Address', account.address);
-    if (printPrivateKey) printUnderscored('Secret Key', keypair.secretKey);
+    if (printPrivateKey) printUnderscored('Secret Key', secretKey);
   }
 }
 
-// ## Create secure `wallet` file
+// ## Create secure `wallet` file by secret key of generate one
 // This function allow you to generate `keypair` and write it to secure `ethereum` like key-file
-export async function createSecureWallet(walletPath, { password, overwrite, json }) {
-  const { secretKey } = generateKeyPair(true);
-  const { publicKey, path } = await writeWallet(walletPath, secretKey, password, overwrite);
-  if (json) {
-    print({
-      publicKey,
-      path,
-    });
-  } else {
-    printUnderscored('Address', publicKey);
-    printUnderscored('Path', path);
-  }
-}
-
-// ## Create secure `wallet` file from `private-key`
-// This function allow you to generate `keypair` from `private-key` and write it to secure `ethereum` like key-file
-export async function createSecureWalletByPrivKey(
+export async function createWallet(
   walletPath,
-  secretKey,
+  secretKey = generateKeyPair().secretKey,
   { password, overwrite, json },
 ) {
-  secretKey = Buffer.from(secretKey.trim(), 'hex');
-  const { publicKey, path } = await writeWallet(walletPath, secretKey, password, overwrite);
+  secretKey = Buffer.from(secretKey, 'hex');
+  walletPath = getFullPath(walletPath);
+  if (!overwrite && await fs.exists(walletPath) && !await prompt(PROMPT_TYPE.askOverwrite)) {
+    throw new CliError(`Wallet already exist at ${walletPath}`);
+  }
+  password ??= await prompt(PROMPT_TYPE.askPassword);
+  await fs.outputJson(walletPath, await dump(walletPath, password, secretKey));
+  const publicKey = getAddressFromPriv(secretKey);
   if (json) {
-    print({
-      publicKey,
-      path,
-    });
+    print({ publicKey, path: walletPath });
   } else {
     printUnderscored('Address', publicKey);
-    printUnderscored('Path', path);
+    printUnderscored('Path', walletPath);
   }
 }

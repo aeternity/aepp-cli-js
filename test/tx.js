@@ -35,7 +35,7 @@ describe('Transaction Module', () => {
   before(async () => {
     sdk = await getSdk();
     await sdk.spend(1e24, TX_KEYS.publicKey);
-    await executeProgram(accountProgram, ['save', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey]);
+    await executeProgram(accountProgram, ['create', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey]);
   });
 
   it('builds tx', async () => {

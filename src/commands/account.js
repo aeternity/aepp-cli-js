@@ -67,25 +67,18 @@ addCommonOptions(program
 // ## Initialize `create` command
 //
 // You can use this command to generate `keypair` and encrypt it by password.
+// Secret key can be provided in options, or cli will generate one.
 // This command create `ethereum like keyfile`.
-//
-// Example: `aecli account create ./mykeys/my-wallet.json --password testpassword`
 addCommonOptions(program
   .command('create <wallet_path>')
+  .argument('[privkey]', 'Secret key as 64-bytes encoded as hex')
   .option('--overwrite', 'Overwrite if exist')
-  .description('Create a secure wallet')
-  .action(Account.createSecureWallet));
+  .description('Create a secure wallet by a private key or generate one.')
+  .addHelpText('after', `
 
-// ## Initialize `save` command
-//
-// You can use this command to generate `keypair` from `private-key` and encrypt it by password.
-// This command create `ethereum like keyfile`.
-//
-// Example: `aecli account save ./mykeys/my-wallet.json 1902855723940510273412074210842018342148234 --password testpassword`
-addCommonOptions(program
-  .command('save <wallet_path> <privkey>')
-  .option('--overwrite', 'Overwrite if exist')
-  .description('Save a private keys string to a password protected file wallet')
-  .action(Account.createSecureWalletByPrivKey));
+Example call:
+  $ aecli account create ./my-wallet.json --password top-secret
+  $ aecli account create ./my-wallet.json 9ebd7beda0c79af72a42ece3821a56eff16359b6df376cf049aee995565f022f840c974b97164776454ba119d84edc4d6058a8dec92b6edc578ab2d30b4c4200`)
+  .action(Account.createWallet));
 
 export default program;
