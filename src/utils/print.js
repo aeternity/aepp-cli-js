@@ -99,7 +99,6 @@ function printTransactionSync(_tx, json, currentHeight) {
   }
   printTxField(tx, 'Amount', 'amount', formatCoins);
   printTxField(tx, 'Payload', 'payload');
-  printTxField(tx, 'Deposit', 'deposit', formatCoins);
   printTxField(tx, 'Gas', 'gas');
   printTxField(tx, 'Gas price', 'gasPrice', formatCoins);
   printTxField(tx, 'Bytecode', 'code');

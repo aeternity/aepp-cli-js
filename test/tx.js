@@ -335,7 +335,6 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       'Transaction type ________________________ ContractCreateTx',
       `Owner address ___________________________ ${TX_KEYS.publicKey}`,
       'Amount __________________________________ 0ae',
-      'Deposit _________________________________ 0ae',
       'Gas _____________________________________ 5921420',
       'Gas price _______________________________ 0.000000001ae',
       `Bytecode ________________________________ ${bytecode}`,
