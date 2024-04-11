@@ -237,10 +237,10 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     expectToMatchLines(details, [
       'Transaction type ________________________ NameUpdateTx',
       `Account address _________________________ ${TX_KEYS.publicKey}`,
-      'Client TTL ______________________________ 3600 (1 hour)',
       `Name ID _________________________________ ${nameId}`,
       'Name TTL ________________________________ 180000 (in 1 year)',
       `Pointer account_pubkey __________________ ${TX_KEYS.publicKey}`,
+      'Client TTL ______________________________ 3600 (1 hour)',
       /Fee _____________________________________ 0.000017\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
       'Version _________________________________ 1',
@@ -334,16 +334,16 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     expectToMatchLines(details, [
       'Transaction type ________________________ ContractCreateTx',
       `Owner address ___________________________ ${TX_KEYS.publicKey}`,
-      'Amount __________________________________ 0ae',
-      'Gas _____________________________________ 5921420',
+      'Gas _____________________________________ 5921420 (0.00592142ae)',
       'Gas price _______________________________ 0.000000001ae',
       `Bytecode ________________________________ ${bytecode}`,
       `Call data _______________________________ ${callData}`,
+      'VM version ______________________________ 7 (Fate2)',
+      'ABI version _____________________________ 3 (Fate)',
+      'Amount __________________________________ 0ae',
       /Fee _____________________________________ 0.000078\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
       'Version _________________________________ 1',
-      'VM version ______________________________ 7 (Fate2)',
-      'ABI version _____________________________ 3 (Fate)',
     ]);
   }).timeout(8000);
 
@@ -372,14 +372,14 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       'Transaction type ________________________ ContractCallTx',
       `Caller address __________________________ ${TX_KEYS.publicKey}`,
       `Contract address ________________________ ${contractId}`,
-      'Amount __________________________________ 0.00000042ae',
-      'Gas _____________________________________ 5817860',
+      'Gas _____________________________________ 5817860 (0.00581786ae)',
       'Gas price _______________________________ 0.000000001ae',
       `Call data _______________________________ ${callData}`,
+      'ABI version _____________________________ 3 (Fate)',
+      'Amount __________________________________ 0.00000042ae',
       /Fee _____________________________________ 0.000182\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
       'Version _________________________________ 1',
-      'ABI version _____________________________ 3 (Fate)',
     ]);
   }).timeout(4000);
 
@@ -404,14 +404,14 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     expectToMatchLines(details, [
       'Transaction type ________________________ OracleRegisterTx',
       `Account address _________________________ ${TX_KEYS.publicKey}`,
-      /Fee _____________________________________ 0.000016\d+ae/,
-      'Query fee _______________________________ 0ae',
       /Oracle TTL ______________________________ \d+ \(in 1 day\)/,
+      'ABI version _____________________________ 0 (NoAbi)',
+      'Query fee _______________________________ 0ae',
       'Query format ____________________________ {city: "str"}',
       'Response format _________________________ {tmp:""num}',
+      /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
       'Version _________________________________ 1',
-      'ABI version _____________________________ 0 (NoAbi)',
     ]);
   });
 
@@ -433,8 +433,8 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     expectToMatchLines(details, [
       'Transaction type ________________________ OracleExtendTx',
       `Oracle ID _______________________________ ${oracleId}`,
-      /Fee _____________________________________ 0.000015\d+ae/,
       /Oracle TTL ______________________________ \d+ \(in 4 hours\)/,
+      /Fee _____________________________________ 0.000015\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
       'Version _________________________________ 1',
     ]);
@@ -467,10 +467,10 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       `Sender address __________________________ ${TX_KEYS.publicKey}`,
       `Oracle ID _______________________________ ${oracleId}`,
       'Query ___________________________________ {city: "Berlin"}',
-      /Fee _____________________________________ 0.000017\d+ae/,
       'Query fee _______________________________ 0ae',
       /Query TTL _______________________________ \d+ \(in 27 minutes\)/,
       /Response TTL ____________________________ \d+ \(in 27 minutes\)/,
+      /Fee _____________________________________ 0.000017\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
       'Version _________________________________ 1',
     ]);
@@ -501,10 +501,10 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     expectToMatchLines(details, [
       'Transaction type ________________________ OracleRespondTx',
       `Oracle ID _______________________________ ${oracleId}`,
-      `Query ___________________________________ ${queryId}`,
-      /Fee _____________________________________ 0.000016\d+ae/,
+      `Query ID ________________________________ ${queryId}`,
       'Response ________________________________ {tmp: 10}',
       /Response TTL ____________________________ \d+ \(in 27 minutes\)/,
+      /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
       'Version _________________________________ 1',
     ]);

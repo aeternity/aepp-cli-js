@@ -73,52 +73,59 @@ function printTransactionSync(_tx, json, currentHeight) {
     return `${seconds} (${timeAgo(date).replace('in ', '')})`;
   };
 
+  // meta
   printUnderscored('Transaction hash', tx.hash);
   printUnderscored('Block hash', tx.blockHash);
   printTxField(tx, 'Block height', 'blockHeight', formatTtl);
   printUnderscored('Signatures', tx.signatures);
   printUnderscored('Transaction type', tx.type);
-
+  // sender
   printTxField(tx, 'Account address', 'accountId');
-  printTxField(tx, 'Client TTL', 'clientTtl', formatTtlSeconds);
   printTxField(tx, 'Sender address', 'senderId');
   printTxField(tx, 'Recipient address', 'recipientId');
+  printTxField(tx, 'Owner address', 'ownerId');
+  printTxField(tx, 'Caller address', 'callerId');
+  // name
   printTxField(tx, 'Name ID', 'nameId');
   printTxField(tx, 'Name TTL', 'nameTtl', formatTtl);
   printTxField(tx, 'Name', 'name');
   printTxField(tx, 'Name fee', 'nameFee', formatCoins);
   printTxField(tx, 'Name salt', 'nameSalt');
-  printTxField(tx, 'Owner address', 'ownerId');
-  printTxField(tx, 'Caller address', 'callerId');
-  printTxField(tx, 'Contract address', 'contractId');
-  printTxField(tx, 'Oracle ID', 'oracleId');
-  printTxField(tx, 'Query', 'query');
   if ('pointers' in tx) {
     if (tx.pointers.length === 0) printUnderscored('Pointers', 'N/A');
     else tx.pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
   }
-  printTxField(tx, 'Amount', 'amount', formatCoins);
-  printTxField(tx, 'Payload', 'payload');
-  printTxField(tx, 'Gas', 'gas');
+  printTxField(tx, 'Client TTL', 'clientTtl', formatTtlSeconds);
+  printTxField(tx, 'Commitment', 'commitmentId');
+  // contract
+  printTxField(tx, 'Contract address', 'contractId');
+  printTxField(tx, 'Gas', 'gas', (gas) => `${gas} (${formatCoins(tx.gasPrice * BigInt(gas))})`);
   printTxField(tx, 'Gas price', 'gasPrice', formatCoins);
   printTxField(tx, 'Bytecode', 'code');
   printTxField(tx, 'Call data', 'callData');
-  printTxField(tx, 'Commitment', 'commitmentId');
-  printTxField(tx, 'Salt', 'salt');
-  printTxField(tx, 'Query', 'queryId');
-  printTxField(tx, 'Fee', 'fee', formatCoins);
-  printTxField(tx, 'Response', 'response');
-  printTxField(tx, 'Query fee', 'queryFee', formatCoins);
+  // oracle
+  printTxField(tx, 'Oracle ID', 'oracleId');
   printTxField(tx, 'Oracle TTL', 'oracleTtl', formatTtlObject);
+  printTxField(tx, 'VM version', 'vmVersion', (v) => `${v} (${VmVersion[v]})`);
+  printTxField(tx, 'ABI version', 'abiVersion', (v) => `${v} (${AbiVersion[v]})`);
+  // spend
+  printTxField(tx, 'Amount', 'amount', formatCoins);
+  printTxField(tx, 'Payload', 'payload');
+  // oracle query
+  printTxField(tx, 'Query', 'query');
+  printTxField(tx, 'Query ID', 'queryId');
+  printTxField(tx, 'Query fee', 'queryFee', formatCoins);
   printTxField(tx, 'Query TTL', 'queryTtl', formatTtlObject);
-  printTxField(tx, 'Response TTL', 'responseTtl', formatTtlObject);
   printTxField(tx, 'Query format', 'queryFormat');
+  // oracle response
+  printTxField(tx, 'Response', 'response');
+  printTxField(tx, 'Response TTL', 'responseTtl', formatTtlObject);
   printTxField(tx, 'Response format', 'responseFormat');
+  // common fields
+  printTxField(tx, 'Fee', 'fee', formatCoins);
   printTxField(tx, 'Nonce', 'nonce');
   printTxField(tx, 'TTL', 'ttl', formatTtl);
   printTxField(tx, 'Version', 'version');
-  printTxField(tx, 'VM version', 'vmVersion', (v) => `${v} (${VmVersion[v]})`);
-  printTxField(tx, 'ABI version', 'abiVersion', (v) => `${v} (${AbiVersion[v]})`);
 }
 
 export async function printTransaction(tx, json, sdk) {
