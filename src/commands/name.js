@@ -97,8 +97,8 @@ addCommonOptions(program
   .command('update <wallet_path> <name> [addresses...]')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--extendPointers', 'Extend pointers', false)
-  .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
-  .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
+  .option('--nameTtl [nameTtl]', 'A number of blocks until name expires', NAME_TTL)
+  .option('--clientTtl [clientTtl]', 'Client TTL', CLIENT_TTL)
   .description('Update a name pointer')
   .action(AENS.updateName));
 
@@ -108,9 +108,10 @@ addCommonOptions(program
 //
 // Example: `aecli name extend ./myWalletKeyFile --password testpass testname.chain 100`
 addCommonOptions(program
-  .command('extend <wallet_path> <name> <nameTtl>')
+  .command('extend <wallet_path> <name>')
+  .argument('[nameTtl]', 'A number of blocks until name expires', NAME_TTL)
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
+  .option('--clientTtl [clientTtl]', 'Client TTL', CLIENT_TTL)
   .description('Extend name ttl')
   .action(AENS.extendName));
 

@@ -44,11 +44,9 @@ addCommonOptions(program
   .description('Get relative ttl')
   .action(Chain.ttl));
 
-// ## Initialize `ttl` command
+// ## Initialize `network_id` command
 //
-// You can use this command to retrieve relative `ttl`
-//
-// Example: `aecli chain ttl <absolute_ttl>`
+// You can use this command to get current network ID
 addCommonOptions(program
   .command('network_id')
   .description('Get network ID')
