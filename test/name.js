@@ -6,11 +6,11 @@ import {
 } from './index.js';
 import nameProgram from '../src/commands/name.js';
 import inspectProgram from '../src/commands/inspect.js';
-import accountProgram from '../src/commands/account.js';
+import spendProgram from '../src/commands/spend.js';
 
 const executeName = (args) => executeProgram(nameProgram, args);
 const executeInspect = (args) => executeProgram(inspectProgram, args);
-const executeAccount = (args) => executeProgram(accountProgram, args);
+const executeSpend = (args) => executeProgram(spendProgram, args);
 
 describe('AENS Module', () => {
   const { publicKey } = generateKeyPair();
@@ -138,8 +138,7 @@ describe('AENS Module', () => {
 
   it('Fail spend by name on invalid input', async () => {
     const amount = 100000009;
-    await executeAccount([
-      'spend',
+    await executeSpend([
       WALLET_NAME,
       '--password',
       'test',
@@ -151,8 +150,7 @@ describe('AENS Module', () => {
 
   it('Spend by name', async () => {
     const amount = 100000009;
-    const { tx: { recipientId } } = await executeAccount([
-      'spend',
+    const { tx: { recipientId } } = await executeSpend([
       WALLET_NAME,
       '--password',
       'test',

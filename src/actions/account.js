@@ -3,12 +3,10 @@
 // This script initialize all `account` function
 
 import fs from 'fs-extra';
-import {
-  generateKeyPair, encode, Encoding, verifyMessage as _verifyMessage,
-} from '@aeternity/aepp-sdk';
+import { generateKeyPair, verifyMessage as _verifyMessage } from '@aeternity/aepp-sdk';
 import { writeWallet } from '../utils/account.js';
 import { initSdkByWalletFile, getAccountByWalletFile } from '../utils/cli.js';
-import { print, printTransaction, printUnderscored } from '../utils/print.js';
+import { print, printUnderscored } from '../utils/print.js';
 import { PROMPT_TYPE, prompt } from '../utils/prompt.js';
 
 // ## `Sign message` function
@@ -65,30 +63,6 @@ export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...o
     printUnderscored('Unsigned', tx);
     printUnderscored('Signed', signedTx);
   }
-}
-
-// ## `Spend` function
-// this function allow you to `send` coins to another `account`
-export async function spend(
-  walletPath,
-  receiverNameOrAddress,
-  { amount, fraction },
-  {
-    ttl, json, nonce, fee, payload, ...options
-  },
-) {
-  const sdk = await initSdkByWalletFile(walletPath, options);
-
-  const tx = await sdk[amount != null ? 'spend' : 'transferFunds'](
-    amount ?? fraction / 100,
-    receiverNameOrAddress,
-    {
-      ttl, nonce, payload: encode(Buffer.from(payload), Encoding.Bytearray), fee,
-    },
-  );
-
-  if (!json) print('Transaction mined');
-  printTransaction(tx, json);
 }
 
 // ## Get `address` function

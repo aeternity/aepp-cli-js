@@ -10,6 +10,9 @@ describe('Chain Module', () => {
 
   before(async () => {
     sdk = await getSdk();
+    for (let i = 0; i < 5; i += 1) {
+      await sdk.spend(0, sdk.address); // eslint-disable-line no-await-in-loop
+    }
   });
 
   it('prints top', async () => {

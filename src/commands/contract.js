@@ -15,7 +15,6 @@ import {
   forceOption,
   passwordOption,
   ttlOption,
-  networkIdOption,
 } from '../arguments.js';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
@@ -105,7 +104,6 @@ addCommonOptions(program
   .addOption(contractSourceFilenameOption)
   .addOption(contractAciFilenameOption)
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
-  .addOption(networkIdOption)
   .addOption(passwordOption)
   .addOption(gasOption)
   .option('-s, --callStatic', 'Call static')
@@ -133,7 +131,6 @@ addCommonOptions(program
   .addOption(contractSourceFilenameOption)
   .option('--contractBytecode [contractBytecode]', 'Contract bytecode file name')
   .addOption(contractAciFilenameOption)
-  .addOption(networkIdOption)
   .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .addOption(passwordOption)
   .addOption(gasOption)

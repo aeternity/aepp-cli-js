@@ -34,7 +34,7 @@ export const forceOption = new Option('-f, --force', 'Ignore node version compat
 
 export const passwordOption = new Option('-P, --password [password]', 'Wallet Password');
 
-export const ttlOption = (usingNode) => new Option('-T, --ttl [ttl]', 'Validity of the transaction in number of blocks')
-  .default(noValue, usingNode ? 'current height increased by 3' : 'infinity');
+export const ttlOption = (usingNode) => new Option('-T, --ttl [ttl]', 'Validity of the transaction in number of keyblocks, or without this limit if 0')
+  .default(noValue, usingNode ? 3 : 0);
 
 export const networkIdOption = new Option('--networkId [networkId]', 'Network id');

@@ -8,7 +8,7 @@ import { Command } from 'commander';
 import { NAME_TTL, CLIENT_TTL } from '@aeternity/aepp-sdk';
 import * as AENS from '../actions/aens.js';
 import {
-  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption, networkIdOption,
+  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption,
 } from '../arguments.js';
 
 const program = new Command().name('aecli name');
@@ -20,7 +20,6 @@ const addCommonOptions = (p) => p
   .addOption(feeOption)
   .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
   .addOption(passwordOption)
-  .addOption(networkIdOption)
   .addOption(forceOption)
   .addOption(jsonOption);
 
@@ -121,7 +120,7 @@ addCommonOptions(program
 //
 // Example: `aecli name revoke ./myWalletKeyFile --password testpass testname.chain`
 addCommonOptions(program
-  .command('revoke  <wallet_path> <name>')
+  .command('revoke <wallet_path> <name>')
   .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Revoke an AENS name')
   .action(AENS.revokeName));

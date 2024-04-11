@@ -25,6 +25,7 @@ const EXECUTABLE_CMD = [
   { name: 'name', desc: 'AENS system' },
   { name: 'tx', desc: 'Transaction builder' },
   { name: 'oracle', desc: 'Interact with oracles' },
+  { name: 'spend', desc: 'Send coins to account or contract' },
 ];
 
 (() => {
