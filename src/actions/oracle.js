@@ -35,7 +35,7 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
     queryFee,
   });
   if (waitMined) {
-    printTransaction(oracle, json);
+    await printTransaction(oracle, json, sdk);
   } else {
     print('Transaction send to the chain. Tx hash: ', oracle);
   }
@@ -62,7 +62,7 @@ export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
     },
   });
   if (waitMined) {
-    printTransaction(extended, json);
+    await printTransaction(extended, json, sdk);
   } else {
     print('Transaction send to the chain. Tx hash: ', extended);
   }
@@ -96,7 +96,7 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
     queryFee,
   });
   if (waitMined) {
-    printTransaction(oracleQuery, json);
+    await printTransaction(oracleQuery, json, sdk);
   } else {
     print('Transaction send to the chain. Tx hash: ', oracleQuery);
   }
@@ -131,7 +131,7 @@ export async function respondToQuery(
     },
   });
   if (waitMined) {
-    printTransaction(queryResponse, json);
+    await printTransaction(queryResponse, json, sdk);
   } else {
     print('Transaction send to the chain. Tx hash: ', queryResponse);
   }

@@ -103,6 +103,6 @@ export async function broadcast(signedTx, options) {
   const { txHash } = await sdk.api.postTransaction({ tx: signedTx });
   const tx = await (waitMined ? sdk.poll(txHash) : sdk.api.getTransactionByHash(txHash));
 
-  printTransaction(tx, json);
+  await printTransaction(tx, json, sdk);
   if (!waitMined && !json) print('Transaction send to the chain.');
 }

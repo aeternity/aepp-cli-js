@@ -1,6 +1,7 @@
 // # Utils `helpers` Module
 // That script contains base helper function
 
+import BigNumber from 'bignumber.js';
 import { resolve } from 'path';
 import { Encoding, decode as _decode, produceNameId } from '@aeternity/aepp-sdk';
 import CliError from './CliError.js';
@@ -106,3 +107,12 @@ export function timeAgo(date) {
   }
   return 'about now';
 }
+
+export const formatCoins = (coins) => `${new BigNumber(coins).shiftedBy(-18).toFixed()}ae`;
+
+export const formatTtl = (ttl, height) => {
+  const date = new Date();
+  const diff = Math.abs(ttl - height) < 2 ? 0 : ttl - height;
+  date.setMinutes(date.getMinutes() + diff * 3);
+  return `${ttl} (${timeAgo(date)})`;
+};

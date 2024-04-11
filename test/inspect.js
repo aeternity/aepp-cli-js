@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import {
   AbiVersion, generateKeyPair, produceNameId, Tag, VmVersion,
 } from '@aeternity/aepp-sdk';
-import { executeProgram, getSdk } from './index.js';
+import { executeProgram, expectToMatchLines, getSdk } from './index.js';
 import inspectProgram from '../src/commands/inspect.js';
 import chainProgram from '../src/commands/chain.js';
 
@@ -60,21 +60,21 @@ Pending transactions:
       },
     });
     const res = await executeInspect([hash]);
-    expect(res).to.equal(`
-Tx hash _________________________________ ${resJson.hash}
-Block hash ______________________________ ${resJson.blockHash}
-Block height ____________________________ ${resJson.blockHeight}
-Signatures ______________________________ ["${resJson.signatures[0]}"]
-Tx Type _________________________________ SpendTx
-Sender account __________________________ ${sdk.address}
-Recipient account _______________________ ${recipient}
-Amount __________________________________ 420
-Payload _________________________________ ba_Xfbg4g==
-Fee _____________________________________ ${resJson.tx.fee}
-Nonce ___________________________________ ${resJson.tx.nonce}
-TTL _____________________________________ ${resJson.tx.ttl}
-Version _________________________________ 1
-    `.trim());
+    expectToMatchLines(res, [
+      `Transaction hash ________________________ ${resJson.hash}`,
+      `Block hash ______________________________ ${resJson.blockHash}`,
+      `Block height ____________________________ ${resJson.blockHeight} (about now)`,
+      `Signatures ______________________________ ["${resJson.signatures[0]}"]`,
+      'Transaction type ________________________ SpendTx',
+      `Sender address __________________________ ${sdk.address}`,
+      `Recipient address _______________________ ${recipient}`,
+      'Amount __________________________________ 0.00000000000000042ae',
+      'Payload _________________________________ ba_Xfbg4g==',
+      /Fee _____________________________________ 0.000016\d+ae/,
+      `Nonce ___________________________________ ${resJson.tx.nonce}`,
+      /TTL _____________________________________ \d+ \(in [56] minutes\)/,
+      'Version _________________________________ 1',
+    ]);
   });
 
   it('Inspect Transaction', async () => {
@@ -269,15 +269,15 @@ Name hash _______________________________ ${produceNameId(name)}
       ttl: resJson.ttl,
     });
     const res = await executeInspect([name]);
-    expect(res).to.equal(`
-Status __________________________________ CLAIMED
-Name hash _______________________________ ${resJson.id}
-Owner ___________________________________ ${sdk.address}
-Pointer myKey ___________________________ ${sdk.address}
-Pointer account_pubkey __________________ ${sdk.address}
-Pointer oracle_pubkey ___________________ ${sdk.address}
-TTL _____________________________________ ${resJson.ttl} (in 1 year)
-    `.trim());
+    expectToMatchLines(res, [
+      'Status __________________________________ CLAIMED',
+      `Name hash _______________________________ ${resJson.id}`,
+      `Owner ___________________________________ ${sdk.address}`,
+      `Pointer myKey ___________________________ ${sdk.address}`,
+      `Pointer account_pubkey __________________ ${sdk.address}`,
+      `Pointer oracle_pubkey ___________________ ${sdk.address}`,
+      /TTL _____________________________________ \d+ \(in 1 year\)/,
+    ]);
   }).timeout(6000);
 
   it('Inspect Running Auction Name', async () => {

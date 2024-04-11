@@ -33,10 +33,7 @@ export async function preClaim(walletPath, name, options) {
     ttl, fee, nonce, waitMined,
   });
   if (waitMined) {
-    printTransaction(
-      preClaimTx,
-      json,
-    );
+    await printTransaction(preClaimTx, json, sdk);
   } else {
     print(`Transaction send to the chain. Tx hash: ${preClaimTx.hash}`);
   }
@@ -60,10 +57,7 @@ export async function claim(walletPath, name, salt, options) {
     nonce, ttl, fee, waitMined, nameFee,
   });
   if (waitMined) {
-    printTransaction(
-      claimTx,
-      json,
-    );
+    await printTransaction(claimTx, json, sdk);
   } else {
     print(`Transaction send to the chain. Tx hash: ${claimTx.hash}`);
   }
@@ -94,10 +88,7 @@ export async function updateName(walletPath, name, addresses, options) {
     },
   );
   if (waitMined) {
-    printTransaction(
-      updateTx,
-      json,
-    );
+    await printTransaction(updateTx, json, sdk);
   } else {
     print(`Transaction send to the chain. Tx hash: ${updateTx.hash}`);
   }
@@ -121,10 +112,7 @@ export async function extendName(walletPath, name, nameTtl, options) {
     ttl, fee, nonce, waitMined, nameTtl, extendPointers: true,
   });
   if (waitMined) {
-    printTransaction(
-      updateTx,
-      json,
-    );
+    await printTransaction(updateTx, json, sdk);
   } else {
     print(`Transaction send to the chain. Tx hash: ${updateTx.hash}`);
   }
@@ -150,10 +138,7 @@ export async function transferName(walletPath, name, address, options) {
     ttl, fee, nonce, waitMined,
   });
   if (waitMined) {
-    printTransaction(
-      transferTX,
-      json,
-    );
+    await printTransaction(transferTX, json, sdk);
   } else {
     print(`Transaction send to the chain. Tx hash: ${transferTX.hash}`);
   }
@@ -177,10 +162,7 @@ export async function revokeName(walletPath, name, options) {
     ttl, fee, nonce, waitMined,
   });
   if (waitMined) {
-    printTransaction(
-      revokeTx,
-      json,
-    );
+    await printTransaction(revokeTx, json, sdk);
   } else {
     print(`Transaction send to the chain. Tx hash: ${revokeTx.hash}`);
   }
@@ -203,10 +185,7 @@ export async function nameBid(walletPath, name, nameFee, options) {
     nonce, ttl, fee, waitMined,
   });
   if (waitMined) {
-    printTransaction(
-      nameBidTx,
-      json,
-    );
+    await printTransaction(nameBidTx, json, sdk);
   } else {
     print(`Transaction send to the chain. Tx hash: ${nameBidTx.hash}`);
   }
@@ -239,8 +218,5 @@ export async function fullClaim(walletPath, name, options) {
     },
   );
 
-  printTransaction(
-    updateTx,
-    json,
-  );
+  await printTransaction(updateTx, json, sdk);
 }

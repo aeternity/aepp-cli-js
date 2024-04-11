@@ -55,5 +55,5 @@ Example call:
       },
     );
     if (!json) print('Transaction mined');
-    printTransaction(tx, json);
+    await printTransaction(tx, json, sdk);
   });

@@ -1,5 +1,9 @@
-import { Encoding, unpackTx } from '@aeternity/aepp-sdk';
-import { decode } from './helpers.js';
+import {
+  Encoding, unpackTx, AbiVersion, VmVersion,
+} from '@aeternity/aepp-sdk';
+import {
+  decode, formatCoins, formatTtl as formatTtlUnbound, timeAgo,
+} from './helpers.js';
 
 const ROW_WIDTH = 40;
 
@@ -49,66 +53,85 @@ function printTxField(tx, verboseName, field, handleValue = (a) => a) {
   printUnderscored(verboseName, tx[field] == null ? 'N/A' : handleValue(tx[field]));
 }
 
-export function printTransaction(_tx, json) {
+function printTransactionSync(_tx, json, currentHeight) {
   if (json) {
     print(_tx);
     return;
   }
   const tx = { ..._tx, ..._tx.tx };
+  const formatTtl = (ttl) => (currentHeight ? formatTtlUnbound(ttl, currentHeight) : ttl);
+  const formatTtlObject = ({ type, value }) => {
+    switch (type) {
+      case 'delta': return formatTtl(+value + +tx.blockHeight);
+      case 'block': return formatTtl(value);
+      default: throw new Error(`Unknown ttl type: ${type}`);
+    }
+  };
+  const formatTtlSeconds = (seconds) => {
+    const date = new Date();
+    date.setSeconds(date.getSeconds() + seconds);
+    return `${seconds} (${timeAgo(date).replace('in ', '')})`;
+  };
 
-  printUnderscored('Tx hash', tx.hash);
+  printUnderscored('Transaction hash', tx.hash);
   printUnderscored('Block hash', tx.blockHash);
-  printUnderscored('Block height', tx.blockHeight);
+  printTxField(tx, 'Block height', 'blockHeight', formatTtl);
   printUnderscored('Signatures', tx.signatures);
-  printUnderscored('Tx Type', tx.type);
+  printUnderscored('Transaction type', tx.type);
 
-  printTxField(tx, 'Account', 'accountId');
-  printTxField(tx, 'Client TTL', 'clientTtl');
-  printTxField(tx, 'Sender account', 'senderId');
-  printTxField(tx, 'Recipient account', 'recipientId');
+  printTxField(tx, 'Account address', 'accountId');
+  printTxField(tx, 'Client TTL', 'clientTtl', formatTtlSeconds);
+  printTxField(tx, 'Sender address', 'senderId');
+  printTxField(tx, 'Recipient address', 'recipientId');
   printTxField(tx, 'Name ID', 'nameId');
-  printTxField(tx, 'Name TTL', 'nameTtl');
+  printTxField(tx, 'Name TTL', 'nameTtl', formatTtl);
   printTxField(tx, 'Name', 'name');
-  printTxField(tx, 'Name Fee', 'nameFee');
-  printTxField(tx, 'Name Salt', 'nameSalt');
-  printTxField(tx, 'Owner', 'ownerId');
-  printTxField(tx, 'Caller Account', 'callerId');
-  printTxField(tx, 'Contract Address', 'contractId');
-  printTxField(tx, 'Oracle ID', 'oracleId', (id) => id.replace(/^\w{2}_/, 'ok_'));
+  printTxField(tx, 'Name fee', 'nameFee', formatCoins);
+  printTxField(tx, 'Name salt', 'nameSalt');
+  printTxField(tx, 'Owner address', 'ownerId');
+  printTxField(tx, 'Caller address', 'callerId');
+  printTxField(tx, 'Contract address', 'contractId');
+  printTxField(tx, 'Oracle ID', 'oracleId');
   printTxField(tx, 'Query', 'query');
   if ('pointers' in tx) {
     if (tx.pointers.length === 0) printUnderscored('Pointers', 'N/A');
     else tx.pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
   }
-  printTxField(tx, 'Amount', 'amount');
+  printTxField(tx, 'Amount', 'amount', formatCoins);
   printTxField(tx, 'Payload', 'payload');
-  printTxField(tx, 'Deposit', 'deposit');
+  printTxField(tx, 'Deposit', 'deposit', formatCoins);
   printTxField(tx, 'Gas', 'gas');
-  printTxField(tx, 'Gas Price', 'gasPrice');
+  printTxField(tx, 'Gas price', 'gasPrice', formatCoins);
   printTxField(tx, 'Bytecode', 'code');
   printTxField(tx, 'Call data', 'callData');
   printTxField(tx, 'Commitment', 'commitmentId');
   printTxField(tx, 'Salt', 'salt');
   printTxField(tx, 'Query', 'queryId');
-  printTxField(tx, 'Fee', 'fee');
+  printTxField(tx, 'Fee', 'fee', formatCoins);
   printTxField(tx, 'Response', 'response');
-  printTxField(tx, 'Query Fee', 'queryFee');
-  printTxField(tx, 'Oracle Ttl', 'oracleTtl');
-  printTxField(tx, 'Query Ttl', 'queryTtl');
-  printTxField(tx, 'Response Ttl', 'responseTtl');
-  printTxField(tx, 'Query Format', 'queryFormat');
-  printTxField(tx, 'Response Format', 'responseFormat');
+  printTxField(tx, 'Query fee', 'queryFee', formatCoins);
+  printTxField(tx, 'Oracle TTL', 'oracleTtl', formatTtlObject);
+  printTxField(tx, 'Query TTL', 'queryTtl', formatTtlObject);
+  printTxField(tx, 'Response TTL', 'responseTtl', formatTtlObject);
+  printTxField(tx, 'Query format', 'queryFormat');
+  printTxField(tx, 'Response format', 'responseFormat');
   printTxField(tx, 'Nonce', 'nonce');
-  printTxField(tx, 'TTL', 'ttl');
+  printTxField(tx, 'TTL', 'ttl', formatTtl);
   printTxField(tx, 'Version', 'version');
-  printTxField(tx, 'VM Version', 'vmVersion');
-  printTxField(tx, 'ABI Version', 'abiVersion');
+  printTxField(tx, 'VM version', 'vmVersion', (v) => `${v} (${VmVersion[v]})`);
+  printTxField(tx, 'ABI version', 'abiVersion', (v) => `${v} (${AbiVersion[v]})`);
+}
+
+export async function printTransaction(tx, json, sdk) {
+  const height = await sdk.getHeight({ cache: true });
+  printTransactionSync(tx, json, height);
 }
 
 export function printBlockTransactions(ts) {
   ts.forEach((tx) => {
     print('<<--------------- Transaction --------------->>');
-    printTransaction(tx, false);
+    // TODO: consider using async version
+    printTransactionSync(tx, false);
   });
 }
 
