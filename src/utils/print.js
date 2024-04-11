@@ -1,18 +1,7 @@
-// # Utils `print` Module
-// That script contains helper function for `console` print
 import { Encoding, unpackTx } from '@aeternity/aepp-sdk';
 import { decode } from './helpers.js';
 
-// ## Row width
-const WIDTH = 40;
-
-// ## CONSOLE PRINT HELPERS
-
-// Calculate tabs length
-function getTabs(tabs) {
-  if (!tabs) return '';
-  return ' '.repeat(tabs * 4);
-}
+const ROW_WIDTH = 40;
 
 const JsonStringifyEs = (object, spaced) => JSON.stringify(
   object,
@@ -24,7 +13,6 @@ const JsonStringifyEs = (object, spaced) => JSON.stringify(
   spaced ? 2 : undefined,
 );
 
-// Print helper
 export function print(msg, obj) {
   if (typeof msg === 'object') {
     console.log(JsonStringifyEs(msg, true));
@@ -38,16 +26,14 @@ export function print(msg, obj) {
   }
 }
 
-// Print `underscored`
 export function printUnderscored(key, val) {
   print([
     key,
-    '_'.repeat(WIDTH - key.length),
+    '_'.repeat(ROW_WIDTH - key.length),
     typeof val !== 'object' ? val : JsonStringifyEs(val),
   ].join(' '));
 }
 
-// ## TX
 export function printValidation({ validation, transaction }) {
   print('---------------------------------------- TX DATA ↓↓↓ \n');
   const { tx, txType: type } = unpackTx(transaction);
@@ -58,177 +44,154 @@ export function printValidation({ validation, transaction }) {
   });
 }
 
-//
-// Print base `tx` info
-function printTxBase(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Tx hash`, tx.hash);
-  printUnderscored(`${tabs}Block hash`, tx.blockHash);
-  printUnderscored(`${tabs}Block height`, tx.blockHeight);
-  printUnderscored(`${tabs}Signatures`, tx.signatures);
+function printContractCreateTransaction(tx) {
+  printUnderscored('Owner', tx.ownerId ?? 'N/A');
+  printUnderscored('Amount', tx.amount ?? 'N/A');
+  printUnderscored('Deposit', tx.deposit ?? 'N/A');
+  printUnderscored('Gas', tx.gas ?? 'N/A');
+  printUnderscored('Gas Price', tx.gasPrice ?? 'N/A');
+  printUnderscored('Bytecode', tx.code);
+  printUnderscored('Call data', tx.callData);
 
-  printUnderscored(`${tabs}Tx Type`, tx?.tx?.type ?? 'N/A');
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
+  printUnderscored('Version', tx.version ?? 'N/A');
+  printUnderscored('VM Version', tx.vmVersion ?? 'N/A');
+  printUnderscored('ABI Version', tx.abiVersion ?? 'N/A');
 }
 
-// Print `contract_create_tx` info
-function printContractCreateTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Owner`, tx?.tx?.ownerId ?? 'N/A');
-  printUnderscored(`${tabs}Amount`, tx?.tx?.amount ?? 'N/A');
-  printUnderscored(`${tabs}Deposit`, tx?.tx?.deposit ?? 'N/A');
-  printUnderscored(`${tabs}Gas`, tx?.tx?.gas ?? 'N/A');
-  printUnderscored(`${tabs}Gas Price`, tx?.tx?.gasPrice ?? 'N/A');
-  printUnderscored(`${tabs}Bytecode`, tx.tx.code);
-  printUnderscored(`${tabs}Call data`, tx.tx.callData);
+function printContractCallTransaction(tx) {
+  printUnderscored('Caller Account', tx.callerId ?? 'N/A');
+  printUnderscored('Contract Hash', tx.contractId ?? 'N/A');
+  printUnderscored('Amount', tx.amount ?? 0);
+  printUnderscored('Gas', tx.gas ?? 0);
+  printUnderscored('Gas Price', tx.gasPrice ?? 0);
+  printUnderscored('Call data', tx.callData);
 
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
-  printUnderscored(`${tabs}Version`, tx?.tx?.version ?? 'N/A');
-  printUnderscored(`${tabs}VM Version`, tx?.tx?.vmVersion ?? 'N/A');
-  printUnderscored(`${tabs}ABI Version`, tx?.tx?.abiVersion ?? 'N/A');
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
+  printUnderscored('Version', tx.version ?? 0);
+  printUnderscored('ABI Version', tx.abiVersion ?? 0);
 }
 
-// Print `contract_call_tx` info
-function printContractCallTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Caller Account`, tx?.tx?.callerId ?? 'N/A');
-  printUnderscored(`${tabs}Contract Hash`, tx?.tx?.contractId ?? 'N/A');
-  printUnderscored(`${tabs}Amount`, tx?.tx?.amount ?? 0);
-  printUnderscored(`${tabs}Gas`, tx?.tx?.gas ?? 0);
-  printUnderscored(`${tabs}Gas Price`, tx?.tx?.gasPrice ?? 0);
-  printUnderscored(`${tabs}Call data`, tx.tx.callData);
+function printSpendTransaction(tx) {
+  printUnderscored('Sender account', tx.senderId ?? 'N/A');
+  printUnderscored('Recipient account', tx.recipientId ?? 'N/A');
+  printUnderscored('Amount', tx.amount ?? 'N/A');
+  printUnderscored('Payload', tx.payload ?? 'N/A');
 
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
-  printUnderscored(`${tabs}Version`, tx?.tx?.version ?? 0);
-  printUnderscored(`${tabs}ABI Version`, tx?.tx?.abiVersion ?? 0);
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
+  printUnderscored('Version', tx.version ?? 'N/A');
 }
 
-// Print `spend_tx` info
-function printSpendTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Sender account`, tx?.tx?.senderId ?? 'N/A');
-  printUnderscored(`${tabs}Recipient account`, tx?.tx?.recipientId ?? 'N/A');
-  printUnderscored(`${tabs}Amount`, tx?.tx?.amount ?? 'N/A');
-  printUnderscored(`${tabs}Payload`, tx?.tx?.payload ?? 'N/A');
+function printNamePreclaimTransaction(tx) {
+  printUnderscored('Account', tx.accountId ?? 'N/A');
+  printUnderscored('Commitment', tx.commitmentId ?? 'N/A');
+  printUnderscored('Salt', tx?.salt ?? 'N/A');
 
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
-  printUnderscored(`${tabs}Version`, tx?.tx?.version ?? 'N/A');
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
+  printUnderscored('Version', tx.version ?? 'N/A');
 }
 
-// Print `pre_claim_tx` info
-function printNamePreclaimTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Account`, tx?.tx?.accountId ?? 'N/A');
-  printUnderscored(`${tabs}Commitment`, tx?.tx?.commitmentId ?? 'N/A');
-  printUnderscored(`${tabs}Salt`, tx?.salt ?? 'N/A');
+function printNameClaimTransaction(tx) {
+  printUnderscored('Account', tx.accountId ?? 'N/A');
+  printUnderscored('Name', tx.name ?? 'N/A');
+  printUnderscored('Name Fee', tx.nameFee ?? 'N/A');
+  printUnderscored('Name Salt', tx.nameSalt ?? 'N/A');
 
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
-  printUnderscored(`${tabs}Version`, tx?.tx?.version ?? 'N/A');
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
+  printUnderscored('Version', tx.version ?? 'N/A');
 }
 
-// Print `claim_tx` info
-function printNameClaimTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Account`, tx?.tx?.accountId ?? 'N/A');
-  printUnderscored(`${tabs}Name`, tx?.tx?.name ?? 'N/A');
-  printUnderscored(`${tabs}Name Fee`, tx?.tx?.nameFee ?? 'N/A');
-  printUnderscored(`${tabs}Name Salt`, tx?.tx?.nameSalt ?? 'N/A');
-
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
-  printUnderscored(`${tabs}Version`, tx?.tx?.version ?? 'N/A');
-}
-
-// Print `update_name_tx` info
-function printNameUpdateTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Account`, tx?.tx?.accountId ?? 'N/A');
-  printUnderscored(`${tabs}Client TTL`, tx?.tx?.clientTtl ?? 'N/A');
-  printUnderscored(`${tabs}Name ID`, tx?.tx?.nameId ?? 'N/A');
-  printUnderscored(`${tabs}Name TTL`, tx?.tx?.nameTtl ?? 'N/A');
-  const pointers = tx?.tx?.pointers;
+function printNameUpdateTransaction(tx) {
+  printUnderscored('Account', tx.accountId ?? 'N/A');
+  printUnderscored('Client TTL', tx.clientTtl ?? 'N/A');
+  printUnderscored('Name ID', tx.nameId ?? 'N/A');
+  printUnderscored('Name TTL', tx.nameTtl ?? 'N/A');
+  const { pointers } = tx;
   if (pointers?.length) pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
   else printUnderscored('Pointers', 'N/A');
 
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
-  printUnderscored(`${tabs}Version`, tx?.tx?.version ?? 'N/A');
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
+  printUnderscored('Version', tx.version ?? 'N/A');
 }
 
-// Print `transfer_name_tx` info
-function printNameTransferTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Account`, tx?.tx?.accountId ?? 'N/A');
-  printUnderscored(`${tabs}Recipient`, tx?.tx?.recipientId ?? 'N/A');
-  printUnderscored(`${tabs}Name ID`, tx?.tx?.nameId ?? 'N/A');
+function printNameTransferTransaction(tx) {
+  printUnderscored('Account', tx.accountId ?? 'N/A');
+  printUnderscored('Recipient', tx.recipientId ?? 'N/A');
+  printUnderscored('Name ID', tx.nameId ?? 'N/A');
 
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
-  printUnderscored(`${tabs}Version`, tx?.tx?.version ?? 'N/A');
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
+  printUnderscored('Version', tx.version ?? 'N/A');
 }
 
-// Print `revoke_name_tx` info
-function printNameRevokeTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Account`, tx?.tx?.accountId ?? 'N/A');
-  printUnderscored(`${tabs}Name ID`, tx?.tx?.nameId ?? 'N/A');
+function printNameRevokeTransaction(tx) {
+  printUnderscored('Account', tx.accountId ?? 'N/A');
+  printUnderscored('Name ID', tx.nameId ?? 'N/A');
 
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
-  printUnderscored(`${tabs}Version`, tx?.tx?.version ?? 'N/A');
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
+  printUnderscored('Version', tx.version ?? 'N/A');
 }
 
-// Print `oracle-register-tx` info
-function printOracleRegisterTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Account`, tx?.tx?.accountId ?? 'N/A');
-  printUnderscored(`${tabs}Oracle ID`, tx?.tx?.accountId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
+function printOracleRegisterTransaction(tx) {
+  printUnderscored('Account', tx.accountId ?? 'N/A');
+  printUnderscored('Oracle ID', tx.accountId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
 
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Query Fee`, tx?.tx?.queryFee ?? 'N/A');
-  printUnderscored(`${tabs}Oracle Ttl`, tx?.tx?.oracleTtl ?? 'N/A');
-  printUnderscored(`${tabs}Query Format`, tx?.tx?.queryFormat ?? 'N/A');
-  printUnderscored(`${tabs}Response Format`, tx?.tx?.responseFormat ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Query Fee', tx.queryFee ?? 'N/A');
+  printUnderscored('Oracle Ttl', tx.oracleTtl ?? 'N/A');
+  printUnderscored('Query Format', tx.queryFormat ?? 'N/A');
+  printUnderscored('Response Format', tx.responseFormat ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
 }
 
-// Print `oracle-post-query` info
-function printOraclePostQueryTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Account`, tx?.tx?.senderId ?? 'N/A');
-  printUnderscored(`${tabs}Oracle ID`, tx?.tx?.oracleId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
-  printUnderscored(`${tabs}Query ID`, tx?.id ?? 'N/A');
-  printUnderscored(`${tabs}Query`, tx?.tx?.query ?? 'N/A');
+function printOraclePostQueryTransaction(tx) {
+  printUnderscored('Account', tx.senderId ?? 'N/A');
+  printUnderscored('Oracle ID', tx.oracleId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
+  printUnderscored('Query ID', tx?.id ?? 'N/A');
+  printUnderscored('Query', tx.query ?? 'N/A');
 
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Query Fee`, tx?.tx?.queryFee ?? 'N/A');
-  printUnderscored(`${tabs}Query Ttl`, tx?.tx?.queryTtl ?? 'N/A');
-  printUnderscored(`${tabs}Response Ttl`, tx?.tx?.responseTtl ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Query Fee', tx.queryFee ?? 'N/A');
+  printUnderscored('Query Ttl', tx.queryTtl ?? 'N/A');
+  printUnderscored('Response Ttl', tx.responseTtl ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
 }
 
-// Print `oracle-extend` info
-function printOracleExtendTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Oracle ID`, tx?.tx?.oracleId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
+function printOracleExtendTransaction(tx) {
+  printUnderscored('Oracle ID', tx.oracleId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
 
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Oracle Ttl`, tx?.tx?.oracleTtl ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Oracle Ttl', tx.oracleTtl ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
 }
 
-// Print `oracle-response` info
-function printOracleResponseTransaction(tx = {}, tabs = '') {
-  printUnderscored(`${tabs}Oracle ID`, tx?.tx?.oracleId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
-  printUnderscored(`${tabs}Query`, tx?.tx?.queryId ?? 'N/A');
+function printOracleResponseTransaction(tx) {
+  printUnderscored('Oracle ID', tx.oracleId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
+  printUnderscored('Query', tx.queryId ?? 'N/A');
 
-  printUnderscored(`${tabs}Fee`, tx?.tx?.fee ?? 'N/A');
-  printUnderscored(`${tabs}Response`, tx?.tx?.response ?? 'N/A');
-  printUnderscored(`${tabs}Response Ttl`, tx?.tx?.responseTtl ?? 'N/A');
-  printUnderscored(`${tabs}Nonce`, tx?.tx?.nonce ?? 'N/A');
-  printUnderscored(`${tabs}TTL`, tx?.tx?.ttl ?? 'N/A');
+  printUnderscored('Fee', tx.fee ?? 'N/A');
+  printUnderscored('Response', tx.response ?? 'N/A');
+  printUnderscored('Response Ttl', tx.responseTtl ?? 'N/A');
+  printUnderscored('Nonce', tx.nonce ?? 'N/A');
+  printUnderscored('TTL', tx.ttl ?? 'N/A');
 }
 
 const TX_TYPE_PRINT_MAP = {
@@ -246,38 +209,24 @@ const TX_TYPE_PRINT_MAP = {
   OracleRespondTx: printOracleResponseTransaction,
 };
 
-// ## BLOCK
-
-function replaceAt(str, index, replacement) {
-  return str.substring(0, index) + replacement + str.substring(index + replacement.length);
-}
-
-function printTxInfo(tx, tabs) {
-  const type = tx?.tx?.type;
-  TX_TYPE_PRINT_MAP[replaceAt(type, 0, type[0].toUpperCase())](tx, tabs);
-}
-
-// Function which print `tx`
-// Get type of `tx` to now which `print` method to use
-export function printTransaction(tx, json, tabs = 0, skipBase = false) {
+export function printTransaction(_tx, json) {
   if (json) {
-    print(tx);
+    print(_tx);
     return;
   }
-  const tabsString = getTabs(tabs);
-  if (!skipBase) printTxBase({ ...tx, ...tx.tx ? tx.tx : {} }, tabsString);
-  printTxInfo({ ...tx, ...tx.tx ? tx.tx : {} }, tabsString);
+  const tx = { ..._tx, ..._tx.tx };
+  printUnderscored('Tx hash', tx.hash);
+  printUnderscored('Block hash', tx.blockHash);
+  printUnderscored('Block height', tx.blockHeight);
+  printUnderscored('Signatures', tx.signatures);
+  printUnderscored('Tx Type', tx.type);
+  TX_TYPE_PRINT_MAP[tx.type[0].toUpperCase() + tx.type.slice(1)](tx);
 }
 
-export function printBlockTransactions(ts, json, tabs = 0) {
-  if (json) {
-    print(ts);
-    return;
-  }
-  const tabsString = getTabs(tabs);
+export function printBlockTransactions(ts) {
   ts.forEach((tx) => {
-    print(`${tabsString}<<--------------- Transaction --------------->>`);
-    printTransaction(tx, false, tabs);
+    print('<<--------------- Transaction --------------->>');
+    printTransaction(tx, false);
   });
 }
 
@@ -287,32 +236,32 @@ export function printBlock(block, json, isRoot = false) {
     return;
   }
   const encoding = block.hash.split('_')[0];
-  const tabs = !isRoot && encoding === Encoding.MicroBlockHash ? 1 : 0;
-  const tabString = getTabs(tabs);
+  if (!isRoot && encoding === Encoding.MicroBlockHash) console.group();
 
   const reverseEncoding = Object.fromEntries(Object.entries(Encoding).map(([k, v]) => [v, k]));
   const name = reverseEncoding[encoding].replace('Hash', '');
-  print(`${tabString}<<--------------- ${name} --------------->>`);
+  print(`<<--------------- ${name} --------------->>`);
 
-  printUnderscored(`${tabString}Block hash`, block.hash);
-  printUnderscored(`${tabString}Block height`, block.height);
-  printUnderscored(`${tabString}State hash`, block.stateHash);
-  printUnderscored(`${tabString}Nonce`, block.nonce ?? 'N/A');
-  printUnderscored(`${tabString}Miner`, block.miner ?? 'N/A');
-  printUnderscored(`${tabString}Time`, new Date(block.time).toString());
-  printUnderscored(`${tabString}Previous block hash`, block.prevHash);
-  printUnderscored(`${tabString}Previous key block hash`, block.prevKeyHash);
-  printUnderscored(`${tabString}Version`, block.version);
-  printUnderscored(`${tabString}Target`, block.target ?? 'N/A');
+  printUnderscored('Block hash', block.hash);
+  printUnderscored('Block height', block.height);
+  printUnderscored('State hash', block.stateHash);
+  printUnderscored('Nonce', block.nonce ?? 'N/A');
+  printUnderscored('Miner', block.miner ?? 'N/A');
+  printUnderscored('Time', new Date(block.time).toString());
+  printUnderscored('Previous block hash', block.prevHash);
+  printUnderscored('Previous key block hash', block.prevKeyHash);
+  printUnderscored('Version', block.version);
+  printUnderscored('Target', block.target ?? 'N/A');
   const txCount = block.transactions?.length ?? 0;
-  printUnderscored(`${tabString}Transactions`, txCount);
-  if (txCount) printBlockTransactions(block.transactions, false, tabs + 1);
+  printUnderscored('Transactions', txCount);
+  if (txCount) {
+    console.group();
+    printBlockTransactions(block.transactions);
+    console.groupEnd();
+  }
+  if (!isRoot && encoding === Encoding.MicroBlockHash) console.groupEnd();
 }
 
-// ##OTHER
-//
-
-// Print `oracle`
 export function printOracle(oracle, json) {
   if (json) {
     print(oracle);
@@ -324,7 +273,7 @@ export function printOracle(oracle, json) {
   printUnderscored('Oracle Response Format', oracle.responseFormat ?? 'N/A');
   printUnderscored('Ttl', oracle.ttl ?? 'N/A');
 }
-// Print `oracle`
+
 export function printQueries(queries = [], json) {
   if (json) {
     print(queries);
