@@ -10,7 +10,7 @@ import {
 import { print, printUnderscored, printValidation } from '../utils/print.js';
 import { validateName, decode } from '../utils/helpers.js';
 
-// Print `Buider Transaction`
+// Print `Builder Transaction`
 function buildAndPrintTx(params, json, extraKeys = {}) {
   const tx = buildTx(params);
   const txObject = unpackTx(tx);
@@ -21,6 +21,7 @@ function buildAndPrintTx(params, json, extraKeys = {}) {
   }
   printUnderscored('Transaction type', Tag[params.tag]);
   print('Summary');
+  // TODO: print the same way as transactions from node
   Object
     .entries({ ...txObject, ...extraKeys })
     .forEach(([key, value]) => printUnderscored(`    ${key.toUpperCase()}`, value));

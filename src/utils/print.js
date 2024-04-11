@@ -44,170 +44,10 @@ export function printValidation({ validation, transaction }) {
   });
 }
 
-function printContractCreateTransaction(tx) {
-  printUnderscored('Owner', tx.ownerId ?? 'N/A');
-  printUnderscored('Amount', tx.amount ?? 'N/A');
-  printUnderscored('Deposit', tx.deposit ?? 'N/A');
-  printUnderscored('Gas', tx.gas ?? 'N/A');
-  printUnderscored('Gas Price', tx.gasPrice ?? 'N/A');
-  printUnderscored('Bytecode', tx.code);
-  printUnderscored('Call data', tx.callData);
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-  printUnderscored('Version', tx.version ?? 'N/A');
-  printUnderscored('VM Version', tx.vmVersion ?? 'N/A');
-  printUnderscored('ABI Version', tx.abiVersion ?? 'N/A');
+function printTxField(tx, verboseName, field, handleValue = (a) => a) {
+  if (!(field in tx)) return;
+  printUnderscored(verboseName, tx[field] == null ? 'N/A' : handleValue(tx[field]));
 }
-
-function printContractCallTransaction(tx) {
-  printUnderscored('Caller Account', tx.callerId ?? 'N/A');
-  printUnderscored('Contract Hash', tx.contractId ?? 'N/A');
-  printUnderscored('Amount', tx.amount ?? 0);
-  printUnderscored('Gas', tx.gas ?? 0);
-  printUnderscored('Gas Price', tx.gasPrice ?? 0);
-  printUnderscored('Call data', tx.callData);
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-  printUnderscored('Version', tx.version ?? 0);
-  printUnderscored('ABI Version', tx.abiVersion ?? 0);
-}
-
-function printSpendTransaction(tx) {
-  printUnderscored('Sender account', tx.senderId ?? 'N/A');
-  printUnderscored('Recipient account', tx.recipientId ?? 'N/A');
-  printUnderscored('Amount', tx.amount ?? 'N/A');
-  printUnderscored('Payload', tx.payload ?? 'N/A');
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-  printUnderscored('Version', tx.version ?? 'N/A');
-}
-
-function printNamePreclaimTransaction(tx) {
-  printUnderscored('Account', tx.accountId ?? 'N/A');
-  printUnderscored('Commitment', tx.commitmentId ?? 'N/A');
-  printUnderscored('Salt', tx?.salt ?? 'N/A');
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-  printUnderscored('Version', tx.version ?? 'N/A');
-}
-
-function printNameClaimTransaction(tx) {
-  printUnderscored('Account', tx.accountId ?? 'N/A');
-  printUnderscored('Name', tx.name ?? 'N/A');
-  printUnderscored('Name Fee', tx.nameFee ?? 'N/A');
-  printUnderscored('Name Salt', tx.nameSalt ?? 'N/A');
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-  printUnderscored('Version', tx.version ?? 'N/A');
-}
-
-function printNameUpdateTransaction(tx) {
-  printUnderscored('Account', tx.accountId ?? 'N/A');
-  printUnderscored('Client TTL', tx.clientTtl ?? 'N/A');
-  printUnderscored('Name ID', tx.nameId ?? 'N/A');
-  printUnderscored('Name TTL', tx.nameTtl ?? 'N/A');
-  const { pointers } = tx;
-  if (pointers?.length) pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
-  else printUnderscored('Pointers', 'N/A');
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-  printUnderscored('Version', tx.version ?? 'N/A');
-}
-
-function printNameTransferTransaction(tx) {
-  printUnderscored('Account', tx.accountId ?? 'N/A');
-  printUnderscored('Recipient', tx.recipientId ?? 'N/A');
-  printUnderscored('Name ID', tx.nameId ?? 'N/A');
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-  printUnderscored('Version', tx.version ?? 'N/A');
-}
-
-function printNameRevokeTransaction(tx) {
-  printUnderscored('Account', tx.accountId ?? 'N/A');
-  printUnderscored('Name ID', tx.nameId ?? 'N/A');
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-  printUnderscored('Version', tx.version ?? 'N/A');
-}
-
-function printOracleRegisterTransaction(tx) {
-  printUnderscored('Account', tx.accountId ?? 'N/A');
-  printUnderscored('Oracle ID', tx.accountId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Query Fee', tx.queryFee ?? 'N/A');
-  printUnderscored('Oracle Ttl', tx.oracleTtl ?? 'N/A');
-  printUnderscored('Query Format', tx.queryFormat ?? 'N/A');
-  printUnderscored('Response Format', tx.responseFormat ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-}
-
-function printOraclePostQueryTransaction(tx) {
-  printUnderscored('Account', tx.senderId ?? 'N/A');
-  printUnderscored('Oracle ID', tx.oracleId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
-  printUnderscored('Query ID', tx?.id ?? 'N/A');
-  printUnderscored('Query', tx.query ?? 'N/A');
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Query Fee', tx.queryFee ?? 'N/A');
-  printUnderscored('Query Ttl', tx.queryTtl ?? 'N/A');
-  printUnderscored('Response Ttl', tx.responseTtl ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-}
-
-function printOracleExtendTransaction(tx) {
-  printUnderscored('Oracle ID', tx.oracleId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Oracle Ttl', tx.oracleTtl ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-}
-
-function printOracleResponseTransaction(tx) {
-  printUnderscored('Oracle ID', tx.oracleId?.replace(/^\w{2}_/, 'ok_') ?? 'N/A');
-  printUnderscored('Query', tx.queryId ?? 'N/A');
-
-  printUnderscored('Fee', tx.fee ?? 'N/A');
-  printUnderscored('Response', tx.response ?? 'N/A');
-  printUnderscored('Response Ttl', tx.responseTtl ?? 'N/A');
-  printUnderscored('Nonce', tx.nonce ?? 'N/A');
-  printUnderscored('TTL', tx.ttl ?? 'N/A');
-}
-
-const TX_TYPE_PRINT_MAP = {
-  SpendTx: printSpendTransaction,
-  ContractCreateTx: printContractCreateTransaction,
-  ContractCallTx: printContractCallTransaction,
-  NamePreclaimTx: printNamePreclaimTransaction,
-  NameClaimTx: printNameClaimTransaction,
-  NameTransferTx: printNameTransferTransaction,
-  NameUpdateTx: printNameUpdateTransaction,
-  NameRevokeTx: printNameRevokeTransaction,
-  OracleRegisterTx: printOracleRegisterTransaction,
-  OracleQueryTx: printOraclePostQueryTransaction,
-  OracleExtendTx: printOracleExtendTransaction,
-  OracleRespondTx: printOracleResponseTransaction,
-};
 
 export function printTransaction(_tx, json) {
   if (json) {
@@ -215,12 +55,54 @@ export function printTransaction(_tx, json) {
     return;
   }
   const tx = { ..._tx, ..._tx.tx };
+
   printUnderscored('Tx hash', tx.hash);
   printUnderscored('Block hash', tx.blockHash);
   printUnderscored('Block height', tx.blockHeight);
   printUnderscored('Signatures', tx.signatures);
   printUnderscored('Tx Type', tx.type);
-  TX_TYPE_PRINT_MAP[tx.type[0].toUpperCase() + tx.type.slice(1)](tx);
+
+  printTxField(tx, 'Account', 'accountId');
+  printTxField(tx, 'Client TTL', 'clientTtl');
+  printTxField(tx, 'Sender account', 'senderId');
+  printTxField(tx, 'Recipient account', 'recipientId');
+  printTxField(tx, 'Name ID', 'nameId');
+  printTxField(tx, 'Name TTL', 'nameTtl');
+  printTxField(tx, 'Name', 'name');
+  printTxField(tx, 'Name Fee', 'nameFee');
+  printTxField(tx, 'Name Salt', 'nameSalt');
+  printTxField(tx, 'Owner', 'ownerId');
+  printTxField(tx, 'Caller Account', 'callerId');
+  printTxField(tx, 'Contract Address', 'contractId');
+  printTxField(tx, 'Oracle ID', 'oracleId', (id) => id.replace(/^\w{2}_/, 'ok_'));
+  printTxField(tx, 'Query', 'query');
+  if ('pointers' in tx) {
+    if (tx.pointers.length === 0) printUnderscored('Pointers', 'N/A');
+    else tx.pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
+  }
+  printTxField(tx, 'Amount', 'amount');
+  printTxField(tx, 'Payload', 'payload');
+  printTxField(tx, 'Deposit', 'deposit');
+  printTxField(tx, 'Gas', 'gas');
+  printTxField(tx, 'Gas Price', 'gasPrice');
+  printTxField(tx, 'Bytecode', 'code');
+  printTxField(tx, 'Call data', 'callData');
+  printTxField(tx, 'Commitment', 'commitmentId');
+  printTxField(tx, 'Salt', 'salt');
+  printTxField(tx, 'Query', 'queryId');
+  printTxField(tx, 'Fee', 'fee');
+  printTxField(tx, 'Response', 'response');
+  printTxField(tx, 'Query Fee', 'queryFee');
+  printTxField(tx, 'Oracle Ttl', 'oracleTtl');
+  printTxField(tx, 'Query Ttl', 'queryTtl');
+  printTxField(tx, 'Response Ttl', 'responseTtl');
+  printTxField(tx, 'Query Format', 'queryFormat');
+  printTxField(tx, 'Response Format', 'responseFormat');
+  printTxField(tx, 'Nonce', 'nonce');
+  printTxField(tx, 'TTL', 'ttl');
+  printTxField(tx, 'Version', 'version');
+  printTxField(tx, 'VM Version', 'vmVersion');
+  printTxField(tx, 'ABI Version', 'abiVersion');
 }
 
 export function printBlockTransactions(ts) {
