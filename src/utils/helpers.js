@@ -2,7 +2,7 @@
 // That script contains base helper function
 
 import { resolve } from 'path';
-import { Encoding, decode as _decode } from '@aeternity/aepp-sdk';
+import { Encoding, decode as _decode, produceNameId } from '@aeternity/aepp-sdk';
 import CliError from './CliError.js';
 
 // ## Method which retrieve block info by hash
@@ -49,20 +49,22 @@ export function checkPref(hash, hashType) {
 
 // ## AENS helpers methods
 
-// Get `name` status
-export async function updateNameStatus(name, sdk) {
-  try {
-    return { ...await sdk.getName(name), status: 'CLAIMED' };
-  } catch (e) {
-    if (e.response && e.response.status === 404) {
-      return { name, status: 'AVAILABLE' };
-    }
-    throw e;
-  }
+// Get `name` entry
+export async function getNameEntry(nameAsString, sdk) {
+  const handle404 = (error) => {
+    if (error.response?.status === 404) return undefined;
+    throw error;
+  };
+  const [name, auction] = await Promise.all([
+    sdk.api.getNameEntryByName(nameAsString).catch(handle404),
+    sdk.api.getAuctionEntryByName(nameAsString).catch(handle404),
+  ]);
+  return {
+    id: produceNameId(nameAsString),
+    ...name ?? auction,
+    status: (name && 'CLAIMED') || (auction && 'AUCTION') || 'AVAILABLE',
+  };
 }
-
-// Check if `name` is `AVAILABLE`
-export function isAvailable(name) { return name.status === 'AVAILABLE'; }
 
 // Validate `name`
 export function validateName(name) {
@@ -80,3 +82,27 @@ export function decode(data, requiredPrefix) {
 }
 
 export const getFullPath = (path) => resolve(process.cwd(), path);
+
+const units = [
+  ['year', 365 * 24 * 60 * 60 * 1000],
+  ['month', 30.5 * 24 * 60 * 60 * 1000],
+  ['day', 24 * 60 * 60 * 1000],
+  ['hour', 60 * 60 * 1000],
+  ['minute', 60 * 1000],
+  ['second', 1000],
+];
+
+export function timeAgo(date) {
+  const diff = Date.now() - date.getTime();
+  // TODO: revisit linter settings, the below rule is not relevant because babel is not used
+  // eslint-disable-next-line no-restricted-syntax
+  for (const [name, size] of units) {
+    const value = Math.floor(Math.abs(diff) / size);
+    if (value > 0) {
+      const plural = value > 1 ? 's' : '';
+      const description = `${value} ${name}${plural}`;
+      return diff > 0 ? `${description} ago` : `in ${description}`;
+    }
+  }
+  return 'about now';
+}

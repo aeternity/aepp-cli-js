@@ -76,7 +76,7 @@ describe('AENS Module', () => {
     preClaim.blockHeight.should.be.gt(0);
     preClaim.salt.should.be.a('number');
     preClaim.commitmentId.should.contain('cm');
-    nameResult.name.should.be.equal(name2);
+    nameResult.id.should.satisfy((id) => id.startsWith('nm_'));
     nameResult.status.should.equal('AVAILABLE');
   }).timeout(4000);
 
@@ -235,23 +235,14 @@ describe('AENS Module', () => {
     });
 
     it('Fail on open again', async () => {
-      const preClaim = await executeName([
+      await executeName([
         'pre-claim',
         WALLET_NAME,
         '--password',
         'test',
         name,
         '--json',
-      ]);
-      await executeName([
-        'claim',
-        WALLET_NAME,
-        '--password',
-        'test',
-        name,
-        preClaim.salt,
-        '--json',
-      ]).should.be.rejectedWith('error: Transaction not found');
-    }).timeout(15000);
+      ]).should.be.rejectedWith('AENS name is AUCTION and cannot be preclaimed');
+    });
   });
 });

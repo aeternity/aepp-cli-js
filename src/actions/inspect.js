@@ -2,18 +2,19 @@
 //
 // This script initialize all `inspect` function
 
+import BigNumber from 'bignumber.js';
 import { Encoding, unpackTx as _unpackTx, Tag } from '@aeternity/aepp-sdk';
 import { initSdk } from '../utils/cli.js';
 import {
   print,
   printBlock,
   printBlockTransactions,
-  printName, printOracle, printQueries,
+  printOracle, printQueries,
   printTransaction,
   printUnderscored,
 } from '../utils/print.js';
 import {
-  checkPref, getBlock, updateNameStatus, validateName,
+  checkPref, getBlock, getNameEntry, timeAgo, validateName,
 } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
 
@@ -68,10 +69,47 @@ async function getBlockByHeight(height, { json, ...options }) {
   printBlock(await sdk.api.getKeyBlockByHeight(+height), json);
 }
 
+const formatCoins = (coins) => `${new BigNumber(coins).shiftedBy(-18).toFixed()}ae`;
+
+const formatTtl = (ttl, height) => {
+  const date = new Date();
+  const diff = Math.abs(ttl - height) < 3 ? 0 : ttl - height;
+  date.setMinutes(date.getMinutes() + diff * 3);
+  return `${ttl} (${timeAgo(date)})`;
+};
+
 async function getName(name, { json, ...options }) {
   validateName(name);
   const sdk = initSdk(options);
-  printName(await updateNameStatus(name, sdk), json);
+  const nameEntry = await getNameEntry(name, sdk);
+
+  if (json) {
+    print(nameEntry);
+    return;
+  }
+
+  const height = await sdk.getHeight({ cached: true });
+  printUnderscored('Status', nameEntry.status);
+  printUnderscored('Name hash', nameEntry.id);
+  switch (nameEntry.status) {
+    case 'CLAIMED':
+      printUnderscored('Owner', nameEntry.owner);
+      if (nameEntry.pointers?.length) {
+        nameEntry.pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
+      } else printUnderscored('Pointers', 'N/A');
+      printUnderscored('TTL', formatTtl(nameEntry.ttl, height));
+      break;
+    case 'AUCTION':
+      printUnderscored('Highest bidder', nameEntry.highestBidder);
+      printUnderscored('Highest bid', formatCoins(nameEntry.highestBid));
+      printUnderscored('Ends at height', formatTtl(nameEntry.endsAt, height));
+      printUnderscored('Started at height', formatTtl(nameEntry.startedAt, height));
+      break;
+    case 'AVAILABLE':
+      break;
+    default:
+      throw new Error(`Unknown name status: ${nameEntry.status}`);
+  }
 }
 
 async function getContract(contractId, { json, ...options }) {
