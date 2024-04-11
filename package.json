@@ -34,13 +34,11 @@
     "url": "git+https://github.com/aeternity/aepp-cli-js.git"
   },
   "scripts": {
-    "docs": "scripts/js-to-md.js src/*.js src/commands/*.js src/actions/*.js src/utils/*.js",
     "commitlint": "commitlint --from develop",
     "lint": "eslint .",
     "test": "mocha",
     "test:watch": "mocha --watch",
-    "release": "standard-version --skip.tag",
-    "prepublishOnly": "npm run docs"
+    "release": "standard-version --skip.tag"
   },
   "keywords": [
     "CLI",
