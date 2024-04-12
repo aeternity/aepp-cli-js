@@ -17,7 +17,7 @@ function ensureTtlANumber(ttl, name) {
 // ## Create Oracle
 export async function createOracle(walletPath, queryFormat, responseFormat, options) {
   const {
-    ttl, fee, nonce, waitMined, json, oracleTtl, queryFee,
+    ttl, fee, nonce, json, oracleTtl, queryFee,
   } = options;
 
   ensureTtlANumber(oracleTtl, 'Oracle');
@@ -25,7 +25,6 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
   // Register Oracle
   const oracle = await sdk.registerOracle(queryFormat, responseFormat, {
     ttl,
-    waitMined,
     nonce,
     fee,
     ...oracleTtl && {
@@ -34,17 +33,13 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
     },
     queryFee,
   });
-  if (waitMined) {
-    await printTransaction(oracle, json, sdk);
-  } else {
-    print('Transaction send to the chain. Tx hash: ', oracle);
-  }
+  await printTransaction(oracle, json, sdk);
 }
 
 // ## Extend Oracle
 export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
   const {
-    ttl, fee, nonce, waitMined, json,
+    ttl, fee, nonce, json,
   } = options;
 
   ensureTtlANumber(oracleTtl, 'Oracle');
@@ -53,7 +48,6 @@ export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
   const oracle = await sdk.getOracleObject(oracleId);
   const extended = await oracle.extendOracle({
     ttl,
-    waitMined,
     nonce,
     fee,
     ...oracleTtl && {
@@ -61,17 +55,13 @@ export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
       oracleTtlValue: oracleTtl,
     },
   });
-  if (waitMined) {
-    await printTransaction(extended, json, sdk);
-  } else {
-    print('Transaction send to the chain. Tx hash: ', extended);
-  }
+  await printTransaction(extended, json, sdk);
 }
 
 // ## Create Oracle Query
 export async function createOracleQuery(walletPath, oracleId, query, options) {
   const {
-    ttl, fee, nonce, waitMined, json, queryTtl, queryFee, responseTtl,
+    ttl, fee, nonce, json, queryTtl, queryFee, responseTtl,
   } = options;
 
   decode(oracleId, 'ok');
@@ -82,7 +72,6 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
   const oracle = await sdk.getOracleObject(oracleId);
   const oracleQuery = await oracle.postQuery(query, {
     ttl,
-    waitMined,
     nonce,
     fee,
     ...queryTtl && {
@@ -95,11 +84,7 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
     },
     queryFee,
   });
-  if (waitMined) {
-    await printTransaction(oracleQuery, json, sdk);
-  } else {
-    print('Transaction send to the chain. Tx hash: ', oracleQuery);
-  }
+  await printTransaction(oracleQuery, json, sdk);
 }
 
 // ## Respond to Oracle Query
@@ -111,7 +96,7 @@ export async function respondToQuery(
   options,
 ) {
   const {
-    ttl, fee, nonce, waitMined, json, responseTtl,
+    ttl, fee, nonce, json, responseTtl,
   } = options;
 
   decode(oracleId, 'ok');
@@ -122,7 +107,6 @@ export async function respondToQuery(
   const oracle = await sdk.getOracleObject(oracleId);
   const queryResponse = await oracle.respondToQuery(queryId, response, {
     ttl,
-    waitMined,
     nonce,
     fee,
     ...responseTtl && {
@@ -130,11 +114,7 @@ export async function respondToQuery(
       responseTtlValue: responseTtl,
     },
   });
-  if (waitMined) {
-    await printTransaction(queryResponse, json, sdk);
-  } else {
-    print('Transaction send to the chain. Tx hash: ', queryResponse);
-  }
+  await printTransaction(queryResponse, json, sdk);
 }
 
 // ## Get oracle
