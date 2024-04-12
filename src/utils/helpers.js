@@ -52,19 +52,21 @@ export function checkPref(hash, hashType) {
 }
 
 export async function getNameEntry(nameAsString, sdk) {
-  const handle404 = (error) => {
-    if (error.response?.status === 404) return undefined;
-    throw error;
-  };
   const [name, auction] = await Promise.all([
-    sdk.api.getNameEntryByName(nameAsString).catch(handle404),
-    sdk.api.getAuctionEntryByName(nameAsString).catch(handle404),
+    sdk.api.getNameEntryByName(nameAsString).catch((error) => {
+      if (error.response?.status === 404) {
+        return error.response.parsedBody?.reason === 'Name revoked' ? 'REVOKED' : 'AVAILABLE';
+      }
+      throw error;
+    }),
+    sdk.api.getAuctionEntryByName(nameAsString).catch((error) => {
+      if (error.response?.status === 404) return undefined;
+      throw error;
+    }),
   ]);
-  return {
-    id: produceNameId(nameAsString),
-    ...name ?? auction,
-    status: (name && 'CLAIMED') || (auction && 'AUCTION') || 'AVAILABLE',
-  };
+  if (auction) return { ...auction, status: 'AUCTION' };
+  if (typeof name === 'object') return { ...name, status: 'CLAIMED' };
+  return { id: produceNameId(nameAsString), status: name };
 }
 
 export function validateName(name) {

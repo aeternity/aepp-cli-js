@@ -17,7 +17,7 @@ const EXECUTABLE_CMD = [
   { name: 'inspect', desc: 'Get information on transactions, blocks,...' },
   { name: 'account', desc: 'Handle wallet operations' },
   { name: 'contract', desc: 'Contract interactions' },
-  { name: 'name', desc: 'AENS system' },
+  { name: 'name', desc: 'manage AENS names' },
   { name: 'tx', desc: 'Generates transactions to sign and submit manually' },
   { name: 'oracle', desc: 'Interact with oracles' },
   { name: 'spend', desc: 'Send coins to account or contract' },

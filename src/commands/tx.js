@@ -1,6 +1,6 @@
 import { Command, Argument } from 'commander';
 import {
-  NAME_TTL, CLIENT_TTL, ORACLE_TTL, QUERY_TTL, RESPONSE_TTL,
+  NAME_TTL, ORACLE_TTL, QUERY_TTL, RESPONSE_TTL,
 } from '@aeternity/aepp-sdk';
 import * as Transaction from '../actions/transaction.js';
 import {
@@ -13,6 +13,7 @@ import {
   ttlOption,
   amountOption,
   coinAmountParser,
+  clientTtlOption,
 } from '../arguments.js';
 import {
   addExamples, exampleAddress1, exampleAddress2, exampleContract, exampleOracle, exampleOracleQuery,
@@ -56,7 +57,7 @@ addTxBuilderOptions(command, `${exampleAddress1} 12327389123 ${exampleName} 42`)
 
 command = program.command('name-update <accountId> <nameId>')
   .option('--nameTtl [nameTtl]', 'Validity of name', NAME_TTL)
-  .option('--clientTtl [clientTtl]', 'Client TTL', CLIENT_TTL)
+  .addOption(clientTtlOption)
   .action(Transaction.nameUpdate);
 addTxBuilderOptions(command, `${exampleAddress1} ${exampleName} 42 ${exampleContract}`);
 command.argument('[pointers...]');
