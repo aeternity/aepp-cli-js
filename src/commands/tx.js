@@ -14,14 +14,14 @@ import {
   amountOption,
   coinAmountParser,
 } from '../arguments.js';
+import {
+  addExamples, exampleAddress1, exampleAddress2, exampleContract, exampleOracle, exampleOracleQuery,
+  exampleName, exampleCalldata,
+} from '../utils/helpers.js';
 
 const program = new Command()
   .name('aecli tx')
   .description('Generates transactions to sign and submit manually. Useful for offline signing.');
-
-const addExamples = (cmd, examples) => cmd.addHelpText('after', `
-Example call:
-${examples.map((e) => `  $ ${program.name()} ${cmd.name()} ${e}`).join('\n')}`);
 
 const addTxBuilderOptions = (cmd, example) => {
   cmd
@@ -34,16 +34,8 @@ const addTxBuilderOptions = (cmd, example) => {
     .addOption(jsonOption)
     .summary(`build ${cmd.name().replaceAll('-', ' ')} transaction`)
     .description(`Build ${cmd.name().replaceAll('-', ' ')} transaction.`);
-  addExamples(cmd, [example]);
+  addExamples(program.name(), cmd, [example]);
 };
-
-const exampleAddress1 = 'ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi';
-const exampleAddress2 = 'ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT';
-const exampleContract = 'ct_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
-const exampleOracle = 'ok_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi';
-const exampleOracleQuery = 'oq_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
-const exampleName = 'example-name.chain';
-const exampleCalldata = 'cb_DA6sWJo=';
 
 let command;
 
@@ -123,6 +115,6 @@ command = program
   .summary('verify transaction using node')
   .description('Verify transaction using node.')
   .action(Transaction.verify);
-addExamples(command, ['tx_+FoMAaEBzqet5HDJ+Z2dTkAIgKhvHUm7REti8Rqeu2S7z+tz/vOhARX7Ovvi4N8rfRN/Dsvb2ei7AJ3ysIkBrG5pnY6qW3W7iQVrx14tYxAAAIYPUN430AAAKoBebL57']);
+addExamples(program.name(), command, ['tx_+FoMAaEBzqet5HDJ+Z2dTkAIgKhvHUm7REti8Rqeu2S7z+tz/vOhARX7Ovvi4N8rfRN/Dsvb2ei7AJ3ysIkBrG5pnY6qW3W7iQVrx14tYxAAAIYPUN430AAAKoBebL57']);
 
 export default program;

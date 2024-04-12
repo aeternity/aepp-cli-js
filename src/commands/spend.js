@@ -11,14 +11,11 @@ import {
   passwordOption,
   ttlOption,
 } from '../arguments.js';
+import { addExamples, exampleAddress1, exampleName } from '../utils/helpers.js';
 
-export default new Command('aecli spend')
+const command = new Command('aecli spend')
+  .summary('sends coins to another account or contract')
   .description('Sends coins to another account or contract.')
-  .addHelpText('after', `
-Example call:
-  $ aecli spend ./wallet.json ak_2GN72... 100
-  $ aecli spend ./wallet.json aens-name.chain 1.23ae
-  $ aecli spend ./wallet.json ak_2GN72... 20% --ttl 20`)
   .argument('<wallet_path>', 'A path to wallet file')
   .argument('<receiver>', 'Address or name of recipient account')
   .argument(
@@ -56,3 +53,11 @@ Example call:
     if (!json) print('Transaction mined');
     await printTransaction(tx, json, sdk);
   });
+
+addExamples('', command, [
+  `./wallet.json ${exampleAddress1} 100`,
+  `./wallet.json ${exampleName} 1.23ae`,
+  `./wallet.json ${exampleAddress1} 20% --ttl 20`,
+]);
+
+export default command;

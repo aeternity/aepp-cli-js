@@ -1,15 +1,20 @@
-// # Utils `helpers` Module
-// That script contains base helper function
-
 import BigNumber from 'bignumber.js';
 import { resolve } from 'path';
 import { Encoding, decode as _decode, produceNameId } from '@aeternity/aepp-sdk';
 import CliError from './CliError.js';
 
-// ## Method which retrieve block info by hash
-// if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`
-//
-// if it's `BLOCK` call `getKeyBlockByHash`
+export const exampleAddress1 = 'ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi';
+export const exampleAddress2 = 'ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT';
+export const exampleContract = 'ct_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
+export const exampleOracle = 'ok_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi';
+export const exampleOracleQuery = 'oq_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
+export const exampleName = 'example-name.chain';
+export const exampleCalldata = 'cb_DA6sWJo=';
+
+export const addExamples = (prefix, command, examples) => command.addHelpText('after', `
+Example call:
+${examples.map((e) => `  $ ${prefix ? `${prefix} ` : ''}${command.name()} ${e}`).join('\n')}`);
+
 export async function getBlock(hash, sdk) {
   const type = hash.split('_')[0];
   switch (type) {
@@ -25,14 +30,12 @@ export async function getBlock(hash, sdk) {
   }
 }
 
-// ## Method which validate `hash`
 // TODO: move to sdk side (combine with decode)
 export function checkPref(hash, hashType) {
   if (hash.length < 3 || hash.indexOf('_') === -1) {
     throw new CliError('Invalid input, likely you forgot to escape the $ sign (use \\_)');
   }
 
-  /* block and micro block check */
   if (Array.isArray(hashType)) {
     const res = hashType.find((ht) => hash.startsWith(`${ht}_`));
     if (res) return;
@@ -48,9 +51,6 @@ export function checkPref(hash, hashType) {
   }
 }
 
-// ## AENS helpers methods
-
-// Get `name` entry
 export async function getNameEntry(nameAsString, sdk) {
   const handle404 = (error) => {
     if (error.response?.status === 404) return undefined;
@@ -67,7 +67,6 @@ export async function getNameEntry(nameAsString, sdk) {
   };
 }
 
-// Validate `name`
 export function validateName(name) {
   if (typeof name !== 'string') throw new CliError('Name must be a string');
   if (!name.endsWith('.chain')) throw new CliError(`Name should end with .chain: ${name}`);
