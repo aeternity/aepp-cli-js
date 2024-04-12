@@ -25,7 +25,7 @@ const addCommonOptions = (p) => p
 //
 // You can use this command to `create` Oracle
 //
-// Example: `aecli oracle create ./myWalletKeyFile --password testpass string string`
+// Example: `aecli oracle create ./wallet.json string string`
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 addCommonOptions(program
@@ -39,7 +39,7 @@ addCommonOptions(program
 //
 // You can use this command to `extend` Oracle time to leave
 //
-// Example: `aecli oracle extend ./myWalletKeyFile --password testpass ok_12dasdgfa32fasf 200`
+// Example: `aecli oracle extend ./wallet.json ok_12dasdgfa32fasf 200`
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 addCommonOptions(program
@@ -51,7 +51,7 @@ addCommonOptions(program
 //
 // You can use this command to `create` an Oracle Query
 //
-// Example: `aecli oracle create-query ./myWalletKeyFile --password testpass ok_123asdasd... WhatTheWeatherIs?`
+// Example: `aecli oracle create-query ./wallet.json ok_123asdasd... WhatTheWeatherIs?`
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 addCommonOptions(program
@@ -66,7 +66,7 @@ addCommonOptions(program
 //
 // You can use this command to `respond` to Oracle Query
 //
-// Example: `aecli oracle respondQuery ./myWalletKeyFile --password testpass ok_12313... oq_12efdsafa... +16Degree`
+// Example: `aecli oracle respondQuery ./wallet.json ok_12313... oq_12efdsafa... +16Degree`
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 addCommonOptions(program
@@ -79,7 +79,7 @@ addCommonOptions(program
 //
 // You can use this command to `get` an Oracle
 //
-// Example: `aecli oracle respondQuery ./myWalletKeyFile --password testpass ok_12313... oq_12efdsafa... +16Degree`
+// Example: `aecli oracle respondQuery ./wallet.json ok_12313... oq_12efdsafa... +16Degree`
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 addCommonOptions(program

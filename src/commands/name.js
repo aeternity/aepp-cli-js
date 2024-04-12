@@ -27,7 +27,7 @@ const addCommonOptions = (p) => p
 //
 // You can use this command to `claim` AENS name. Name must end on `.chain`.
 //
-// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.chain`
+// Example: `aecli name claim ./wallet.json testname.chain`
 //
 // This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
 //
@@ -44,7 +44,7 @@ addCommonOptions(program
 //
 // You can use this command to `pre-claim` AENS name
 //
-// Example: `aecli name pre-claim ./myWalletKeyFile --password testpass  testname.chain`
+// Example: `aecli name pre-claim ./wallet.json testname.chain`
 //
 // This command build and send `pre-claim` transaction.
 //
@@ -58,7 +58,7 @@ addCommonOptions(program
 //
 // You can use this command to `claim` AENS name. Name must end on `.chain`.
 //
-// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.chain`
+// Example: `aecli name claim ./wallet.json testname.chain`
 //
 // This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
 //
@@ -73,7 +73,7 @@ addCommonOptions(program
 //
 // You can use this command to `claim` AENS name. Name must end on `.chain`.
 //
-// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.chain`
+// Example: `aecli name claim ./wallet.json testname.chain`
 //
 // This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
 //
@@ -87,7 +87,7 @@ addCommonOptions(program
 //
 // You can use this command to `update` pointer of AENS name.
 //
-// Example: `aecli name update ./myWalletKeyFile --password testpass testname.chain ak_qwe23dffasfgdesag323`
+// Example: `aecli name update ./wallet.json testname.chain ak_qwe23dffasfgdesag323`
 addCommonOptions(program
   .command('update <wallet_path> <name> [addresses...]')
   .option('--extendPointers', 'Extend pointers', false)
@@ -100,7 +100,7 @@ addCommonOptions(program
 //
 // You can use this command to `extend` ttl of AENS name.
 //
-// Example: `aecli name extend ./myWalletKeyFile --password testpass testname.chain 100`
+// Example: `aecli name extend ./wallet.json testname.chain 100`
 addCommonOptions(program
   .command('extend <wallet_path> <name>')
   .argument('[nameTtl]', 'A number of blocks until name expires', NAME_TTL)
@@ -112,7 +112,7 @@ addCommonOptions(program
 //
 // You can use this command to `destroy` AENS name.
 //
-// Example: `aecli name revoke ./myWalletKeyFile --password testpass testname.chain`
+// Example: `aecli name revoke ./wallet.json testname.chain`
 addCommonOptions(program
   .command('revoke <wallet_path> <name>')
   .description('Revoke an AENS name')
@@ -122,7 +122,7 @@ addCommonOptions(program
 //
 // You can use this command to `transfer` AENS name to another account.
 //
-// Example: `aecli name transfer ./myWalletKeyFile --password testpass testname.chain ak_qqwemjgflewgkj349gjdslksd`
+// Example: `aecli name transfer ./wallet.json testname.chain ak_qqwemjgflewgkj349gjdslksd`
 addCommonOptions(program
   .command('transfer <wallet_path> <name> <address>')
   .description('Transfer a name to another account')

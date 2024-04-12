@@ -14,11 +14,11 @@ Contract descriptors needs to be regenerated.
 
 For example, replace
 ```
-$ aecli contract call ./myWalletFile --password testpass foo '[1, 2]'
+$ aecli contract call ./wallet.json foo '[1, 2]'
 ```
 with
 ```
-$ aecli contract call --password testpass foo '[1, 2]' ./myWalletFile
+$ aecli contract call foo '[1, 2]' ./wallet.json
 ```
 #### `account spend` doesn't accept `denomination` parameter
 
