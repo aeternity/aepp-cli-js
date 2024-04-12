@@ -15,7 +15,6 @@ import {
 export default new Command('aecli spend')
   .description('Sends coins to another account or contract.')
   .addHelpText('after', `
-
 Example call:
   $ aecli spend ./wallet.json ak_2GN72... 100
   $ aecli spend ./wallet.json aens-name.chain 1.23ae

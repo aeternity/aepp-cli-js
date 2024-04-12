@@ -40,8 +40,9 @@ export function printUnderscored(key, val) {
 
 export function printValidation({ validation, transaction }) {
   print('---------------------------------------- TX DATA ↓↓↓ \n');
-  const { tx, txType: type } = unpackTx(transaction);
-  Object.entries({ ...tx, type }).forEach(([key, value]) => printUnderscored(key, value));
+  const tx = unpackTx(transaction);
+  // TODO: print the same way as transaction by hash
+  Object.entries(tx).forEach(([key, value]) => printUnderscored(key, value));
   print('\n---------------------------------------- ERRORS ↓↓↓ \n');
   validation.forEach(({ message, checkedKeys }) => {
     printUnderscored(checkedKeys.join(', '), message);

@@ -1,7 +1,3 @@
-// # æternity CLI `root` file
-//
-// This script initialize all `cli` commands
-// We'll use `commander` for parsing options
 import { Command } from 'commander';
 import prompts from 'prompts';
 import fs from 'fs-extra';
@@ -16,14 +12,13 @@ import CliError from '../utils/CliError.js';
 
 const program = new Command();
 
-// Array of child command's
 const EXECUTABLE_CMD = [
   { name: 'chain', desc: 'Interact with the blockchain' },
   { name: 'inspect', desc: 'Get information on transactions, blocks,...' },
   { name: 'account', desc: 'Handle wallet operations' },
   { name: 'contract', desc: 'Contract interactions' },
   { name: 'name', desc: 'AENS system' },
-  { name: 'tx', desc: 'Transaction builder' },
+  { name: 'tx', desc: 'Generates transactions to sign and submit manually' },
   { name: 'oracle', desc: 'Interact with oracles' },
   { name: 'spend', desc: 'Send coins to account or contract' },
 ];
@@ -33,13 +28,11 @@ const EXECUTABLE_CMD = [
     resolve(fileURLToPath(import.meta.url), '../../../package.json'),
   );
 
-  // You get get CLI version by exec `aecli version`
   program.version(version);
 
   updateNotifier({ pkg: { name, version } }).notify();
 })();
 
-// ## Initialize `child` command's
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
 
 async function getNodeDescription(url) {

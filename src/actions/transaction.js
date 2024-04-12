@@ -1,7 +1,3 @@
-// # æternity CLI `transaction` file
-//
-// This script initialize all `transaction` function
-
 import {
   Tag, ORACLE_TTL_TYPES,
   Node, genSalt, unpackTx, commitmentHash, buildContractId, verifyTransaction,
@@ -10,7 +6,6 @@ import {
 import { print, printUnderscored, printValidation } from '../utils/print.js';
 import { validateName, decode } from '../utils/helpers.js';
 
-// Print `Builder Transaction`
 function buildAndPrintTx(params, json, extraKeys = {}) {
   const tx = buildTx(params);
   const txObject = unpackTx(tx);
@@ -30,9 +25,7 @@ function buildAndPrintTx(params, json, extraKeys = {}) {
   print('This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.');
 }
 
-// ## Build `spend` transaction
 export function spend(senderId, recipientId, amount, nonce, { json, payload, ...options }) {
-  // Build params
   const params = {
     tag: Tag.SpendTx,
     ...options,
@@ -45,15 +38,10 @@ export function spend(senderId, recipientId, amount, nonce, { json, payload, ...
   buildAndPrintTx(params, json);
 }
 
-// ## Build `namePreClaim` transaction
 export function namePreClaim(accountId, name, nonce, { json, ...options }) {
-  // Validate `name`(check if `name` end on `.chain`)
   validateName(name);
-
-  // Generate `salt` and `commitmentId` and build `name` hash
   const salt = genSalt();
   const commitmentId = commitmentHash(name, salt);
-
   const params = {
     tag: Tag.NamePreclaimTx,
     ...options,
@@ -64,9 +52,7 @@ export function namePreClaim(accountId, name, nonce, { json, ...options }) {
   buildAndPrintTx(params, json, { salt });
 }
 
-// ## Build `nameClaim` transaction
 export function nameClaim(accountId, nameSalt, name, nonce, { json, ...options }) {
-  // Validate `name`(check if `name` end on `.chain`)
   validateName(name);
   const params = {
     tag: Tag.NameClaimTx,
@@ -79,7 +65,6 @@ export function nameClaim(accountId, nameSalt, name, nonce, { json, ...options }
   buildAndPrintTx(params, json);
 }
 
-// ## Build `nameUpdate` transaction
 export function nameUpdate(accountId, nameId, nonce, pointers, { json, ...options }) {
   const params = {
     tag: Tag.NameUpdateTx,
@@ -92,9 +77,7 @@ export function nameUpdate(accountId, nameId, nonce, pointers, { json, ...option
   buildAndPrintTx(params, json);
 }
 
-// ## Build `nameTransfer` transaction
 export function nameTransfer(accountId, recipientId, nameId, nonce, { json, ...options }) {
-  // Create `transfer` transaction
   const params = {
     tag: Tag.NameTransferTx,
     ...options,
@@ -106,7 +89,6 @@ export function nameTransfer(accountId, recipientId, nameId, nonce, { json, ...o
   buildAndPrintTx(params, json);
 }
 
-// ## Build `nameRevoke` transaction
 export function nameRevoke(accountId, nameId, nonce, { json, ...options }) {
   const params = {
     tag: Tag.NameRevokeTx,
@@ -118,7 +100,6 @@ export function nameRevoke(accountId, nameId, nonce, { json, ...options }) {
   buildAndPrintTx(params, json);
 }
 
-// ## Build `contractDeploy` transaction
 export function contractDeploy(ownerId, code, callData, nonce, { json, gas, ...options }) {
   const params = {
     tag: Tag.ContractCreateTx,
@@ -134,7 +115,6 @@ export function contractDeploy(ownerId, code, callData, nonce, { json, gas, ...o
   });
 }
 
-// ## Build `contractCall` transaction
 export function contractCall(callerId, contractId, callData, nonce, { json, gas, ...options }) {
   const params = {
     tag: Tag.ContractCallTx,
@@ -148,7 +128,6 @@ export function contractCall(callerId, contractId, callData, nonce, { json, gas,
   buildAndPrintTx(params, json);
 }
 
-// ## Build `oracleRegister` transaction
 export function oracleRegister(accountId, queryFormat, responseFormat, nonce, {
   json, oracleTtl, ...options
 }) {
@@ -165,7 +144,6 @@ export function oracleRegister(accountId, queryFormat, responseFormat, nonce, {
   buildAndPrintTx(params, json);
 }
 
-// ## Build `oraclePostQuery` transaction
 export function oraclePostQuery(senderId, oracleId, query, nonce, {
   json, queryTtl, responseTtl, ...options
 }) {
@@ -184,12 +162,10 @@ export function oraclePostQuery(senderId, oracleId, query, nonce, {
   buildAndPrintTx(params, json);
 }
 
-// ## Build `oracleExtend` transaction
-export function oracleExtend(callerId, oracleId, oracleTtl, nonce, { json, ...options }) {
+export function oracleExtend(oracleId, oracleTtl, nonce, { json, ...options }) {
   const params = {
     tag: Tag.OracleExtendTx,
     ...options,
-    callerId,
     oracleId,
     oracleTtlType: ORACLE_TTL_TYPES.delta,
     oracleTtlValue: oracleTtl,
@@ -198,8 +174,7 @@ export function oracleExtend(callerId, oracleId, oracleTtl, nonce, { json, ...op
   buildAndPrintTx(params, json);
 }
 
-// ## Build `oracleRespond` transaction
-export function oracleRespond(callerId, oracleId, queryId, response, nonce, {
+export function oracleRespond(oracleId, queryId, response, nonce, {
   json, responseTtl, ...options
 }) {
   const params = {
@@ -208,7 +183,6 @@ export function oracleRespond(callerId, oracleId, queryId, response, nonce, {
     oracleId,
     responseTtlType: ORACLE_TTL_TYPES.delta,
     responseTtlValue: responseTtl,
-    callerId,
     queryId,
     response,
     nonce,
@@ -216,11 +190,8 @@ export function oracleRespond(callerId, oracleId, queryId, response, nonce, {
   buildAndPrintTx(params, json);
 }
 
-// ## Verify 'transaction'
 export async function verify(transaction, { json, ...options }) {
-  // Validate input
   decode(transaction, 'tx');
-  // Call `getStatus` API and print it
   const validation = await verifyTransaction(transaction, new Node(options.url));
   const { tag, ...tx } = unpackTx(transaction);
   if (json) {
