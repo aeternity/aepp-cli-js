@@ -1,4 +1,4 @@
-import { InvalidPasswordError } from '@aeternity/aepp-sdk';
+import { InvalidPasswordError, NodeInvocationError } from '@aeternity/aepp-sdk';
 import { setCommandOptions } from './config.js';
 import { prepareOptions } from './default-option-description.js';
 
@@ -18,6 +18,7 @@ export async function runProgram(program) {
     if (
       error instanceof CliError
       || error instanceof InvalidPasswordError
+      || error instanceof NodeInvocationError
       || error.code === 'ENOENT'
     ) {
       program.error(error.message);
