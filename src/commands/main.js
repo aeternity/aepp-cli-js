@@ -15,7 +15,7 @@ const program = new Command();
 const EXECUTABLE_CMD = [
   { name: 'chain', desc: 'interact with the node' },
   { name: 'inspect', desc: 'get details of a node entity' },
-  { name: 'account', desc: 'Handle wallet operations' },
+  { name: 'account', desc: 'handle wallet operations' },
   { name: 'contract', desc: 'contract interactions' },
   { name: 'name', desc: 'manage AENS names' },
   { name: 'tx', desc: 'Generates transactions to sign and submit manually' },

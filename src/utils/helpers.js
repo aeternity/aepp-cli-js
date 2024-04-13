@@ -3,7 +3,7 @@ import { resolve } from 'path';
 import { Encoding, decode as _decode, produceNameId } from '@aeternity/aepp-sdk';
 import CliError from './CliError.js';
 
-export const exampleAddress1 = 'ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi';
+export const exampleAddress1 = 'ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E';
 export const exampleAddress2 = 'ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT';
 export const exampleContract = 'ct_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
 export const exampleOracle = 'ok_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi';
