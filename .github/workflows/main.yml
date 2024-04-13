@@ -29,6 +29,8 @@ jobs:
           HEAD: ${{ github.event.pull_request.head.sha }}
           BASE: ${{ github.event.pull_request.base.sha }}
         run: npx commitlint --from $BASE --to $HEAD --verbose
+      - name: Ensure that docs are up to date
+        run: npm run docs && git diff
       - run: npm run lint
       - run: docker compose up -d --wait
       - run: npx c8 npm test

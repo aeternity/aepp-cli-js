@@ -13,7 +13,10 @@ export const exampleName = 'example-name.chain';
 export const exampleCalldata = 'cb_DA6sWJo=';
 export const exampleHeight = 929796;
 
+export const commandExamples = new WeakMap();
+
 export const addExamples = (command, examples) => {
+  commandExamples.set(command, examples);
   command.addHelpText('after', () => {
     let name = '';
     let cmd = command;
@@ -21,7 +24,7 @@ export const addExamples = (command, examples) => {
       name = `${cmd.name()} ${name}`;
       cmd = cmd.parent;
     }
-    return ['', 'Example call:', ...examples.map((e) => `  $ ${name}${e}`)].join('\n');
+    return ['', 'Example calls:', ...examples.map((e) => `  $ ${name}${e}`)].join('\n');
   });
 };
 

@@ -63,6 +63,63 @@ Commands:
 
 4. To read documentation of other commands and sub-commands, you can append `--help`. For example, type `bin/aecli.mjs account --help` to get a list of `account`'s available sub-commands.
 
+## Commands reference
+
+<!-- REFERENCE-TOC-BEGIN -->
+- `account`
+    - [`sign`](./reference.md#sign) — sign a transaction using wallet
+    - [`sign-message`](./reference.md#sign-message) — sign a personal message using wallet
+    - [`verify-message`](./reference.md#verify-message) — check if message was signed by address
+    - [`address`](./reference.md#address) — get wallet address and optionally private key
+    - [`create`](./reference.md#create) — create a wallet by a private key or generate a new one
+- [`spend`](./reference.md#spend) — send coins to another account or contract
+- `name`
+    - [`full-claim`](./reference.md#full-claim) — claim an AENS name in a single command
+    - [`pre-claim`](./reference.md#pre-claim) — pre-claim an AENS name
+    - [`claim`](./reference.md#claim) — claim an AENS name (requires pre-claim)
+    - [`bid`](./reference.md#bid) — bid on name in auction
+    - [`update`](./reference.md#update) — update a name pointer
+    - [`extend`](./reference.md#extend) — extend name TTL
+    - [`revoke`](./reference.md#revoke) — revoke an AENS name
+    - [`transfer`](./reference.md#transfer) — transfer a name to another account
+- `contract`
+    - [`compile`](./reference.md#compile) — compile a contract to get bytecode
+    - [`encode-calldata`](./reference.md#encode-calldata) — encode calldata for contract call
+    - [`decode-call-result`](./reference.md#decode-call-result) — decode contract call result
+    - [`call`](./reference.md#call) — execute a function of the contract
+    - [`deploy`](./reference.md#deploy) — deploy a contract on the chain
+- `oracle`
+    - [`get`](./reference.md#get) — print oracle details
+    - [`create`](./reference.md#create-1) — register current account as oracle
+    - [`extend`](./reference.md#extend-1) — extend oracle's time to leave
+    - [`create-query`](./reference.md#create-query) — create an oracle query
+    - [`respond-query`](./reference.md#respond-query) — respond to an oracle query
+- `chain`
+    - [`top`](./reference.md#top) — get top key block or micro block of chain
+    - [`status`](./reference.md#status) — get node version, network id, and related details
+    - [`ttl`](./reference.md#ttl) — get relative TTL by absolute TTL
+    - [`play`](./reference.md#play) — prints blocks from top until condition
+    - [`broadcast`](./reference.md#broadcast) — send signed transaction to the chain
+- [`inspect`](./reference.md#inspect) — get details of a node entity
+- `tx`
+    - [`spend`](./reference.md#spend-1) — build spend transaction
+    - [`name-preclaim`](./reference.md#name-preclaim) — build name preclaim transaction
+    - [`name-claim`](./reference.md#name-claim) — build name claim transaction
+    - [`name-update`](./reference.md#name-update) — build name update transaction
+    - [`name-transfer`](./reference.md#name-transfer) — build name transfer transaction
+    - [`name-revoke`](./reference.md#name-revoke) — build name revoke transaction
+    - [`contract-deploy`](./reference.md#contract-deploy) — build contract deploy transaction
+    - [`contract-call`](./reference.md#contract-call) — build contract call transaction
+    - [`oracle-register`](./reference.md#oracle-register) — build oracle register transaction
+    - [`oracle-extend`](./reference.md#oracle-extend) — build oracle extend transaction
+    - [`oracle-post-query`](./reference.md#oracle-post-query) — build oracle post query transaction
+    - [`oracle-respond`](./reference.md#oracle-respond) — build oracle respond transaction
+    - [`verify`](./reference.md#verify) — verify transaction using node
+- [`config`](./reference.md#config) — print the current sdk configuration
+- [`select-node`](./reference.md#select-node) — specify node to use in other commands
+- [`select-compiler`](./reference.md#select-compiler) — specify compiler to use in other commands
+<!-- REFERENCE-TOC-END -->
+
 ## [Change Log]
 
 [Change Log]: CHANGELOG.md
