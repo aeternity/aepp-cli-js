@@ -102,9 +102,9 @@ Secret Key ______________________________ ${keypair.secretKey}
 
   it('verify message', async () => {
     const data = 'Hello world';
-    const verify = await executeAccount(['verify-message', WALLET_NAME, sig, data, '--json', '--password', 'test']);
+    const verify = await executeAccount(['verify-message', sdk.address, sig, data, '--json']);
     verify.isCorrect.should.be.equal(true);
-    const verifyFromFile = await executeAccount(['verify-message', WALLET_NAME, sigFromFile, '--json', '--password', 'test', '--filePath', fileName]);
+    const verifyFromFile = await executeAccount(['verify-message', sdk.address, sigFromFile, '--json', '--filePath', fileName]);
     verifyFromFile.isCorrect.should.be.equal(true);
   });
 });

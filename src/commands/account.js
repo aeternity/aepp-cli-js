@@ -43,11 +43,11 @@ addCommonOptions(program
 //
 // You can use this command to sign message
 //
-// Example: `aecli account verify-message ./wallet.json asd1dasfadfsdasdasdasHexSig... Hello`
+// Example: `aecli account verify-message ak_... asd1dasfadfsdasdasdasHexSig... Hello`
 addCommonOptions(program
-  .command('verify-message <wallet_path> <hexSignature> [data...]')
+  .command('verify-message <address> <hexSignature> [data...]')
   .option('--filePath [path]', 'Specify the path to the file(ignore comm and message argument and use file instead)')
-  .description('Check if message was signed by wallet')
+  .description('Check if message was signed by account')
   .action(Account.verifyMessage));
 
 // ## Initialize `address` command
