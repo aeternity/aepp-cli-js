@@ -2,7 +2,8 @@ import { Command } from 'commander';
 import inspect from '../actions/inspect.js';
 import { nodeOption, jsonOption, forceOption } from '../arguments.js';
 import {
-  addExamples, exampleAddress1, exampleContract, exampleName, exampleOracle, exampleTransaction,
+  addExamples, exampleAddress1, exampleContract, exampleHeight, exampleName, exampleOracle,
+  exampleTransaction,
 } from '../utils/helpers.js';
 
 const command = new Command().name('aecli inspect')
@@ -31,7 +32,7 @@ addExamples('', command, [
   `${exampleOracle}  # get contract details`,
   'kh_CF37tA4KiiZTFqbQ6JFCU7kDt6CBZucBrvineVUGC7svA9vK7  # get key block details by hash',
   'mh_k1K9gLLtdikJhCdKfBbhYGveQs7osSNwceEJZb1jD6AmraNdr  # get micro block details by hash',
-  '929796  # get key block details by height',
+  `${exampleHeight}  # get key block details by height`,
   'th_2nZshewM7FtKSsDEP4zXPsGCe9cdxaFTRrcNjJyE22ktjGidZR  # get transaction details by hash',
   `${exampleTransaction}  # get transaction details`,
 ]);

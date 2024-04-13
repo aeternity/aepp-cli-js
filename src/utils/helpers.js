@@ -11,6 +11,7 @@ export const exampleOracleQuery = 'oq_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTu
 export const exampleTransaction = 'tx_+FoMAaEBzqet5HDJ+Z2dTkAIgKhvHUm7REti8Rqeu2S7z+tz/vOhARX7Ovvi4N8rfRN/Dsvb2ei7AJ3ysIkBrG5pnY6qW3W7iQVrx14tYxAAAIYPUN430AAAKoBebL57';
 export const exampleName = 'example-name.chain';
 export const exampleCalldata = 'cb_DA6sWJo=';
+export const exampleHeight = 929796;
 
 export const addExamples = (prefix, command, examples) => command.addHelpText('after', `
 Example call:

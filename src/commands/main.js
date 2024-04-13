@@ -13,7 +13,7 @@ import CliError from '../utils/CliError.js';
 const program = new Command();
 
 const EXECUTABLE_CMD = [
-  { name: 'chain', desc: 'Interact with the blockchain' },
+  { name: 'chain', desc: 'interact with the node' },
   { name: 'inspect', desc: 'get details of a node entity' },
   { name: 'account', desc: 'Handle wallet operations' },
   { name: 'contract', desc: 'contract interactions' },
