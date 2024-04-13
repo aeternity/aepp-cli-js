@@ -3,7 +3,7 @@ import * as Chain from '../actions/chain.js';
 import { nodeOption, jsonOption, forceOption } from '../arguments.js';
 import { addExamples, exampleHeight, exampleTransaction } from '../utils/helpers.js';
 
-const program = new Command().name('aecli chain');
+const program = new Command('chain').summary('make a request to the node');
 
 const addCommonOptions = (cmd, examples) => {
   cmd.addOption(nodeOption).addOption(forceOption).addOption(jsonOption);
@@ -11,7 +11,7 @@ const addCommonOptions = (cmd, examples) => {
     const summary = cmd.summary();
     cmd.description(`${summary[0].toUpperCase()}${summary.slice(1)}.`);
   }
-  addExamples(program.name(), cmd, examples);
+  addExamples(cmd, examples);
 };
 
 let command = program.command('top')

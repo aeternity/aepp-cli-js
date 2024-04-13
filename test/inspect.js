@@ -4,11 +4,9 @@ import {
   AbiVersion, generateKeyPair, produceNameId, Tag, VmVersion,
 } from '@aeternity/aepp-sdk';
 import { executeProgram, expectToMatchLines, getSdk } from './index.js';
-import inspectProgram from '../src/commands/inspect.js';
-import chainProgram from '../src/commands/chain.js';
 
-const executeInspect = (args) => executeProgram(inspectProgram, args);
-const executeChain = (args) => executeProgram(chainProgram, args);
+const executeInspect = executeProgram.bind(null, 'inspect');
+const executeChain = executeProgram.bind(null, 'chain');
 
 describe('Inspect Module', () => {
   let sdk;
@@ -19,14 +17,14 @@ describe('Inspect Module', () => {
 
   it('Inspect Account', async () => {
     const balance = await sdk.getBalance(sdk.address);
-    const resJson = await executeInspect([sdk.address, '--json']);
+    const resJson = await executeInspect(sdk.address, '--json');
     expect(resJson).to.eql({
       balance,
       hash: sdk.address,
       nonce: resJson.nonce,
       transactions: [],
     });
-    const res = await executeInspect([sdk.address]);
+    const res = await executeInspect(sdk.address);
     expect(res).to.equal(`
 Account ID ______________________________ ${sdk.address}
 Account balance _________________________ ${balance}
@@ -39,7 +37,7 @@ Pending transactions:
     const recipient = (generateKeyPair()).publicKey;
     const amount = '420';
     const { hash } = await sdk.spend(amount, recipient);
-    const resJson = await executeInspect([hash, '--json']);
+    const resJson = await executeInspect(hash, '--json');
     expect(resJson.tx.fee).to.be.a('string');
     expect(resJson).to.eql({
       blockHash: resJson.blockHash,
@@ -59,7 +57,7 @@ Pending transactions:
         version: 1,
       },
     });
-    const res = await executeInspect([hash]);
+    const res = await executeInspect(hash);
     expectToMatchLines(res, [
       `Transaction hash ________________________ ${resJson.hash}`,
       `Block hash ______________________________ ${resJson.blockHash}`,
@@ -83,7 +81,7 @@ Pending transactions:
     const tx = await sdk.buildTx({
       tag: Tag.SpendTx, amount, recipientId, senderId: sdk.address,
     });
-    const resJson = await executeInspect([tx, '--json']);
+    const resJson = await executeInspect(tx, '--json');
     expect(resJson).to.eql({
       amount,
       fee: '16700000000000',
@@ -95,7 +93,7 @@ Pending transactions:
       ttl: 0,
       version: 1,
     });
-    const res = await executeInspect([tx]);
+    const res = await executeInspect(tx);
     expect(res).to.equal(`
 Tx Type _________________________________ SpendTx
 tag _____________________________________ 12
@@ -111,9 +109,9 @@ payload _________________________________ ba_Xfbg4g==
   });
 
   it('Inspect Block', async () => {
-    const { prevKeyHash } = await executeChain(['top', '--json']);
+    const { prevKeyHash } = await executeChain('top', '--json');
 
-    const keyJson = await executeInspect([prevKeyHash, '--json']);
+    const keyJson = await executeInspect(prevKeyHash, '--json');
     expect(keyJson).to.eql({
       beneficiary: keyJson.beneficiary,
       hash: keyJson.hash,
@@ -127,7 +125,7 @@ payload _________________________________ ba_Xfbg4g==
       time: keyJson.time,
       version: 5,
     });
-    const key = await executeInspect([prevKeyHash]);
+    const key = await executeInspect(prevKeyHash);
     expect(key.split('\nTransactions')[0]).to.equal(`
 <<--------------- KeyBlock --------------->>
 Block hash ______________________________ ${keyJson.hash}
@@ -145,9 +143,9 @@ Target __________________________________ ${keyJson.target}
     let microHash = keyJson.prevHash;
     while (microHash.startsWith('kh_')) {
       // eslint-disable-next-line no-await-in-loop
-      microHash = (await executeInspect([microHash, '--json'])).prevHash;
+      microHash = (await executeInspect(microHash, '--json')).prevHash;
     }
-    const microJson = await executeInspect([microHash, '--json']);
+    const microJson = await executeInspect(microHash, '--json');
     expect(microJson).to.eql({
       hash: microJson.hash,
       height: microJson.height,
@@ -161,7 +159,7 @@ Target __________________________________ ${keyJson.target}
       txsHash: microJson.txsHash,
       version: 5,
     });
-    const micro = await executeInspect([microHash]);
+    const micro = await executeInspect(microHash);
     expect(micro.split('\nTransactions')[0]).to.equal(`
 <<--------------- MicroBlock --------------->>
 Block hash ______________________________ ${microJson.hash}
@@ -185,7 +183,7 @@ contract Identity =
       `,
     });
     const { address } = await contract.$deploy([]);
-    const resJson = await executeInspect([address, '--json']);
+    const resJson = await executeInspect(address, '--json');
     expect(resJson).to.eql({
       abiVersion: AbiVersion.Fate.toString(),
       active: true,
@@ -195,7 +193,7 @@ contract Identity =
       referrerIds: [],
       vmVersion: VmVersion.Fate2.toString(),
     });
-    const res = await executeInspect([address]);
+    const res = await executeInspect(address);
     expect(res).to.equal(`
 id ______________________________________ ${address}
 ownerId _________________________________ ${sdk.address}
@@ -209,7 +207,7 @@ deposit _________________________________ 0
 
   it('Inspect Oracle', async () => {
     const { id } = await sdk.registerOracle('<request format>', '<response format>');
-    const resJson = await executeInspect([id, '--json']);
+    const resJson = await executeInspect(id, '--json');
     expect(resJson).to.eql({
       id,
       abiVersion: AbiVersion.NoAbi.toString(),
@@ -219,7 +217,7 @@ deposit _________________________________ 0
       responseFormat: '<response format>',
       ttl: resJson.ttl,
     });
-    const res = await executeInspect([id]);
+    const res = await executeInspect(id);
     expect(res).to.equal(`
 Oracle ID _______________________________ ${id}
 Oracle Query Fee ________________________ 0
@@ -232,18 +230,18 @@ Ttl _____________________________________ ${resJson.ttl}
   });
 
   it('Inspect Invalid Name', async () => {
-    await expect(executeInspect(['asd', '--json'])).to.be.rejectedWith('Name should end with .chain');
+    await expect(executeInspect('asd', '--json')).to.be.rejectedWith('Name should end with .chain');
   });
 
   const name = `nazdou${Math.random().toString().slice(2, 9)}.chain`;
 
   it('Inspect Unclaimed Name', async () => {
-    const resJson = await executeInspect([name, '--json']);
+    const resJson = await executeInspect(name, '--json');
     expect(resJson).to.eql({
       id: produceNameId(name),
       status: 'AVAILABLE',
     });
-    const res = await executeInspect([name]);
+    const res = await executeInspect(name);
     expect(res).to.equal(`
 Status __________________________________ AVAILABLE
 Name hash _______________________________ ${produceNameId(name)}
@@ -256,7 +254,7 @@ Name hash _______________________________ ${produceNameId(name)}
       account_pubkey: sdk.address,
       oracle_pubkey: sdk.address,
     });
-    const resJson = await executeInspect([name, '--json']);
+    const resJson = await executeInspect(name, '--json');
     expect(resJson).to.eql({
       id: resJson.id,
       owner: sdk.address,
@@ -268,7 +266,7 @@ Name hash _______________________________ ${produceNameId(name)}
       status: 'CLAIMED',
       ttl: resJson.ttl,
     });
-    const res = await executeInspect([name]);
+    const res = await executeInspect(name);
     expectToMatchLines(res, [
       'Status __________________________________ CLAIMED',
       `Name hash _______________________________ ${resJson.id}`,
@@ -283,7 +281,7 @@ Name hash _______________________________ ${produceNameId(name)}
   it('Inspect Running Auction Name', async () => {
     const auctionName = `a${Math.random().toString().slice(2, 9)}.chain`;
     await (await sdk.aensPreclaim(auctionName)).claim();
-    const resJson = await executeInspect([auctionName, '--json']);
+    const resJson = await executeInspect(auctionName, '--json');
     const endsAt = +resJson.startedAt + 14880;
     expect(resJson).to.eql({
       endsAt: String(endsAt),
@@ -293,7 +291,7 @@ Name hash _______________________________ ${produceNameId(name)}
       startedAt: resJson.startedAt,
       status: 'AUCTION',
     });
-    const res = await executeInspect([auctionName]);
+    const res = await executeInspect(auctionName);
     expect(res).to.equal(`
 Status __________________________________ AUCTION
 Name hash _______________________________ ${resJson.id}

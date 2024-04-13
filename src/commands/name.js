@@ -9,7 +9,7 @@ import {
   addExamples, exampleAddress1, exampleContract, exampleName,
 } from '../utils/helpers.js';
 
-const program = new Command().name('aecli name');
+const program = new Command('name').summary('manage AENS names');
 
 const addCommonOptions = (cmd, example) => {
   cmd
@@ -24,7 +24,7 @@ const addCommonOptions = (cmd, example) => {
     const summary = cmd.summary();
     cmd.description(`${summary[0].toUpperCase()}${summary.slice(1)}.`);
   }
-  addExamples(program.name(), cmd, [example]);
+  addExamples(cmd, [example]);
 };
 
 const claimingGuide = [

@@ -33,7 +33,7 @@ const descriptorPathOption = new Option('-d, --descrPath [descrPath]', 'Path to 
 const contractSourceFilenameOption = new Option('--contractSource [contractSource]', 'Contract source code file name');
 const contractAciFilenameOption = new Option('--contractAci [contractAci]', 'Contract ACI file name');
 
-const program = new Command().name('aecli contract');
+const program = new Command('contract').summary('contract interactions');
 
 const exampleContractPath = './contract.aes';
 const exampleContractDescriptorPath = './contract.aes.deploy.229e.json';
@@ -48,7 +48,7 @@ const addCompilerOptions = (cmd, examples) => {
     const summary = cmd.summary();
     cmd.description(`${summary[0].toUpperCase()}${summary.slice(1)}.`);
   }
-  addExamples(program.name(), cmd, examples);
+  addExamples(cmd, examples);
 };
 
 let command = program.command('compile <file>')

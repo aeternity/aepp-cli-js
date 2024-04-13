@@ -4,13 +4,10 @@ import { expect } from 'chai';
 import {
   executeProgram, randomName, getSdk, WALLET_NAME,
 } from './index.js';
-import nameProgram from '../src/commands/name.js';
-import inspectProgram from '../src/commands/inspect.js';
-import spendProgram from '../src/commands/spend.js';
 
-const executeName = (args) => executeProgram(nameProgram, args);
-const executeInspect = (args) => executeProgram(inspectProgram, args);
-const executeSpend = (args) => executeProgram(spendProgram, args);
+const executeName = executeProgram.bind(null, 'name');
+const executeInspect = executeProgram.bind(null, 'inspect');
+const executeSpend = executeProgram.bind(null, 'spend');
 
 describe('AENS Module', () => {
   const { publicKey } = generateKeyPair();
@@ -24,14 +21,14 @@ describe('AENS Module', () => {
   });
 
   it('Full claim', async () => {
-    const updateTx = await executeName([
+    const updateTx = await executeName(
       'full-claim',
       WALLET_NAME,
       '--password',
       'test',
       randomName(13),
       '--json',
-    ]);
+    );
 
     updateTx.blockHeight.should.be.gt(0);
     const pointer = updateTx.pointers.find(({ id }) => id === sdk.address);
@@ -39,7 +36,7 @@ describe('AENS Module', () => {
   }).timeout(10000);
 
   it('Full claim with options', async () => {
-    const updateTx = await executeName([
+    const updateTx = await executeName(
       'full-claim',
       WALLET_NAME,
       '--password',
@@ -52,7 +49,7 @@ describe('AENS Module', () => {
       '3865700000000000000',
       '--clientTtl',
       50,
-    ]);
+    );
 
     updateTx.blockHeight.should.be.gt(0);
     updateTx.tx.nameTtl.should.be.equal(50);
@@ -62,15 +59,15 @@ describe('AENS Module', () => {
   }).timeout(10000);
 
   it('Pre Claim Name', async () => {
-    const preClaim = await executeName([
+    const preClaim = await executeName(
       'pre-claim',
       WALLET_NAME,
       '--password',
       'test',
       name2,
       '--json',
-    ]);
-    const nameResult = await executeInspect([name2, '--json']);
+    );
+    const nameResult = await executeInspect(name2, '--json');
     salt = preClaim.salt;
 
     preClaim.blockHeight.should.be.gt(0);
@@ -81,7 +78,7 @@ describe('AENS Module', () => {
   }).timeout(4000);
 
   it('Claim Name', async () => {
-    const claim = await executeName([
+    const claim = await executeName(
       'claim',
       WALLET_NAME,
       '--password',
@@ -89,8 +86,8 @@ describe('AENS Module', () => {
       name2,
       salt,
       '--json',
-    ]);
-    const nameResult = await executeInspect([name2, '--json']);
+    );
+    const nameResult = await executeInspect(name2, '--json');
 
     claim.blockHeight.should.be.gt(0);
     claim.pointers.length.should.be.equal(0);
@@ -98,7 +95,7 @@ describe('AENS Module', () => {
   }).timeout(10000);
 
   it('Update Name', async () => {
-    const updateTx = await executeName([
+    const updateTx = await executeName(
       'update',
       WALLET_NAME,
       name2,
@@ -106,8 +103,8 @@ describe('AENS Module', () => {
       '--password',
       'test',
       '--json',
-    ]);
-    const nameResult = await executeInspect([name2, '--json']);
+    );
+    const nameResult = await executeInspect(name2, '--json');
 
     updateTx.blockHeight.should.be.gt(0);
     const isUpdatedNode = !!nameResult.pointers.find(
@@ -119,7 +116,7 @@ describe('AENS Module', () => {
 
   it('extend name ttl', async () => {
     const height = await sdk.getHeight();
-    const extendTx = await executeName([
+    const extendTx = await executeName(
       'extend',
       WALLET_NAME,
       name2,
@@ -127,43 +124,41 @@ describe('AENS Module', () => {
       '--password',
       'test',
       '--json',
-    ]);
+    );
     expect(extendTx.blockHeight - height).within(0, 3);
-    const nameResult = await executeInspect([name2, '--json']);
+    const nameResult = await executeInspect(name2, '--json');
     expect(nameResult.ttl - extendTx.blockHeight).to.be.equal(50);
     expect(nameResult.status).to.equal('CLAIMED');
   });
 
   it('extend name with max ttl', async () => {
-    const extendTx = await executeName([
-      'extend', WALLET_NAME, name2, '--password', 'test', '--json',
-    ]);
-    const nameResult = await executeInspect([name2, '--json']);
+    const extendTx = await executeName('extend', WALLET_NAME, name2, '--password', 'test', '--json');
+    const nameResult = await executeInspect(name2, '--json');
     expect(nameResult.ttl - extendTx.blockHeight).to.be.equal(180000);
   });
 
   it('Fail spend by name on invalid input', async () => {
     const amount = 100000009;
-    await executeSpend([
+    await executeSpend(
       WALLET_NAME,
       '--password',
       'test',
       'sdasdaasdas',
       amount,
       '--json',
-    ]).should.be.rejectedWith('Invalid name or address');
+    ).should.be.rejectedWith('Invalid name or address');
   });
 
   it('Spend by name', async () => {
     const amount = 100000009;
-    const { tx: { recipientId } } = await executeSpend([
+    const { tx: { recipientId } } = await executeSpend(
       WALLET_NAME,
       '--password',
       'test',
       name2,
       amount,
       '--json',
-    ]);
+    );
 
     const nameObject = await sdk.aensQuery(name2);
     recipientId.should.be.equal(nameObject.id);
@@ -174,7 +169,7 @@ describe('AENS Module', () => {
   it('Transfer name', async () => {
     const keypair = generateKeyPair();
 
-    const transferTx = await executeName([
+    const transferTx = await executeName(
       'transfer',
       WALLET_NAME,
       name2,
@@ -182,7 +177,7 @@ describe('AENS Module', () => {
       '--password',
       'test',
       '--json',
-    ]);
+    );
 
     transferTx.blockHeight.should.be.gt(0);
     await sdk.spend(1, keypair.publicKey, { denomination: 'ae' });
@@ -193,30 +188,30 @@ describe('AENS Module', () => {
   });
 
   it('Revoke Name', async () => {
-    const revoke = await executeName([
+    const revoke = await executeName(
       'revoke',
       WALLET_NAME,
       '--password',
       'test',
       name2,
       '--json',
-    ]);
+    );
 
-    const nameResult = await executeInspect([name2, '--json']);
+    const nameResult = await executeInspect(name2, '--json');
 
     revoke.blockHeight.should.be.gt(0);
     nameResult.status.should.equal('REVOKED');
   });
 
   it('can\'t claim revoked name', async () => {
-    await executeName([
+    await executeName(
       'pre-claim',
       WALLET_NAME,
       '--password',
       'test',
       name2,
       '--json',
-    ]).should.be.rejectedWith('AENS name is REVOKED and cannot be preclaimed');
+    ).should.be.rejectedWith('AENS name is REVOKED and cannot be preclaimed');
   });
 
   describe('Name Auction', () => {
@@ -231,7 +226,7 @@ describe('AENS Module', () => {
     }).timeout(10000);
 
     it('Make bid', async () => {
-      const bid = await executeName([
+      const bid = await executeName(
         'bid',
         WALLET_NAME,
         '--password',
@@ -239,21 +234,21 @@ describe('AENS Module', () => {
         name,
         nameFee,
         '--json',
-      ]);
+      );
 
       bid.tx.nameSalt.should.be.equal(0);
       bid.tx.nameFee.should.be.equal(nameFee);
     });
 
     it('Fail on open again', async () => {
-      await executeName([
+      await executeName(
         'pre-claim',
         WALLET_NAME,
         '--password',
         'test',
         name,
         '--json',
-      ]).should.be.rejectedWith('AENS name is AUCTION and cannot be preclaimed');
+      ).should.be.rejectedWith('AENS name is AUCTION and cannot be preclaimed');
     });
   });
 });

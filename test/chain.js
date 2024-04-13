@@ -1,9 +1,8 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { executeProgram, getSdk } from './index.js';
-import chainProgram from '../src/commands/chain.js';
 
-const executeChain = (args) => executeProgram(chainProgram, args);
+const executeChain = executeProgram.bind(null, 'chain');
 
 describe('Chain Module', () => {
   let sdk;
@@ -16,11 +15,11 @@ describe('Chain Module', () => {
   });
 
   it('prints top', async () => {
-    const resJson = await executeChain(['top', '--json']);
+    const resJson = await executeChain('top', '--json');
     expect(resJson.hash).to.be.a('string');
     expect(resJson.height).to.be.a('number');
 
-    const res = await executeChain(['top']);
+    const res = await executeChain('top');
     expect(res).to.equal(`
 <<--------------- ${resJson.hash.startsWith('mh_') ? 'MicroBlock' : 'KeyBlock'} --------------->>
 Block hash ______________________________ ${resJson.hash}
@@ -38,7 +37,7 @@ Transactions ____________________________ 0
   });
 
   it('prints status', async () => {
-    const resJson = await executeChain(['status', '--json']);
+    const resJson = await executeChain('status', '--json');
     expect(resJson).to.eql({
       difficulty: resJson.difficulty,
       genesisKeyBlockHash: resJson.genesisKeyBlockHash,
@@ -60,7 +59,7 @@ Transactions ____________________________ 0
       uptime: resJson.uptime,
     });
 
-    const res = await executeChain(['status']);
+    const res = await executeChain('status');
     expect(res).to.equal(`
 Difficulty ______________________________ ${resJson.difficulty}
 Node version ____________________________ 6.13.0
@@ -77,13 +76,13 @@ Syncing _________________________________ false
   });
 
   it('plays by limit', async () => {
-    const res = await executeChain(['play', '--limit', '4']);
+    const res = await executeChain('play', '--limit', '4');
     const blockCount = (output) => (output.match(/(Key|Micro)Block/g) || []).length;
     expect(blockCount(res)).to.be.equal(4);
   });
 
   it('plays by height', async () => {
-    const res = await executeChain(['play', '--height', await sdk.getHeight() - 4]);
+    const res = await executeChain('play', '--height', await sdk.getHeight() - 4);
     const heights = res
       .split('\n')
       .filter((l) => l.includes('Block height'))
@@ -93,13 +92,13 @@ Syncing _________________________________ false
 
   it('calculates ttl', async () => {
     const height = await sdk.getHeight();
-    const resJson = await executeChain(['ttl', 10, '--json']);
+    const resJson = await executeChain('ttl', 10, '--json');
     expect(resJson).to.eql({
       absoluteTtl: 10,
       relativeTtl: 10 - height,
     });
 
-    const res = await executeChain(['ttl', 10]);
+    const res = await executeChain('ttl', 10);
     expect(res).to.equal(`
 Absolute TTL ____________________________ 10
 Relative TTL ____________________________ ${resJson.relativeTtl}

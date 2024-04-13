@@ -5,7 +5,7 @@ import mockFs from 'mock-fs';
 import {
   AeSdk, MemoryAccount, Node, generateKeyPair, CompilerHttpNode,
 } from '@aeternity/aepp-sdk';
-import accountProgram from '../src/commands/account.js';
+import program from '../src/commands/main.js';
 import { prepareOptions } from '../src/utils/default-option-description.js';
 
 before(() => {
@@ -66,7 +66,7 @@ function setProgramOptions(command, options) {
 }
 
 let isProgramExecuting = false;
-export async function executeProgram(program, args) {
+export async function executeProgram(...args) {
   if (isProgramExecuting) throw new Error('Another program is already running');
   isProgramExecuting = true;
   let result = '';
@@ -90,20 +90,17 @@ export async function executeProgram(program, args) {
       ...args.map((arg) => arg.toString()),
       ...['config', 'select-node', 'select-compiler'].includes(args[0])
       || (
-        program.name() === 'aecli account'
-        && ['save', 'create', 'address', 'sign-message', 'verify-message'].includes(args[0])
+        args[0] === 'account'
+        && ['save', 'create', 'address', 'sign-message', 'verify-message'].includes(args[1])
       )
       || (
-        program.name() === 'aecli contract'
-        && ['compile', 'encode-calldata', 'decode-call-result'].includes(args[0]))
-      || (program.name() === 'aecli tx' && args[0] !== 'verify') ? [] : ['--url', url],
+        args[0] === 'contract'
+        && ['compile', 'encode-calldata', 'decode-call-result'].includes(args[1]))
+      || (args[0] === 'tx' && args[1] !== 'verify') ? [] : ['--url', url],
       ...[
         'compile', 'deploy', 'call', 'encode-calldata', 'decode-call-result',
-      ].includes(args[0]) && !args.includes('--compilerUrl') ? ['--compilerUrl', compilerUrl] : [],
+      ].includes(args[1]) && !args.includes('--compilerUrl') ? ['--compilerUrl', compilerUrl] : [],
     ];
-    if (allArgs.some((a) => !['string', 'number'].includes(typeof a))) {
-      throw new Error(`Invalid arguments: [${allArgs.join(', ')}]`);
-    }
     await program.parseAsync(allArgs, { from: 'user' });
   } finally {
     console.log = log;
@@ -127,7 +124,7 @@ export async function getSdk() {
     accounts: [new MemoryAccount(tempKeyPair.secretKey)],
   });
   await Promise.all([
-    executeProgram(accountProgram, ['create', WALLET_NAME, '--password', 'test', tempKeyPair.secretKey, '--overwrite']),
+    executeProgram('account', 'create', WALLET_NAME, '--password', 'test', tempKeyPair.secretKey, '--overwrite'),
     sdk.spend(5e19, tempKeyPair.publicKey, { onAccount: new MemoryAccount(keypair.secretKey) }),
   ]);
   return sdk;

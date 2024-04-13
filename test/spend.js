@@ -4,11 +4,8 @@ import { generateKeyPair } from '@aeternity/aepp-sdk';
 import {
   getSdk, executeProgram, WALLET_NAME, expectToMatchLines,
 } from './index.js';
-import spendProgram from '../src/commands/spend.js';
 
-const executeSpend = (args) => (
-  executeProgram(spendProgram, [WALLET_NAME, '--password', 'test', ...args])
-);
+const executeSpend = executeProgram.bind(null, 'spend', WALLET_NAME, '--password', 'test');
 
 describe('Spend', () => {
   let sdk;
@@ -20,7 +17,7 @@ describe('Spend', () => {
   it('spends', async () => {
     const amount = 100;
     const { publicKey } = generateKeyPair();
-    const resJson = await executeSpend([publicKey, amount, '--json']);
+    const resJson = await executeSpend(publicKey, amount, '--json');
     const receiverBalance = await sdk.getBalance(publicKey);
     expect(+receiverBalance).to.be.equal(amount);
 
@@ -45,7 +42,7 @@ describe('Spend', () => {
       },
     });
 
-    const res = await executeSpend([publicKey, amount]);
+    const res = await executeSpend(publicKey, amount);
     expectToMatchLines(res, [
       'Transaction mined',
       /Transaction hash ________________________ th_\w+/,
@@ -66,9 +63,7 @@ describe('Spend', () => {
 
   it('spends in ae', async () => {
     const receiverKeys = generateKeyPair();
-    const { tx: { fee } } = await executeSpend([
-      '--json', receiverKeys.publicKey, '1ae', '--fee', '0.02ae',
-    ]);
+    const { tx: { fee } } = await executeSpend('--json', receiverKeys.publicKey, '1ae', '--fee', '0.02ae');
     expect(await sdk.getBalance(receiverKeys.publicKey)).to.be.equal('1000000000000000000');
     expect(fee).to.be.equal('20000000000000000');
   });
@@ -76,7 +71,7 @@ describe('Spend', () => {
   it('spends percent of balance', async () => {
     const { publicKey } = generateKeyPair();
     const balanceBefore = await sdk.getBalance(sdk.address);
-    await executeSpend([publicKey, '42%']);
+    await executeSpend(publicKey, '42%');
     expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * 0.42);
   });
 
@@ -88,7 +83,7 @@ describe('Spend', () => {
         + '  entrypoint init() = { key = 0 }\n',
     });
     const { address } = await contract.$deploy([]);
-    await executeSpend([address, 100]);
+    await executeSpend(address, 100);
     expect(await sdk.getBalance(address)).to.be.equal('100');
   });
 });
