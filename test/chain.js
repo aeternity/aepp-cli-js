@@ -105,10 +105,4 @@ Absolute TTL ____________________________ 10
 Relative TTL ____________________________ ${resJson.relativeTtl}
     `.trim());
   });
-
-  it('prints network id', async () => {
-    const nodeNetworkId = await sdk.api.getNetworkId();
-    const { networkId } = await executeChain(['network_id', '--json']);
-    nodeNetworkId.should.equal(networkId);
-  });
 });

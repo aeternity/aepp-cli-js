@@ -34,17 +34,6 @@ export async function version(options) {
   printUnderscored('Syncing', status.syncing);
 }
 
-// ## Retrieve `node` version
-export async function getNetworkId(options) {
-  const { json } = options;
-  // Initialize `Ae`
-  const sdk = initSdk(options);
-  // Call `getStatus` API and print it
-  const { networkId } = await sdk.api.getStatus();
-  if (json) print({ networkId });
-  else printUnderscored('Network ID', networkId);
-}
-
 // ## Retrieve `ttl` version
 export async function ttl(_absoluteTtl, { json, ...options }) {
   // Initialize `Ae`

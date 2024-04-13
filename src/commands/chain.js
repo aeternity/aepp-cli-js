@@ -44,14 +44,6 @@ addCommonOptions(program
   .description('Get relative ttl')
   .action(Chain.ttl));
 
-// ## Initialize `network_id` command
-//
-// You can use this command to get current network ID
-addCommonOptions(program
-  .command('network_id')
-  .description('Get network ID')
-  .action(Chain.getNetworkId));
-
 // ## Initialize `play` command
 //
 // You can use this command to get list of block by some condition (by `limit` or `height`)
