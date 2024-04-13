@@ -14,7 +14,7 @@ const program = new Command();
 
 const EXECUTABLE_CMD = [
   { name: 'chain', desc: 'Interact with the blockchain' },
-  { name: 'inspect', desc: 'Get information on transactions, blocks,...' },
+  { name: 'inspect', desc: 'get details of a node entity' },
   { name: 'account', desc: 'Handle wallet operations' },
   { name: 'contract', desc: 'Contract interactions' },
   { name: 'name', desc: 'manage AENS names' },

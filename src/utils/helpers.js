@@ -8,6 +8,7 @@ export const exampleAddress2 = 'ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUD
 export const exampleContract = 'ct_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
 export const exampleOracle = 'ok_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi';
 export const exampleOracleQuery = 'oq_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
+export const exampleTransaction = 'tx_+FoMAaEBzqet5HDJ+Z2dTkAIgKhvHUm7REti8Rqeu2S7z+tz/vOhARX7Ovvi4N8rfRN/Dsvb2ei7AJ3ysIkBrG5pnY6qW3W7iQVrx14tYxAAAIYPUN430AAAKoBebL57';
 export const exampleName = 'example-name.chain';
 export const exampleCalldata = 'cb_DA6sWJo=';
 

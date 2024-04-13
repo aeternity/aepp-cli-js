@@ -17,7 +17,7 @@ import {
 } from '../arguments.js';
 import {
   addExamples, exampleAddress1, exampleAddress2, exampleContract, exampleOracle, exampleOracleQuery,
-  exampleName, exampleCalldata,
+  exampleName, exampleCalldata, exampleTransaction,
 } from '../utils/helpers.js';
 
 const program = new Command()
@@ -116,6 +116,6 @@ command = program
   .summary('verify transaction using node')
   .description('Verify transaction using node.')
   .action(Transaction.verify);
-addExamples(program.name(), command, ['tx_+FoMAaEBzqet5HDJ+Z2dTkAIgKhvHUm7REti8Rqeu2S7z+tz/vOhARX7Ovvi4N8rfRN/Dsvb2ei7AJ3ysIkBrG5pnY6qW3W7iQVrx14tYxAAAIYPUN430AAAKoBebL57']);
+addExamples(program.name(), command, [exampleTransaction]);
 
 export default program;

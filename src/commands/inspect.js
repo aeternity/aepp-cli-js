@@ -1,37 +1,39 @@
-// # æternity CLI `inspect` file
-//
-// This script initialize all `inspect` commands
-// We'll use `commander` for parsing options
 import { Command } from 'commander';
 import inspect from '../actions/inspect.js';
 import { nodeOption, jsonOption, forceOption } from '../arguments.js';
+import {
+  addExamples, exampleAddress1, exampleContract, exampleName, exampleOracle, exampleTransaction,
+} from '../utils/helpers.js';
 
-const program = new Command().name('aecli inspect');
-
-// ## Initialize `options`
-const addCommonOptions = (p) => p
+const command = new Command().name('aecli inspect')
+  .arguments('<identifier>')
+  .description([
+    'Prints details of:',
+    ...[
+      'account (ak_-prefixed string)',
+      'name (string ending with \'.chain\')',
+      'contract (ct_-prefixed string)',
+      'oracle (ok_-prefixed string)',
+      'keyblock or microblock (prefixed with kh_, mh_)',
+      'keyblock by height (integer)',
+      'transaction (by th_-string or tx_)',
+    ].map((el, i, arr) => `  - ${el}${arr.length === i + 1 ? '.' : ','}`),
+  ].join('\n'))
   .addOption(nodeOption)
   .addOption(forceOption)
-  .addOption(jsonOption);
+  .addOption(jsonOption)
+  .action(inspect);
 
-// ## Initialize `inspect` command
-//
-// You can use this command to get info about account, block, transaction or name
-//
-// Example: `aecli inspect testName.chain` --> get info about AENS `name`
-//
-// Example: `aecli inspect ak_134defawsgf34gfq4f` --> get info about `account`
-//
-// Example: `aecli inspect kh_134defawsgf34gfq4f` --> get info about `key block` by block `hash`
-//
-// Example: `aecli inspect mh_134defawsgf34gfq4f` --> get info about `micro block` by block `hash`
-//
-// Example: `aecli inspect 1234` --> get info about `block` by block `height`
-//
-// Example: `aecli inspect th_asfwegfj34234t34t` --> get info about `transaction` by transaction `hash`
-addCommonOptions(program
-  .arguments('<hash>')
-  .description('Hash or Name to inspect (eg: ak_..., mk_..., name.chain)')
-  .action(inspect));
+addExamples('', command, [
+  `${exampleAddress1}  # get account details`,
+  `${exampleName}  # get details of AENS name`,
+  `${exampleContract}  # get contract details`,
+  `${exampleOracle}  # get contract details`,
+  'kh_CF37tA4KiiZTFqbQ6JFCU7kDt6CBZucBrvineVUGC7svA9vK7  # get key block details by hash',
+  'mh_k1K9gLLtdikJhCdKfBbhYGveQs7osSNwceEJZb1jD6AmraNdr  # get micro block details by hash',
+  '929796  # get key block details by height',
+  'th_2nZshewM7FtKSsDEP4zXPsGCe9cdxaFTRrcNjJyE22ktjGidZR  # get transaction details by hash',
+  `${exampleTransaction}  # get transaction details`,
+]);
 
-export default program;
+export default command;

@@ -1,7 +1,3 @@
-// # æternity CLI `inspect` file
-//
-// This script initialize all `inspect` function
-
 import { Encoding, unpackTx as _unpackTx, Tag } from '@aeternity/aepp-sdk';
 import { initSdk } from '../utils/cli.js';
 import {
@@ -15,13 +11,11 @@ import {
 import {
   checkPref, getBlock, getNameEntry, formatCoins, formatTtl, validateName,
 } from '../utils/helpers.js';
-import CliError from '../utils/CliError.js';
 
 function printEntries(object) {
   Object.entries(object).forEach((entry) => printUnderscored(...entry));
 }
 
-// ## Inspect helper function's
 async function getBlockByHash(hash, { json, ...options }) {
   checkPref(hash, [Encoding.KeyBlockHash, Encoding.MicroBlockHash]);
   const sdk = initSdk(options);
@@ -122,12 +116,7 @@ async function getOracle(oracleId, { json, ...options }) {
   if (oracle.queries) printQueries(oracle.queries);
 }
 
-// ## Inspect function
-// That function get the param(`hash`, `height` or `name`) and show you info about it
 export default async function inspect(hash, option) {
-  if (!hash) throw new CliError('Hash argument is required');
-
-  // Get `block` by `height`
   if (!isNaN(hash)) {
     await getBlockByHeight(hash, option);
     return;
@@ -135,30 +124,25 @@ export default async function inspect(hash, option) {
 
   const [pref] = hash.split('_');
   switch (pref) {
-    // Get `block` or `micro_block` by `hash`
     case Encoding.KeyBlockHash:
     case Encoding.MicroBlockHash:
       await getBlockByHash(hash, option);
       break;
-    // Get `account` by `hash`
     case Encoding.AccountAddress:
       await getAccountByHash(hash, option);
       break;
-    // Get `transaction` by `hash`
     case Encoding.TxHash:
       await getTransactionByHash(hash, option);
       break;
     case Encoding.Transaction:
       await unpackTx(hash, option);
       break;
-    // Get `contract` by `contractId`
     case Encoding.ContractAddress:
       await getContract(hash, option);
       break;
     case Encoding.OracleAddress:
       await getOracle(hash, option);
       break;
-    // Get `name`
     default:
       await getName(hash, option);
       break;
