@@ -8,6 +8,10 @@ export const coinAmountParser = (amount) => {
   return new BigNumber(amount);
 };
 
+export const amountOption = new Option('-a, --amount [amount]', 'Amount of coins to send')
+  .default(0, '0ae')
+  .argParser(coinAmountParser);
+
 export const feeOption = new Option('-F, --fee [fee]', 'Override the transaction fee')
   .argParser(coinAmountParser);
 

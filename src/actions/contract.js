@@ -97,7 +97,7 @@ export async function deploy(walletPath, args, options) {
 // ## Function which `call` contract
 export async function call(fn, args, walletPath, options) {
   const {
-    callStatic, json, top, ttl, gas, nonce,
+    callStatic, json, top, ttl, gas, nonce, amount,
   } = options;
   if (callStatic !== true && walletPath == null) {
     throw new CliError('wallet_path is required for on-chain calls');
@@ -110,6 +110,7 @@ export async function call(fn, args, walletPath, options) {
     nonce: nonce && +nonce,
     callStatic,
     top,
+    amount,
   });
   if (json) print(callResult);
   else {

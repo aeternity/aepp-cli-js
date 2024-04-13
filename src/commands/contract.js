@@ -15,6 +15,7 @@ import {
   forceOption,
   passwordOption,
   ttlOption,
+  amountOption,
 } from '../arguments.js';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
@@ -108,6 +109,7 @@ addCommonOptions(program
   .addOption(gasOption)
   .option('-s, --callStatic', 'Call static')
   .option('-t, --topHash', 'Hash of block to make call')
+  .addOption(amountOption)
   .addOption(feeOption)
   .addOption(ttlOption(true))
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
@@ -135,6 +137,7 @@ addCommonOptions(program
   .addOption(passwordOption)
   .addOption(gasOption)
   .addOption(gasPriceOption(true))
+  .addOption(amountOption)
   .addOption(feeOption)
   .addOption(ttlOption(true))
   .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
