@@ -16,7 +16,7 @@ const EXECUTABLE_CMD = [
   { name: 'chain', desc: 'Interact with the blockchain' },
   { name: 'inspect', desc: 'get details of a node entity' },
   { name: 'account', desc: 'Handle wallet operations' },
-  { name: 'contract', desc: 'Contract interactions' },
+  { name: 'contract', desc: 'contract interactions' },
   { name: 'name', desc: 'manage AENS names' },
   { name: 'tx', desc: 'Generates transactions to sign and submit manually' },
   { name: 'oracle', desc: 'Interact with oracles' },

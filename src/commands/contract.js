@@ -1,7 +1,3 @@
-// # æternity CLI `contract` file
-//
-// This script initialize all `contract` command's
-// We'll use `commander` for parsing options
 import { Argument, Option, Command } from 'commander';
 import CliError from '../utils/CliError.js';
 import * as Contract from '../actions/contract.js';
@@ -17,6 +13,7 @@ import {
   ttlOption,
   amountOption,
 } from '../arguments.js';
+import { addExamples, exampleContract } from '../utils/helpers.js';
 
 const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contract call')
   .argParser((argsText) => {
@@ -32,114 +29,108 @@ const callArgs = new Argument('[args]', 'JSON-encoded arguments array of contrac
   .default([]);
 
 const descriptorPathOption = new Option('-d, --descrPath [descrPath]', 'Path to contract descriptor file');
+// TODO: remove "contract" prefix because it is clear in context
 const contractSourceFilenameOption = new Option('--contractSource [contractSource]', 'Contract source code file name');
 const contractAciFilenameOption = new Option('--contractAci [contractAci]', 'Contract ACI file name');
 
 const program = new Command().name('aecli contract');
 
-const addCommonOptions = (p) => p
-  .addOption(nodeOption)
-  .addOption(compilerOption)
-  .addOption(forceOption)
-  .addOption(jsonOption);
+const exampleContractPath = './contract.aes';
+const exampleContractDescriptorPath = './contract.aes.deploy.229e.json';
+const exampleContractAciPath = './contract.json';
+const exampleCalldata = 'cb_DA6sWJo=';
+const exampleFunction = 'sum';
+const exampleArgs = '\'[1, 2]\'';
 
-// ## Initialize `compile` command
-//
-// You can use this command to compile your `contract` to `bytecode`
-//
-// Example: `aecli contract compile ./mycontract.contract`
-addCommonOptions(program
-  .command('compile <file>')
-  .description('Compile a contract')
-  .action(Contract.compile));
+const addCompilerOptions = (cmd, examples) => {
+  cmd.addOption(compilerOption).addOption(forceOption).addOption(jsonOption);
+  if (!cmd.description()) {
+    const summary = cmd.summary();
+    cmd.description(`${summary[0].toUpperCase()}${summary.slice(1)}.`);
+  }
+  addExamples(program.name(), cmd, examples);
+};
 
-// ## Initialize `encode-calldata` command
-//
-// You can use this command to prepare `callData`
-//
-// Example: `aecli contract encodeData ./mycontract.contract testFn 1 2`
-addCommonOptions(program
-  .command('encode-calldata <fn>')
+let command = program.command('compile <file>')
+  .summary('compile a contract to get bytecode')
+  .action(Contract.compile);
+addCompilerOptions(command, [exampleContractPath]);
+
+command = program.command('encode-calldata <fn>')
   .addArgument(callArgs)
   .addOption(descriptorPathOption)
   .addOption(contractSourceFilenameOption)
   .addOption(contractAciFilenameOption)
-  .description('Encode contract calldata')
-  .action(Contract.encodeCalldata));
+  .summary('encode calldata for contract call')
+  .action(Contract.encodeCalldata);
+addCompilerOptions(command, [
+  `--descrPath ${exampleContractDescriptorPath} ${exampleFunction} ${exampleArgs}`,
+  `--contractSource ${exampleContractPath} ${exampleFunction} ${exampleArgs}`,
+  `--contractAci ${exampleContractAciPath} ${exampleFunction} ${exampleArgs}`,
+]);
 
-// ## Initialize `decode-calldata` command
-//
-// You can use this command to decode contract calldata using source or bytecode
-//
-// Example bytecode: `aecli contract decodeCallData cb_asdasdasd... --code cb_asdasdasdasd....`
-// Example source code: `aecli contract decodeCallData cb_asdasdasd... --sourcePath ./contractSource --fn someFunction`
-addCommonOptions(program
-  .command('decode-call-result <fn> <data>')
+command = program
+  .command('decode-call-result <fn> <encoded_result>')
   .addOption(descriptorPathOption)
   .addOption(contractSourceFilenameOption)
   .addOption(contractAciFilenameOption)
-  .description('Decode contract calldata')
-  .action(Contract.decodeCallResult));
+  .summary('decode contract call result')
+  .action(Contract.decodeCallResult);
+addCompilerOptions(command, [
+  `--descrPath ${exampleContractDescriptorPath} test ${exampleCalldata}`,
+  `--contractSource ${exampleContractPath} test ${exampleCalldata}`,
+  `--contractAci ${exampleContractAciPath} test ${exampleCalldata}`,
+]);
 
-// ## Initialize `call` command
-//
-// You can use this command to execute a function's of contract
-//
-// Example:
-//    `aecli contract call ./wallet.json sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json ` --> Using descriptor file
-//    `aecli contract call ./wallet.json sumFunc '[1, 2]' --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 ` --> Using contract address
-//
-// Also you have ability to make `static` call using `--callStatic` flag
-// Example:
-//    `aecli contract call ./wallet.json sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json --callStatic` --> Static call using descriptor
-//    `aecli contract call ./wallet.json sumFunc '[1, 2]' --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 --callStatic` --> Static call using contract address
-// You can preset gas, nonce and ttl for that call. If not set use default.
-// Example: `aecli contract call ./wallet.json sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json --gas 2222222 --nonce 4 --ttl 1243`
-addCommonOptions(program
-  .command('call')
+const addCommonOptions = (cmd, examples) => {
+  cmd
+    .addOption(descriptorPathOption)
+    .addOption(contractSourceFilenameOption)
+    .addOption(contractAciFilenameOption)
+    .addOption(nodeOption)
+    .addOption(passwordOption)
+    .addOption(gasOption)
+    .addOption(gasPriceOption(true))
+    .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+    .addOption(amountOption)
+    .addOption(feeOption)
+    .addOption(ttlOption(true));
+  addCompilerOptions(cmd, examples);
+};
+
+command = program.command('call')
   .argument('<fn>', 'Name of contract entrypoint to call')
   .addArgument(callArgs)
-  .argument('[wallet_path]', 'Path to secret storage file')
-  .addOption(descriptorPathOption)
+  .argument('[wallet_path]', 'Path to secret storage file, not needed to make a static call')
   .option('--contractAddress [contractAddress]', 'Contract address to call')
-  .addOption(contractSourceFilenameOption)
-  .addOption(contractAciFilenameOption)
-  .addOption(passwordOption)
-  .addOption(gasOption)
-  .option('-s, --callStatic', 'Call static')
-  .option('-t, --topHash', 'Hash of block to make call')
-  .addOption(amountOption)
-  .addOption(feeOption)
-  .addOption(ttlOption(true))
-  .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .description('Execute a function of the contract')
-  .action(Contract.call));
+  .option('-s, --callStatic', 'estimate the return value, without making a transaction on chain')
+  .addOption(
+    new Option('-t, --topHash', 'Hash of block to make call').implies({ callStatic: true }),
+  )
+  .summary('execute a function of the contract')
+  .action(Contract.call);
+addCommonOptions(command, [
+  `./wallet.json ${exampleFunction} ${exampleArgs} --descrPath ${exampleContractDescriptorPath}`,
+  `./wallet.json ${exampleFunction} ${exampleArgs} --contractAddress ${exampleContract} --callStatic`,
+  `./wallet.json ${exampleFunction} ${exampleArgs} --descrPath ${exampleContractDescriptorPath} --gas 2222222 --nonce 4 --ttl 1243`,
+]);
 
-//
-// ## Initialize `deploy` command
-//
-// You can use this command to deploy contract on the chain
-//
-// Example: `aecli contract deploy ./wallet.json ./contractSourceCodeFile 1 2` -> "1 2" -> Init state params
-//
-// You can preset gas and initState for deploy
-//
-// Example: `aecli contract deploy ./wallet.json ./contractSourceCodeFile --gas 2222222`
-addCommonOptions(program
-  .command('deploy <wallet_path>')
+command = program.command('deploy <wallet_path>')
   .addArgument(callArgs)
-  .addOption(descriptorPathOption)
-  .addOption(contractSourceFilenameOption)
   .option('--contractBytecode [contractBytecode]', 'Contract bytecode file name')
-  .addOption(contractAciFilenameOption)
-  .addOption(passwordOption)
-  .addOption(gasOption)
-  .addOption(gasPriceOption(true))
-  .addOption(amountOption)
-  .addOption(feeOption)
-  .addOption(ttlOption(true))
-  .option('-N, --nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .description('Deploy a contract on the chain')
-  .action(Contract.deploy));
+  .summary('deploy a contract on the chain')
+  .description([
+    'Deploy a contract on the chain and create a deployment descriptor with the contract',
+    'information that can be used to invoke the contract later on.',
+    'The generated descriptor will be made in the same folder of the contract source file or',
+    'at the location provided in `descrPath`.',
+    'Multiple deploys of the same contract file will generate different deploy descriptors.',
+  ].join(' '))
+  .action(Contract.deploy);
+addCommonOptions(command, [
+  `./wallet.json --contractSource ${exampleContractPath} ${exampleArgs}`,
+  `./wallet.json --descrPath ${exampleContractDescriptorPath} --gas 2222222`,
+  `./wallet.json --contractBytecode ./contract.txt --contractAci ${exampleContractAciPath}`,
+]);
 
 export default program;

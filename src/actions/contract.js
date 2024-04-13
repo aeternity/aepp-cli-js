@@ -1,7 +1,3 @@
-// # æternity CLI `contract` file
-//
-// This script initialize all `contract` function
-
 import fs from 'fs-extra';
 import { encode } from '@aeternity/aepp-sdk';
 import { initSdk, initSdkByWalletFile } from '../utils/cli.js';
@@ -35,7 +31,6 @@ async function getContractParams({
   };
 }
 
-// ## Function which compile your `source` code
 export async function compile(contractSource, options) {
   const sdk = initSdk(options);
   const contract = await sdk.initializeContract({ sourceCodePath: contractSource });
@@ -46,7 +41,9 @@ export async function compile(contractSource, options) {
 
 export async function encodeCalldata(fn, args, options) {
   const sdk = initSdk(options);
-  const contract = await sdk.initializeContract(await getContractParams(options, { dummyBytecode: true }));
+  const contractParams = await getContractParams(options, { dummyBytecode: true });
+  delete contractParams.address; // TODO: remove after dropping Iris support
+  const contract = await sdk.initializeContract(contractParams);
   // eslint-disable-next-line no-underscore-dangle
   const calldata = contract._calldata.encode(contract._name, fn, args);
   if (options.json) print({ calldata });
@@ -65,13 +62,7 @@ export async function decodeCallResult(fn, calldata, options) {
   }
 }
 
-// ## Function which `deploy` contract
 export async function deploy(walletPath, args, options) {
-  // Deploy a contract to the chain and create a deployment descriptor
-  // with the contract information that can be used to invoke the contract
-  // later on. The generated descriptor will be created in the same folder of the contract
-  // source file or at location provided in descrPath. Multiple deploy of the same contract
-  // file will generate different deploy descriptors.
   const sdk = await initSdkByWalletFile(walletPath, options);
   const contract = await sdk.initializeContract(await getContractParams(options, { descrMayNotExist: true }));
   const result = await contract.$deploy(args, options);
@@ -94,10 +85,9 @@ export async function deploy(walletPath, args, options) {
   }
 }
 
-// ## Function which `call` contract
 export async function call(fn, args, walletPath, options) {
   const {
-    callStatic, json, top, ttl, gas, nonce, amount,
+    callStatic, json, top, ttl, gas, gasPrice, nonce, amount,
   } = options;
   if (callStatic !== true && walletPath == null) {
     throw new CliError('wallet_path is required for on-chain calls');
@@ -107,6 +97,7 @@ export async function call(fn, args, walletPath, options) {
   const callResult = await contract.$call(fn, args, {
     ttl: ttl && +ttl,
     gas,
+    gasPrice,
     nonce: nonce && +nonce,
     callStatic,
     top,
