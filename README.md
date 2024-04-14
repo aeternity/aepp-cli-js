@@ -1,67 +1,97 @@
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
-[![npm](https://img.shields.io/npm/v/@aeternity/aepp-cli.svg)](https://www.npmjs.com/package/@aeternity/aepp-cli)
-[![npm](https://img.shields.io/npm/l/@aeternity/aepp-cli.svg)](https://www.npmjs.com/package/@aeternity/aepp-cli)
-
 # aepp-cli-js
 Command Line Interface for the æternity blockchain.
 
-## Disclaimer
-
-This project is a work-in-progress and things might break. We aim to make our
-pre-releases as stable as possible. Neverless it should not be taken as
-production-ready. To catch up with even more edgy state of development please
-check out the [develop branch].
-
-[develop branch]: https://github.com/aeternity/aecli-js/tree/develop
-
-
 ## Installation
-You can install this `CLI` using your preferred tool (`yarn` or `npm`). Here's an `npm` example
+You can install `aecli` using your preferred tool (`yarn` or `npm`). Here's an `npm` example
 ```
-npm install --global @aeternity/aepp-cli
+$ npm install --global @aeternity/aepp-cli
 ```
 
----
-### Local symlink to aecli
-Run `npm link` for linking `aecli` name to `aecli/bin/aecli.mjs`
+## Quick start
+Let's ensure that CLI installed correctly by running `$ aecli`. It will show the available commands as below.
 
-1. Clone or copy the `aepp-cli-js` git repository into any place you like
-2. Enter the folder and run `npm link`
-3. Enter a new `bash` session and try `aecli` command to see if everything is okay.
-4. If you have any issue, open an `issue` in github
-
-__If you have problems linking, try also `npm install` and then `npm link`__
-
-## Usage Documentation
-
-You can install, use and work on this `CLI` tool, by following these instructions:
-
-1. Clone this repository
-2. With your terminal: enter in folder when the repo has been cloned
-3. Run `bin/aecli.mjs` to see the (following) available commands or run `npm link` and use `aecli` command
-
+<!-- ROOT-HELP-BEGIN -->
 ```
+$ aecli
 Usage: aecli [options] [command]
 
 Options:
-  -V, --version                  output the version number
-  -h, --help                     display help for command
+  -V, --version                                 output the version number
+  -h, --help                                    display help for command
 
 Commands:
-  chain                          Interact with the blockchain
-  inspect                        Get information on transactions, blocks,...
-  account                        Handle wallet operations
-  contract                       Contract interactions
-  name                           AENS system
-  tx                             Transaction builder
-  oracle                         Interact with oracles
-  config [options]               Print the current sdk configuration
-  select-node [nodeUrl]          Specify node to use in other commands
-  select-compiler [compilerUrl]  Specify compiler to use in other commands
-  help [command]                 display help for command
+  account                                       handle wallet operations
+  spend [options] <wallet> <receiver> <amount>  send coins to another account or contract
+  name                                          manage AENS names
+  contract                                      contract interactions
+  oracle                                        interact with oracles
+  chain                                         make a request to the node
+  inspect [options] <identifier>                get details of a node entity
+  tx                                            generate transactions to sign and submit manually
+  config [options]                              print the current sdk configuration
+  select-node [nodeUrl]                         specify node to use in other commands
+  select-compiler [compilerUrl]                 specify compiler to use in other commands
+  help [command]                                display help for command
 ```
+<!-- ROOT-HELP-END -->
 
-4. To read documentation of other commands and sub-commands, you can append `--help`. For example, type `bin/aecli.mjs account --help` to get a list of `account`'s available sub-commands.
+> To read documentation of other commands and sub-commands, you can append `--help`. For example, type `aecli account --help` to get a list of commands available in `account` module.
+
+The next step is to create a wallet to use in other commands:
+
+<!-- WALLET-CREATE-BEGIN -->
+```
+$ aecli account create ./wallet.json
+Address _________________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
+Path ____________________________________ /path/to/wallet.json
+```
+<!-- WALLET-CREATE-END -->
+
+You need to send some coins to the created wallet.
+
+> On testnet you can do that using [faucet]. Switch to testnet using `$ aecli select-node`.
+
+[faucet]: https://faucet.aepps.com/
+
+Run `$ aecli inspect <wallet address>` to ensure that it got coins.
+<!-- INSPECT-BEGIN -->
+```
+$ aecli inspect ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
+Account ID ______________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
+Account balance _________________________ 10000000000000000000000
+Account nonce ___________________________ 0
+Pending transactions:
+```
+<!-- INSPECT-END -->
+
+At the last step, we will send our coins to another account:
+<!-- SPEND-BEGIN -->
+```
+$ aecli spend ./wallet.json ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 42ae
+Transaction mined
+Transaction hash ________________________ th_2muLsbZeFaVJ3tePTnLqobPhxBzwFsm1zUv8sjgMX4LKuevX2T
+Block hash ______________________________ mh_dnoULQWpiRtcrntd5yJPUxcu7YrTu18xZ1e9EC2b8prKdShME
+Block height ____________________________ 2 (about now)
+Signatures ______________________________ ["sg_SG5uW5KEGiy5iG1cCkKq4VEdpyvewcW4NjVf4vj2ZoCiap5iB7UQoknWpyWsD4FkziBuGPE88zwXemq3ZvPrdzNtXtKuD"]
+Transaction type ________________________ SpendTx
+Sender address __________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
+Recipient address _______________________ ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT
+Amount __________________________________ 42ae
+Payload _________________________________ ba_Xfbg4g==
+Fee _____________________________________ 0.00001684ae
+Nonce ___________________________________ 1
+TTL _____________________________________ 4 (about now)
+Version _________________________________ 1
+```
+<!-- SPEND-END -->
+
+Find out more in the [user guide](./user-guide.md).
+
+## Resources
+
+- [User guide](./user-guide.md)
+- [Changelog](./CHANGELOG.md)
+- [Contributor guide](./contributor-guide.md)
 
 ## Commands reference
 
@@ -119,25 +149,3 @@ Commands:
 - [`select-node`](./reference.md#select-node) — specify node to use in other commands
 - [`select-compiler`](./reference.md#select-compiler) — specify compiler to use in other commands
 <!-- REFERENCE-TOC-END -->
-
-## [Change Log]
-
-[Change Log]: CHANGELOG.md
-
-## License
-
-ISC License (ISC)
-Copyright © 2024 aeternity developers
-
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted, provided that the above copyright notice
-and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-

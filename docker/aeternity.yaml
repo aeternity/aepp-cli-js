@@ -2,6 +2,8 @@
 
 system:
   dev_mode: true
+  plugins:
+    - name: aeplugin_dev_mode
 
 dev_mode:
   auto_emit_microblocks: true

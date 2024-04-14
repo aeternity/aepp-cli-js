@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import fs from 'fs-extra';
 import program from '../../src/commands/main.js';
 import { commandExamples } from '../../src/utils/helpers.js';
+import { replaceInTemplate } from './utils.js';
 
 function buildToc(isReadme: boolean): string {
   const anchorCounter = {};
@@ -100,13 +101,8 @@ await Promise.all([
     ...program.commands.map(buildReference),
   ].join('\n')),
   (async () => {
-    const begin = '<!-- REFERENCE-TOC-BEGIN -->';
-    const end = '<!-- REFERENCE-TOC-END -->';
-    const readme = await fs.readFile('./README.md', 'utf-8');
-    const readmeWithToc = readme.replace(
-      new RegExp(`${begin}[\\s\\S]*${end}`),
-      [begin, buildToc(true), end].join('\n'),
-    );
-    await fs.writeFile('./README.md', readmeWithToc);
+    let readme = await fs.readFile('./README.md', 'utf-8');
+    readme = replaceInTemplate(readme, 'REFERENCE-TOC', buildToc(true));
+    await fs.writeFile('./README.md', readme);
   })(),
 ]);

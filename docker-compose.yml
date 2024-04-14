@@ -1,8 +1,8 @@
 version: '3'
 services:
   node:
-    image: aeternity/aeternity:v6.13.0
-    ports: [3013:3013]
+    image: aeternity/aeternity:v6.13.0-bundle
+    ports: [3013:3013, 3313:3313]
     # TODO: remove after releasing https://github.com/aeternity/aeternity/pull/4292
     healthcheck:
       interval: 2s
