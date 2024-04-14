@@ -1,10 +1,10 @@
 import {
-  generateKeyPair, decode, encode, Encoding, buildTxHash,
+  decode, encode, Encoding, buildTxHash,
 } from '@aeternity/aepp-sdk';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import {
-  executeProgram, randomName, getSdk, networkId, expectToMatchLines,
+  executeProgram, randomName, getSdk, networkId, expectToMatchLines, WALLET_NAME,
 } from './index.js';
 import txProgram from '../src/commands/tx.js';
 import accountProgram from '../src/commands/account.js';
@@ -13,7 +13,6 @@ import inspectProgram from '../src/commands/inspect.js';
 
 const executeTx = (args) => executeProgram(txProgram, args);
 
-const WALLET_NAME = 'test-artifacts/tx-wallet.json';
 const testContract = `
 @compiler >= 6
 
@@ -22,9 +21,8 @@ contract Identity =
 `;
 
 describe('Transaction Module', () => {
-  const TX_KEYS = generateKeyPair();
-  const oracleId = encode(decode(TX_KEYS.publicKey, Encoding.AccountAddress), Encoding.OracleAddress);
   let sdk;
+  let oracleId;
   let salt;
   let queryId;
   let contractId;
@@ -34,14 +32,13 @@ describe('Transaction Module', () => {
 
   before(async () => {
     sdk = await getSdk();
-    await sdk.spend(1e24, TX_KEYS.publicKey);
-    await executeProgram(accountProgram, ['create', WALLET_NAME, '--password', 'test', TX_KEYS.secretKey]);
+    oracleId = encode(decode(sdk.address, Encoding.AccountAddress), Encoding.OracleAddress);
   });
 
   it('builds tx', async () => {
     const amount = 100;
 
-    const args = ['spend', TX_KEYS.publicKey, TX_KEYS.publicKey, amount, nonce];
+    const args = ['spend', sdk.address, sdk.address, amount, nonce];
     const responseJson = await executeTx([...args, '--json']);
     expect(responseJson.tx).to.satisfy((s) => s.startsWith(Encoding.Transaction));
     expect(responseJson).to.eql({
@@ -52,8 +49,8 @@ describe('Transaction Module', () => {
         fee: '16660000000000',
         nonce,
         payload: 'ba_Xfbg4g==',
-        recipientId: TX_KEYS.publicKey,
-        senderId: TX_KEYS.publicKey,
+        recipientId: sdk.address,
+        senderId: sdk.address,
         tag: 12,
         ttl: 0,
       },
@@ -65,8 +62,8 @@ Transaction type ________________________ SpendTx
 Summary
     TAG _________________________________ 12
     VERSION _____________________________ 1
-    SENDERID ____________________________ ${TX_KEYS.publicKey}
-    RECIPIENTID _________________________ ${TX_KEYS.publicKey}
+    SENDERID ____________________________ ${sdk.address}
+    RECIPIENTID _________________________ ${sdk.address}
     AMOUNT ______________________________ ${amount}
     FEE _________________________________ 16660000000000
     TTL _________________________________ 0
@@ -79,20 +76,20 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
   });
 
   it('signs tx', async () => {
-    const { tx } = await executeTx(['spend', TX_KEYS.publicKey, TX_KEYS.publicKey, 100, nonce, '--json']);
+    const { tx } = await executeTx(['spend', sdk.address, sdk.address, 100, nonce, '--json']);
 
     const args = ['sign', WALLET_NAME, tx, '--password', 'test', '--networkId', networkId];
     const responseJson = await executeProgram(accountProgram, [...args, '--json']);
     expect(responseJson.signedTx).to.satisfy((s) => s.startsWith(Encoding.Transaction));
     expect(responseJson).to.eql({
-      address: TX_KEYS.publicKey,
+      address: sdk.address,
       networkId: 'ae_dev',
       signedTx: responseJson.signedTx,
     });
 
     const response = await executeProgram(accountProgram, args);
     expectToMatchLines(response, [
-      `Signing account address _________________ ${TX_KEYS.publicKey}`,
+      `Signing account address _________________ ${sdk.address}`,
       'Network ID ______________________________ ae_dev',
       `Unsigned ________________________________ ${tx}`,
       `Signed __________________________________ ${responseJson.signedTx}`,
@@ -134,7 +131,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
   it('builds spend tx and sends', async () => {
     const amount = 100;
     nonce += 1;
-    const { tx } = await executeTx(['spend', TX_KEYS.publicKey, TX_KEYS.publicKey, amount, nonce, '--json']);
+    const { tx } = await executeTx(['spend', sdk.address, sdk.address, amount, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -143,15 +140,15 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       fee: detailsJson.fee,
       nonce,
       payload: 'ba_Xfbg4g==',
-      recipientId: TX_KEYS.publicKey,
-      senderId: TX_KEYS.publicKey,
+      recipientId: sdk.address,
+      senderId: sdk.address,
       type: 'SpendTx',
       version: 1,
     });
     expectToMatchLines(details, [
       'Transaction type ________________________ SpendTx',
-      `Sender address __________________________ ${TX_KEYS.publicKey}`,
-      `Recipient address _______________________ ${TX_KEYS.publicKey}`,
+      `Sender address __________________________ ${sdk.address}`,
+      `Recipient address _______________________ ${sdk.address}`,
       'Amount __________________________________ 0.0000000000000001ae',
       'Payload _________________________________ ba_Xfbg4g==',
       /Fee _____________________________________ 0.000016\d+ae/,
@@ -162,14 +159,14 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds name preclaim tx and sends', async () => {
     nonce += 1;
-    const { tx, salt: nameSalt } = await executeTx(['name-preclaim', TX_KEYS.publicKey, name, nonce, '--json']);
+    const { tx, salt: nameSalt } = await executeTx(['name-preclaim', sdk.address, name, nonce, '--json']);
     salt = nameSalt;
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.commitmentId).to.satisfy((s) => s.startsWith(Encoding.Commitment));
     expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
-      accountId: TX_KEYS.publicKey,
+      accountId: sdk.address,
       commitmentId: detailsJson.commitmentId,
       fee: detailsJson.fee,
       nonce,
@@ -178,7 +175,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     });
     expectToMatchLines(details, [
       'Transaction type ________________________ NamePreclaimTx',
-      `Account address _________________________ ${TX_KEYS.publicKey}`,
+      `Account address _________________________ ${sdk.address}`,
       `Commitment ______________________________ ${detailsJson.commitmentId}`,
       /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
@@ -188,13 +185,13 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds name claim tx and sends', async () => {
     nonce += 1;
-    const { tx } = await executeTx(['name-claim', TX_KEYS.publicKey, salt, name, nonce, '--json']);
+    const { tx } = await executeTx(['name-claim', sdk.address, salt, name, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.nameSalt).to.be.a('number');
     expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
-      accountId: TX_KEYS.publicKey,
+      accountId: sdk.address,
       fee: detailsJson.fee,
       name,
       nameFee: '159700000000000000',
@@ -205,7 +202,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     });
     expectToMatchLines(details, [
       'Transaction type ________________________ NameClaimTx',
-      `Account address _________________________ ${TX_KEYS.publicKey}`,
+      `Account address _________________________ ${sdk.address}`,
       `Name ____________________________________ ${name}`,
       'Name fee ________________________________ 0.1597ae',
       `Name salt _______________________________ ${salt}`,
@@ -219,7 +216,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds name update tx and sends', async () => {
     nonce += 1;
-    const { tx } = await executeTx(['name-update', TX_KEYS.publicKey, nameId, nonce, TX_KEYS.publicKey, '--json']);
+    const { tx } = await executeTx(['name-update', sdk.address, nameId, nonce, sdk.address, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -229,17 +226,17 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       nameId,
       nameTtl: 180000,
       nonce,
-      pointers: [{ id: TX_KEYS.publicKey, key: 'account_pubkey' }],
+      pointers: [{ id: sdk.address, key: 'account_pubkey' }],
       type: 'NameUpdateTx',
       version: 1,
-      accountId: TX_KEYS.publicKey,
+      accountId: sdk.address,
     });
     expectToMatchLines(details, [
       'Transaction type ________________________ NameUpdateTx',
-      `Account address _________________________ ${TX_KEYS.publicKey}`,
+      `Account address _________________________ ${sdk.address}`,
       `Name ID _________________________________ ${nameId}`,
       'Name TTL ________________________________ 180000 (in 1 year)',
-      `Pointer account_pubkey __________________ ${TX_KEYS.publicKey}`,
+      `Pointer account_pubkey __________________ ${sdk.address}`,
       'Client TTL ______________________________ 3600 (1 hour)',
       /Fee _____________________________________ 0.000017\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
@@ -249,7 +246,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds name transfer tx and sends', async () => {
     nonce += 1;
-    const { tx } = await executeTx(['name-transfer', TX_KEYS.publicKey, TX_KEYS.publicKey, nameId, nonce, '--json']);
+    const { tx } = await executeTx(['name-transfer', sdk.address, sdk.address, nameId, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -257,15 +254,15 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       fee: detailsJson.fee,
       nameId,
       nonce,
-      recipientId: TX_KEYS.publicKey,
+      recipientId: sdk.address,
       type: 'NameTransferTx',
       version: 1,
-      accountId: TX_KEYS.publicKey,
+      accountId: sdk.address,
     });
     expectToMatchLines(details, [
       'Transaction type ________________________ NameTransferTx',
-      `Account address _________________________ ${TX_KEYS.publicKey}`,
-      `Recipient address _______________________ ${TX_KEYS.publicKey}`,
+      `Account address _________________________ ${sdk.address}`,
+      `Recipient address _______________________ ${sdk.address}`,
       `Name ID _________________________________ ${nameId}`,
       /Fee _____________________________________ 0.000017\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
@@ -275,7 +272,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds name revoke tx and sends', async () => {
     nonce += 1;
-    const { tx } = await executeTx(['name-revoke', TX_KEYS.publicKey, nameId, nonce, '--json']);
+    const { tx } = await executeTx(['name-revoke', sdk.address, nameId, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -285,11 +282,11 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       nonce,
       type: 'NameRevokeTx',
       version: 1,
-      accountId: TX_KEYS.publicKey,
+      accountId: sdk.address,
     });
     expectToMatchLines(details, [
       'Transaction type ________________________ NameRevokeTx',
-      `Account address _________________________ ${TX_KEYS.publicKey}`,
+      `Account address _________________________ ${sdk.address}`,
       `Name ID _________________________________ ${nameId}`,
       /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
@@ -306,7 +303,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     const callData = contract._calldata.encode(contract._name, 'init', []);
     const { tx, contractId: cId } = await executeTx([
       'contract-deploy',
-      TX_KEYS.publicKey,
+      sdk.address,
       bytecode,
       callData,
       nonce,
@@ -329,11 +326,11 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       nonce,
       type: 'ContractCreateTx',
       version: 1,
-      ownerId: TX_KEYS.publicKey,
+      ownerId: sdk.address,
     });
     expectToMatchLines(details, [
       'Transaction type ________________________ ContractCreateTx',
-      `Owner address ___________________________ ${TX_KEYS.publicKey}`,
+      `Owner address ___________________________ ${sdk.address}`,
       'Gas _____________________________________ 5921420 (0.00592142ae)',
       'Gas price _______________________________ 0.000000001ae',
       `Bytecode ________________________________ ${bytecode}`,
@@ -351,7 +348,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     nonce += 1;
     // eslint-disable-next-line no-underscore-dangle
     const callData = contract._calldata.encode(contract._name, 'test', ['1', '2']);
-    const { tx } = await executeTx(['contract-call', TX_KEYS.publicKey, contractId, callData, nonce, '--json', '--amount', '0.00000042ae']);
+    const { tx } = await executeTx(['contract-call', sdk.address, contractId, callData, nonce, '--json', '--amount', '0.00000042ae']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -359,7 +356,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       abiVersion: '3',
       amount: '420000000000',
       callData,
-      callerId: TX_KEYS.publicKey,
+      callerId: sdk.address,
       contractId,
       fee: detailsJson.fee,
       gas: 5817860,
@@ -370,7 +367,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     });
     expectToMatchLines(details, [
       'Transaction type ________________________ ContractCallTx',
-      `Caller address __________________________ ${TX_KEYS.publicKey}`,
+      `Caller address __________________________ ${sdk.address}`,
       `Contract address ________________________ ${contractId}`,
       'Gas _____________________________________ 5817860 (0.00581786ae)',
       'Gas price _______________________________ 0.000000001ae',
@@ -385,13 +382,13 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds oracle register tx and sends', async () => {
     nonce += 1;
-    const { tx } = await executeTx(['oracle-register', TX_KEYS.publicKey, '{city: "str"}', '{tmp:""num}', nonce, '--json']);
+    const { tx } = await executeTx(['oracle-register', sdk.address, '{city: "str"}', '{tmp:""num}', nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
       abiVersion: '0',
-      accountId: TX_KEYS.publicKey,
+      accountId: sdk.address,
       fee: detailsJson.fee,
       nonce,
       oracleTtl: { type: 'delta', value: '500' },
@@ -403,7 +400,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     });
     expectToMatchLines(details, [
       'Transaction type ________________________ OracleRegisterTx',
-      `Account address _________________________ ${TX_KEYS.publicKey}`,
+      `Account address _________________________ ${sdk.address}`,
       /Oracle TTL ______________________________ \d+ \(in 1 day\)/,
       'ABI version _____________________________ 0 (NoAbi)',
       'Query fee _______________________________ 0ae',
@@ -418,7 +415,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
   it('builds oracle extend tx and sends', async () => {
     const oracleCurrentTtl = await sdk.api.getOracleByPubkey(oracleId);
     nonce += 1;
-    const { tx } = await executeTx(['oracle-extend', TX_KEYS.publicKey, oracleId, 100, nonce, '--json']);
+    const { tx } = await executeTx(['oracle-extend', sdk.address, oracleId, 100, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -446,7 +443,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds oracle post query tx and sends', async () => {
     nonce += 1;
-    const { tx } = await executeTx(['oracle-post-query', TX_KEYS.publicKey, oracleId, '{city: "Berlin"}', nonce, '--json']);
+    const { tx } = await executeTx(['oracle-post-query', sdk.address, oracleId, '{city: "Berlin"}', nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -458,13 +455,13 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       queryFee: '0',
       queryTtl: { type: 'delta', value: '10' },
       responseTtl: { type: 'delta', value: '10' },
-      senderId: TX_KEYS.publicKey,
+      senderId: sdk.address,
       type: 'OracleQueryTx',
       version: 1,
     });
     expectToMatchLines(details, [
       'Transaction type ________________________ OracleQueryTx',
-      `Sender address __________________________ ${TX_KEYS.publicKey}`,
+      `Sender address __________________________ ${sdk.address}`,
       `Oracle ID _______________________________ ${oracleId}`,
       'Query ___________________________________ {city: "Berlin"}',
       'Query fee _______________________________ 0ae',
@@ -484,7 +481,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
   it('builds oracle respond tx and sends', async () => {
     const response = '{tmp: 10}';
     nonce += 1;
-    const { tx } = await executeTx(['oracle-respond', TX_KEYS.publicKey, oracleId, queryId, response, nonce, '--json']);
+    const { tx } = await executeTx(['oracle-respond', sdk.address, oracleId, queryId, response, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');

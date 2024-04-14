@@ -44,7 +44,7 @@ const Sdk = (params = {}) => {
 
 const spendPromise = (async () => {
   const sdk = Sdk();
-  await sdk.spend(1e28, keypair.publicKey);
+  await sdk.spend(5e20, keypair.publicKey);
 })();
 
 function getProgramOptions(command) {
@@ -125,7 +125,7 @@ export async function getSdk() {
   });
   await Promise.all([
     executeProgram(accountProgram, ['create', WALLET_NAME, '--password', 'test', tempKeyPair.secretKey, '--overwrite']),
-    sdk.spend(1e26, tempKeyPair.publicKey, { onAccount: new MemoryAccount(keypair.secretKey) }),
+    sdk.spend(5e19, tempKeyPair.publicKey, { onAccount: new MemoryAccount(keypair.secretKey) }),
   ]);
   return sdk;
 }
