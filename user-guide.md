@@ -10,13 +10,13 @@ So [GP] indicates that a feature is only available in Go and Python.
 
 
 # Table of Contents
-1. [Overview](#overview)
-2. [General usage](#general-usage)
-3. [The chain group](#the-chain-group)
-4. [The inspect group](#the-inspect-group)
-5. [Account commands](#account-commands)
-6. [The name group](#the-name-group)
-7. [The contracts group](#the-contracts-group)
+- [Overview](#overview)
+- [General usage](#general-usage)
+- [Account commands](#account-commands)
+- [The name group](#the-name-group)
+- [The contracts group](#the-contracts-group)
+- [The chain group](#the-chain-group)
+- [The inspect group](#the-inspect-group)
 
 ## Overview
 
@@ -60,71 +60,6 @@ The general groupings of commands are:
 - `contract` allows deploying and calling the smart contracts.
 
 
-## The chain group
-
-```
-$ ./aecli chain
-Query the state of the chain
-
-Usage:
-  aecli chain [command]
-
-Available Commands:
-  play        Query the blocks of the chain one after the other
-  top         Query the top block of the chain
-  version     Get the status and version of the node running the chain
-  mempool     Get memory pool of chain (transactions, that are not mined yet)
-```
-These commands display basic information about the blockchain and require little explanation. `Play` moves backward through the blockchain displaying blocks and transactions.
-
-## The inspect group
-The inspect command allows you to see inside various æternity types. Because each æternity type starts with two letters identifying what sort of thing it is, you can throw anything you like at inspect, and it will bravely try to do the right thing.
-
-#### inspect public key
-```
-$ ./aecli inspect ak_XeSuxD8wZ1eDWYu71pWVMJTDopUKrSxZAuiQtNT6bgmNWe9D3
-Balance___________________________________________ 9999497
-ID________________________________________________ ak_XeSuxD8wZ1eDWYu71pWVMJTDopUKrSxZAuiQtNT6bgmNWe9D3
-Nonce_____________________________________________ 3
-```
-#### inspect transaction
-```
-$ ./aecli inspect th_2kgDHbvFjZn4nRLrxrimzyjdJzdEnMtFnD56r5K5UXHMaMbPkd
-BlockHash_________________________________________ mh_2MTsaWUdadr1YRKC5FE7qMHXvtzCZixQyHFV8zsPUCQvwJr2fP
-BlockHeight_______________________________________ 151
-Hash______________________________________________ th_2kgDHbvFjZn4nRLrxrimzyjdJzdEnMtFnD56r5K5UXHMaMbPkd
- versionField_____________________________________ 1
-  Amount__________________________________________ 20000
-  Fee_____________________________________________ 1
-  Nonce___________________________________________ 1
-  Payload_________________________________________ test transaction
-  RecipientID_____________________________________ ak_2uLM25PWdhrTQfuxgJiM8E5sZREzUoB5iFnukHCz1uAZYBMqwo
-  SenderID________________________________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
-```
-#### inspect block
-```
-$ ./aecli inspect mh_2mj6dTVLdRJd2ysvpeMCanMnE816PUjUHZt4N2JBxCbVHb3LnZ
-Hash______________________________________________ mh_2mj6dTVLdRJd2ysvpeMCanMnE816PUjUHZt4N2JBxCbVHb3LnZ
-Height____________________________________________ 682
-PrevHash__________________________________________ kh_Uo54QZNbXAP52BftwHoLVjrfEPmYVn8186D6CfqicXz25gtbE
-PrevKeyHash_______________________________________ kh_Uo54QZNbXAP52BftwHoLVjrfEPmYVn8186D6CfqicXz25gtbE
-Signature_________________________________________ sg_FctQnGxxCzNUf5vkAfhVVeVAQ8DbBiknQW5Wh6DpSz77ku9tgL23GpaDk6V5yij4Fw1jozNwzJJPYbzMroLkaHJU2rYE3
-StateHash_________________________________________ bs_phbFtw7EhFKEP63mtMYd9wSR818VQJqyTqsbLefWJT68ecbR1
-Time______________________________________________ 2018-09-20T13:34:51+02:00
-TxsHash___________________________________________ bx_GnJ5zjiwAatgQjmQF9gPkFjxKiX7uwvc6z1YGrECSv6QmazeH
-Version___________________________________________ 23
-  BlockHash_______________________________________ mh_2mj6dTVLdRJd2ysvpeMCanMnE816PUjUHZt4N2JBxCbVHb3LnZ
-  BlockHeight_____________________________________ 682
-  Hash____________________________________________ th_UvCG8Xo7EvsdA1D21ngLmxnJ1oDYv5qEKKNAg2pDXdYs5mJvW
-   versionField___________________________________ 1
-    Amount________________________________________ 10000000
-    Fee___________________________________________ 1
-    Nonce_________________________________________ 61
-    Payload_______________________________________ hello Naz!
-    RecipientID___________________________________ ak_XeSuxD8wZ1eDWYu71pWVMJTDopUKrSxZAuiQtNT6bgmNWe9D3
-    SenderID______________________________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
-    TTL___________________________________________ 1182
-```
 ## Account commands
 The account (wallet) commands are those which create and report on key pairs, and all of the operations which payments require. To perform transactions within aeternity, you need to have at least two wallets with some coins on their accounts. Using the Account commands, you can create a wallet (with a password or without it), add some coins to it, send coins, and view the wallet’s address (public key).
 
@@ -302,4 +237,70 @@ Gas used_________________ 555
 Return value (encoded)___ 0x0000000000000000000000000000000000000000000000000000000000000003
 Return value (decoded)___ 3
 Return remote type_______ word
+```
+
+## The chain group
+
+```
+$ ./aecli chain
+Query the state of the chain
+
+Usage:
+  aecli chain [command]
+
+Available Commands:
+  play        Query the blocks of the chain one after the other
+  top         Query the top block of the chain
+  version     Get the status and version of the node running the chain
+  mempool     Get memory pool of chain (transactions, that are not mined yet)
+```
+These commands display basic information about the blockchain and require little explanation. `Play` moves backward through the blockchain displaying blocks and transactions.
+
+## The inspect group
+The inspect command allows you to see inside various æternity types. Because each æternity type starts with two letters identifying what sort of thing it is, you can throw anything you like at inspect, and it will bravely try to do the right thing.
+
+#### inspect public key
+```
+$ ./aecli inspect ak_XeSuxD8wZ1eDWYu71pWVMJTDopUKrSxZAuiQtNT6bgmNWe9D3
+Balance___________________________________________ 9999497
+ID________________________________________________ ak_XeSuxD8wZ1eDWYu71pWVMJTDopUKrSxZAuiQtNT6bgmNWe9D3
+Nonce_____________________________________________ 3
+```
+#### inspect transaction
+```
+$ ./aecli inspect th_2kgDHbvFjZn4nRLrxrimzyjdJzdEnMtFnD56r5K5UXHMaMbPkd
+BlockHash_________________________________________ mh_2MTsaWUdadr1YRKC5FE7qMHXvtzCZixQyHFV8zsPUCQvwJr2fP
+BlockHeight_______________________________________ 151
+Hash______________________________________________ th_2kgDHbvFjZn4nRLrxrimzyjdJzdEnMtFnD56r5K5UXHMaMbPkd
+ versionField_____________________________________ 1
+  Amount__________________________________________ 20000
+  Fee_____________________________________________ 1
+  Nonce___________________________________________ 1
+  Payload_________________________________________ test transaction
+  RecipientID_____________________________________ ak_2uLM25PWdhrTQfuxgJiM8E5sZREzUoB5iFnukHCz1uAZYBMqwo
+  SenderID________________________________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
+```
+#### inspect block
+```
+$ ./aecli inspect mh_2mj6dTVLdRJd2ysvpeMCanMnE816PUjUHZt4N2JBxCbVHb3LnZ
+Hash______________________________________________ mh_2mj6dTVLdRJd2ysvpeMCanMnE816PUjUHZt4N2JBxCbVHb3LnZ
+Height____________________________________________ 682
+PrevHash__________________________________________ kh_Uo54QZNbXAP52BftwHoLVjrfEPmYVn8186D6CfqicXz25gtbE
+PrevKeyHash_______________________________________ kh_Uo54QZNbXAP52BftwHoLVjrfEPmYVn8186D6CfqicXz25gtbE
+Signature_________________________________________ sg_FctQnGxxCzNUf5vkAfhVVeVAQ8DbBiknQW5Wh6DpSz77ku9tgL23GpaDk6V5yij4Fw1jozNwzJJPYbzMroLkaHJU2rYE3
+StateHash_________________________________________ bs_phbFtw7EhFKEP63mtMYd9wSR818VQJqyTqsbLefWJT68ecbR1
+Time______________________________________________ 2018-09-20T13:34:51+02:00
+TxsHash___________________________________________ bx_GnJ5zjiwAatgQjmQF9gPkFjxKiX7uwvc6z1YGrECSv6QmazeH
+Version___________________________________________ 23
+  BlockHash_______________________________________ mh_2mj6dTVLdRJd2ysvpeMCanMnE816PUjUHZt4N2JBxCbVHb3LnZ
+  BlockHeight_____________________________________ 682
+  Hash____________________________________________ th_UvCG8Xo7EvsdA1D21ngLmxnJ1oDYv5qEKKNAg2pDXdYs5mJvW
+   versionField___________________________________ 1
+    Amount________________________________________ 10000000
+    Fee___________________________________________ 1
+    Nonce_________________________________________ 61
+    Payload_______________________________________ hello Naz!
+    RecipientID___________________________________ ak_XeSuxD8wZ1eDWYu71pWVMJTDopUKrSxZAuiQtNT6bgmNWe9D3
+    SenderID______________________________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
+    TTL___________________________________________ 1182
 ```
