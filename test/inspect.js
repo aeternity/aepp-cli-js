@@ -63,7 +63,7 @@ Pending transactions:
       `Block hash ______________________________ ${resJson.blockHash}`,
       `Block height ____________________________ ${resJson.blockHeight} (about now)`,
       `Signatures ______________________________ ["${resJson.signatures[0]}"]`,
-      'Transaction type ________________________ SpendTx',
+      'Transaction type ________________________ SpendTx (ver. 1)',
       `Sender address __________________________ ${sdk.address}`,
       `Recipient address _______________________ ${recipient}`,
       'Amount __________________________________ 0.00000000000000042ae',
@@ -71,7 +71,6 @@ Pending transactions:
       /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${resJson.tx.nonce}`,
       /TTL _____________________________________ \d+ \(in [56] minutes\)/,
-      'Version _________________________________ 1',
     ]);
   });
 

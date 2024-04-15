@@ -79,7 +79,7 @@ function printTransactionSync(_tx, json, currentHeight) {
   printUnderscored('Block hash', tx.blockHash);
   printTxField(tx, 'Block height', 'blockHeight', formatTtl);
   printUnderscored('Signatures', tx.signatures);
-  printUnderscored('Transaction type', tx.type);
+  printUnderscored('Transaction type', `${tx.type} (ver. ${tx.version})`);
   // sender
   printTxField(tx, 'Account address', 'accountId');
   printTxField(tx, 'Sender address', 'senderId');
@@ -126,7 +126,6 @@ function printTransactionSync(_tx, json, currentHeight) {
   printTxField(tx, 'Fee', 'fee', formatCoins);
   printTxField(tx, 'Nonce', 'nonce');
   printTxField(tx, 'TTL', 'ttl', formatTtl);
-  printTxField(tx, 'Version', 'version');
 }
 
 export async function printTransaction(tx, json, sdk) {

@@ -77,7 +77,7 @@ Transaction hash ________________________ th_urgozuZRooNXrZxuvNDdT4BiApcGKsf6ZRp
 Block hash ______________________________ mh_dnoULQWpiRtcrntd5yJPUxcu7YrTu18xZ1e9EC2b8prKdShME
 Block height ____________________________ 4 (about now)
 Signatures ______________________________ ["sg_Vn2cCsMk8RvBKyNTKTbq8V4vm6beuHxfYA7vLBNLnRF3x9hoydWWAtNkaiix8KhyEFSLmsmTy6jz9Lps2TQqVdmH6qmCG"]
-Transaction type ________________________ ContractCallTx
+Transaction type ________________________ ContractCallTx (ver. 1)
 Caller address __________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
 Contract address ________________________ ct_5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV
 Gas _____________________________________ 31 (0.000000031ae)
@@ -88,7 +88,6 @@ Amount __________________________________ 0ae
 Fee _____________________________________ 0.00018198ae
 Nonce ___________________________________ 3
 TTL _____________________________________ 7 (in 6 minutes)
-Version _________________________________ 1
 ----------------------Call info-----------------------
 Contract address ________________________ ct_5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV
 Gas price _______________________________ 1000000000
@@ -122,13 +121,12 @@ Transaction hash ________________________ th_iirV7mw49NfFY8NbBhbXGBLv9PPT3h1ou11
 Block hash ______________________________ mh_2RojH44UtAjf8pRQekPp7o78CmCqMQJkRdxmfXvVmWg9M6ymcr
 Block height ____________________________ 99005 (4 years ago)
 Signatures ______________________________ ["sg_MjwB8zrhqGTqYWY2c5jLrikuCcwppnhNhjXg9TcdFbCkSvGhPL6Hf4iu81eoxWWJFSgRSFQ3h3qMv6vVNqYfo5NNBNDFK"]
-Transaction type ________________________ NameClaimTx
+Transaction type ________________________ NameClaimTx (ver. 2)
 Account address _________________________ ak_2i74vkHbdciAdr7Bw3ogdTHsLykPf4ii1DQEGLh6RpySyhtA9H
 Name ____________________________________ yanislav.test
 Name salt _______________________________ 6632125367082877
 Fee _____________________________________ 0.00001638ae
 Nonce ___________________________________ 2
-Version _________________________________ 2
 ```
 #### inspect block
 ```
@@ -150,14 +148,13 @@ Transactions ____________________________ 1
     Block hash ______________________________ mh_2DhgyD4np6n3JMsNWVXdtWZE2rAx74sgxL6nb2GsCKB1VnbLxN
     Block height ____________________________ 762850
     Signatures ______________________________ ["sg_4UUxNZhGLXWjGsfAMEddccjQ1wpZfwUkZ9qMczjRUNFGAWAS3fahHWqgwxLf79RQ3J3ZRnEaazz259dPzUjj5J3EHcNYj"]
-    Transaction type ________________________ SpendTx
+    Transaction type ________________________ SpendTx (ver. 1)
     Sender address __________________________ ak_2swhLkgBPeeADxVTAVCJnZLY5NZtCFiM93JxsEaMuC59euuFRQ
     Recipient address _______________________ ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
     Amount __________________________________ 50ae
     Payload _________________________________ ba_Xfbg4g==
     Fee _____________________________________ 0.00001688ae
     Nonce ___________________________________ 1513
-    Version _________________________________ 1
 ```
 <!-- INSPECT-EXAMPLES-END -->
 
