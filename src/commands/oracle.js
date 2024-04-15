@@ -25,14 +25,11 @@ const addCommonOptions = (p) => p
 //
 // You can use this command to `create` Oracle
 //
-// Example: `aecli oracle create ./myWalletKeyFile --password testpass string string`
-//
-// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+// Example: `aecli oracle create ./wallet.json string string`
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 addCommonOptions(program
   .command('create <wallet_path> <queryFormat> <responseFormat>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--oracleTtl [oracleTtl]', 'Relative oracle time to leave', ORACLE_TTL.value)
   .option('--queryFee [queryFee]', 'Oracle query fee', 0)
   .description('Register Oracle')
@@ -42,14 +39,11 @@ addCommonOptions(program
 //
 // You can use this command to `extend` Oracle time to leave
 //
-// Example: `aecli oracle extend ./myWalletKeyFile --password testpass ok_12dasdgfa32fasf 200`
-//
-// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+// Example: `aecli oracle extend ./wallet.json ok_12dasdgfa32fasf 200`
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 addCommonOptions(program
   .command('extend <wallet_path> <oracleId> <oracleTtl>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .description('Extend Oracle')
   .action(Oracle.extendOracle));
 
@@ -57,14 +51,11 @@ addCommonOptions(program
 //
 // You can use this command to `create` an Oracle Query
 //
-// Example: `aecli oracle create-query ./myWalletKeyFile --password testpass ok_123asdasd... WhatTheWeatherIs?`
-//
-// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+// Example: `aecli oracle create-query ./wallet.json ok_123asdasd... WhatTheWeatherIs?`
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 addCommonOptions(program
   .command('create-query <wallet_path> <oracleId> <query>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--responseTtl [responseTtl]', 'Relative query response time to leave', RESPONSE_TTL.value)
   .option('--queryTtl [queryTtl]', 'Relative query time to leave', QUERY_TTL.value)
   .option('--queryFee [queryFee]', 'Oracle query fee', 0)
@@ -75,14 +66,11 @@ addCommonOptions(program
 //
 // You can use this command to `respond` to Oracle Query
 //
-// Example: `aecli oracle respondQuery ./myWalletKeyFile --password testpass ok_12313... oq_12efdsafa... +16Degree`
-//
-// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+// Example: `aecli oracle respondQuery ./wallet.json ok_12313... oq_12efdsafa... +16Degree`
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 addCommonOptions(program
   .command('respond-query <wallet_path> <oracleId> <queryId> <response>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
   .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL.value)
   .description('Respond to Oracle Query')
   .action(Oracle.respondToQuery));
@@ -91,9 +79,7 @@ addCommonOptions(program
 //
 // You can use this command to `get` an Oracle
 //
-// Example: `aecli oracle respondQuery ./myWalletKeyFile --password testpass ok_12313... oq_12efdsafa... +16Degree`
-//
-// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
+// Example: `aecli oracle respondQuery ./wallet.json ok_12313... oq_12efdsafa... +16Degree`
 //
 // You can use `--ttl` to pre-set transaction `time to leave`
 addCommonOptions(program

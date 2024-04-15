@@ -1,7 +1,9 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { generateKeyPair } from '@aeternity/aepp-sdk';
-import { getSdk, executeProgram, WALLET_NAME } from './index.js';
+import {
+  getSdk, executeProgram, WALLET_NAME, expectToMatchLines,
+} from './index.js';
 import spendProgram from '../src/commands/spend.js';
 
 const executeSpend = (args) => (
@@ -44,23 +46,22 @@ describe('Spend', () => {
     });
 
     const res = await executeSpend([publicKey, amount]);
-    const lineEndings = res.split('\n').map((l) => l.split(' ').at(-1));
-    expect(res).to.be.equal(`
-Transaction mined
-Tx hash _________________________________ ${lineEndings[1]}
-Block hash ______________________________ ${lineEndings[2]}
-Block height ____________________________ ${lineEndings[3]}
-Signatures ______________________________ ${lineEndings[4]}
-Tx Type _________________________________ SpendTx
-Sender account __________________________ ${resJson.tx.senderId}
-Recipient account _______________________ ${resJson.tx.recipientId}
-Amount __________________________________ 100
-Payload _________________________________ ba_Xfbg4g==
-Fee _____________________________________ ${resJson.tx.fee}
-Nonce ___________________________________ 2
-TTL _____________________________________ ${lineEndings[12]}
-Version _________________________________ 1
-    `.trim());
+    expectToMatchLines(res, [
+      'Transaction mined',
+      /Transaction hash ________________________ th_\w+/,
+      /Block hash ______________________________ \w+/,
+      /Block height ____________________________ \d+/,
+      /Signatures ______________________________ .+/,
+      'Transaction type ________________________ SpendTx',
+      `Sender address __________________________ ${resJson.tx.senderId}`,
+      `Recipient address _______________________ ${resJson.tx.recipientId}`,
+      'Amount __________________________________ 0.0000000000000001ae',
+      'Payload _________________________________ ba_Xfbg4g==',
+      /Fee _____________________________________ 0.000016\d+ae/,
+      'Nonce ___________________________________ 2',
+      /TTL _____________________________________ \d+/,
+      'Version _________________________________ 1',
+    ]);
   });
 
   it('spends in ae', async () => {

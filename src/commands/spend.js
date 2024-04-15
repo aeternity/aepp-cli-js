@@ -17,9 +17,9 @@ export default new Command('aecli spend')
   .addHelpText('after', `
 
 Example call:
-  $ aecli spend ./wallet.json ak_2GN72... 100 --password top-secret
-  $ aecli spend ./wallet.json aens-name.chain 1.23ae --password top-secret
-  $ aecli spend ./wallet.json ak_2GN72... 20% --password top-secret --ttl 20`)
+  $ aecli spend ./wallet.json ak_2GN72... 100
+  $ aecli spend ./wallet.json aens-name.chain 1.23ae
+  $ aecli spend ./wallet.json ak_2GN72... 20% --ttl 20`)
   .argument('<wallet_path>', 'A path to wallet file')
   .argument('<receiver>', 'Address or name of recipient account')
   .argument(
@@ -55,5 +55,5 @@ Example call:
       },
     );
     if (!json) print('Transaction mined');
-    printTransaction(tx, json);
+    await printTransaction(tx, json, sdk);
   });

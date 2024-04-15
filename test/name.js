@@ -213,7 +213,7 @@ describe('AENS Module', () => {
 
     it('Open auction', async () => {
       const onAccount = MemoryAccount.generate();
-      await sdk.spend('30000000000000000000000', onAccount.address);
+      await sdk.spend(5e18, onAccount.address);
       const preclaim = await sdk.aensPreclaim(name, { onAccount });
       const claim = await preclaim.claim({ onAccount });
       claim.blockHeight.should.be.gt(0);

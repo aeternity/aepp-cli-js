@@ -86,15 +86,15 @@ addCommonOptions(program
 // You can use this command to execute a function's of contract
 //
 // Example:
-//    `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json ` --> Using descriptor file
-//    `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 ` --> Using contract address
+//    `aecli contract call ./wallet.json sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json ` --> Using descriptor file
+//    `aecli contract call ./wallet.json sumFunc '[1, 2]' --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 ` --> Using contract address
 //
 // Also you have ability to make `static` call using `--callStatic` flag
 // Example:
-//    `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json --callStatic` --> Static call using descriptor
-//    `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 --callStatic` --> Static call using contract address
+//    `aecli contract call ./wallet.json sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json --callStatic` --> Static call using descriptor
+//    `aecli contract call ./wallet.json sumFunc '[1, 2]' --contractAddress ct_1dsf35423fdsg345g4wsdf35ty54234235 --callStatic` --> Static call using contract address
 // You can preset gas, nonce and ttl for that call. If not set use default.
-// Example: `aecli contract call ./myWalletFile --password testpass sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json --gas 2222222 --nonce 4 --ttl 1243`
+// Example: `aecli contract call ./wallet.json sumFunc '[1, 2]' --descrPath ./contractDescriptorFile.json --gas 2222222 --nonce 4 --ttl 1243`
 addCommonOptions(program
   .command('call')
   .argument('<fn>', 'Name of contract entrypoint to call')
@@ -104,7 +104,6 @@ addCommonOptions(program
   .option('--contractAddress [contractAddress]', 'Contract address to call')
   .addOption(contractSourceFilenameOption)
   .addOption(contractAciFilenameOption)
-  .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .addOption(passwordOption)
   .addOption(gasOption)
   .option('-s, --callStatic', 'Call static')
@@ -121,11 +120,11 @@ addCommonOptions(program
 //
 // You can use this command to deploy contract on the chain
 //
-// Example: `aecli contract deploy ./myWalletFile --password testpass ./contractSourceCodeFile 1 2` -> "1 2" -> Init state params
+// Example: `aecli contract deploy ./wallet.json ./contractSourceCodeFile 1 2` -> "1 2" -> Init state params
 //
 // You can preset gas and initState for deploy
 //
-// Example: `aecli contract deploy ./myWalletFile --password tstpass ./contractSourceCodeFile --gas 2222222`
+// Example: `aecli contract deploy ./wallet.json ./contractSourceCodeFile --gas 2222222`
 addCommonOptions(program
   .command('deploy <wallet_path>')
   .addArgument(callArgs)
@@ -133,7 +132,6 @@ addCommonOptions(program
   .addOption(contractSourceFilenameOption)
   .option('--contractBytecode [contractBytecode]', 'Contract bytecode file name')
   .addOption(contractAciFilenameOption)
-  .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
   .addOption(passwordOption)
   .addOption(gasOption)
   .addOption(gasPriceOption(true))

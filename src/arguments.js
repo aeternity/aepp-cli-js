@@ -36,7 +36,8 @@ export const gasPriceOption = (usingNode) => new Option('--gasPrice [gasPrice]',
 
 export const forceOption = new Option('-f, --force', 'Ignore node version compatibility check');
 
-export const passwordOption = new Option('-P, --password [password]', 'Wallet Password');
+export const passwordOption = new Option('-P, --password [password]', 'Wallet Password, may be recorded to shell history')
+  .env('AECLI_WALLET_PASSWORD');
 
 export const ttlOption = (usingNode) => new Option('-T, --ttl [ttl]', 'Validity of the transaction in number of keyblocks, or without this limit if 0')
   .default(noValue, usingNode ? 3 : 0);

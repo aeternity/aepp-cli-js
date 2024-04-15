@@ -4,7 +4,7 @@
 
 import { isAddressValid, getDefaultPointerKey } from '@aeternity/aepp-sdk';
 import { initSdkByWalletFile } from '../utils/cli.js';
-import { print, printTransaction } from '../utils/print.js';
+import { printTransaction } from '../utils/print.js';
 import { getNameEntry, validateName } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
 
@@ -18,7 +18,7 @@ async function ensureNameStatus(name, sdk, status, operation) {
 // ## Claim `name` function
 export async function preClaim(walletPath, name, options) {
   const {
-    ttl, fee, nonce, waitMined, json,
+    ttl, fee, nonce, json,
   } = options;
 
   // Validate `name`(check if `name` end on `.chain`)
@@ -29,23 +29,14 @@ export async function preClaim(walletPath, name, options) {
   // Check if that `name' available
   await ensureNameStatus(name, sdk, 'AVAILABLE', 'preclaimed');
   // Create `pre-claim` transaction
-  const preClaimTx = await sdk.aensPreclaim(name, {
-    ttl, fee, nonce, waitMined,
-  });
-  if (waitMined) {
-    printTransaction(
-      preClaimTx,
-      json,
-    );
-  } else {
-    print(`Transaction send to the chain. Tx hash: ${preClaimTx.hash}`);
-  }
+  const preClaimTx = await sdk.aensPreclaim(name, { ttl, fee, nonce });
+  await printTransaction(preClaimTx, json, sdk);
 }
 
 // ## Claim `name` function
 export async function claim(walletPath, name, salt, options) {
   const {
-    ttl, fee, nonce, waitMined, json, nameFee,
+    ttl, fee, nonce, json, nameFee,
   } = options;
   // Validate `name`
   // validateName(name)
@@ -57,22 +48,15 @@ export async function claim(walletPath, name, salt, options) {
 
   // Wait for next block and create `claimName` transaction
   const claimTx = await sdk.aensClaim(name, salt, {
-    nonce, ttl, fee, waitMined, nameFee,
+    nonce, ttl, fee, nameFee,
   });
-  if (waitMined) {
-    printTransaction(
-      claimTx,
-      json,
-    );
-  } else {
-    print(`Transaction send to the chain. Tx hash: ${claimTx.hash}`);
-  }
+  await printTransaction(claimTx, json, sdk);
 }
 
 // ##Update `name` function
 export async function updateName(walletPath, name, addresses, options) {
   const {
-    ttl, fee, nonce, waitMined, json, nameTtl, clientTtl, extendPointers = false,
+    ttl, fee, nonce, json, nameTtl, clientTtl, extendPointers = false,
   } = options;
 
   // Validate `address`
@@ -90,23 +74,16 @@ export async function updateName(walletPath, name, addresses, options) {
     name,
     Object.fromEntries(addresses.map((address) => [getDefaultPointerKey(address), address])),
     {
-      ttl, fee, nonce, waitMined, nameTtl, clientTtl, extendPointers,
+      ttl, fee, nonce, nameTtl, clientTtl, extendPointers,
     },
   );
-  if (waitMined) {
-    printTransaction(
-      updateTx,
-      json,
-    );
-  } else {
-    print(`Transaction send to the chain. Tx hash: ${updateTx.hash}`);
-  }
+  await printTransaction(updateTx, json, sdk);
 }
 
 // ##Extend `name` ttl  function
 export async function extendName(walletPath, name, nameTtl, options) {
   const {
-    ttl, fee, nonce, waitMined, json,
+    ttl, fee, nonce, json,
   } = options;
 
   // Validate `name`
@@ -118,22 +95,15 @@ export async function extendName(walletPath, name, nameTtl, options) {
 
   // Create `updateName` transaction
   const updateTx = await sdk.aensUpdate(name, {}, {
-    ttl, fee, nonce, waitMined, nameTtl, extendPointers: true,
+    ttl, fee, nonce, nameTtl, extendPointers: true,
   });
-  if (waitMined) {
-    printTransaction(
-      updateTx,
-      json,
-    );
-  } else {
-    print(`Transaction send to the chain. Tx hash: ${updateTx.hash}`);
-  }
+  await printTransaction(updateTx, json, sdk);
 }
 
 // ##Transfer `name` function
 export async function transferName(walletPath, name, address, options) {
   const {
-    ttl, fee, nonce, waitMined, json,
+    ttl, fee, nonce, json,
   } = options;
 
   // Validate `address`
@@ -146,23 +116,14 @@ export async function transferName(walletPath, name, address, options) {
   await ensureNameStatus(name, sdk, 'CLAIMED', 'transferred');
 
   // Create `transferName` transaction
-  const transferTX = await sdk.aensTransfer(name, address, {
-    ttl, fee, nonce, waitMined,
-  });
-  if (waitMined) {
-    printTransaction(
-      transferTX,
-      json,
-    );
-  } else {
-    print(`Transaction send to the chain. Tx hash: ${transferTX.hash}`);
-  }
+  const transferTX = await sdk.aensTransfer(name, address, { ttl, fee, nonce });
+  await printTransaction(transferTX, json, sdk);
 }
 
 // ## Revoke `name` function
 export async function revokeName(walletPath, name, options) {
   const {
-    ttl, fee, nonce, waitMined, json,
+    ttl, fee, nonce, json,
   } = options;
 
   // Validate `name`
@@ -173,22 +134,13 @@ export async function revokeName(walletPath, name, options) {
   await ensureNameStatus(name, sdk, 'CLAIMED', 'revoked');
 
   // Create `revokeName` transaction
-  const revokeTx = await sdk.aensRevoke(name, {
-    ttl, fee, nonce, waitMined,
-  });
-  if (waitMined) {
-    printTransaction(
-      revokeTx,
-      json,
-    );
-  } else {
-    print(`Transaction send to the chain. Tx hash: ${revokeTx.hash}`);
-  }
+  const revokeTx = await sdk.aensRevoke(name, { ttl, fee, nonce });
+  await printTransaction(revokeTx, json, sdk);
 }
 
 export async function nameBid(walletPath, name, nameFee, options) {
   const {
-    ttl, fee, nonce, waitMined, json,
+    ttl, fee, nonce, json,
   } = options;
   // Validate `name`
   validateName(name);
@@ -199,17 +151,8 @@ export async function nameBid(walletPath, name, nameFee, options) {
   await ensureNameStatus(name, sdk, 'AUCTION', 'bidded');
 
   // Wait for next block and create `claimName` transaction
-  const nameBidTx = await sdk.aensBid(name, nameFee, {
-    nonce, ttl, fee, waitMined,
-  });
-  if (waitMined) {
-    printTransaction(
-      nameBidTx,
-      json,
-    );
-  } else {
-    print(`Transaction send to the chain. Tx hash: ${nameBidTx.hash}`);
-  }
+  const nameBidTx = await sdk.aensBid(name, nameFee, { nonce, ttl, fee });
+  await printTransaction(nameBidTx, json, sdk);
 }
 
 export async function fullClaim(walletPath, name, options) {
@@ -239,8 +182,5 @@ export async function fullClaim(walletPath, name, options) {
     },
   );
 
-  printTransaction(
-    updateTx,
-    json,
-  );
+  await printTransaction(updateTx, json, sdk);
 }

@@ -2,7 +2,6 @@
 //
 // This script initialize all `inspect` function
 
-import BigNumber from 'bignumber.js';
 import { Encoding, unpackTx as _unpackTx, Tag } from '@aeternity/aepp-sdk';
 import { initSdk } from '../utils/cli.js';
 import {
@@ -14,7 +13,7 @@ import {
   printUnderscored,
 } from '../utils/print.js';
 import {
-  checkPref, getBlock, getNameEntry, timeAgo, validateName,
+  checkPref, getBlock, getNameEntry, formatCoins, formatTtl, validateName,
 } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
 
@@ -32,13 +31,14 @@ async function getBlockByHash(hash, { json, ...options }) {
 async function getTransactionByHash(hash, { json, ...options }) {
   checkPref(hash, Encoding.TxHash);
   const sdk = initSdk(options);
-  printTransaction(await sdk.api.getTransactionByHash(hash), json);
+  await printTransaction(await sdk.api.getTransactionByHash(hash), json, sdk);
 }
 
 async function unpackTx(encodedTx, { json }) {
   checkPref(encodedTx, Encoding.Transaction);
   const txUnpacked = _unpackTx(encodedTx);
   if (json) print(txUnpacked);
+  // TODO: use printTransaction instead
   else printEntries({ 'Tx Type': Tag[txUnpacked.tag], ...txUnpacked });
 }
 
@@ -68,15 +68,6 @@ async function getBlockByHeight(height, { json, ...options }) {
   const sdk = initSdk(options);
   printBlock(await sdk.api.getKeyBlockByHeight(+height), json);
 }
-
-const formatCoins = (coins) => `${new BigNumber(coins).shiftedBy(-18).toFixed()}ae`;
-
-const formatTtl = (ttl, height) => {
-  const date = new Date();
-  const diff = Math.abs(ttl - height) < 3 ? 0 : ttl - height;
-  date.setMinutes(date.getMinutes() + diff * 3);
-  return `${ttl} (${timeAgo(date)})`;
-};
 
 async function getName(name, { json, ...options }) {
   validateName(name);

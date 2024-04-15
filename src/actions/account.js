@@ -37,11 +37,10 @@ export async function signMessage(walletPath, data = [], options) {
 
 // ## `Verify` function
 // this function allow you to `verify` signed data
-export async function verifyMessage(walletPath, hexSignature, dataArray = [], options) {
-  const { json, filePath, password } = options;
+export async function verifyMessage(address, hexSignature, dataArray = [], options) {
+  const { json, filePath } = options;
   const data = filePath ? await fs.readFile(filePath) : dataArray.join(' ');
-  const account = await AccountCli.read(walletPath, password);
-  const isCorrect = _verifyMessage(data, Buffer.from(hexSignature, 'hex'), account.address);
+  const isCorrect = _verifyMessage(data, Buffer.from(hexSignature, 'hex'), address);
   if (json) {
     print({ data, isCorrect });
   } else {

@@ -132,7 +132,7 @@ The account (wallet) commands are those which create and report on key pairs, an
 
 Use this command to create a new wallet.
 ```
-$ aecli account create ./wallet.json --password top-secret
+$ aecli account create ./wallet.json
  ```
 You can specify a password for accessing your wallet or just press Enter if you do not want to set a password.
 The wallet is created in the specified directory.
@@ -171,7 +171,7 @@ Wallet path___________________ /path-to/wallet.json
 
 Using this command, you can send coins to another wallet. Just indicate another account's address and an amount which should be sent.
 ```
-$ aecli spend ./wallet.json --password top-secret ak_2GN72gRFHYmJd1DD2g2sLADr5ZXa13DPYNtuFajhsZT2y3FiWu 1.23ae
+$ aecli spend ./wallet.json ak_2GN72gRFHYmJd1DD2g2sLADr5ZXa13DPYNtuFajhsZT2y3FiWu 1.23ae
 ```
 As an option, you can set _--ttl_ parameter, which limits the lifespan of this transaction.
 
@@ -208,28 +208,28 @@ $ ./aecli.mjs name
 
 Create and register a name for your account (public key):
 ```
-$ aecli name claim ./wallet.json --password top-secret testname.chain
+$ aecli name claim ./wallet.json testname.chain
 ```
 
 #### revoke
 
 You can delete your name using the following command:
 ```
-$ aecli name revoke ./wallet.json --password top-secret testname.chain
+$ aecli name revoke ./wallet.json testname.chain
 ```
 
 #### transfer
 
 You can transfer a name to another account or contract, just indicate another account's address. You will pass all rights regarding the name to another account:
 ```
-$ aecli name transfer ./wallet.json --password top-secret testname.chain ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
+$ aecli name transfer ./wallet.json testname.chain ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
 ```
 
 #### update
 
 Use this command to update a name. For example, you can assign it to another account, but still you will have rights to do other operations with this name:
 ```
-$ aecli name update ./wallet.json --password top-secret testname.chain ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
+$ aecli name update ./wallet.json testname.chain ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
 ```
 
 ## The contracts group
@@ -278,7 +278,7 @@ $ aecli contract compile file1
 
 To deploy a contract, run the following command adding the contract name:
 ```
-$ aecli contract deploy ./wallet.json --password top-secret testContract
+$ aecli contract deploy ./wallet.json testContract
 ```
 You will get the following:
 ```
@@ -292,7 +292,7 @@ Deploy descriptor_______________ testContract.deploy.2a1j2Mk9YSmC1gioUq4PWRm3bsv
 To execute a function of the contract, run the following command. Json file is stored in `aepp-sdk-js-develop/bin`. `Main` is a function which is executed by this contract, `int 1 2` are numerical values :
 
 ```
-$ aecli contract call ./wallet.json --password top-secret testContract.deploy.2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi.json main int 1 2
+$ aecli contract call ./wallet.json testContract.deploy.2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi.json main int 1 2
 ```
 You will get the following, where return value is a result of contract execution - it is a sum of values 1 and 2:
 ```

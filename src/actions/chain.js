@@ -34,17 +34,6 @@ export async function version(options) {
   printUnderscored('Syncing', status.syncing);
 }
 
-// ## Retrieve `node` version
-export async function getNetworkId(options) {
-  const { json } = options;
-  // Initialize `Ae`
-  const sdk = initSdk(options);
-  // Call `getStatus` API and print it
-  const { networkId } = await sdk.api.getStatus();
-  if (json) print({ networkId });
-  else printUnderscored('Network ID', networkId);
-}
-
 // ## Retrieve `ttl` version
 export async function ttl(_absoluteTtl, { json, ...options }) {
   // Initialize `Ae`
@@ -103,6 +92,6 @@ export async function broadcast(signedTx, options) {
   const { txHash } = await sdk.api.postTransaction({ tx: signedTx });
   const tx = await (waitMined ? sdk.poll(txHash) : sdk.api.getTransactionByHash(txHash));
 
-  printTransaction(tx, json);
+  await printTransaction(tx, json, sdk);
   if (!waitMined && !json) print('Transaction send to the chain.');
 }

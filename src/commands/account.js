@@ -19,7 +19,7 @@ const addCommonOptions = (p) => p
 //
 // You can use this command to sign your transaction's
 //
-// Example: `aecli account sign ./myWalletKeyFile tx_1241rioefwj23f2wfdsfsdsdfsasdf --password testpassword`
+// Example: `aecli account sign ./wallet.json tx_1241rioefwj23f2wfdsfsdsdfsasdf`
 addCommonOptions(program
   .command('sign <wallet_path> <tx>')
   .addOption(nodeOption)
@@ -32,7 +32,7 @@ addCommonOptions(program
 //
 // You can use this command to sign message
 //
-// Example: `aecli account sign-message ./myWalletKeyFile Hello --password testpassword`
+// Example: `aecli account sign-message ./wallet.json Hello`
 addCommonOptions(program
   .command('sign-message <wallet_path> [data...]')
   .option('--filePath [path]', 'Specify the path to the file for signing(ignore command message argument and use file instead)')
@@ -43,20 +43,20 @@ addCommonOptions(program
 //
 // You can use this command to sign message
 //
-// Example: `aecli account verify-message ./myWalletKeyFile asd1dasfadfsdasdasdasHexSig... Hello --password testpassword`
+// Example: `aecli account verify-message ak_... asd1dasfadfsdasdasdasHexSig... Hello`
 addCommonOptions(program
-  .command('verify-message <wallet_path> <hexSignature> [data...]')
+  .command('verify-message <address> <hexSignature> [data...]')
   .option('--filePath [path]', 'Specify the path to the file(ignore comm and message argument and use file instead)')
-  .description('Check if message was signed by wallet')
+  .description('Check if message was signed by account')
   .action(Account.verifyMessage));
 
 // ## Initialize `address` command
 //
 // You can use this command to retrieve get your public and private key
 //
-// Example: `aecli account address ./myWalletKeyFile --password testpassword` --> show only public key
+// Example: `aecli account address ./wallet.json` --> show only public key
 //
-// Example: `aecli account address ./myWalletKeyFile --password testpassword --privateKey` --> show  public key and private key
+// Example: `aecli account address ./wallet.json --privateKey` --> show  public key and private key
 addCommonOptions(program
   .command('address <wallet_path>')
   .option('--privateKey', 'Print private key')
@@ -77,7 +77,7 @@ addCommonOptions(program
   .addHelpText('after', `
 
 Example call:
-  $ aecli account create ./my-wallet.json --password top-secret
+  $ aecli account create ./my-wallet.json
   $ aecli account create ./my-wallet.json 9ebd7beda0c79af72a42ece3821a56eff16359b6df376cf049aee995565f022f840c974b97164776454ba119d84edc4d6058a8dec92b6edc578ab2d30b4c4200`)
   .action(Account.createWallet));
 

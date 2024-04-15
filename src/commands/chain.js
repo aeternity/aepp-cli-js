@@ -44,14 +44,6 @@ addCommonOptions(program
   .description('Get relative ttl')
   .action(Chain.ttl));
 
-// ## Initialize `network_id` command
-//
-// You can use this command to get current network ID
-addCommonOptions(program
-  .command('network_id')
-  .description('Get network ID')
-  .action(Chain.getNetworkId));
-
 // ## Initialize `play` command
 //
 // You can use this command to get list of block by some condition (by `limit` or `height`)
@@ -73,8 +65,8 @@ addCommonOptions(program
 // Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
 addCommonOptions(program
   .command('broadcast <tx>')
-  .option('-W, --no-waitMined', 'Force waiting until transaction will be mined')
-  .option('--verify', 'Verify Transaction before broadcast.')
+  .option('-W, --no-waitMined', 'Don\'t wait until transaction gets mined')
+  .option('--verify', 'Verify Transaction before broadcasting.')
   .description('Send transaction to the chain')
   .action(Chain.broadcast));
 
