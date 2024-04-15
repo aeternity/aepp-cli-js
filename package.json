@@ -19,6 +19,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.2.1",
     "@commitlint/config-conventional": "^19.1.0",
+    "@types/fs-extra": "^11.0.4",
     "c8": "^9.1.0",
     "chai": "^4.3.7",
     "chai-as-promised": "^7.1.1",
@@ -27,20 +28,20 @@
     "mocha": "^10.4.0",
     "mock-fs": "^5.2.0",
     "sinon": "^17.0.1",
-    "standard-version": "^9.5.0"
+    "standard-version": "^9.5.0",
+    "tsx": "^4.7.2"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/aeternity/aepp-cli-js.git"
   },
   "scripts": {
-    "docs": "scripts/js-to-md.js src/*.js src/commands/*.js src/actions/*.js src/utils/*.js",
     "commitlint": "commitlint --from develop",
+    "docs": "npx tsx ./scripts/docs/index.ts",
     "lint": "eslint .",
     "test": "mocha",
     "test:watch": "mocha --watch",
-    "release": "standard-version --skip.tag",
-    "prepublishOnly": "npm run docs"
+    "release": "standard-version --skip.tag"
   },
   "keywords": [
     "CLI",

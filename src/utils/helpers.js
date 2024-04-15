@@ -13,9 +13,20 @@ export const exampleName = 'example-name.chain';
 export const exampleCalldata = 'cb_DA6sWJo=';
 export const exampleHeight = 929796;
 
-export const addExamples = (prefix, command, examples) => command.addHelpText('after', `
-Example call:
-${examples.map((e) => `  $ ${prefix ? `${prefix} ` : ''}${command.name()} ${e}`).join('\n')}`);
+export const commandExamples = new WeakMap();
+
+export const addExamples = (command, examples) => {
+  commandExamples.set(command, examples);
+  command.addHelpText('after', () => {
+    let name = '';
+    let cmd = command;
+    while (cmd) {
+      name = `${cmd.name()} ${name}`;
+      cmd = cmd.parent;
+    }
+    return ['', 'Example calls:', ...examples.map((e) => `  $ ${name}${e}`)].join('\n');
+  });
+};
 
 export async function getBlock(hash, sdk) {
   const type = hash.split('_')[0];

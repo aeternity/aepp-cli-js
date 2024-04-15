@@ -3,7 +3,7 @@ import * as Chain from '../actions/chain.js';
 import { nodeOption, jsonOption, forceOption } from '../arguments.js';
 import { addExamples, exampleHeight, exampleTransaction } from '../utils/helpers.js';
 
-const program = new Command().name('aecli chain');
+const program = new Command('chain').summary('make a request to the node');
 
 const addCommonOptions = (cmd, examples) => {
   cmd.addOption(nodeOption).addOption(forceOption).addOption(jsonOption);
@@ -11,16 +11,16 @@ const addCommonOptions = (cmd, examples) => {
     const summary = cmd.summary();
     cmd.description(`${summary[0].toUpperCase()}${summary.slice(1)}.`);
   }
-  addExamples(program.name(), cmd, examples);
+  addExamples(cmd, examples);
 };
 
 let command = program.command('top')
-  .summary('get top key block or micro block of chain')
+  .summary('query the top key/micro block of the chain')
   .action(Chain.top);
 addCommonOptions(command, ['']);
 
 command = program.command('status')
-  .summary('get node version, network id, and related details')
+  .summary('query node version, network id, and related details of the selected node')
   .action(Chain.status);
 addCommonOptions(command, ['']);
 

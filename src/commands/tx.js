@@ -20,8 +20,8 @@ import {
   exampleName, exampleCalldata, exampleTransaction,
 } from '../utils/helpers.js';
 
-const program = new Command()
-  .name('aecli tx')
+const program = new Command('tx')
+  .summary('generate transactions to sign and submit manually')
   .description('Generates transactions to sign and submit manually. Useful for offline signing.');
 
 const addTxBuilderOptions = (cmd, example) => {
@@ -35,7 +35,7 @@ const addTxBuilderOptions = (cmd, example) => {
     .addOption(jsonOption)
     .summary(`build ${cmd.name().replaceAll('-', ' ')} transaction`)
     .description(`Build ${cmd.name().replaceAll('-', ' ')} transaction.`);
-  addExamples(program.name(), cmd, [example]);
+  addExamples(cmd, [example]);
 };
 
 let command;
@@ -116,6 +116,6 @@ command = program
   .summary('verify transaction using node')
   .description('Verify transaction using node.')
   .action(Transaction.verify);
-addExamples(program.name(), command, [exampleTransaction]);
+addExamples(command, [exampleTransaction]);
 
 export default program;

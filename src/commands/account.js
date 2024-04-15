@@ -5,7 +5,7 @@ import {
 } from '../arguments.js';
 import { addExamples, exampleAddress1, exampleTransaction } from '../utils/helpers.js';
 
-const program = new Command().name('aecli account');
+const program = new Command('account').summary('handle wallet operations');
 
 const addCommonOptions = (cmd, examples) => {
   cmd.addOption(jsonOption);
@@ -13,7 +13,7 @@ const addCommonOptions = (cmd, examples) => {
     const summary = cmd.summary();
     cmd.description(`${summary[0].toUpperCase()}${summary.slice(1)}.`);
   }
-  addExamples(program.name(), cmd, examples);
+  addExamples(cmd, examples);
 };
 
 const addWalletOptions = (cmd, examples) => {

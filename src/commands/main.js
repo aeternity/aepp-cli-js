@@ -5,23 +5,24 @@ import { fileURLToPath } from 'url';
 import { resolve } from 'path';
 import updateNotifier from 'update-notifier';
 import { Node, ConsensusProtocolVersion } from '@aeternity/aepp-sdk';
+import accountCmd from './account.js';
+import spendCmd from './spend.js';
+import nameCmd from './name.js';
+import contractCmd from './contract.js';
+import oracleCmd from './oracle.js';
+import chainCmd from './chain.js';
+import inspectCmd from './inspect.js';
+import txCmd from './tx.js';
 import { compilerOption, nodeOption } from '../arguments.js';
 import { getCompilerByUrl } from '../utils/cli.js';
 import { addToConfig } from '../utils/config.js';
 import CliError from '../utils/CliError.js';
 
-const program = new Command();
+const program = new Command('aecli');
 
-const EXECUTABLE_CMD = [
-  { name: 'account', desc: 'handle wallet operations' },
-  { name: 'spend', desc: 'send coins to account or contract' },
-  { name: 'name', desc: 'manage AENS names' },
-  { name: 'contract', desc: 'contract interactions' },
-  { name: 'oracle', desc: 'interact with oracles' },
-  { name: 'chain', desc: 'make a request to the node' },
-  { name: 'inspect', desc: 'get details of a node entity' },
-  { name: 'tx', desc: 'generate transactions to sign and submit manually' },
-];
+[
+  accountCmd, spendCmd, nameCmd, contractCmd, oracleCmd, chainCmd, inspectCmd, txCmd,
+].forEach((cmd) => program.addCommand(cmd));
 
 (() => {
   const { name, version } = fs.readJSONSync(
@@ -32,8 +33,6 @@ const EXECUTABLE_CMD = [
 
   updateNotifier({ pkg: { name, version } }).notify();
 })();
-
-EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
 
 async function getNodeDescription(url) {
   const nodeInfo = await new Node(url).getNodeInfo().catch(() => {});

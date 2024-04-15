@@ -6,8 +6,9 @@ import {
   exampleTransaction,
 } from '../utils/helpers.js';
 
-const command = new Command().name('aecli inspect')
+const command = new Command('inspect')
   .arguments('<identifier>')
+  .summary('get details of a node entity')
   .description([
     'Prints details of:',
     ...[
@@ -25,7 +26,7 @@ const command = new Command().name('aecli inspect')
   .addOption(jsonOption)
   .action(inspect);
 
-addExamples('', command, [
+addExamples(command, [
   `${exampleAddress1}  # get account details`,
   `${exampleName}  # get details of AENS name`,
   `${exampleContract}  # get contract details`,

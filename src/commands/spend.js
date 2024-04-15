@@ -13,13 +13,13 @@ import {
 } from '../arguments.js';
 import { addExamples, exampleAddress1, exampleName } from '../utils/helpers.js';
 
-const command = new Command('aecli spend')
-  .summary('sends coins to another account or contract')
+const command = new Command('spend')
+  .summary('send coins to another account or contract')
   .description('Sends coins to another account or contract.')
-  .argument('<wallet_path>', 'A path to wallet file')
+  .argument('<wallet>', 'A path to wallet file')
   .argument('<receiver>', 'Address or name of recipient account')
   .argument(
-    '<amountOrPercent>',
+    '<amount>',
     'Amount of coins to send in aettos/ae (example: 1.2ae), or percent of sender balance (example: 42%)',
     (amount) => {
       if (amount.endsWith('%')) return { fraction: +amount.slice(0, -1) };
@@ -54,7 +54,7 @@ const command = new Command('aecli spend')
     await printTransaction(tx, json, sdk);
   });
 
-addExamples('', command, [
+addExamples(command, [
   `./wallet.json ${exampleAddress1} 100`,
   `./wallet.json ${exampleName} 1.23ae`,
   `./wallet.json ${exampleAddress1} 20% --ttl 20`,

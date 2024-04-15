@@ -6,7 +6,7 @@ import {
 } from '../arguments.js';
 import { addExamples, exampleOracle, exampleOracleQuery } from '../utils/helpers.js';
 
-const program = new Command().name('aecli oracle');
+const program = new Command('oracle').summary('interact with oracles');
 
 const addCommonOptions = (cmd, example) => {
   cmd
@@ -15,7 +15,7 @@ const addCommonOptions = (cmd, example) => {
     .addOption(jsonOption);
   const summary = cmd.summary();
   cmd.description(`${summary[0].toUpperCase()}${summary.slice(1)}.`);
-  addExamples(program.name(), cmd, [example]);
+  addExamples(cmd, [example]);
 };
 
 let command = program.command('get <oracleId>')
