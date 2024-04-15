@@ -1,7 +1,3 @@
-// # æternity CLI `root` file
-//
-// This script initialize all `cli` commands
-// We'll use `commander` for parsing options
 import { Command } from 'commander';
 import prompts from 'prompts';
 import fs from 'fs-extra';
@@ -16,16 +12,15 @@ import CliError from '../utils/CliError.js';
 
 const program = new Command();
 
-// Array of child command's
 const EXECUTABLE_CMD = [
-  { name: 'chain', desc: 'Interact with the blockchain' },
-  { name: 'inspect', desc: 'Get information on transactions, blocks,...' },
-  { name: 'account', desc: 'Handle wallet operations' },
-  { name: 'contract', desc: 'Contract interactions' },
-  { name: 'name', desc: 'AENS system' },
-  { name: 'tx', desc: 'Transaction builder' },
-  { name: 'oracle', desc: 'Interact with oracles' },
-  { name: 'spend', desc: 'Send coins to account or contract' },
+  { name: 'account', desc: 'handle wallet operations' },
+  { name: 'spend', desc: 'send coins to account or contract' },
+  { name: 'name', desc: 'manage AENS names' },
+  { name: 'contract', desc: 'contract interactions' },
+  { name: 'oracle', desc: 'interact with oracles' },
+  { name: 'chain', desc: 'make a request to the node' },
+  { name: 'inspect', desc: 'get details of a node entity' },
+  { name: 'tx', desc: 'generate transactions to sign and submit manually' },
 ];
 
 (() => {
@@ -33,13 +28,11 @@ const EXECUTABLE_CMD = [
     resolve(fileURLToPath(import.meta.url), '../../../package.json'),
   );
 
-  // You get get CLI version by exec `aecli version`
   program.version(version);
 
   updateNotifier({ pkg: { name, version } }).notify();
 })();
 
-// ## Initialize `child` command's
 EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
 
 async function getNodeDescription(url) {
@@ -59,15 +52,20 @@ async function getCompilerDescription(url) {
   return version ? `version ${version}` : 'can\'t get compiler version';
 }
 
-program
-  .command('config')
-  .description('Print the current sdk configuration')
+const addCommonOptions = (cmd) => {
+  const summary = cmd.summary();
+  cmd.description(`${summary[0].toUpperCase()}${summary.slice(1)}.`);
+};
+
+let command = program.command('config')
+  .summary('print the current sdk configuration')
   .addOption(nodeOption)
   .addOption(compilerOption)
   .action(async ({ url, compilerUrl }) => {
     console.log('Node', url, await getNodeDescription(url));
     console.log('Compiler', compilerUrl, await getCompilerDescription(compilerUrl));
   });
+addCommonOptions(command);
 
 async function askUrl(entity, choices, getDescription, _url) {
   let url = _url;
@@ -116,10 +114,9 @@ async function askUrl(entity, choices, getDescription, _url) {
   }
 }
 
-program
-  .command('select-node')
+command = program.command('select-node')
   .argument('[nodeUrl]', 'Node URL')
-  .description('Specify node to use in other commands')
+  .summary('specify node to use in other commands')
   .action(async (url) => {
     const nodes = [
       { name: 'Mainnet', url: 'https://mainnet.aeternity.io/' },
@@ -128,11 +125,11 @@ program
     ];
     await addToConfig({ url: await askUrl('node', nodes, getNodeDescription, url) });
   });
+addCommonOptions(command);
 
-program
-  .command('select-compiler')
+command = program.command('select-compiler')
   .argument('[compilerUrl]', 'Compiler URL')
-  .description('Specify compiler to use in other commands')
+  .summary('specify compiler to use in other commands')
   .action(async (url) => {
     const compilers = [
       { name: 'Stable v7', url: 'https://v7.compiler.aepps.com/' },
@@ -143,5 +140,6 @@ program
       compilerUrl: await askUrl('compiler', compilers, getCompilerDescription, url),
     });
   });
+addCommonOptions(command);
 
 export default program;

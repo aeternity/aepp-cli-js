@@ -205,7 +205,18 @@ describe('AENS Module', () => {
     const nameResult = await executeInspect([name2, '--json']);
 
     revoke.blockHeight.should.be.gt(0);
-    nameResult.status.should.equal('AVAILABLE');
+    nameResult.status.should.equal('REVOKED');
+  });
+
+  it('can\'t claim revoked name', async () => {
+    await executeName([
+      'pre-claim',
+      WALLET_NAME,
+      '--password',
+      'test',
+      name2,
+      '--json',
+    ]).should.be.rejectedWith('AENS name is REVOKED and cannot be preclaimed');
   });
 
   describe('Name Auction', () => {

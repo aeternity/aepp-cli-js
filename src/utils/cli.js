@@ -1,5 +1,3 @@
-// # Utils `cli` Module
-// That script contains helper function's for work with `cli`
 import fs from 'fs-extra';
 import {
   AeSdk, Node, MemoryAccount, CompilerCli, CompilerCli8, CompilerHttpNode, recover, sign,
@@ -63,15 +61,12 @@ export class AccountCli extends MemoryAccount {
     return super.signTransaction(transaction, options);
   }
 
-  // Get account file by path, decrypt it using password and return AccountCli
   static async read(path, password) {
     const keyFile = await fs.readJson(getFullPath(path));
     return new AccountCli(keyFile, password);
   }
 }
 
-// ## Get account files and decrypt it using password
-// After that create sdk instance using this `keyPair`
 export async function initSdkByWalletFile(walletPath, { password, ...options }) {
   return initSdk({
     ...options,

@@ -415,7 +415,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
   it('builds oracle extend tx and sends', async () => {
     const oracleCurrentTtl = await sdk.api.getOracleByPubkey(oracleId);
     nonce += 1;
-    const { tx } = await executeTx(['oracle-extend', sdk.address, oracleId, 100, nonce, '--json']);
+    const { tx } = await executeTx(['oracle-extend', oracleId, 100, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -481,7 +481,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
   it('builds oracle respond tx and sends', async () => {
     const response = '{tmp: 10}';
     nonce += 1;
-    const { tx } = await executeTx(['oracle-respond', sdk.address, oracleId, queryId, response, nonce, '--json']);
+    const { tx } = await executeTx(['oracle-respond', oracleId, queryId, response, nonce, '--json']);
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');

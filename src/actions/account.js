@@ -1,7 +1,3 @@
-// # æternity CLI `account` file
-//
-// This script initialize all `account` function
-
 import fs from 'fs-extra';
 import {
   generateKeyPair, verifyMessage as _verifyMessage, getAddressFromPriv, dump,
@@ -12,8 +8,6 @@ import { initSdkByWalletFile, AccountCli } from '../utils/cli.js';
 import { print, printUnderscored } from '../utils/print.js';
 import { PROMPT_TYPE, prompt } from '../utils/prompt.js';
 
-// ## `Sign message` function
-// this function allow you to `sign` arbitrary data
 export async function signMessage(walletPath, data = [], options) {
   const { json, filePath, password } = options;
   const dataForSign = filePath ? await fs.readFile(filePath) : data.join(' ');
@@ -35,8 +29,6 @@ export async function signMessage(walletPath, data = [], options) {
   }
 }
 
-// ## `Verify` function
-// this function allow you to `verify` signed data
 export async function verifyMessage(address, hexSignature, dataArray = [], options) {
   const { json, filePath } = options;
   const data = filePath ? await fs.readFile(filePath) : dataArray.join(' ');
@@ -49,8 +41,6 @@ export async function verifyMessage(address, hexSignature, dataArray = [], optio
   }
 }
 
-// ## `Sign` function
-// this function allow you to `sign` transaction's
 export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...options }) {
   const sdk = await initSdkByWalletFile(walletPath, options);
   const networkId = networkIdOpt ?? await sdk.api.getNetworkId();
@@ -67,8 +57,6 @@ export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...o
   }
 }
 
-// ## Get `address` function
-// This function allow you retrieve account `public` and `private` keys
 export async function getAddress(walletPath, options) {
   const {
     privateKey, forcePrompt = false, json, password,
@@ -89,8 +77,6 @@ export async function getAddress(walletPath, options) {
   }
 }
 
-// ## Create secure `wallet` file by secret key of generate one
-// This function allow you to generate `keypair` and write it to secure `ethereum` like key-file
 export async function createWallet(
   walletPath,
   secretKey = generateKeyPair().secretKey,

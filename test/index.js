@@ -90,10 +90,13 @@ export async function executeProgram(program, args) {
       ...args.map((arg) => arg.toString()),
       ...['config', 'select-node', 'select-compiler'].includes(args[0])
       || (
-        // eslint-disable-next-line no-underscore-dangle
-        program._name === 'aecli account'
+        program.name() === 'aecli account'
         && ['save', 'create', 'address', 'sign-message', 'verify-message'].includes(args[0])
-      ) ? [] : ['--url', url],
+      )
+      || (
+        program.name() === 'aecli contract'
+        && ['compile', 'encode-calldata', 'decode-call-result'].includes(args[0]))
+      || (program.name() === 'aecli tx' && args[0] !== 'verify') ? [] : ['--url', url],
       ...[
         'compile', 'deploy', 'call', 'encode-calldata', 'decode-call-result',
       ].includes(args[0]) && !args.includes('--compilerUrl') ? ['--compilerUrl', compilerUrl] : [],

@@ -32,7 +32,7 @@ describe('Oracle Module', () => {
   it('Oracle extend', async () => {
     const oracle = await sdk.getOracleObject(oracleId);
     const oracleExtend = await executeOracle([
-      'extend', WALLET_NAME, '--password', 'test', oracleId, 42, '--json',
+      'extend', WALLET_NAME, '--password', 'test', 42, '--json',
     ]);
     oracleExtend.blockHeight.should.be.gt(0);
     expect(oracleExtend.ttl).to.be.equal(oracle.ttl + 42);
@@ -55,7 +55,7 @@ describe('Oracle Module', () => {
 
   it('Oracle respond to query', async () => {
     const oracleQueryResponse = await executeOracle([
-      'respond-query', WALLET_NAME, '--password', 'test', oracleId, queryId, 'Hi!', '--json',
+      'respond-query', WALLET_NAME, '--password', 'test', queryId, 'Hi!', '--json',
       '--responseTtl', 21,
     ]);
     expect(oracleQueryResponse.queries[0].ttl).to.be.equal(oracleQueryResponse.blockHeight + 21);
@@ -65,7 +65,7 @@ describe('Oracle Module', () => {
     query.decodedResponse.should.be.equal('Hi!');
   });
 
-  it('Get non existed Oracle', async () => {
+  it('Get non existing Oracle', async () => {
     const fakeOracleId = generateKeyPair().publicKey.replace('ak_', 'ok_');
     await executeOracle(['get', fakeOracleId, '--json'])
       .should.be.rejectedWith('error: Oracle not found');
@@ -73,7 +73,7 @@ describe('Oracle Module', () => {
       .should.be.rejectedWith('Encoded string have a wrong type: oq (expected: ok)');
   });
 
-  it('Get existed Oracle', async () => {
+  it('Get Oracle', async () => {
     const resJson = await executeOracle(['get', oracleId, '--json']);
     expect(resJson).to.eql({
       abiVersion: AbiVersion.NoAbi.toString(),

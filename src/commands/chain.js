@@ -1,73 +1,50 @@
-// # æternity CLI `chain` file
-//
-// This script initialize all `chain` command's
-// We'll use `commander` for parsing options
 import { Command } from 'commander';
 import * as Chain from '../actions/chain.js';
 import { nodeOption, jsonOption, forceOption } from '../arguments.js';
+import { addExamples, exampleHeight, exampleTransaction } from '../utils/helpers.js';
 
 const program = new Command().name('aecli chain');
 
-// ## Initialize `options`
-const addCommonOptions = (p) => p
-  .addOption(nodeOption)
-  .addOption(forceOption)
-  .addOption(jsonOption);
+const addCommonOptions = (cmd, examples) => {
+  cmd.addOption(nodeOption).addOption(forceOption).addOption(jsonOption);
+  if (!cmd.description()) {
+    const summary = cmd.summary();
+    cmd.description(`${summary[0].toUpperCase()}${summary.slice(1)}.`);
+  }
+  addExamples(program.name(), cmd, examples);
+};
 
-// ## Initialize `top` command
-//
-// You can use this command to retrieve `top block` from `node`
-//
-// Example: `aecli chain top`
-addCommonOptions(program
-  .command('top')
-  .description('Get top of Chain')
-  .action(Chain.top));
+let command = program.command('top')
+  .summary('get top key block or micro block of chain')
+  .action(Chain.top);
+addCommonOptions(command, ['']);
 
-// ## Initialize `status` command
-//
-// You can use this command to retrieve `node version`
-//
-// Example: `aecli chain status`
-addCommonOptions(program
-  .command('status')
-  .description('Get node version')
-  .action(Chain.version));
+command = program.command('status')
+  .summary('get node version, network id, and related details')
+  .action(Chain.status);
+addCommonOptions(command, ['']);
 
-// ## Initialize `ttl` command
-//
-// You can use this command to retrieve relative `ttl`
-//
-// Example: `aecli chain ttl <absolute_ttl>`
-addCommonOptions(program
-  .command('ttl <absoluteTtl>')
-  .description('Get relative ttl')
-  .action(Chain.ttl));
+command = program.command('ttl <absoluteTtl>')
+  .summary('get relative TTL by absolute TTL')
+  .action(Chain.ttl);
+addCommonOptions(command, ['']);
 
-// ## Initialize `play` command
-//
-// You can use this command to get list of block by some condition (by `limit` or `height`)
-//
-// Example: `aecli chain play --limit 10` --> print 10 blocks starting from top
-//
-// Example: `aecli chain play --height 100` --> print blocks until reach height 100 starting from top
-addCommonOptions(program
-  .command('play')
-  .option('-L, --limit [playlimit]', 'Limit for play command', 10)
-  .option('-P, --height [playToHeight]', 'Play to selected height')
-  .description('Real-time block monitoring')
-  .action(Chain.play));
+command = program.command('play')
+  .option('-L, --limit [playLimit]', 'amount of blocks to print', 10)
+  .option('-P, --height [playToHeight]', 'print blocks till the height')
+  .summary('prints blocks from top until condition')
+  .action(Chain.play);
+addCommonOptions(command, [
+  '--limit 3  # print 3 blocks from top',
+  `--height ${exampleHeight}  # print blocks from top until reach height`,
+]);
 
-// ## Initialize `broadcast` command
-//
-// You can use this command to send `transaction` to the `chain`
-//
-// Example: `aecli tx spend ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 100`
-addCommonOptions(program
-  .command('broadcast <tx>')
+command = program.command('broadcast <tx>')
   .option('-W, --no-waitMined', 'Don\'t wait until transaction gets mined')
   .option('--verify', 'Verify Transaction before broadcasting.')
-  .description('Send transaction to the chain')
-  .action(Chain.broadcast));
+  .summary('send signed transaction to the chain')
+  .description('Send signed transaction to the chain. Useful in offline signing scheme.')
+  .action(Chain.broadcast);
+addCommonOptions(command, [exampleTransaction]);
 
 export default program;

@@ -1,6 +1,6 @@
-import { Argument, Option } from 'commander';
+import { Option } from 'commander';
 import BigNumber from 'bignumber.js';
-import { MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
+import { MIN_GAS_PRICE, CLIENT_TTL } from '@aeternity/aepp-sdk';
 import { noValue } from './utils/default-option-description.js';
 
 export const coinAmountParser = (amount) => {
@@ -14,9 +14,6 @@ export const amountOption = new Option('-a, --amount [amount]', 'Amount of coins
 
 export const feeOption = new Option('-F, --fee [fee]', 'Override the transaction fee')
   .argParser(coinAmountParser);
-
-export const nonceArgument = new Argument('<nonce>', 'Unique number that is required to sign transaction securely')
-  .argParser((nonce) => +nonce);
 
 export const nodeOption = new Option('-u, --url [nodeUrl]', 'Node to connect to')
   .default('https://mainnet.aeternity.io', 'mainnet')
@@ -43,3 +40,6 @@ export const ttlOption = (usingNode) => new Option('-T, --ttl [ttl]', 'Validity 
   .default(noValue, usingNode ? 3 : 0);
 
 export const networkIdOption = new Option('--networkId [networkId]', 'Network id');
+
+export const clientTtlOption = new Option('--clientTtl [clientTtl]', 'a suggestion measured in seconds on how long clients should cache name pointers')
+  .default(CLIENT_TTL, '1 hour');
