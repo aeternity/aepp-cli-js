@@ -17,3 +17,7 @@ export function replaceInTemplate(template: string, placeholder: string, content
     [begin, content, end].join('\n'),
   );
 }
+
+export const wallet = './wallet.json';
+
+export const pass = ['--password', 'temp'] as const;

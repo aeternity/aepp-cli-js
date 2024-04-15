@@ -1,306 +1,169 @@
-The æternity command line interface
+# User guide
 
-## Summary
-Each æternity's SDKs feature a command-line interface which you can use to invoke the blockchain's features. All CLIs have the same name and syntax, which are described here. However, not all of them have a full feature set. An entry in [square brackets] indicates which SDKs support a feature, using the following codes:
-- G go
-- J javascript
-- P python
-
-So [GP] indicates that a feature is only available in Go and Python.
-
+This guide assumes that you have `aecli` [installed](./README.md#installation) and you checked the [Quick start]('./README.md#quick-start').
 
 # Table of Contents
-- [Overview](#overview)
-- [General usage](#general-usage)
 - [Account commands](#account-commands)
 - [The name group](#the-name-group)
 - [The contracts group](#the-contracts-group)
 - [The chain group](#the-chain-group)
-- [The inspect group](#the-inspect-group)
-
-## Overview
-
-The command-line interface is invoked using the command `aecli`. Depending on where it's installed on your system, you may have to give a path when you invoke it.
-
-
-## General usage
-
-
-If you invoke `aecli` with no arguments, it shows basic usage:
-```
-$ aecli
-Usage: aecli [options] [command]
-
-Options:
-  -V, --version                  output the version number
-  -h, --help                     display help for command
-
-Commands:
-  chain                          Interact with the blockchain
-  inspect                        Get information on transactions, blocks,...
-  account                        Handle wallet operations
-  contract                       Contract interactions
-  name                           AENS system
-  tx                             Transaction builder
-  oracle                         Interact with oracles
-  config [options]               Print the current sdk configuration
-  select-node [nodeUrl]          Specify node to use in other commands
-  select-compiler [compilerUrl]  Specify compiler to use in other commands
-  help [command]                 display help for command
-```
-
-The general groupings of commands are:
-- `chain` commands do not require a public or private key and give information about the state of the chain. None of the chain commands changes the state of the chain at all.
-- `config` displays the sdk's configuration file and can write the configuration to disk.
-- `help` does what one would expect and is described here no further.
-- `inspect` allows you to look at the objects on the blockchain.
-- `name` allows interaction with the naming system.
-- `account` commands cover a set of functions which operate with a key pair, from transferring tokens to registering names and invoking smart contracts.
-- `oracle` allows you to interact with the oracles.
-- `contract` allows deploying and calling the smart contracts.
+- [Inspect command examples](#inspect-command-examples)
+- [Offline signing](#offline-signing)
 
 
 ## Account commands
-The account (wallet) commands are those which create and report on key pairs, and all of the operations which payments require. To perform transactions within aeternity, you need to have at least two wallets with some coins on their accounts. Using the Account commands, you can create a wallet (with a password or without it), add some coins to it, send coins, and view the wallet’s address (public key).
 
-#### create
+The account (wallet) [commands](./reference.md#account-group) are those which create and report on key pairs, and sign transactions, messages. To [perform transactions](./reference.md#spend) within aeternity, you need to have at least two wallets with some coins on their accounts.
 
-Use this command to create a new wallet.
-```
-$ aecli account create ./wallet.json
- ```
-You can specify a password for accessing your wallet or just press Enter if you do not want to set a password.
-The wallet is created in the specified directory.
-```
-Wallet saved
-Wallet address________________ ak_2GN72gRFHYmJd1DD2g2sLADr5ZXa13DPYNtuFajhsZT2y3FiWu
-Wallet path___________________ /path-to/wallet.json
+Use [`aecli account create`](./reference.md#create) to create a new wallet.
+You can specify a password for accessing your wallet or just press Enter if you do not want to set a password. The wallet is created at the specified path.
 
-```
-Wallet address is your public key. Wallet path is the directory where the wallet is created.
+Alternatively, you can pass the private key in `[privkey]` argument to generate a corresponding wallet.
 
-#### address
-
-View the address (public key) of your wallet using the following command:
-```
-$ aecli account address ./wallet.json
-```
-You will get the following:
-```
-Your address is: ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
- ```
-#### save
-
-Using this command, you can pass the private key to generate a wallet with a key pair.
-
-```
-$ aecli account create ./wallet.json <your_private_key>
- ```
-You will get the following:
-```
-Wallet saved
-Wallet address________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
-Wallet path___________________ /path-to/wallet.json
- ```
-#### spend
-
-Using this command, you can send coins to another wallet. Just indicate another account's address and an amount which should be sent.
-```
-$ aecli spend ./wallet.json ak_2GN72gRFHYmJd1DD2g2sLADr5ZXa13DPYNtuFajhsZT2y3FiWu 1.23ae
-```
-As an option, you can set _--ttl_ parameter, which limits the lifespan of this transaction.
+View the address (public key) of your wallet using [`aecli account address`](./reference.md#address) command. Also, it can be used to reveal your private key.
 
 
 ## The name group
 
 With the aeternity naming system (AENS), you can assign and register a name to your account or oracle. This way, instead of a complex hash, you can use a name you choose.
-These names have an expiration period, after which they can be transferred to another account.
-For more information, see [The Æternity Naming System (AENS)](https://dev.aepps.com/aepp-sdk-docs/AENS-Python.html) and [Aeternity Naming System](https://github.com/aeternity/protocol/blob/master/AENS.md) docs.
+These names have an expiration period, after which the name will no longer belong to anyone, so it can be claimed again.
+For more information, see [Aeternity Naming System](https://github.com/aeternity/protocol/blob/master/AENS.md) docs.
 
-The name group consists of the following commands and options:
-```
-$ ./aecli.mjs name
-```
-  Usage: aecli-name [options] [command]
+The name group consists of the [following commands](./reference.md#name-group).
 
-  Options:
+Use [`aecli name full-claim`](./reference.md#full-claim) to create and register a name for your account.
 
-    -H, --host [hostname]             Node to connect to (default: https://localhost:3013)
-    -P, --password [password]                Wallet Password
-    -N, --nameTtl [nameTtl]                  Name life Ttl (default: 500)
-    -T, --ttl [ttl]                          Life Ttl (default: 50000)
-    --json [json]                            Print result in json format
-    -h, --help                               output usage information
+After that, you can use [`aecli name update`](./reference.md#update) command to set a name pointer. You can assign the name to another account via pointers, you will still have the right to do other operations with this name.
 
-  Commands:
+Don't forget to run [`aecli name extend`](./reference.md#extend) from time to time to don't lose access to your name. By default name TTL gets extended to one year, it can't be extended for a longer period.
 
-    claim <wallet_path> <name>               Claim an AENS name
-    revoke <wallet_path> <name>              Revoke an AENS name
-    transfer <wallet_path> <name> <address>  Transfer a name to another account
-    update <wallet_path> <name> <address>    Update a name pointer
+You can [transfer](./reference.md#transfer) a name to another account or contract, just indicate another account's address. You will pass all rights regarding the name to another account.
 
-#### claim
+At last, you can delete your name using [`aecli name revoke`](./reference.md#revoke).
+In comparison with name expiration, the revoked name can't be claimed again by anybody.
 
-Create and register a name for your account (public key):
-```
-$ aecli name claim ./wallet.json testname.chain
-```
-
-#### revoke
-
-You can delete your name using the following command:
-```
-$ aecli name revoke ./wallet.json testname.chain
-```
-
-#### transfer
-
-You can transfer a name to another account or contract, just indicate another account's address. You will pass all rights regarding the name to another account:
-```
-$ aecli name transfer ./wallet.json testname.chain ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
-```
-
-#### update
-
-Use this command to update a name. For example, you can assign it to another account, but still you will have rights to do other operations with this name:
-```
-$ aecli name update ./wallet.json testname.chain ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
-```
 
 ## The contracts group
 
 A smart contract is a computer protocol intended to digitally facilitate, verify, or enforce the negotiation or performance of a contract. Smart contracts allow the performance of credible transactions without third parties. These transactions are trackable and irreversible. Smart contracts aim to provide security that is superior to traditional contract law and to reduce other transaction costs associated with contracting.
 
-The contracts group consists of the following commands and options:
-```
-$ ./aecli.mjs  contract
-```
-  Usage: aecli-contract [options] [command]
-
-  Options:
-
-    -H, --host [hostname]             Node to connect to (default: https://localhost:3013)
-    -T, --ttl [ttl]                   Validity of the transaction in number of blocks (default forever) (default: 50000)
-    -f --force                        Ignore node version compatibility check
-    --json [json]                     Print result in json format
-    -h, --help                        output usage information
-
-  Commands:
-
-    compile <file>                                     Compile a contract
-    call [options] <wallet_path> <desc_path>[args...]  Execute a function of the contract
-    deploy [options] <wallet_path> <contract_path>     Deploy a contract on the chain
-
-The `deploy` command has its options:
-
-
-    -P, --password [password]    Wallet Password
-    -I, --init [state]           Deploying contract arguments for constructor function
-    -G --gas [gas]               Amount of gas to deploy the contract
-
-The `call` command also has its option:
-
-    -P, --password [password]    Wallet Password
-
-#### compile
-
-To compile a contract, run the following command adding a file which should be compiled. The file should be stored in `aepp-sdk-js-develop/bin`:
-```
-$ aecli contract compile file1
-```
+The contracts group consists of the [following commands](./reference.md#contract-group).
 
 #### deploy
-
-To deploy a contract, run the following command adding the contract name:
+Here is an example contract that we will deploy
+<!-- CONTRACT-BEGIN -->
 ```
-$ aecli contract deploy ./wallet.json testContract
+contract Example =
+  entrypoint sum(a: int, b: int) = a + b
 ```
-You will get the following:
+<!-- CONTRACT-END -->
+To deploy a contract, run [`aecli contract deploy`](./reference.md#deploy) adding a file that should be compiled.
+<!-- CONTRACT-DEPLOY-BEGIN -->
 ```
+$ aecli contract deploy --contractSource ./contract.aes ./wallet.json
 Contract was successfully deployed
-Contract address________________ ct_2HpbSPdiA2csizgKxt8VUE5z2uRvvrE3MPM9VuLNkc5g6wKKHS
-Transaction hash________________ th_2sfW2c8GxJvZK3xzPagjziX9gVYFcJnywcL8vn8wWM5HCWnykE
-Deploy descriptor_______________ testContract.deploy.2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi.json
+Contract address ________________________ ct_5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV
+Transaction hash ________________________ th_2oK2tdvhVCLzeMtqLb3EQLNT8dALWFXF4Y1t1EhicujMREWWWV
+Deploy descriptor _______________________ /path/to/contract.aes.deploy.5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV.json
 ```
+<!-- CONTRACT-DEPLOY-END -->
+
 #### call
+To execute a function of the contract, run [`aecli contract call`](./reference.md#call) command. `sum` is a function which is executed by this contract, `[1, 2]` are arguments of this function:
+<!-- CONTRACT-CALL-BEGIN -->
+```
+$ aecli contract call --descrPath contract.aes.deploy.5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV.json sum '[1, 2]' ./wallet.json
+Transaction hash ________________________ th_urgozuZRooNXrZxuvNDdT4BiApcGKsf6ZRpffargXcoZNHQ4C
+Block hash ______________________________ mh_dnoULQWpiRtcrntd5yJPUxcu7YrTu18xZ1e9EC2b8prKdShME
+Block height ____________________________ 4 (about now)
+Signatures ______________________________ ["sg_Vn2cCsMk8RvBKyNTKTbq8V4vm6beuHxfYA7vLBNLnRF3x9hoydWWAtNkaiix8KhyEFSLmsmTy6jz9Lps2TQqVdmH6qmCG"]
+Transaction type ________________________ ContractCallTx
+Caller address __________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
+Contract address ________________________ ct_5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV
+Gas _____________________________________ 31 (0.000000031ae)
+Gas price _______________________________ 0.000000001ae
+Call data _______________________________ cb_KxHrtMsKKwIE32Kmfg==
+ABI version _____________________________ 3 (Fate)
+Amount __________________________________ 0ae
+Fee _____________________________________ 0.00018198ae
+Nonce ___________________________________ 3
+TTL _____________________________________ 7 (in 6 minutes)
+Version _________________________________ 1
+----------------------Call info-----------------------
+Contract address ________________________ ct_5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV
+Gas price _______________________________ 1000000000
+Gas used ________________________________ 25
+Return value (encoded) __________________ cb_BvMDXHk=
+Return value (decoded) __________________ 3
+```
+<!-- CONTRACT-CALL-END -->
+In the above, the "Return value (decoded)" is a result of contract execution — it is a sum of values 1 and 2.
 
-To execute a function of the contract, run the following command. Json file is stored in `aepp-sdk-js-develop/bin`. `Main` is a function which is executed by this contract, `int 1 2` are numerical values :
-
-```
-$ aecli contract call ./wallet.json testContract.deploy.2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi.json main int 1 2
-```
-You will get the following, where return value is a result of contract execution - it is a sum of values 1 and 2:
-```
-Contract address_________ ct_2HpbSPdiA2csizgKxt8VUE5z2uRvvrE3MPM9VuLNkc5g6wKKHS
-Gas price________________ 1
-Gas used_________________ 555
-Return value (encoded)___ 0x0000000000000000000000000000000000000000000000000000000000000003
-Return value (decoded)___ 3
-Return remote type_______ word
-```
 
 ## The chain group
 
+[These commands](./reference.md#chain-group) display basic information about the blockchain and require little explanation. [`play`](./reference.md#play) moves backward through the blockchain displaying blocks and transactions.
+
+## Inspect command examples
+The [`inspect`](./reference.md#inspect) command allows you to see inside various æternity types. Because each æternity type starts with two letters identifying what sort of thing it is, you can throw anything you like at inspect, and it will bravely try to do the right thing.
+<!-- INSPECT-EXAMPLES-BEGIN -->
+#### inspect account by address
 ```
-$ ./aecli chain
-Query the state of the chain
-
-Usage:
-  aecli chain [command]
-
-Available Commands:
-  play        Query the blocks of the chain one after the other
-  top         Query the top block of the chain
-  version     Get the status and version of the node running the chain
-  mempool     Get memory pool of chain (transactions, that are not mined yet)
-```
-These commands display basic information about the blockchain and require little explanation. `Play` moves backward through the blockchain displaying blocks and transactions.
-
-## The inspect group
-The inspect command allows you to see inside various æternity types. Because each æternity type starts with two letters identifying what sort of thing it is, you can throw anything you like at inspect, and it will bravely try to do the right thing.
-
-#### inspect public key
-```
-$ ./aecli inspect ak_XeSuxD8wZ1eDWYu71pWVMJTDopUKrSxZAuiQtNT6bgmNWe9D3
-Balance___________________________________________ 9999497
-ID________________________________________________ ak_XeSuxD8wZ1eDWYu71pWVMJTDopUKrSxZAuiQtNT6bgmNWe9D3
-Nonce_____________________________________________ 3
+$ aecli inspect ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
+Account ID ______________________________ ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
+Account balance _________________________ 52134250100000000000
+Account nonce ___________________________ 3
+Pending transactions:
 ```
 #### inspect transaction
 ```
-$ ./aecli inspect th_2kgDHbvFjZn4nRLrxrimzyjdJzdEnMtFnD56r5K5UXHMaMbPkd
-BlockHash_________________________________________ mh_2MTsaWUdadr1YRKC5FE7qMHXvtzCZixQyHFV8zsPUCQvwJr2fP
-BlockHeight_______________________________________ 151
-Hash______________________________________________ th_2kgDHbvFjZn4nRLrxrimzyjdJzdEnMtFnD56r5K5UXHMaMbPkd
- versionField_____________________________________ 1
-  Amount__________________________________________ 20000
-  Fee_____________________________________________ 1
-  Nonce___________________________________________ 1
-  Payload_________________________________________ test transaction
-  RecipientID_____________________________________ ak_2uLM25PWdhrTQfuxgJiM8E5sZREzUoB5iFnukHCz1uAZYBMqwo
-  SenderID________________________________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
+$ aecli inspect th_iirV7mw49NfFY8NbBhbXGBLv9PPT3h1ou11oKtPsJVHGVpWVC
+Transaction hash ________________________ th_iirV7mw49NfFY8NbBhbXGBLv9PPT3h1ou11oKtPsJVHGVpWVC
+Block hash ______________________________ mh_2RojH44UtAjf8pRQekPp7o78CmCqMQJkRdxmfXvVmWg9M6ymcr
+Block height ____________________________ 99005 (4 years ago)
+Signatures ______________________________ ["sg_MjwB8zrhqGTqYWY2c5jLrikuCcwppnhNhjXg9TcdFbCkSvGhPL6Hf4iu81eoxWWJFSgRSFQ3h3qMv6vVNqYfo5NNBNDFK"]
+Transaction type ________________________ NameClaimTx
+Account address _________________________ ak_2i74vkHbdciAdr7Bw3ogdTHsLykPf4ii1DQEGLh6RpySyhtA9H
+Name ____________________________________ yanislav.test
+Name salt _______________________________ 6632125367082877
+Fee _____________________________________ 0.00001638ae
+Nonce ___________________________________ 2
+Version _________________________________ 2
 ```
 #### inspect block
 ```
-$ ./aecli inspect mh_2mj6dTVLdRJd2ysvpeMCanMnE816PUjUHZt4N2JBxCbVHb3LnZ
-Hash______________________________________________ mh_2mj6dTVLdRJd2ysvpeMCanMnE816PUjUHZt4N2JBxCbVHb3LnZ
-Height____________________________________________ 682
-PrevHash__________________________________________ kh_Uo54QZNbXAP52BftwHoLVjrfEPmYVn8186D6CfqicXz25gtbE
-PrevKeyHash_______________________________________ kh_Uo54QZNbXAP52BftwHoLVjrfEPmYVn8186D6CfqicXz25gtbE
-Signature_________________________________________ sg_FctQnGxxCzNUf5vkAfhVVeVAQ8DbBiknQW5Wh6DpSz77ku9tgL23GpaDk6V5yij4Fw1jozNwzJJPYbzMroLkaHJU2rYE3
-StateHash_________________________________________ bs_phbFtw7EhFKEP63mtMYd9wSR818VQJqyTqsbLefWJT68ecbR1
-Time______________________________________________ 2018-09-20T13:34:51+02:00
-TxsHash___________________________________________ bx_GnJ5zjiwAatgQjmQF9gPkFjxKiX7uwvc6z1YGrECSv6QmazeH
-Version___________________________________________ 23
-  BlockHash_______________________________________ mh_2mj6dTVLdRJd2ysvpeMCanMnE816PUjUHZt4N2JBxCbVHb3LnZ
-  BlockHeight_____________________________________ 682
-  Hash____________________________________________ th_UvCG8Xo7EvsdA1D21ngLmxnJ1oDYv5qEKKNAg2pDXdYs5mJvW
-   versionField___________________________________ 1
-    Amount________________________________________ 10000000
-    Fee___________________________________________ 1
-    Nonce_________________________________________ 61
-    Payload_______________________________________ hello Naz!
-    RecipientID___________________________________ ak_XeSuxD8wZ1eDWYu71pWVMJTDopUKrSxZAuiQtNT6bgmNWe9D3
-    SenderID______________________________________ ak_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
-    TTL___________________________________________ 1182
+$ aecli inspect mh_2DhgyD4np6n3JMsNWVXdtWZE2rAx74sgxL6nb2GsCKB1VnbLxN
+<<--------------- MicroBlock --------------->>
+Block hash ______________________________ mh_2DhgyD4np6n3JMsNWVXdtWZE2rAx74sgxL6nb2GsCKB1VnbLxN
+Block height ____________________________ 762850
+State hash ______________________________ bs_9vEQ2hkjJLFoqbmUq2YB3PyZN4TGV6Viv686wgX3i4t21PUK3
+Nonce ___________________________________ N/A
+Miner ___________________________________ N/A
+Time ____________________________________ 17/04/2023, 05:54:40
+Previous block hash _____________________ mh_2VaToyVbe8joVts9SjzdGJZqK7nk6w4MfvGC32Nfwp9KnTa7Z6
+Previous key block hash _________________ kh_2gVG4vzZwWJfzMe5Ug2jwwDcgcpmjEd1umsWqKA9CkSPidCYuw
+Version _________________________________ 5
+Target __________________________________ N/A
+Transactions ____________________________ 1
+    <<--------------- Transaction --------------->>
+    Transaction hash ________________________ th_2uc2RDDQnDV2BsyVLHA36GP3UZJNn16utV6uivWjLAQoTVBA3u
+    Block hash ______________________________ mh_2DhgyD4np6n3JMsNWVXdtWZE2rAx74sgxL6nb2GsCKB1VnbLxN
+    Block height ____________________________ 762850
+    Signatures ______________________________ ["sg_4UUxNZhGLXWjGsfAMEddccjQ1wpZfwUkZ9qMczjRUNFGAWAS3fahHWqgwxLf79RQ3J3ZRnEaazz259dPzUjj5J3EHcNYj"]
+    Transaction type ________________________ SpendTx
+    Sender address __________________________ ak_2swhLkgBPeeADxVTAVCJnZLY5NZtCFiM93JxsEaMuC59euuFRQ
+    Recipient address _______________________ ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
+    Amount __________________________________ 50ae
+    Payload _________________________________ ba_Xfbg4g==
+    Fee _____________________________________ 0.00001688ae
+    Nonce ___________________________________ 1513
+    Version _________________________________ 1
 ```
+<!-- INSPECT-EXAMPLES-END -->
+
+## Offline signing
+One of `aecli` use cases is offline signing. It requires the below steps.
+1. prepare a transaction using [transaction builder](./reference.md#tx-group) on any device;
+1. optionally run [`aecli inspect`](./reference.md#inspect) to verify the generated transaction before signing on offline device;
+1. sign the transaction by [`aecli account sign`](./reference.md#sign) on offline device;
+1. broadcast signed transaction using [`aecli chain broadcast`](./reference.md#broadcast) on a device connected to the internet.

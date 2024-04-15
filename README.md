@@ -125,8 +125,8 @@ Find out more in the [user guide](./user-guide.md).
     - [`create-query`](./reference.md#create-query) — create an oracle query
     - [`respond-query`](./reference.md#respond-query) — respond to an oracle query
 - `chain`
-    - [`top`](./reference.md#top) — get top key block or micro block of chain
-    - [`status`](./reference.md#status) — get node version, network id, and related details
+    - [`top`](./reference.md#top) — query the top key/micro block of the chain
+    - [`status`](./reference.md#status) — query node version, network id, and related details of the selected node
     - [`ttl`](./reference.md#ttl) — get relative TTL by absolute TTL
     - [`play`](./reference.md#play) — prints blocks from top until condition
     - [`broadcast`](./reference.md#broadcast) — send signed transaction to the chain

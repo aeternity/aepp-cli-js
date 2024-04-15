@@ -32,10 +32,15 @@ export default async function executeProgram(...args) {
     .configureOutput({ writeOut: (str) => { result += str; } })
     .exitOverride();
 
-  const { log, warn } = console;
+  const {
+    log, warn, group, groupEnd,
+  } = console;
+  let padding = 0;
+  console.group = () => { padding += 1; };
+  console.groupEnd = () => { padding -= 1; };
   console.log = (...data) => {
     if (result) result += '\n';
-    result += data.join(' ');
+    result += ' '.repeat(padding * 4) + data.join(' ');
   };
   console.warn = (...data) => {
     if (/Cost of .+ execution ≈ .+ae/.test(data[0])) return;
@@ -46,6 +51,7 @@ export default async function executeProgram(...args) {
     const allArgs = [
       ...args.map((arg) => arg.toString()),
       ...['config', 'select-node', 'select-compiler'].includes(args[0])
+      || args.includes('--url')
       || (
         args[0] === 'account'
         && ['save', 'create', 'address', 'sign-message', 'verify-message'].includes(args[1])
@@ -60,8 +66,9 @@ export default async function executeProgram(...args) {
     ];
     await program.parseAsync(allArgs, { from: 'user' });
   } finally {
-    console.log = log;
-    console.warn = warn;
+    Object.assign(console, {
+      log, warn, group, groupEnd,
+    });
     isProgramExecuting = false;
     setProgramOptions(program, options);
   }

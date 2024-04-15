@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import program from '../../src/commands/main.js';
 import { exampleAddress1, exampleAddress2 } from '../../src/utils/helpers.js';
-import { replaceInTemplate, executeProgram } from './utils.js';
+import { replaceInTemplate, executeProgram, wallet, pass } from './utils.js';
 
 function getRootHelp(): string {
   let output = '';
@@ -16,9 +16,6 @@ function getRootHelp(): string {
     '```',
   ].join('\n');
 }
-
-const wallet = './wallet.json';
-const pass = ['--password', 'temp'] as const;
 
 async function getWalletCreateOutput(): Promise<string> {
   const output = await executeProgram(
@@ -62,7 +59,4 @@ readme = replaceInTemplate(readme, 'ROOT-HELP', getRootHelp());
 readme = replaceInTemplate(readme, 'WALLET-CREATE', await getWalletCreateOutput());
 readme = replaceInTemplate(readme, 'INSPECT', await getInspectOutput());
 readme = replaceInTemplate(readme, 'SPEND', await getSpendOutput());
-await Promise.all([
-  fs.writeFile('./README.md', readme),
-  fs.remove(wallet),
-]);
+await fs.writeFile('./README.md', readme);

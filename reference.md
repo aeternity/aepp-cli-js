@@ -29,8 +29,8 @@
     - [`create-query`](#create-query) — create an oracle query
     - [`respond-query`](#respond-query) — respond to an oracle query
 - `chain`
-    - [`top`](#top) — get top key block or micro block of chain
-    - [`status`](#status) — get node version, network id, and related details
+    - [`top`](#top) — query the top key/micro block of the chain
+    - [`status`](#status) — query node version, network id, and related details of the selected node
     - [`ttl`](#ttl) — get relative TTL by absolute TTL
     - [`play`](#play) — prints blocks from top until condition
     - [`broadcast`](#broadcast) — send signed transaction to the chain
@@ -848,7 +848,7 @@ $ aecli oracle respond-query ./wallet.json oq_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7
 aecli chain top [options]
 ```
 
-Get top key block or micro block of chain.
+Query the top key/micro block of the chain.
 
 #### Options
 `-u, --url [nodeUrl]`  
@@ -869,7 +869,7 @@ $ aecli chain top
 aecli chain status [options]
 ```
 
-Get node version, network id, and related details.
+Query node version, network id, and related details of the selected node.
 
 #### Options
 `-u, --url [nodeUrl]`  

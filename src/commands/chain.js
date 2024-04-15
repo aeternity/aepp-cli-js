@@ -15,12 +15,12 @@ const addCommonOptions = (cmd, examples) => {
 };
 
 let command = program.command('top')
-  .summary('get top key block or micro block of chain')
+  .summary('query the top key/micro block of the chain')
   .action(Chain.top);
 addCommonOptions(command, ['']);
 
 command = program.command('status')
-  .summary('get node version, network id, and related details')
+  .summary('query node version, network id, and related details of the selected node')
   .action(Chain.status);
 addCommonOptions(command, ['']);
 
