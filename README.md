@@ -58,9 +58,9 @@ Run `$ aecli inspect <wallet address>` to ensure that it got coins.
 ```
 $ aecli inspect ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
 Account ID ______________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
-Account balance _________________________ 10000000000000000000000
+Account balance _________________________ 10000ae
 Account nonce ___________________________ 0
-Pending transactions:
+No pending transactions
 ```
 <!-- INSPECT-END -->
 
@@ -73,7 +73,7 @@ Transaction hash ________________________ th_2muLsbZeFaVJ3tePTnLqobPhxBzwFsm1zUv
 Block hash ______________________________ mh_dnoULQWpiRtcrntd5yJPUxcu7YrTu18xZ1e9EC2b8prKdShME
 Block height ____________________________ 2 (about now)
 Signatures ______________________________ ["sg_SG5uW5KEGiy5iG1cCkKq4VEdpyvewcW4NjVf4vj2ZoCiap5iB7UQoknWpyWsD4FkziBuGPE88zwXemq3ZvPrdzNtXtKuD"]
-Transaction type ________________________ SpendTx
+Transaction type ________________________ SpendTx (ver. 1)
 Sender address __________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
 Recipient address _______________________ ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT
 Amount __________________________________ 42ae
@@ -81,7 +81,6 @@ Payload _________________________________ ba_Xfbg4g==
 Fee _____________________________________ 0.00001684ae
 Nonce ___________________________________ 1
 TTL _____________________________________ 4 (about now)
-Version _________________________________ 1
 ```
 <!-- SPEND-END -->
 
@@ -119,7 +118,6 @@ Find out more in the [user guide](./user-guide.md).
     - [`call`](./reference.md#call) — execute a function of the contract
     - [`deploy`](./reference.md#deploy) — deploy a contract on the chain
 - `oracle`
-    - [`get`](./reference.md#get) — print oracle details
     - [`create`](./reference.md#create-1) — register current account as oracle
     - [`extend`](./reference.md#extend-1) — extend oracle's time to leave
     - [`create-query`](./reference.md#create-query) — create an oracle query

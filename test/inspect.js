@@ -27,9 +27,9 @@ describe('Inspect Module', () => {
     const res = await executeInspect(sdk.address);
     expect(res).to.equal(`
 Account ID ______________________________ ${sdk.address}
-Account balance _________________________ ${balance}
+Account balance _________________________ 50ae
 Account nonce ___________________________ ${resJson.nonce}
-Pending transactions:
+No pending transactions
     `.trim());
   });
 
@@ -63,7 +63,7 @@ Pending transactions:
       `Block hash ______________________________ ${resJson.blockHash}`,
       `Block height ____________________________ ${resJson.blockHeight} (about now)`,
       `Signatures ______________________________ ["${resJson.signatures[0]}"]`,
-      'Transaction type ________________________ SpendTx',
+      'Transaction type ________________________ SpendTx (ver. 1)',
       `Sender address __________________________ ${sdk.address}`,
       `Recipient address _______________________ ${recipient}`,
       'Amount __________________________________ 0.00000000000000042ae',
@@ -71,7 +71,6 @@ Pending transactions:
       /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${resJson.tx.nonce}`,
       /TTL _____________________________________ \d+ \(in [56] minutes\)/,
-      'Version _________________________________ 1',
     ]);
   });
 
@@ -205,27 +204,60 @@ deposit _________________________________ 0
     `.trim());
   });
 
+  it('Inspect non existing Oracle', async () => {
+    const fakeOracleId = generateKeyPair().publicKey.replace('ak_', 'ok_');
+    await executeInspect(fakeOracleId, '--json')
+      .should.be.rejectedWith('error: Oracle not found');
+  });
+
   it('Inspect Oracle', async () => {
-    const { id } = await sdk.registerOracle('<request format>', '<response format>');
-    const resJson = await executeInspect(id, '--json');
+    const { id: oracleId } = await sdk.registerOracle('<request format>', '<response format>');
+    const { id: queryId } = await sdk.postQueryToOracle(oracleId, 'Hello?');
+    const resJson = await executeInspect(oracleId, '--json');
     expect(resJson).to.eql({
-      id,
+      id: oracleId,
       abiVersion: AbiVersion.NoAbi.toString(),
-      queries: [],
+      queries: [{
+        fee: '0',
+        id: queryId,
+        oracleId,
+        query: 'ov_SGVsbG8/0oNcUw==',
+        response: 'or_Xfbg4g==',
+        responseTtl: {
+          type: 'delta',
+          value: '10',
+        },
+        senderId: sdk.address,
+        senderNonce: '4',
+        ttl: resJson.queries[0].ttl,
+      }],
       queryFee: '0',
       queryFormat: '<request format>',
       responseFormat: '<response format>',
       ttl: resJson.ttl,
     });
-    const res = await executeInspect(id);
+    const res = await executeInspect(oracleId);
+    // TODO: "no response" message instead of empty string in "Response decoded"
     expect(res).to.equal(`
-Oracle ID _______________________________ ${id}
+Oracle ID _______________________________ ${oracleId}
 Oracle Query Fee ________________________ 0
 Oracle Query Format _____________________ <request format>
 Oracle Response Format __________________ <response format>
 Ttl _____________________________________ ${resJson.ttl}
 
 --------------------------------- QUERIES ------------------------------------
+Oracle ID _______________________________ ${oracleId}
+Query ID ________________________________ ${queryId}
+Fee _____________________________________ 0
+Query ___________________________________ ov_SGVsbG8/0oNcUw==
+Query decoded ___________________________ Hello?
+Response ________________________________ or_Xfbg4g==
+Response decoded ________________________${' '}
+Response Ttl ____________________________ {"type":"delta","value":"10"}
+Sender Id _______________________________ ${sdk.address}
+Sender Nonce ____________________________ 4
+Ttl _____________________________________ ${resJson.queries[0].ttl}
+------------------------------------------------------------------------------
     `.trim());
   });
 

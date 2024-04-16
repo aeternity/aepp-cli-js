@@ -51,9 +51,9 @@ async function getAccountByHash(hash, { json, ...options }) {
     });
   } else {
     printUnderscored('Account ID', hash);
-    printUnderscored('Account balance', balance);
+    printUnderscored('Account balance', formatCoins(balance));
     printUnderscored('Account nonce', nonce);
-    print('Pending transactions:');
+    print(transactions.length ? 'Pending transactions:' : 'No pending transactions');
     printBlockTransactions(transactions);
   }
 }
@@ -113,7 +113,7 @@ async function getOracle(oracleId, { json, ...options }) {
     return;
   }
   printOracle(oracle);
-  if (oracle.queries) printQueries(oracle.queries);
+  printQueries(oracle.queries);
 }
 
 export default async function inspect(hash, option) {

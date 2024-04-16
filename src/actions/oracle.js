@@ -1,9 +1,7 @@
 import { ORACLE_TTL_TYPES } from '@aeternity/aepp-sdk';
-import { initSdk, initSdkByWalletFile } from '../utils/cli.js';
+import { initSdkByWalletFile } from '../utils/cli.js';
 import { decode } from '../utils/helpers.js';
-import {
-  print, printOracle, printQueries, printTransaction,
-} from '../utils/print.js';
+import { printTransaction } from '../utils/print.js';
 import CliError from '../utils/CliError.js';
 
 function ensureTtlANumber(ttl, name) {
@@ -98,16 +96,4 @@ export async function respondToQuery(walletPath, queryId, response, options) {
     },
   });
   await printTransaction(queryResponse, json, sdk);
-}
-
-export async function queryOracle(oracleId, { json, ...options }) {
-  decode(oracleId, 'ok');
-  const sdk = initSdk(options);
-  const oracle = await sdk.api.getOracleByPubkey(oracleId);
-  const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
-  if (json) print({ ...oracle, queries });
-  else {
-    printOracle(oracle, json);
-    printQueries(queries, json);
-  }
 }

@@ -139,14 +139,13 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ SpendTx',
+      'Transaction type ________________________ SpendTx (ver. 1)',
       `Sender address __________________________ ${sdk.address}`,
       `Recipient address _______________________ ${sdk.address}`,
       'Amount __________________________________ 0.0000000000000001ae',
       'Payload _________________________________ ba_Xfbg4g==',
       /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 1',
     ]);
   });
 
@@ -167,12 +166,11 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ NamePreclaimTx',
+      'Transaction type ________________________ NamePreclaimTx (ver. 1)',
       `Account address _________________________ ${sdk.address}`,
       `Commitment ______________________________ ${detailsJson.commitmentId}`,
       /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 1',
     ]);
   });
 
@@ -194,14 +192,13 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       version: 2,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ NameClaimTx',
+      'Transaction type ________________________ NameClaimTx (ver. 2)',
       `Account address _________________________ ${sdk.address}`,
       `Name ____________________________________ ${name}`,
       'Name fee ________________________________ 0.1597ae',
       `Name salt _______________________________ ${salt}`,
       /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 2',
     ]);
 
     nameId = (await sdk.aensQuery(name)).id;
@@ -225,7 +222,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       accountId: sdk.address,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ NameUpdateTx',
+      'Transaction type ________________________ NameUpdateTx (ver. 1)',
       `Account address _________________________ ${sdk.address}`,
       `Name ID _________________________________ ${nameId}`,
       'Name TTL ________________________________ 180000 (in 1 year)',
@@ -233,7 +230,6 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       'Client TTL ______________________________ 3600 (1 hour)',
       /Fee _____________________________________ 0.000017\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 1',
     ]);
   });
 
@@ -253,13 +249,12 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       accountId: sdk.address,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ NameTransferTx',
+      'Transaction type ________________________ NameTransferTx (ver. 1)',
       `Account address _________________________ ${sdk.address}`,
       `Recipient address _______________________ ${sdk.address}`,
       `Name ID _________________________________ ${nameId}`,
       /Fee _____________________________________ 0.000017\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 1',
     ]);
   });
 
@@ -278,12 +273,11 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       accountId: sdk.address,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ NameRevokeTx',
+      'Transaction type ________________________ NameRevokeTx (ver. 1)',
       `Account address _________________________ ${sdk.address}`,
       `Name ID _________________________________ ${nameId}`,
       /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 1',
     ]);
   });
 
@@ -322,7 +316,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       ownerId: sdk.address,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ ContractCreateTx',
+      'Transaction type ________________________ ContractCreateTx (ver. 1)',
       `Owner address ___________________________ ${sdk.address}`,
       'Gas _____________________________________ 5921420 (0.00592142ae)',
       'Gas price _______________________________ 0.000000001ae',
@@ -333,7 +327,6 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       'Amount __________________________________ 0ae',
       /Fee _____________________________________ 0.000078\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 1',
     ]);
   }).timeout(8000);
 
@@ -359,7 +352,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ ContractCallTx',
+      'Transaction type ________________________ ContractCallTx (ver. 1)',
       `Caller address __________________________ ${sdk.address}`,
       `Contract address ________________________ ${contractId}`,
       'Gas _____________________________________ 5817860 (0.00581786ae)',
@@ -369,7 +362,6 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       'Amount __________________________________ 0.00000042ae',
       /Fee _____________________________________ 0.000182\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 1',
     ]);
   }).timeout(4000);
 
@@ -392,7 +384,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ OracleRegisterTx',
+      'Transaction type ________________________ OracleRegisterTx (ver. 1)',
       `Account address _________________________ ${sdk.address}`,
       /Oracle TTL ______________________________ \d+ \(in 1 day\)/,
       'ABI version _____________________________ 0 (NoAbi)',
@@ -401,7 +393,6 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       'Response format _________________________ {tmp:""num}',
       /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 1',
     ]);
   });
 
@@ -421,12 +412,11 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ OracleExtendTx',
+      'Transaction type ________________________ OracleExtendTx (ver. 1)',
       `Oracle ID _______________________________ ${oracleId}`,
       /Oracle TTL ______________________________ \d+ \(in 4 hours\)/,
       /Fee _____________________________________ 0.000015\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 1',
     ]);
 
     const oracleTtl = await sdk.api.getOracleByPubkey(oracleId);
@@ -453,7 +443,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ OracleQueryTx',
+      'Transaction type ________________________ OracleQueryTx (ver. 1)',
       `Sender address __________________________ ${sdk.address}`,
       `Oracle ID _______________________________ ${oracleId}`,
       'Query ___________________________________ {city: "Berlin"}',
@@ -462,7 +452,6 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       /Response TTL ____________________________ \d+ \(in 27 minutes\)/,
       /Fee _____________________________________ 0.000017\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 1',
     ]);
 
     const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
@@ -489,14 +478,13 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ OracleRespondTx',
+      'Transaction type ________________________ OracleRespondTx (ver. 1)',
       `Oracle ID _______________________________ ${oracleId}`,
       `Query ID ________________________________ ${queryId}`,
       'Response ________________________________ {tmp: 10}',
       /Response TTL ____________________________ \d+ \(in 27 minutes\)/,
       /Fee _____________________________________ 0.000016\d+ae/,
       `Nonce ___________________________________ ${nonce}`,
-      'Version _________________________________ 1',
     ]);
 
     const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
