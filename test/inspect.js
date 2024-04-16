@@ -27,9 +27,9 @@ describe('Inspect Module', () => {
     const res = await executeInspect(sdk.address);
     expect(res).to.equal(`
 Account ID ______________________________ ${sdk.address}
-Account balance _________________________ ${balance}
+Account balance _________________________ 50ae
 Account nonce ___________________________ ${resJson.nonce}
-Pending transactions:
+No pending transactions
     `.trim());
   });
 

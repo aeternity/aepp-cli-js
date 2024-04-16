@@ -58,9 +58,9 @@ Run `$ aecli inspect <wallet address>` to ensure that it got coins.
 ```
 $ aecli inspect ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
 Account ID ______________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
-Account balance _________________________ 10000000000000000000000
+Account balance _________________________ 10000ae
 Account nonce ___________________________ 0
-Pending transactions:
+No pending transactions
 ```
 <!-- INSPECT-END -->
 

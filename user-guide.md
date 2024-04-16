@@ -110,9 +110,9 @@ The [`inspect`](./reference.md#inspect) command allows you to see inside various
 ```
 $ aecli inspect ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
 Account ID ______________________________ ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
-Account balance _________________________ 52134250100000000000
+Account balance _________________________ 52.1342501ae
 Account nonce ___________________________ 3
-Pending transactions:
+No pending transactions
 ```
 #### inspect transaction
 ```

@@ -51,9 +51,9 @@ async function getAccountByHash(hash, { json, ...options }) {
     });
   } else {
     printUnderscored('Account ID', hash);
-    printUnderscored('Account balance', balance);
+    printUnderscored('Account balance', formatCoins(balance));
     printUnderscored('Account nonce', nonce);
-    print('Pending transactions:');
+    print(transactions.length ? 'Pending transactions:' : 'No pending transactions');
     printBlockTransactions(transactions);
   }
 }
