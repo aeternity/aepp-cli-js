@@ -3,7 +3,7 @@ import { encode } from '@aeternity/aepp-sdk';
 import { initSdk, initSdkByWalletFile } from '../utils/cli.js';
 import { print, printTransaction, printUnderscored } from '../utils/print.js';
 import CliError from '../utils/CliError.js';
-import { getFullPath } from '../utils/helpers.js';
+import { formatCoins, getFullPath } from '../utils/helpers.js';
 
 const DESCRIPTOR_VERSION = 1;
 
@@ -105,14 +105,11 @@ export async function call(fn, args, walletPath, options) {
   });
   if (json) print(callResult);
   else {
-    if (callResult.hash) {
-      await printTransaction(await sdk.api.getTransactionByHash(callResult.hash), json, sdk);
-    }
+    await printTransaction(callResult.txData, json, sdk);
     print('----------------------Call info-----------------------');
-    printUnderscored('Contract address', contract.$options.address);
-    printUnderscored('Gas price', callResult.result?.gasPrice);
-    printUnderscored('Gas used', callResult.result?.gasUsed);
-    printUnderscored('Return value (encoded)', callResult.result?.returnValue);
+    const gasCoins = BigInt(callResult.result.gasUsed) * callResult.txData.tx.gasPrice;
+    printUnderscored('Gas used', `${callResult.result.gasUsed} (${formatCoins(gasCoins)})`);
+    printUnderscored('Return value (encoded)', callResult.result.returnValue);
     printUnderscored('Return value (decoded)', callResult.decodedResult);
   }
 }
