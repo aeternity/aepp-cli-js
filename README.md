@@ -118,7 +118,6 @@ Find out more in the [user guide](./user-guide.md).
     - [`call`](./reference.md#call) — execute a function of the contract
     - [`deploy`](./reference.md#deploy) — deploy a contract on the chain
 - `oracle`
-    - [`get`](./reference.md#get) — print oracle details
     - [`create`](./reference.md#create-1) — register current account as oracle
     - [`extend`](./reference.md#extend-1) — extend oracle's time to leave
     - [`create-query`](./reference.md#create-query) — create an oracle query

@@ -1,4 +1,3 @@
-import { AbiVersion, generateKeyPair } from '@aeternity/aepp-sdk';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { executeProgram, getSdk, WALLET_NAME } from './index.js';
@@ -83,62 +82,5 @@ describe('Oracle Module', () => {
     const oracle = await sdk.getOracleObject(oracleId);
     const query = await oracle.getQuery(queryId);
     query.decodedResponse.should.be.equal('Hi!');
-  });
-
-  it('Get non existing Oracle', async () => {
-    const fakeOracleId = generateKeyPair().publicKey.replace('ak_', 'ok_');
-    await executeOracle('get', fakeOracleId, '--json')
-      .should.be.rejectedWith('error: Oracle not found');
-    await executeOracle('get', 'oq_d1sadasdasda', '--json')
-      .should.be.rejectedWith('Encoded string have a wrong type: oq (expected: ok)');
-  });
-
-  it('Get Oracle', async () => {
-    const resJson = await executeOracle('get', oracleId, '--json');
-    expect(resJson).to.eql({
-      abiVersion: AbiVersion.NoAbi.toString(),
-      id: oracleId,
-      queries: [{
-        fee: '0',
-        id: queryId,
-        oracleId,
-        query: 'ov_SGVsbG8/0oNcUw==',
-        response: 'or_SGkh73W+jw==',
-        responseTtl: {
-          type: 'delta',
-          value: '21',
-        },
-        senderId: sdk.address,
-        senderNonce: '3',
-        ttl: resJson.queries[0].ttl,
-      }],
-      queryFee: '0',
-      queryFormat: 'string',
-      responseFormat: 'string',
-      ttl: resJson.ttl,
-    });
-
-    const res = await executeOracle('get', oracleId);
-    expect(res).to.equal(`
-Oracle ID _______________________________ ${oracleId}
-Oracle Query Fee ________________________ 0
-Oracle Query Format _____________________ string
-Oracle Response Format __________________ string
-Ttl _____________________________________ ${resJson.ttl}
-
---------------------------------- QUERIES ------------------------------------
-Oracle ID _______________________________ ${oracleId}
-Query ID ________________________________ ${queryId}
-Fee _____________________________________ 0
-Query ___________________________________ ov_SGVsbG8/0oNcUw==
-Query decoded ___________________________ Hello?
-Response ________________________________ or_SGkh73W+jw==
-Response decoded ________________________ Hi!
-Response Ttl ____________________________ {"type":"delta","value":"21"}
-Sender Id _______________________________ ${sdk.address}
-Sender Nonce ____________________________ 3
-Ttl _____________________________________ ${resJson.queries[0].ttl}
-------------------------------------------------------------------------------
-    `.trim());
   });
 });

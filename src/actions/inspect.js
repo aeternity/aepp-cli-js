@@ -113,7 +113,7 @@ async function getOracle(oracleId, { json, ...options }) {
     return;
   }
   printOracle(oracle);
-  if (oracle.queries) printQueries(oracle.queries);
+  printQueries(oracle.queries);
 }
 
 export default async function inspect(hash, option) {

@@ -23,7 +23,6 @@
     - [`call`](#call) — execute a function of the contract
     - [`deploy`](#deploy) — deploy a contract on the chain
 - `oracle`
-    - [`get`](#get) — print oracle details
     - [`create`](#create-1) — register current account as oracle
     - [`extend`](#extend-1) — extend oracle's time to leave
     - [`create-query`](#create-query) — create an oracle query
@@ -689,27 +688,6 @@ $ aecli contract deploy ./wallet.json --contractBytecode ./contract.txt --contra
 
 
 # oracle group
-
-
-## get
-```
-aecli oracle get [options] <oracleId>
-```
-
-Print oracle details.
-
-#### Options
-`-u, --url [nodeUrl]`  
-Node to connect to (default: mainnet, env: AECLI_NODE_URL).  
-`-f, --force`  
-Ignore node version compatibility check.  
-`--json`  
-Print result in json format.  
-
-#### Example calls
-```
-$ aecli oracle get ok_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi
-```
 
 
 ## create
