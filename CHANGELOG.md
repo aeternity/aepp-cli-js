@@ -4,12 +4,14 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [6.0.0](https://github.com/aeternity/aepp-cli-js/compare/v5.0.0...v6.0.0) (2024-04-16)
 
+*Check out the new documentation at [docs.aeternity.com/aepp-cli-js](https://docs.aeternity.com/aepp-cli-js/)*
 
 ### ⚠ BREAKING CHANGES
 
-* **oracle:** `aecli oracle get` removed
+#### **oracle:** `aecli oracle get` removed
 Use `aecli inspect` instead.
-* **oracle:** aecli won't accept already known account address in oracles
+
+#### **oracle:** aecli don't accept already known account address in oracles
 Remove extra argument:
 ```diff
 - $ aecli oracle extend ./wallet.json ok_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi 200
@@ -17,66 +19,81 @@ Remove extra argument:
 - $ aecli oracle respond-query ./wallet.json ok_2a1j2Mk9YSmC1gi... oq_6y3N9KqQb74QsvR... +16Degree
 + $ aecli oracle respond-query ./wallet.json oq_6y3N9KqQb74QsvR... +16Degree
 ```
-* **account:** `aecli account verify-message` accepts signer address instead wallet
-* **chain:** `aecli chain network_id` removed
+
+#### **account:** `aecli account verify-message` accepts signer address instead wallet
+
+#### **chain:** `aecli chain network_id` removed
 Use `aecli chain status` instead.
-* Commands don't accept `--no-waitMined` anymore
+
+#### Commands don't accept `--no-waitMined` anymore
 In the most cases transactions gets mined immediately. In case of NameClaim, tx needs to be
 submitted in the next keyblock after preclaim. In that case it would be mined also immediately,
 with no early name revealing.
 If still needed, use `aecli chain broadcast tx_... --no-waitMined` instead.
-* **account:** `account save` removed
+
+#### **account:** `account save` removed
 Use `account create` instead:
 ```diff
 -$ aecli account save ./my-wallet.json <hex secret key>
 +$ aecli account create ./my-wallet.json <hex secret key>
 ```
-* **account:** `aecli account spend` renamed to `aecli spend`
-* **chain:** aecli connects to mainnet by default
-Use
+
+#### **account:** `aecli account spend` renamed to `aecli spend`
+
+#### **chain:** aecli connects to mainnet by default
+Use the below to switch back to testnet.
 ```
 $ aecli select-node https://testnet.aeternity.io
 ```
-to switch back to testnet.
-* require nodejs@18 or newer
+
+#### require nodejs@18 or newer
 Because nodejs@16 is not maintained currently.
-* **name:** `name lookup` command removed
+
+#### **name:** `name lookup` command removed
 Use `inspect` instead.
 ```diff
 - aecli name lookup <name.chain>
 + aecli inspect <name.chain>
 ```
-* **account:** `account generate` command removed
+
+#### **account:** `account generate` command removed
 Use `account create` in a cycle instead.
-* **crypto:** `crypto sign` command removed
+
+#### **crypto:** `crypto sign` command removed
 Use `account sign` instead.
-* **crypto:** `crypto unpack` command removed
+
+#### **crypto:** `crypto unpack` command removed
 Use `inspect` instead.
 ```diff
 - aecli crypto unpack <tx-prefixed transaction>
 + aecli inspect <tx-prefixed transaction>
 ```
-* **crypto:** `crypto decode` removed
+
+#### **crypto:** `crypto decode` removed
 Use another base58 decoder if necessary.
-* **account:** `account balance`, `account nonce` commands removed
+
+#### **account:** `account balance`, `account nonce` commands removed
 Use `inspect <ak-address>` instead.
 ```diff
 - aecli account balance wallet.json --password=123
 - aecli account nonce wallet.json --password=123
-+ address=$(aecli account address wallet.json --json --password=123 | jq -r .publicKey)
++ address=$(aecli account address wallet.json --json | jq -r .publicKey)
 + aecli inspect $address
 ```
-* **account:** remove useless `output` option
-* **account:** `account spend` returns unwrapped JSON
+
+#### **account:** remove useless `output` option
+
+#### **account:** `account spend` returns unwrapped JSON
 ```diff
 - aecli account spend ... | jq .tx.tx.amount
-+ aecli account spend ... | jq .tx.amount
++ aecli spend ... | jq .tx.amount
 ```
-* **account:** `account transfer` command removed
-Use `account spend` instead.
+
+#### **account:** `account transfer` command removed
+Use `spend` instead.
 ```diff
 - aecli account transfer 0.42 <recipient>
-+ aecli account spend 42% <recipient>
++ aecli spend 42% <recipient>
 ```
 
 ### Features
@@ -106,6 +123,8 @@ Use `account spend` instead.
 * **oracle:** don't require extra arguments, refactor examples ([4fada6e](https://github.com/aeternity/aepp-cli-js/commit/4fada6e2abcab38649dea793a79d877d5fd32df2))
 * **oracle:** remove extra arguments in tx builder, refactor, fix examples ([e3be365](https://github.com/aeternity/aepp-cli-js/commit/e3be36575f32d9c346048e5d0a7495017be0e9d1))
 
+
+#### Other commits with breaking changes
 
 * **account:** combine `account create` and `account save` ([fdaeeff](https://github.com/aeternity/aepp-cli-js/commit/fdaeeff250c8e267de000b0bb244e07422014553))
 * **account:** combine spend and transfer commands ([2a2a94b](https://github.com/aeternity/aepp-cli-js/commit/2a2a94b76a67d96154f45d9da3f1cd1ad338c1b3))

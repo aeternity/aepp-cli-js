@@ -14,6 +14,10 @@ export default {
         'oracle',
         'release',
         'tx-builder',
+        'inspect',
+        // TODO: remove 2 after releasing 6.0.0
+        'crypto',
+        'name',
       ],
     ],
   },
