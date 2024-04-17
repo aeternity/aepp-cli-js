@@ -1,166 +1,108 @@
-// # æternity CLI `name` file
-//
-// This script initialize all `name` commands
-/*
- * ISC License (ISC)
- * Copyright (c) 2018 aeternity developers
- *
- *  Permission to use, copy, modify, and/or distribute this software for any
- *  purpose with or without fee is hereby granted, provided that the above
- *  copyright notice and this permission notice appear in all copies.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
- *  REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- *  AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
- *  INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
- *  LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
- *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- *  PERFORMANCE OF THIS SOFTWARE.
- */
-// We'll use `commander` for parsing options
-//
-// Also we need `esm` package to handle `ES imports`
 import { Command } from 'commander';
-import { NAME_TTL, CLIENT_TTL } from '@aeternity/aepp-sdk';
-import * as AENS from '../actions/aens';
+import { NAME_TTL } from '@aeternity/aepp-sdk';
+import * as AENS from '../actions/aens.js';
 import {
-  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption, networkIdOption,
-} from '../arguments';
+  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption, coinAmountParser,
+  clientTtlOption,
+} from '../arguments.js';
+import {
+  addExamples, exampleAddress1, exampleContract, exampleName,
+} from '../utils/helpers.js';
 
-const program = new Command().name('aecli name');
+const program = new Command('name').summary('manage AENS names');
 
-// ## Initialize `options`
-const addCommonOptions = (p) => p
-  .addOption(nodeOption)
-  .addOption(ttlOption)
-  .addOption(feeOption)
-  .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
-  .addOption(passwordOption)
-  .addOption(networkIdOption)
-  .addOption(forceOption)
-  .addOption(jsonOption);
+const addCommonOptions = (cmd, example) => {
+  cmd
+    .addOption(nodeOption)
+    .addOption(ttlOption(true))
+    .addOption(feeOption)
+    .option('--nonce [nonce]', 'Override the nonce that the transaction is going to be sent with')
+    .addOption(passwordOption)
+    .addOption(forceOption)
+    .addOption(jsonOption);
+  if (!cmd.description()) {
+    const summary = cmd.summary();
+    cmd.description(`${summary[0].toUpperCase()}${summary.slice(1)}.`);
+  }
+  addExamples(cmd, [example]);
+};
 
-// ## Initialize `claim` command
-//
-// You can use this command to `claim` AENS name. Name must end on `.chain`.
-//
-// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.chain`
-//
-// This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
-//
-// You can use `--nameTtl` and `--ttl` to pre-set transaction and name `time to leave`
-addCommonOptions(program
-  .command('full-claim <wallet_path> <name>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .option('--nameFee [nameFee]', 'Amount of coins to pay for name')
+const claimingGuide = [
+  'A name in arguments should end with ".chain". Be careful, shorter names are more expensive.',
+  'If the name is shorter than 13 characters (without ".chain") then it won\'t be claimed immediately',
+  'but would start an auction instead.',
+].join(' ');
+
+let command = program.command('full-claim <wallet_path> <name>')
+  .option('--nameFee [nameFee]', 'Amount of coins to pay for name', coinAmountParser)
   .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
-  .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
-  .description('Claim an AENS name')
-  .action(AENS.fullClaim));
+  .addOption(clientTtlOption)
+  .summary('claim an AENS name in a single command')
+  .description([
+    'Claim an AENS name in a single command.',
+    'This command signs and sends a pre-claim transaction and waits until one block gets mined.',
+    'After that, it sends a claim transaction. At the end, the update transaction is',
+    'submitted, making a name point to the current account.',
+    `\n\n${claimingGuide}`,
+  ].join(' '))
+  .action(AENS.fullClaim);
+addCommonOptions(command, `./wallet.json ${exampleName}`);
 
-// ## Initialize `pre-claim` command
-//
-// You can use this command to `pre-claim` AENS name
-//
-// Example: `aecli name pre-claim ./myWalletKeyFile --password testpass  testname.chain`
-//
-// This command build and send `pre-claim` transaction.
-// And wait until it will be mined. You can force waiting by using `--waitMined false` option. Default: true
-//
-// You can use `--ttl` to pre-set transaction `time to leave`
-addCommonOptions(program
-  .command('pre-claim <wallet_path> <name>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .description('Pre-Claim an AENS name')
-  .action(AENS.preClaim));
+// TODO: consider keeping only full-claim
+command = program.command('pre-claim <wallet_path> <name>')
+  .summary('pre-claim an AENS name')
+  .description([
+    'Pre-claim an AENS name. The name should be claimed after one key block since the pre-claim gets mined.',
+    'This command sends a pre-claim transaction,',
+    'and outputs a salt that needs to be provided to `aecli name claim`.',
+    `\n\n${claimingGuide}`,
+  ].join(' '))
+  .action(AENS.preClaim);
+addCommonOptions(command, `./wallet.json ${exampleName}`);
 
-// ## Initialize `claim` command
-//
-// You can use this command to `claim` AENS name. Name must end on `.chain`.
-//
-// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.chain`
-//
-// This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
-//
-// You can use `--nameTtl` and `--ttl` to pre-set transaction and name `time to leave`
-addCommonOptions(program
-  .command('claim <wallet_path> <name> <salt>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .option('--nameFee [nameFee]', 'Amount of coins to pay for name')
-  .description('Claim an AENS name')
-  .action(AENS.claim));
+command = program.command('claim <wallet_path> <name> <salt>')
+  .option('--nameFee [nameFee]', 'Amount of coins to pay for name', coinAmountParser)
+  .summary('claim an AENS name (requires pre-claim)')
+  .description([
+    'Claim an AENS name, it requires a salt provided by `aecli name pre-claim`.',
+    `\n\n${claimingGuide}`,
+  ].join(' '))
+  .action(AENS.claim);
+addCommonOptions(command, `./wallet.json ${exampleName} 12327389123`);
 
-// ## Initialize `claim` command
-//
-// You can use this command to `claim` AENS name. Name must end on `.chain`.
-//
-// Example: `aecli name claim ./myWalletKeyFile --password testpass  testname.chain`
-//
-// This command send `pre-claim` transaction, wait until one block was mined, after that sent `claim` and `update` transaction's
-//
-// You can use `--nameTtl` and `--ttl` to pre-set transaction and name `time to leave`
-addCommonOptions(program
-  .command('bid <wallet_path> <name> <nameFee>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .description('Bid on name')
-  .action(AENS.nameBid));
+command = program.command('bid <wallet_path> <name>')
+  .argument('<nameFee>', 'Amount of coins to pay for name', coinAmountParser)
+  .summary('bid on name in auction')
+  .action(AENS.nameBid);
+addCommonOptions(command, `./wallet.json ${exampleName} 4.2ae`);
 
-// ## Initialize `update` command
-//
-// You can use this command to `update` pointer of AENS name.
-//
-// Example: `aecli name update ./myWalletKeyFile --password testpass testname.chain ak_qwe23dffasfgdesag323`
-addCommonOptions(program
-  .command('update <wallet_path> <name> [addresses...]')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
+command = program.command('update <wallet_path> <name> [addresses...]')
   .option('--extendPointers', 'Extend pointers', false)
-  .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
-  .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
-  .description('Update a name pointer')
-  .action(AENS.updateName));
+  .option('--nameTtl [nameTtl]', 'A number of blocks until name expires', NAME_TTL)
+  .addOption(clientTtlOption)
+  .summary('update a name pointer')
+  .action(AENS.updateName);
+addCommonOptions(command, `./wallet.json ${exampleName} ${exampleContract}`);
 
-// ## Initialize `extend` command
-//
-// You can use this command to `extend` ttl of AENS name.
-//
-// Example: `aecli name extend ./myWalletKeyFile --password testpass testname.chain 100`
-addCommonOptions(program
-  .command('extend <wallet_path> <name> <nameTtl>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .option('--clientTtl [clientTtl]', 'Client ttl.', CLIENT_TTL)
-  .description('Extend name ttl')
-  .action(AENS.extendName));
+command = program.command('extend <wallet_path> <name>')
+  .argument('[nameTtl]', 'A number of blocks until name expires', NAME_TTL)
+  .addOption(clientTtlOption)
+  .summary('extend name TTL')
+  .action(AENS.extendName);
+addCommonOptions(command, `./wallet.json ${exampleName} 180000`);
 
-// ## Initialize `revoke` command
-//
-// You can use this command to `destroy` AENS name.
-//
-// Example: `aecli name revoke ./myWalletKeyFile --password testpass testname.chain`
-addCommonOptions(program
-  .command('revoke  <wallet_path> <name>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .description('Revoke an AENS name')
-  .action(AENS.revokeName));
+command = program.command('revoke <wallet_path> <name>')
+  .summary('revoke an AENS name')
+  .description([
+    'Revoke an AENS name. After that nobody will be able to claim it again.',
+    'This action is irreversible!',
+  ].join(' '))
+  .action(AENS.revokeName);
+addCommonOptions(command, `./wallet.json ${exampleName}`);
 
-// ## Initialize `transfer` command
-//
-// You can use this command to `transfer` AENS name to another account.
-//
-// Example: `aecli name transfer ./myWalletKeyFile --password testpass testname.chain ak_qqwemjgflewgkj349gjdslksd`
-addCommonOptions(program
-  .command('transfer <wallet_path> <name> <address>')
-  .option('-M, --no-waitMined', 'Do not wait until transaction will be mined')
-  .description('Transfer a name to another account')
-  .action(AENS.transferName));
-
-// ## Initialize `lookup` command
-//
-// You can use this command to `update` pointer of AENS name.
-//
-// Example: `aecli lookup name.chain`
-addCommonOptions(program
-  .command('lookup <name>')
-  .description('Look up name')
-  .action(AENS.lookUp));
+command = program.command('transfer <wallet_path> <name> <address>')
+  .summary('transfer a name to another account')
+  .action(AENS.transferName);
+addCommonOptions(command, `./wallet.json ${exampleName} ${exampleAddress1}`);
 
 export default program;

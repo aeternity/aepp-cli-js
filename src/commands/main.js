@@ -1,82 +1,70 @@
-// # æternity CLI `root` file
-//
-// This script initialize all `cli` commands
-/*
- * ISC License (ISC)
- * Copyright (c) 2018 aeternity developers
- *
- *  Permission to use, copy, modify, and/or distribute this software for any
- *  purpose with or without fee is hereby granted, provided that the above
- *  copyright notice and this permission notice appear in all copies.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
- *  REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- *  AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
- *  INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
- *  LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
- *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- *  PERFORMANCE OF THIS SOFTWARE.
- */
-// We'll use `commander` for parsing options
 import { Command } from 'commander';
 import prompts from 'prompts';
-import { Node, CompilerCli, CompilerHttpNode } from '@aeternity/aepp-sdk';
-import { compilerOption, nodeOption } from '../arguments';
-import { addToConfig } from '../utils/config';
-import CliError from '../utils/CliError';
+import fs from 'fs-extra';
+import { fileURLToPath } from 'url';
+import { resolve } from 'path';
+import updateNotifier from 'update-notifier';
+import { Node, ConsensusProtocolVersion } from '@aeternity/aepp-sdk';
+import accountCmd from './account.js';
+import spendCmd from './spend.js';
+import nameCmd from './name.js';
+import contractCmd from './contract.js';
+import oracleCmd from './oracle.js';
+import chainCmd from './chain.js';
+import inspectCmd from './inspect.js';
+import txCmd from './tx.js';
+import { compilerOption, nodeOption } from '../arguments.js';
+import { getCompilerByUrl } from '../utils/cli.js';
+import { addToConfig } from '../utils/config.js';
+import CliError from '../utils/CliError.js';
 
-const program = new Command();
+const program = new Command('aecli');
 
-// Array of child command's
-const EXECUTABLE_CMD = [
-  { name: 'chain', desc: 'Interact with the blockchain' },
-  { name: 'inspect', desc: 'Get information on transactions, blocks,...' },
-  { name: 'account', desc: 'Handle wallet operations' },
-  { name: 'contract', desc: 'Contract interactions' },
-  { name: 'name', desc: 'AENS system' },
-  { name: 'tx', desc: 'Transaction builder' },
-  { name: 'oracle', desc: 'Interact with oracles' },
-  { name: 'crypto', desc: 'Crypto helpers' },
-];
-// You get get CLI version by exec `aecli version`
-program.version(process.env.npm_package_version);
+[
+  accountCmd, spendCmd, nameCmd, contractCmd, oracleCmd, chainCmd, inspectCmd, txCmd,
+].forEach((cmd) => program.addCommand(cmd));
 
-// TODO: switch to usual import after dropping CJS in tests
-import('update-notifier').then(({ default: updateNotifier }) => {
-  updateNotifier({
-    pkg: { name: process.env.npm_package_name, version: process.env.npm_package_version },
-  }).notify();
-});
+(() => {
+  const { name, version } = fs.readJSONSync(
+    resolve(fileURLToPath(import.meta.url), '../../../package.json'),
+  );
 
-// ## Initialize `child` command's
-EXECUTABLE_CMD.forEach(({ name, desc }) => program.command(name, desc));
+  program.version(version);
+
+  updateNotifier({ pkg: { name, version } }).notify();
+})();
 
 async function getNodeDescription(url) {
-  // TODO: remove after fixing https://github.com/aeternity/aepp-sdk-js/issues/1673
-  const omitUncaughtExceptions = () => {};
-  process.on('uncaughtException', omitUncaughtExceptions);
-  const nodeInfo = await (new Node(url)).getNodeInfo().catch(() => {});
-  process.off('uncaughtException', omitUncaughtExceptions);
+  const nodeInfo = await new Node(url).getNodeInfo().catch(() => {});
   return nodeInfo
-    ? `network id ${nodeInfo.nodeNetworkId}, version ${nodeInfo.version}`
+    ? [
+      `network id ${nodeInfo.nodeNetworkId}`,
+      `version ${nodeInfo.version}`,
+      `protocol ${nodeInfo.consensusProtocolVersion} (${ConsensusProtocolVersion[nodeInfo.consensusProtocolVersion]})`,
+    ].join(', ')
     : 'can\'t get node info';
 }
 
 async function getCompilerDescription(url) {
-  const compiler = url === 'cli' ? new CompilerCli() : new CompilerHttpNode(url);
+  const compiler = getCompilerByUrl(url);
   const version = await compiler.version().catch(() => {});
   return version ? `version ${version}` : 'can\'t get compiler version';
 }
 
-program
-  .command('config')
-  .description('Print the current sdk configuration')
+const addCommonOptions = (cmd) => {
+  const summary = cmd.summary();
+  cmd.description(`${summary[0].toUpperCase()}${summary.slice(1)}.`);
+};
+
+let command = program.command('config')
+  .summary('print the current sdk configuration')
   .addOption(nodeOption)
   .addOption(compilerOption)
   .action(async ({ url, compilerUrl }) => {
     console.log('Node', url, await getNodeDescription(url));
     console.log('Compiler', compilerUrl, await getCompilerDescription(compilerUrl));
   });
+addCommonOptions(command);
 
 async function askUrl(entity, choices, getDescription, _url) {
   let url = _url;
@@ -125,31 +113,32 @@ async function askUrl(entity, choices, getDescription, _url) {
   }
 }
 
-program
-  .command('select-node')
+command = program.command('select-node')
   .argument('[nodeUrl]', 'Node URL')
-  .description('Specify node to use in other commands')
+  .summary('specify node to use in other commands')
   .action(async (url) => {
     const nodes = [
       { name: 'Mainnet', url: 'https://mainnet.aeternity.io/' },
       { name: 'Testnet', url: 'https://testnet.aeternity.io/' },
+      { name: 'Next', url: 'https://next.aeternity.io/' },
     ];
     await addToConfig({ url: await askUrl('node', nodes, getNodeDescription, url) });
   });
+addCommonOptions(command);
 
-program
-  .command('select-compiler')
+command = program.command('select-compiler')
   .argument('[compilerUrl]', 'Compiler URL')
-  .description('Specify compiler to use in other commands')
+  .summary('specify compiler to use in other commands')
   .action(async (url) => {
     const compilers = [
       { name: 'Stable v7', url: 'https://v7.compiler.aepps.com/' },
-      { name: 'Integrated compiler (requires Erlang installed)', url: 'cli' },
-      { name: 'Latest', url: 'https://latest.compiler.aeternity.io/' },
+      { name: 'Integrated compiler, FATE 2 (requires Erlang)', url: 'cli' },
+      { name: 'Integrated compiler, FATE 3 (requires Erlang)', url: 'cli8' },
     ];
     await addToConfig({
       compilerUrl: await askUrl('compiler', compilers, getCompilerDescription, url),
     });
   });
+addCommonOptions(command);
 
 export default program;

@@ -2,6 +2,146 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.0.0](https://github.com/aeternity/aepp-cli-js/compare/v5.0.0...v6.0.0) (2024-04-16)
+
+*Check out the new documentation at [docs.aeternity.com/aepp-cli-js](https://docs.aeternity.com/aepp-cli-js/)*
+
+### ⚠ BREAKING CHANGES
+
+#### **oracle:** `aecli oracle get` removed
+Use `aecli inspect` instead.
+
+#### **oracle:** aecli don't accept already known account address in oracles
+Remove extra argument:
+```diff
+- $ aecli oracle extend ./wallet.json ok_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi 200
++ $ aecli oracle extend ./wallet.json 200
+- $ aecli oracle respond-query ./wallet.json ok_2a1j2Mk9YSmC1gi... oq_6y3N9KqQb74QsvR... +16Degree
++ $ aecli oracle respond-query ./wallet.json oq_6y3N9KqQb74QsvR... +16Degree
+```
+
+#### **account:** `aecli account verify-message` accepts signer address instead wallet
+
+#### **chain:** `aecli chain network_id` removed
+Use `aecli chain status` instead.
+
+#### Commands don't accept `--no-waitMined` anymore
+In the most cases transactions gets mined immediately. In case of NameClaim, tx needs to be
+submitted in the next keyblock after preclaim. In that case it would be mined also immediately,
+with no early name revealing.
+If still needed, use `aecli chain broadcast tx_... --no-waitMined` instead.
+
+#### **account:** `account save` removed
+Use `account create` instead:
+```diff
+-$ aecli account save ./my-wallet.json <hex secret key>
++$ aecli account create ./my-wallet.json <hex secret key>
+```
+
+#### **account:** `aecli account spend` renamed to `aecli spend`
+
+#### **chain:** aecli connects to mainnet by default
+Use the below to switch back to testnet.
+```
+$ aecli select-node https://testnet.aeternity.io
+```
+
+#### require nodejs@18 or newer
+Because nodejs@16 is not maintained currently.
+
+#### **name:** `name lookup` command removed
+Use `inspect` instead.
+```diff
+- aecli name lookup <name.chain>
++ aecli inspect <name.chain>
+```
+
+#### **account:** `account generate` command removed
+Use `account create` in a cycle instead.
+
+#### **crypto:** `crypto sign` command removed
+Use `account sign` instead.
+
+#### **crypto:** `crypto unpack` command removed
+Use `inspect` instead.
+```diff
+- aecli crypto unpack <tx-prefixed transaction>
++ aecli inspect <tx-prefixed transaction>
+```
+
+#### **crypto:** `crypto decode` removed
+Use another base58 decoder if necessary.
+
+#### **account:** `account balance`, `account nonce` commands removed
+Use `inspect <ak-address>` instead.
+```diff
+- aecli account balance wallet.json --password=123
+- aecli account nonce wallet.json --password=123
++ address=$(aecli account address wallet.json --json | jq -r .publicKey)
++ aecli inspect $address
+```
+
+#### **account:** remove useless `output` option
+
+#### **account:** `account spend` returns unwrapped JSON
+```diff
+- aecli account spend ... | jq .tx.tx.amount
++ aecli spend ... | jq .tx.amount
+```
+
+#### **account:** `account transfer` command removed
+Use `spend` instead.
+```diff
+- aecli account transfer 0.42 <recipient>
++ aecli spend 42% <recipient>
+```
+
+### Features
+
+* **account:** accept password in env variable, notice password recorded ([302c8b3](https://github.com/aeternity/aepp-cli-js/commit/302c8b318447e8c74147dbbcd21b61156db3ed4a))
+* **account:** show approximate tx execution cost before asking password ([9c97844](https://github.com/aeternity/aepp-cli-js/commit/9c9784474a13ade972c36b3b7992ea3689383777))
+* **account:** verify message by address instead wallet ([4128276](https://github.com/aeternity/aepp-cli-js/commit/412827674d8ac57b484584ca63afe917f5ef68a0))
+* **aens:** don't require name ttl in `name extend` ([0d4aa51](https://github.com/aeternity/aepp-cli-js/commit/0d4aa5157f861b98eb25f5b1b4f93af79a9da018))
+* **aens:** print missed name details, be human-friendly ([91c7731](https://github.com/aeternity/aepp-cli-js/commit/91c773198b5d52e3665ed889b1d33d0c8391fa8d))
+* **aens:** show auction details ([75217c3](https://github.com/aeternity/aepp-cli-js/commit/75217c3c97ecb93b97521b626a0099e789b8fc33))
+* **chain:** show protocol version in config ([35496fb](https://github.com/aeternity/aepp-cli-js/commit/35496fbb2d5f80d657a784a17151f37350f2643d))
+* **contract:** accept amount in contract and tx builder commands ([1dbd195](https://github.com/aeternity/aepp-cli-js/commit/1dbd19557ccba9d89f99a48ea1f3d588d5022cd0))
+* show extra info in tx details, consistent fields naming ([5a9f4cc](https://github.com/aeternity/aepp-cli-js/commit/5a9f4cc31750cbc82cb3c4179935c8efda402d5f))
+
+
+### Bug Fixes
+
+* **account:** don't ask for password if it is empty ([daefd21](https://github.com/aeternity/aepp-cli-js/commit/daefd21a97e84c9bdecaf5aed4d8d22075968e1f))
+* **account:** don't ask password if it is not required ([54d70fb](https://github.com/aeternity/aepp-cli-js/commit/54d70fbeae91627e8f4e9aa982d0ea5285d7d6be))
+* **aens:** handle revoked names, refactor docs ([70b46c2](https://github.com/aeternity/aepp-cli-js/commit/70b46c2b97de4004d9aef743f82b753c66cc12db))
+* **chain:** use mainnet instead testnet by default ([5a81814](https://github.com/aeternity/aepp-cli-js/commit/5a81814bf39e156e00e8f8c6ed6d903770725446))
+* **contract:** don't show stacktrace if static contract call failed ([694d400](https://github.com/aeternity/aepp-cli-js/commit/694d40032d029588a3c13f088647a1e7806d7493))
+* **contract:** don't use `-G` flag for both gas and gas price ([047cf8e](https://github.com/aeternity/aepp-cli-js/commit/047cf8e20589fdcb597e96176c1d60f9f506cc8b))
+* don't accept `--networkId` in commands where node is required ([cfd7ac5](https://github.com/aeternity/aepp-cli-js/commit/cfd7ac5b1caf930eefeb1a7c44da0bc0ccce71e8))
+* don't print contract deposit because it can't be used ([47e0306](https://github.com/aeternity/aepp-cli-js/commit/47e0306cb0bbccfdc7ee51da017e1293c4dd70d6))
+* don't show stacktraces for RestErrors ([e7f2e58](https://github.com/aeternity/aepp-cli-js/commit/e7f2e58bae89834f44e0d220c2b5748521c7fdfd))
+* **oracle:** don't require extra arguments, refactor examples ([4fada6e](https://github.com/aeternity/aepp-cli-js/commit/4fada6e2abcab38649dea793a79d877d5fd32df2))
+* **oracle:** remove extra arguments in tx builder, refactor, fix examples ([e3be365](https://github.com/aeternity/aepp-cli-js/commit/e3be36575f32d9c346048e5d0a7495017be0e9d1))
+
+
+#### Other commits with breaking changes
+
+* **account:** combine `account create` and `account save` ([fdaeeff](https://github.com/aeternity/aepp-cli-js/commit/fdaeeff250c8e267de000b0bb244e07422014553))
+* **account:** combine spend and transfer commands ([2a2a94b](https://github.com/aeternity/aepp-cli-js/commit/2a2a94b76a67d96154f45d9da3f1cd1ad338c1b3))
+* **account:** move `aecli account spend` to `aecli spend` ([4af1b4c](https://github.com/aeternity/aepp-cli-js/commit/4af1b4ced43a9f6af82d333b9572aed783f5e9f1))
+* **account:** remove extra object wrapping json output ([b1d4585](https://github.com/aeternity/aepp-cli-js/commit/b1d4585765fdd380502a28583c7a98bf6a1f1a74))
+* **account:** remove unnecessary `account generate` command ([1c6abd8](https://github.com/aeternity/aepp-cli-js/commit/1c6abd8cc324437c85e6b139c9b424bd1330e0f2))
+* **account:** remove unnecessary `balance`, `nonce` commands ([b4792e6](https://github.com/aeternity/aepp-cli-js/commit/b4792e686d5595be65c57c233e986d71eb82308e))
+* **account:** remove useless `output` option ([74a8a37](https://github.com/aeternity/aepp-cli-js/commit/74a8a37004e8368b1886f7ba8aa745d96ed3c14b))
+* **chain:** remove `network_id` command ([4d4adce](https://github.com/aeternity/aepp-cli-js/commit/4d4adce835917c6cdaa67164b7a84ff689316bb7))
+* **crypto:** remove duplicate `crypto sign` command ([bb39f07](https://github.com/aeternity/aepp-cli-js/commit/bb39f079188760f5c7aaf16765475e00f08ff0dc))
+* **crypto:** remove duplicate `crypto unpack` command ([37b9965](https://github.com/aeternity/aepp-cli-js/commit/37b996570d44766fe0f1f3b10b2951330d8291fa))
+* **crypto:** remove unnecessary `crypto decode` command ([a0d9b05](https://github.com/aeternity/aepp-cli-js/commit/a0d9b059c2baf103e6eb4622e9c4bd6e2ab1dd5d))
+* **name:** remove duplicate `name lookup` command ([e4f9b50](https://github.com/aeternity/aepp-cli-js/commit/e4f9b5009b9c4f95b5349d8ce5f414e422c75d0d))
+* **oracle:** remove `oracle get` ([6db5dc2](https://github.com/aeternity/aepp-cli-js/commit/6db5dc216b8fc07de501385524e944676f8fab7e))
+* remove --no-waitMined option ([5fe7dc4](https://github.com/aeternity/aepp-cli-js/commit/5fe7dc48ac29f30a29670f8770fbc465e97f7b96))
+* require nodejs@18 ([5fd3bfa](https://github.com/aeternity/aepp-cli-js/commit/5fd3bfa06eb5d36efa67a655f62d4bf4ed8c144e))
+
 ## [5.0.0](https://github.com/aeternity/aepp-cli-js/compare/v4.1.0...v5.0.0) (2023-04-08)
 
 
@@ -14,11 +154,11 @@ Contract descriptors needs to be regenerated.
 
 For example, replace
 ```
-$ aecli contract call ./myWalletFile --password testpass foo '[1, 2]'
+$ aecli contract call ./wallet.json foo '[1, 2]'
 ```
 with
 ```
-$ aecli contract call --password testpass foo '[1, 2]' ./myWalletFile
+$ aecli contract call foo '[1, 2]' ./wallet.json
 ```
 #### `account spend` doesn't accept `denomination` parameter
 

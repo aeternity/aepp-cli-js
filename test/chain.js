@@ -1,40 +1,25 @@
-/*
- * ISC License (ISC)
- * Copyright (c) 2018 aeternity developers
- *
- *  Permission to use, copy, modify, and/or distribute this software for any
- *  purpose with or without fee is hereby granted, provided that the above
- *  copyright notice and this permission notice appear in all copies.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
- *  REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- *  AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
- *  INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
- *  LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
- *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- *  PERFORMANCE OF THIS SOFTWARE.
- */
-
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { executeProgram, getSdk } from './index';
-import chainProgram from '../src/commands/chain';
+import { executeProgram, getSdk } from './index.js';
 
-const executeChain = (args) => executeProgram(chainProgram, args);
+const executeChain = executeProgram.bind(null, 'chain');
 
 describe('Chain Module', () => {
   let sdk;
 
   before(async () => {
     sdk = await getSdk();
+    for (let i = 0; i < 5; i += 1) {
+      await sdk.spend(0, sdk.address); // eslint-disable-line no-await-in-loop
+    }
   });
 
   it('prints top', async () => {
-    const resJson = await executeChain(['top', '--json']);
+    const resJson = await executeChain('top', '--json');
     expect(resJson.hash).to.be.a('string');
     expect(resJson.height).to.be.a('number');
 
-    const res = await executeChain(['top']);
+    const res = await executeChain('top');
     expect(res).to.equal(`
 <<--------------- ${resJson.hash.startsWith('mh_') ? 'MicroBlock' : 'KeyBlock'} --------------->>
 Block hash ______________________________ ${resJson.hash}
@@ -52,14 +37,15 @@ Transactions ____________________________ 0
   });
 
   it('prints status', async () => {
-    const resJson = await executeChain(['status', '--json']);
+    const resJson = await executeChain('status', '--json');
     expect(resJson).to.eql({
       difficulty: resJson.difficulty,
       genesisKeyBlockHash: resJson.genesisKeyBlockHash,
+      hashrate: 0,
       listening: true,
-      networkId: 'ae_devnet',
-      nodeRevision: 'a42c1b1e84dabdad350005213a2a9334113a6832',
-      nodeVersion: '6.8.1',
+      networkId: 'ae_dev',
+      nodeRevision: '805c662b260cfbdb197cfef96ed07124db4b4896',
+      nodeVersion: '6.13.0',
       peerConnections: { inbound: 0, outbound: 0 },
       peerCount: 0,
       peerPubkey: resJson.peerPubkey,
@@ -70,16 +56,17 @@ Transactions ____________________________ 0
       syncing: false,
       topBlockHeight: resJson.topBlockHeight,
       topKeyBlockHash: resJson.topKeyBlockHash,
+      uptime: resJson.uptime,
     });
 
-    const res = await executeChain(['status']);
+    const res = await executeChain('status');
     expect(res).to.equal(`
 Difficulty ______________________________ ${resJson.difficulty}
-Node version ____________________________ 6.8.1
+Node version ____________________________ 6.13.0
 Consensus protocol version ______________ 5 (Iris)
-Node revision ___________________________ a42c1b1e84dabdad350005213a2a9334113a6832
+Node revision ___________________________ 805c662b260cfbdb197cfef96ed07124db4b4896
 Genesis hash ____________________________ ${resJson.genesisKeyBlockHash}
-Network ID ______________________________ ae_devnet
+Network ID ______________________________ ae_dev
 Listening _______________________________ true
 Peer count ______________________________ 0
 Pending transactions count ______________ 0
@@ -89,13 +76,13 @@ Syncing _________________________________ false
   });
 
   it('plays by limit', async () => {
-    const res = await executeChain(['play', '--limit', '4']);
+    const res = await executeChain('play', '--limit', '4');
     const blockCount = (output) => (output.match(/(Key|Micro)Block/g) || []).length;
     expect(blockCount(res)).to.be.equal(4);
   });
 
   it('plays by height', async () => {
-    const res = await executeChain(['play', '--height', await sdk.getHeight() - 4]);
+    const res = await executeChain('play', '--height', await sdk.getHeight() - 4);
     const heights = res
       .split('\n')
       .filter((l) => l.includes('Block height'))
@@ -105,22 +92,16 @@ Syncing _________________________________ false
 
   it('calculates ttl', async () => {
     const height = await sdk.getHeight();
-    const resJson = await executeChain(['ttl', 10, '--json']);
+    const resJson = await executeChain('ttl', 10, '--json');
     expect(resJson).to.eql({
       absoluteTtl: 10,
       relativeTtl: 10 - height,
     });
 
-    const res = await executeChain(['ttl', 10]);
+    const res = await executeChain('ttl', 10);
     expect(res).to.equal(`
 Absolute TTL ____________________________ 10
 Relative TTL ____________________________ ${resJson.relativeTtl}
     `.trim());
-  });
-
-  it('prints network id', async () => {
-    const nodeNetworkId = await sdk.api.getNetworkId();
-    const { networkId } = await executeChain(['network_id', '--json']);
-    nodeNetworkId.should.equal(networkId);
   });
 });

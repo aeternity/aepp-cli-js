@@ -1,47 +1,22 @@
-// # æternity CLI `contract` file
-//
-// This script initialize all `contract` function
-/*
- * ISC License (ISC)
- * Copyright (c) 2018 aeternity developers
- *
- *  Permission to use, copy, modify, and/or distribute this software for any
- *  purpose with or without fee is hereby granted, provided that the above
- *  copyright notice and this permission notice appear in all copies.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
- *  REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- *  AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
- *  INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
- *  LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
- *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- *  PERFORMANCE OF THIS SOFTWARE.
- */
-
 import { ORACLE_TTL_TYPES } from '@aeternity/aepp-sdk';
-import { initSdk, initSdkByWalletFile } from '../utils/cli';
-import { decode } from '../utils/helpers';
-import {
-  print, printOracle, printQueries, printTransaction,
-} from '../utils/print';
-import CliError from '../utils/CliError';
+import { initSdkByWalletFile } from '../utils/cli.js';
+import { decode } from '../utils/helpers.js';
+import { printTransaction } from '../utils/print.js';
+import CliError from '../utils/CliError.js';
 
 function ensureTtlANumber(ttl, name) {
   if (isNaN(+ttl)) throw new CliError(`${name} TTL should be a number`);
 }
 
-// ## Create Oracle
 export async function createOracle(walletPath, queryFormat, responseFormat, options) {
   const {
-    ttl, fee, nonce, waitMined, json, oracleTtl, queryFee,
+    ttl, fee, nonce, json, oracleTtl, queryFee,
   } = options;
 
   ensureTtlANumber(oracleTtl, 'Oracle');
   const sdk = await initSdkByWalletFile(walletPath, options);
-  // Register Oracle
   const oracle = await sdk.registerOracle(queryFormat, responseFormat, {
     ttl,
-    waitMined,
     nonce,
     fee,
     ...oracleTtl && {
@@ -50,26 +25,19 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
     },
     queryFee,
   });
-  if (waitMined) {
-    printTransaction(oracle, json);
-  } else {
-    print('Transaction send to the chain. Tx hash: ', oracle);
-  }
+  await printTransaction(oracle, json, sdk);
 }
 
-// ## Extend Oracle
-export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
+export async function extendOracle(walletPath, oracleTtl, options) {
   const {
-    ttl, fee, nonce, waitMined, json,
+    ttl, fee, nonce, json,
   } = options;
 
   ensureTtlANumber(oracleTtl, 'Oracle');
-  decode(oracleId, 'ok');
   const sdk = await initSdkByWalletFile(walletPath, options);
-  const oracle = await sdk.getOracleObject(oracleId);
+  const oracle = await sdk.getOracleObject(sdk.address.replace('ak_', 'ok_'));
   const extended = await oracle.extendOracle({
     ttl,
-    waitMined,
     nonce,
     fee,
     ...oracleTtl && {
@@ -77,17 +45,12 @@ export async function extendOracle(walletPath, oracleId, oracleTtl, options) {
       oracleTtlValue: oracleTtl,
     },
   });
-  if (waitMined) {
-    printTransaction(extended, json);
-  } else {
-    print('Transaction send to the chain. Tx hash: ', extended);
-  }
+  await printTransaction(extended, json, sdk);
 }
 
-// ## Create Oracle Query
 export async function createOracleQuery(walletPath, oracleId, query, options) {
   const {
-    ttl, fee, nonce, waitMined, json, queryTtl, queryFee, responseTtl,
+    ttl, fee, nonce, json, queryTtl, queryFee, responseTtl,
   } = options;
 
   decode(oracleId, 'ok');
@@ -98,7 +61,6 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
   const oracle = await sdk.getOracleObject(oracleId);
   const oracleQuery = await oracle.postQuery(query, {
     ttl,
-    waitMined,
     nonce,
     fee,
     ...queryTtl && {
@@ -111,34 +73,21 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
     },
     queryFee,
   });
-  if (waitMined) {
-    printTransaction(oracleQuery, json);
-  } else {
-    print('Transaction send to the chain. Tx hash: ', oracleQuery);
-  }
+  await printTransaction(oracleQuery, json, sdk);
 }
 
-// ## Respond to Oracle Query
-export async function respondToQuery(
-  walletPath,
-  oracleId,
-  queryId,
-  response,
-  options,
-) {
+export async function respondToQuery(walletPath, queryId, response, options) {
   const {
-    ttl, fee, nonce, waitMined, json, responseTtl,
+    ttl, fee, nonce, json, responseTtl,
   } = options;
 
-  decode(oracleId, 'ok');
   decode(queryId, 'oq');
   ensureTtlANumber(responseTtl, 'Response');
   const sdk = await initSdkByWalletFile(walletPath, options);
 
-  const oracle = await sdk.getOracleObject(oracleId);
+  const oracle = await sdk.getOracleObject(sdk.address.replace('ak_', 'ok_'));
   const queryResponse = await oracle.respondToQuery(queryId, response, {
     ttl,
-    waitMined,
     nonce,
     fee,
     ...responseTtl && {
@@ -146,22 +95,5 @@ export async function respondToQuery(
       responseTtlValue: responseTtl,
     },
   });
-  if (waitMined) {
-    printTransaction(queryResponse, json);
-  } else {
-    print('Transaction send to the chain. Tx hash: ', queryResponse);
-  }
-}
-
-// ## Get oracle
-export async function queryOracle(oracleId, { json, ...options }) {
-  decode(oracleId, 'ok');
-  const sdk = initSdk(options);
-  const oracle = await sdk.api.getOracleByPubkey(oracleId);
-  const { oracleQueries: queries } = await sdk.api.getOracleQueriesByPubkey(oracleId);
-  if (json) print({ ...oracle, queries });
-  else {
-    printOracle(oracle, json);
-    printQueries(queries, json);
-  }
+  await printTransaction(queryResponse, json, sdk);
 }

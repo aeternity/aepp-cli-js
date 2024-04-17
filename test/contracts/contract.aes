@@ -1,0 +1,11 @@
+@compiler >= 7
+@compiler < 9
+
+include "testLib.aes"
+
+contract Identity =
+  record state = { z: int }
+  entrypoint init(_z: int) = { z = _z }
+  entrypoint test(x : int, y: int) = TestLib.sum(x, TestLib.sum(y, state.z))
+  entrypoint getMap(): map(int, int) = {[1] = 2, [3] = 4}
+  payable entrypoint pay() = 0

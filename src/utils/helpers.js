@@ -1,29 +1,33 @@
-/*
-* ISC License (ISC)
-* Copyright (c) 2018 aeternity developers
-*
-*  Permission to use, copy, modify, and/or distribute this software for any
-*  purpose with or without fee is hereby granted, provided that the above
-*  copyright notice and this permission notice appear in all copies.
-*
-*  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-*  REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-*  AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-*  INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-*  LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-*  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-*  PERFORMANCE OF THIS SOFTWARE.
-*/
-// # Utils `helpers` Module
-// That script contains base helper function
+import BigNumber from 'bignumber.js';
+import { resolve } from 'path';
+import { Encoding, decode as _decode, produceNameId } from '@aeternity/aepp-sdk';
+import CliError from './CliError.js';
 
-import { Encoding, decode as _decode } from '@aeternity/aepp-sdk';
-import CliError from './CliError';
+export const exampleAddress1 = 'ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E';
+export const exampleAddress2 = 'ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT';
+export const exampleContract = 'ct_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
+export const exampleOracle = 'ok_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi';
+export const exampleOracleQuery = 'oq_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
+export const exampleTransaction = 'tx_+FoMAaEBzqet5HDJ+Z2dTkAIgKhvHUm7REti8Rqeu2S7z+tz/vOhARX7Ovvi4N8rfRN/Dsvb2ei7AJ3ysIkBrG5pnY6qW3W7iQVrx14tYxAAAIYPUN430AAAKoBebL57';
+export const exampleName = 'example-name.chain';
+export const exampleCalldata = 'cb_DA6sWJo=';
+export const exampleHeight = 929796;
 
-// ## Method which retrieve block info by hash
-// if it's `MICRO_BLOCK` call `getMicroBlockHeaderByHash` and `getMicroBlockTransactionsByHash`
-//
-// if it's `BLOCK` call `getKeyBlockByHash`
+export const commandExamples = new WeakMap();
+
+export const addExamples = (command, examples) => {
+  commandExamples.set(command, examples);
+  command.addHelpText('after', () => {
+    let name = '';
+    let cmd = command;
+    while (cmd) {
+      name = `${cmd.name()} ${name}`;
+      cmd = cmd.parent;
+    }
+    return ['', 'Example calls:', ...examples.map((e) => `  $ ${name}${e}`)].join('\n');
+  });
+};
+
 export async function getBlock(hash, sdk) {
   const type = hash.split('_')[0];
   switch (type) {
@@ -39,14 +43,12 @@ export async function getBlock(hash, sdk) {
   }
 }
 
-// ## Method which validate `hash`
 // TODO: move to sdk side (combine with decode)
 export function checkPref(hash, hashType) {
   if (hash.length < 3 || hash.indexOf('_') === -1) {
     throw new CliError('Invalid input, likely you forgot to escape the $ sign (use \\_)');
   }
 
-  /* block and micro block check */
   if (Array.isArray(hashType)) {
     const res = hashType.find((ht) => hash.startsWith(`${ht}_`));
     if (res) return;
@@ -62,24 +64,24 @@ export function checkPref(hash, hashType) {
   }
 }
 
-// ## AENS helpers methods
-
-// Get `name` status
-export async function updateNameStatus(name, sdk) {
-  try {
-    return { ...await sdk.getName(name), status: 'CLAIMED' };
-  } catch (e) {
-    if (e.response && e.response.status === 404) {
-      return { name, status: 'AVAILABLE' };
-    }
-    throw e;
-  }
+export async function getNameEntry(nameAsString, sdk) {
+  const [name, auction] = await Promise.all([
+    sdk.api.getNameEntryByName(nameAsString).catch((error) => {
+      if (error.response?.status === 404) {
+        return error.response.parsedBody?.reason === 'Name revoked' ? 'REVOKED' : 'AVAILABLE';
+      }
+      throw error;
+    }),
+    sdk.api.getAuctionEntryByName(nameAsString).catch((error) => {
+      if (error.response?.status === 404) return undefined;
+      throw error;
+    }),
+  ]);
+  if (auction) return { ...auction, status: 'AUCTION' };
+  if (typeof name === 'object') return { ...name, status: 'CLAIMED' };
+  return { id: produceNameId(nameAsString), status: name };
 }
 
-// Check if `name` is `AVAILABLE`
-export function isAvailable(name) { return name.status === 'AVAILABLE'; }
-
-// Validate `name`
 export function validateName(name) {
   if (typeof name !== 'string') throw new CliError('Name must be a string');
   if (!name.endsWith('.chain')) throw new CliError(`Name should end with .chain: ${name}`);
@@ -93,3 +95,38 @@ export function decode(data, requiredPrefix) {
   }
   return _decode(data);
 }
+
+export const getFullPath = (path) => resolve(process.cwd(), path);
+
+const units = [
+  ['year', 365 * 24 * 60 * 60 * 1000],
+  ['month', 30.5 * 24 * 60 * 60 * 1000],
+  ['day', 24 * 60 * 60 * 1000],
+  ['hour', 60 * 60 * 1000],
+  ['minute', 60 * 1000],
+  ['second', 1000],
+];
+
+export function timeAgo(date) {
+  const diff = Date.now() - date.getTime();
+  // TODO: revisit linter settings, the below rule is not relevant because babel is not used
+  // eslint-disable-next-line no-restricted-syntax
+  for (const [name, size] of units) {
+    const value = Math.floor(Math.abs(diff) / size);
+    if (value > 0) {
+      const plural = value > 1 ? 's' : '';
+      const description = `${value} ${name}${plural}`;
+      return diff > 0 ? `${description} ago` : `in ${description}`;
+    }
+  }
+  return 'about now';
+}
+
+export const formatCoins = (coins) => `${new BigNumber(coins).shiftedBy(-18).toFixed()}ae`;
+
+export const formatTtl = (ttl, height) => {
+  const date = new Date();
+  const diff = Math.abs(ttl - height) < 2 ? 0 : ttl - height;
+  date.setMinutes(date.getMinutes() + diff * 3);
+  return `${ttl} (${timeAgo(date)})`;
+};
