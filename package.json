@@ -1,13 +1,13 @@
 {
   "name": "@aeternity/aepp-cli",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "Aeternity command line interface",
   "bin": {
     "aecli": "src/aecli.js"
   },
   "type": "module",
   "dependencies": {
-    "@aeternity/aepp-sdk": "^13.3.0",
+    "@aeternity/aepp-sdk": "^13.3.2",
     "@azure/core-rest-pipeline": "^1.15.2",
     "bignumber.js": "^9.1.2",
     "commander": "^12.0.0",

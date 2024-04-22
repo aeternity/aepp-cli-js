@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.0.1](https://github.com/aeternity/aepp-cli-js/compare/v6.0.0...v6.0.1) (2024-04-22)
+
+
+### Bug Fixes
+
+* don't show stacktrace for ACI-not-match error ([b1b53b5](https://github.com/aeternity/aepp-cli-js/commit/b1b53b5f135f63f6bac36a0f738581c9e2c616cc))
+* update sdk to 13.3.2 ([2b63f5f](https://github.com/aeternity/aepp-cli-js/commit/2b63f5f0c8a8ae4d29a313fd441da0d09486b183))
+
 ## [6.0.0](https://github.com/aeternity/aepp-cli-js/compare/v5.0.0...v6.0.0) (2024-04-16)
 
 *Check out the new documentation at [docs.aeternity.com/aepp-cli-js](https://docs.aeternity.com/aepp-cli-js/)*
