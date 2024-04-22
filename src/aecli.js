@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { RestError } from '@azure/core-rest-pipeline';
-import { InvalidPasswordError, NodeInvocationError } from '@aeternity/aepp-sdk';
+import { InvalidPasswordError, NodeInvocationError, ContractError } from '@aeternity/aepp-sdk';
 import { setCommandOptions } from './utils/config.js';
 import { prepareOptions } from './utils/default-option-description.js';
 import CliError from './utils/CliError.js';
@@ -16,6 +16,7 @@ try {
     || error instanceof RestError
     || error instanceof InvalidPasswordError
     || error instanceof NodeInvocationError
+    || (error instanceof ContractError && error.message.includes('ACI doesn\'t match called contract'))
     || error.code === 'ENOENT'
   ) program.error(error.message);
   else throw error;
