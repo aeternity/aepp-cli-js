@@ -39,8 +39,8 @@ Don't forget to run [`aecli name extend`](./reference.md#extend) from time to ti
 
 You can [transfer](./reference.md#transfer) a name to another account or contract, just indicate another account's address. You will pass all rights regarding the name to another account.
 
-At last, you can delete your name using [`aecli name revoke`](./reference.md#revoke).
-In comparison with name expiration, the revoked name can't be claimed again by anybody.
+At last, you can revoke your name using [`aecli name revoke`](./reference.md#revoke).
+The revoked name can be claimed again after a fixed timeout of 2016 blocks (~ 4 days).
 
 
 ## The contracts group
