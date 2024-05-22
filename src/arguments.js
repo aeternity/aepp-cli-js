@@ -18,6 +18,10 @@ export const feeOption = new Option('-F, --fee [fee]', 'Override the transaction
 export const nameFeeOption = new Option('--nameFee [nameFee]', 'Amount of coins to pay for name')
   .argParser(coinAmountParser);
 
+export const queryFeeOption = (isCreate) => new Option('--queryFee [queryFee]', 'Oracle query fee')
+  .default(...isCreate ? [0, '0ae'] : [noValue, 'provided by oracle'])
+  .argParser(coinAmountParser);
+
 export const nodeOption = new Option('-u, --url [nodeUrl]', 'Node to connect to')
   .default('https://mainnet.aeternity.io', 'mainnet')
   .env('AECLI_NODE_URL');

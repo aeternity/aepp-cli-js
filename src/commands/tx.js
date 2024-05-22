@@ -10,6 +10,7 @@ import {
   gasPriceOption,
   feeOption,
   nameFeeOption,
+  queryFeeOption,
   forceOption,
   ttlOption,
   amountOption,
@@ -87,8 +88,9 @@ command = program.command('contract-call <callerId> <contractId> <callData>')
   .action(Transaction.contractCall);
 addTxBuilderOptions(command, `${exampleAddress1} ${exampleContract} ${exampleCalldata} 42`);
 
+// TODO: choose between "register" and "create" (in oracle.js)
 command = program.command('oracle-register <accountId> <queryFormat> <responseFormat>')
-  .option('--queryFee [queryFee]', 'Oracle query fee', 0)
+  .addOption(queryFeeOption(true))
   .option('--oracleTtl [oracleTtl]', 'Oracle TTL', ORACLE_TTL.value)
   .action(Transaction.oracleRegister);
 addTxBuilderOptions(command, `${exampleAddress1} '{"city": "string"}' '{"tmp": "number"}' 42`);
@@ -97,8 +99,9 @@ command = program.command('oracle-extend <oracleId> <oracleTtl>')
   .action(Transaction.oracleExtend);
 addTxBuilderOptions(command, `${exampleOracle} 100 42`);
 
+// TODO: choose between "post" and "create" (in oracle.js)
 command = program.command('oracle-post-query <accountId> <oracleId> <query>')
-  .option('--queryFee [queryFee]', 'Oracle query fee', 0)
+  .addOption(queryFeeOption(false))
   .option('--queryTtl [oracleTtl]', 'Oracle TTL', QUERY_TTL.value)
   .option('--responseTtl [oracleTtl]', 'Oracle TTL', RESPONSE_TTL.value)
   .action(Transaction.oraclePostQuery);

@@ -701,7 +701,7 @@ Register current account as oracle.
 `--oracleTtl [oracleTtl]`  
 Relative oracle time to leave (default: 500).  
 `--queryFee [queryFee]`  
-Oracle query fee (default: 0).  
+Oracle query fee (default: 0ae).  
 `-P, --password [password]`  
 Wallet Password, may be recorded to shell history (env: AECLI_WALLET_PASSWORD).  
 `-T, --ttl [ttl]`  
@@ -765,7 +765,7 @@ Relative query response time to leave (default: 10).
 `--queryTtl [queryTtl]`  
 Relative query time to leave (default: 10).  
 `--queryFee [queryFee]`  
-Oracle query fee (default: 0).  
+Oracle query fee (default: provided by oracle).  
 `-P, --password [password]`  
 Wallet Password, may be recorded to shell history (env: AECLI_WALLET_PASSWORD).  
 `-T, --ttl [ttl]`  
@@ -1257,7 +1257,7 @@ Unique number that is required to sign transaction securely.
 
 #### Options
 `--queryFee [queryFee]`  
-Oracle query fee (default: 0).  
+Oracle query fee (default: 0ae).  
 `--oracleTtl [oracleTtl]`  
 Oracle TTL (default: 500).  
 `-F, --fee [fee]`  
@@ -1321,7 +1321,7 @@ Unique number that is required to sign transaction securely.
 
 #### Options
 `--queryFee [queryFee]`  
-Oracle query fee (default: 0).  
+Oracle query fee (default: provided by oracle).  
 `--queryTtl [oracleTtl]`  
 Oracle TTL (default: 10).  
 `--responseTtl [oracleTtl]`  
