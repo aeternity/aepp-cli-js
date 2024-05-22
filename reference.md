@@ -1055,7 +1055,7 @@ Unique number that is required to sign transaction securely.
 
 #### Options
 `--nameFee [nameFee]`  
-Name fee.  
+Amount of coins to pay for name.  
 `-F, --fee [fee]`  
 Override the transaction fee.  
 `-T, --ttl [ttl]`  

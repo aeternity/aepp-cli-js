@@ -9,6 +9,7 @@ import {
   gasOption,
   gasPriceOption,
   feeOption,
+  nameFeeOption,
   forceOption,
   ttlOption,
   amountOption,
@@ -51,7 +52,7 @@ command = program.command('name-preclaim <accountId> <name>')
 addTxBuilderOptions(command, `${exampleAddress1} ${exampleName} 42`);
 
 command = program.command('name-claim <accountId> <salt> <name>')
-  .option('--nameFee [nameFee]', 'Name fee')
+  .addOption(nameFeeOption)
   .action(Transaction.nameClaim);
 addTxBuilderOptions(command, `${exampleAddress1} 12327389123 ${exampleName} 42`);
 
