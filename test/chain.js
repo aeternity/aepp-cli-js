@@ -30,7 +30,7 @@ Miner ___________________________________ ${resJson.miner ?? 'N/A'}
 Time ____________________________________ ${new Date(resJson.time).toString()}
 Previous block hash _____________________ ${resJson.prevHash}
 Previous key block hash _________________ ${resJson.prevKeyHash}
-Version _________________________________ 5
+Version _________________________________ 6
 Target __________________________________ ${resJson.target ?? 'N/A'}
 Transactions ____________________________ 0
     `.trim());
@@ -44,13 +44,13 @@ Transactions ____________________________ 0
       hashrate: 0,
       listening: true,
       networkId: 'ae_dev',
-      nodeRevision: '805c662b260cfbdb197cfef96ed07124db4b4896',
-      nodeVersion: '6.13.0',
+      nodeRevision: 'a9498268ce1ac837e553bba94d5dc6bdc455be11',
+      nodeVersion: '7.0.0',
       peerConnections: { inbound: 0, outbound: 0 },
       peerCount: 0,
       peerPubkey: resJson.peerPubkey,
       pendingTransactionsCount: 0,
-      protocols: [{ effectiveAtHeight: 1, version: 5 }, { effectiveAtHeight: 0, version: 1 }],
+      protocols: [{ effectiveAtHeight: 1, version: 6 }, { effectiveAtHeight: 0, version: 1 }],
       solutions: 0,
       syncProgress: 100,
       syncing: false,
@@ -62,9 +62,9 @@ Transactions ____________________________ 0
     const res = await executeChain('status');
     expect(res).to.equal(`
 Difficulty ______________________________ ${resJson.difficulty}
-Node version ____________________________ 6.13.0
-Consensus protocol version ______________ 5 (Iris)
-Node revision ___________________________ 805c662b260cfbdb197cfef96ed07124db4b4896
+Node version ____________________________ 7.0.0
+Consensus protocol version ______________ 6 (Ceres)
+Node revision ___________________________ a9498268ce1ac837e553bba94d5dc6bdc455be11
 Genesis hash ____________________________ ${resJson.genesisKeyBlockHash}
 Network ID ______________________________ ae_dev
 Listening _______________________________ true

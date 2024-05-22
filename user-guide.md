@@ -63,7 +63,7 @@ To deploy a contract, run [`aecli contract deploy`](./reference.md#deploy) addin
 $ aecli contract deploy --contractSource ./contract.aes ./wallet.json
 Contract was successfully deployed
 Contract address ________________________ ct_5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV
-Transaction hash ________________________ th_2oK2tdvhVCLzeMtqLb3EQLNT8dALWFXF4Y1t1EhicujMREWWWV
+Transaction hash ________________________ th_dGEn3MsUsEjYWpFVSWtfwo5shnGiAZvtyyQDEMaaVcuMEHEKa
 Deploy descriptor _______________________ /path/to/contract.aes.deploy.5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV.json
 ```
 <!-- CONTRACT-DEPLOY-END -->

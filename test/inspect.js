@@ -122,7 +122,7 @@ payload _________________________________ ba_Xfbg4g==
       stateHash: keyJson.stateHash,
       target: keyJson.target,
       time: keyJson.time,
-      version: 5,
+      version: 6,
     });
     const key = await executeInspect(prevKeyHash);
     expect(key.split('\nTransactions')[0]).to.equal(`
@@ -135,7 +135,7 @@ Miner ___________________________________ ${keyJson.miner}
 Time ____________________________________ ${new Date(keyJson.time).toString()}
 Previous block hash _____________________ ${keyJson.prevHash}
 Previous key block hash _________________ ${keyJson.prevKeyHash}
-Version _________________________________ 5
+Version _________________________________ 6
 Target __________________________________ ${keyJson.target}
     `.trim());
 
@@ -156,7 +156,7 @@ Target __________________________________ ${keyJson.target}
       time: microJson.time,
       transactions: microJson.transactions,
       txsHash: microJson.txsHash,
-      version: 5,
+      version: 6,
     });
     const micro = await executeInspect(microHash);
     expect(micro.split('\nTransactions')[0]).to.equal(`
@@ -169,7 +169,7 @@ Miner ___________________________________ N/A
 Time ____________________________________ ${new Date(microJson.time).toString()}
 Previous block hash _____________________ ${microJson.prevHash}
 Previous key block hash _________________ ${microJson.prevKeyHash}
-Version _________________________________ 5
+Version _________________________________ 6
 Target __________________________________ N/A
     `.trim());
   });
@@ -190,13 +190,13 @@ contract Identity =
       id: address,
       ownerId: sdk.address,
       referrerIds: [],
-      vmVersion: VmVersion.Fate2.toString(),
+      vmVersion: VmVersion.Fate3.toString(),
     });
     const res = await executeInspect(address);
     expect(res).to.equal(`
 id ______________________________________ ${address}
 ownerId _________________________________ ${sdk.address}
-vmVersion _______________________________ 7
+vmVersion _______________________________ 8
 abiVersion ______________________________ 3
 active __________________________________ true
 referrerIds _____________________________ []
@@ -314,7 +314,7 @@ Name hash _______________________________ ${produceNameId(name)}
     const auctionName = `a${Math.random().toString().slice(2, 9)}.chain`;
     await (await sdk.aensPreclaim(auctionName)).claim();
     const resJson = await executeInspect(auctionName, '--json');
-    const endsAt = +resJson.startedAt + 14880;
+    const endsAt = +resJson.startedAt + 960;
     expect(resJson).to.eql({
       endsAt: String(endsAt),
       highestBid: '19641800000000000000',
@@ -329,7 +329,7 @@ Status __________________________________ AUCTION
 Name hash _______________________________ ${resJson.id}
 Highest bidder __________________________ ${sdk.address}
 Highest bid _____________________________ 19.6418ae
-Ends at height __________________________ ${endsAt} (in 1 month)
+Ends at height __________________________ ${endsAt} (in 1 day)
 Started at height _______________________ ${resJson.startedAt} (about now)
     `.trim());
   }).timeout(4000);
