@@ -8,17 +8,17 @@ import {
 const executeSpend = executeProgram.bind(null, 'spend', WALLET_NAME, '--password', 'test');
 
 describe('Spend', () => {
-  let sdk;
+  let aeSdk;
 
   before(async () => {
-    sdk = await getSdk();
+    aeSdk = await getSdk();
   });
 
   it('spends', async () => {
     const amount = 100;
     const { publicKey } = generateKeyPair();
     const resJson = await executeSpend(publicKey, amount, '--json');
-    const receiverBalance = await sdk.getBalance(publicKey);
+    const receiverBalance = await aeSdk.getBalance(publicKey);
     expect(+receiverBalance).to.be.equal(amount);
 
     expect(resJson.tx.fee).to.be.a('string');
@@ -63,19 +63,19 @@ describe('Spend', () => {
   it('spends in ae', async () => {
     const receiverKeys = generateKeyPair();
     const { tx: { fee } } = await executeSpend('--json', receiverKeys.publicKey, '1ae', '--fee', '0.02ae');
-    expect(await sdk.getBalance(receiverKeys.publicKey)).to.be.equal('1000000000000000000');
+    expect(await aeSdk.getBalance(receiverKeys.publicKey)).to.be.equal('1000000000000000000');
     expect(fee).to.be.equal('20000000000000000');
   });
 
   it('spends percent of balance', async () => {
     const { publicKey } = generateKeyPair();
-    const balanceBefore = await sdk.getBalance(sdk.address);
+    const balanceBefore = await aeSdk.getBalance(aeSdk.address);
     await executeSpend(publicKey, '42%');
-    expect(+await sdk.getBalance(publicKey)).to.be.equal(balanceBefore * 0.42);
+    expect(+await aeSdk.getBalance(publicKey)).to.be.equal(balanceBefore * 0.42);
   });
 
   it('spends to contract', async () => {
-    const contract = await sdk.initializeContract({
+    const contract = await aeSdk.initializeContract({
       sourceCode: ''
         + 'payable contract Main =\n'
         + '  record state = { key: int }\n'
@@ -83,6 +83,6 @@ describe('Spend', () => {
     });
     const { address } = await contract.$deploy([]);
     await executeSpend(address, 100);
-    expect(await sdk.getBalance(address)).to.be.equal('100');
+    expect(await aeSdk.getBalance(address)).to.be.equal('100');
   });
 });

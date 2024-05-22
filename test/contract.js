@@ -14,15 +14,15 @@ describe('Contract Module', function contractTests() {
   const contractSourceFile = 'test/contracts/contract.aes';
   const contractAciFile = 'test-artifacts/contract-aci.json';
   let deployDescriptorFile;
-  let sdk;
+  let aeSdk;
   let contractBytecode;
   let contractAddress;
 
   before(async () => {
-    sdk = await getSdk();
+    aeSdk = await getSdk();
     await fs.outputJson(
       contractAciFile,
-      (await sdk.compilerApi.compile(contractSourceFile)).aci,
+      (await aeSdk.compilerApi.compile(contractSourceFile)).aci,
     );
   });
 
@@ -168,7 +168,7 @@ describe('Contract Module', function contractTests() {
         '--amount',
         '1',
       );
-      expect(await sdk.getBalance(address)).to.be.equal('1');
+      expect(await aeSdk.getBalance(address)).to.be.equal('1');
     });
   });
 
@@ -322,7 +322,7 @@ describe('Contract Module', function contractTests() {
         '--amount',
         '0.000000001ae',
       );
-      expect(await sdk.getBalance(contractAddress)).to.be.equal('1000000000');
+      expect(await aeSdk.getBalance(contractAddress)).to.be.equal('1000000000');
     });
   });
 

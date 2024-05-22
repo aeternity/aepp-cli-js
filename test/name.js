@@ -13,11 +13,11 @@ describe('AENS Module', () => {
   const { publicKey } = generateKeyPair();
   const name = randomName(12);
   const name2 = randomName(13);
-  let sdk;
+  let aeSdk;
   let salt;
 
   before(async () => {
-    sdk = await getSdk();
+    aeSdk = await getSdk();
   });
 
   it('Full claim', async () => {
@@ -31,8 +31,8 @@ describe('AENS Module', () => {
     );
 
     updateTx.blockHeight.should.be.gt(0);
-    const pointer = updateTx.pointers.find(({ id }) => id === sdk.address);
-    expect(pointer).to.be.eql({ id: sdk.address, key: 'account_pubkey' });
+    const pointer = updateTx.pointers.find(({ id }) => id === aeSdk.address);
+    expect(pointer).to.be.eql({ id: aeSdk.address, key: 'account_pubkey' });
   }).timeout(10000);
 
   it('Full claim with options', async () => {
@@ -54,8 +54,8 @@ describe('AENS Module', () => {
     updateTx.blockHeight.should.be.gt(0);
     updateTx.tx.nameTtl.should.be.equal(50);
     updateTx.tx.clientTtl.should.be.equal(50);
-    const pointer = updateTx.pointers.find(({ id }) => id === sdk.address);
-    expect(pointer).to.be.eql({ id: sdk.address, key: 'account_pubkey' });
+    const pointer = updateTx.pointers.find(({ id }) => id === aeSdk.address);
+    expect(pointer).to.be.eql({ id: aeSdk.address, key: 'account_pubkey' });
   }).timeout(10000);
 
   it('Pre Claim Name', async () => {
@@ -115,7 +115,7 @@ describe('AENS Module', () => {
   });
 
   it('extend name ttl', async () => {
-    const height = await sdk.getHeight();
+    const height = await aeSdk.getHeight();
     const extendTx = await executeName(
       'extend',
       WALLET_NAME,
@@ -160,9 +160,9 @@ describe('AENS Module', () => {
       '--json',
     );
 
-    const nameObject = await sdk.aensQuery(name2);
+    const nameObject = await aeSdk.aensQuery(name2);
     recipientId.should.be.equal(nameObject.id);
-    const balance = await sdk.getBalance(publicKey);
+    const balance = await aeSdk.getBalance(publicKey);
     balance.should.be.equal(`${amount}`);
   });
 
@@ -180,10 +180,10 @@ describe('AENS Module', () => {
     );
 
     transferTx.blockHeight.should.be.gt(0);
-    await sdk.spend(1, keypair.publicKey, { denomination: 'ae' });
-    const claim2 = await sdk.aensQuery(name2);
+    await aeSdk.spend(1, keypair.publicKey, { denomination: 'ae' });
+    const claim2 = await aeSdk.aensQuery(name2);
     const transferBack = await claim2
-      .transfer(sdk.address, { onAccount: new MemoryAccount(keypair.secretKey) });
+      .transfer(aeSdk.address, { onAccount: new MemoryAccount(keypair.secretKey) });
     transferBack.blockHeight.should.be.gt(0);
   });
 
@@ -219,8 +219,8 @@ describe('AENS Module', () => {
 
     it('Open auction', async () => {
       const onAccount = MemoryAccount.generate();
-      await sdk.spend(5e18, onAccount.address);
-      const preclaim = await sdk.aensPreclaim(name, { onAccount });
+      await aeSdk.spend(5e18, onAccount.address);
+      const preclaim = await aeSdk.aensPreclaim(name, { onAccount });
       const claim = await preclaim.claim({ onAccount });
       claim.blockHeight.should.be.gt(0);
     }).timeout(10000);

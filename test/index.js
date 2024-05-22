@@ -28,31 +28,33 @@ export const networkId = 'ae_dev';
 const keypair = generateKeyPair();
 export const WALLET_NAME = 'test-artifacts/wallet.json';
 
-const Sdk = (params = {}) => {
-  params.accounts ??= [new MemoryAccount(secretKey)];
-  return new AeSdk({
-    onCompiler: new CompilerHttpNode(compilerUrl),
-    nodes: [{ name: 'test', instance: new Node(url) }],
-    ...params,
-  });
-};
+class AeSdkWithEnv extends AeSdk {
+  constructor(params = {}) {
+    params.accounts ??= [new MemoryAccount(secretKey)];
+    super({
+      onCompiler: new CompilerHttpNode(compilerUrl),
+      nodes: [{ name: 'test', instance: new Node(url) }],
+      ...params,
+    });
+  }
+}
 
 const spendPromise = (async () => {
-  const sdk = Sdk();
-  await sdk.spend(5e20, keypair.publicKey);
+  const aeSdk = new AeSdkWithEnv();
+  await aeSdk.spend(5e20, keypair.publicKey);
 })();
 
 export async function getSdk() {
   await spendPromise;
   const tempKeyPair = generateKeyPair();
-  const sdk = Sdk({
+  const aeSdk = new AeSdkWithEnv({
     accounts: [new MemoryAccount(tempKeyPair.secretKey)],
   });
   await Promise.all([
     executeProgram('account', 'create', WALLET_NAME, '--password', 'test', tempKeyPair.secretKey, '--overwrite'),
-    sdk.spend(5e19, tempKeyPair.publicKey, { onAccount: new MemoryAccount(keypair.secretKey) }),
+    aeSdk.spend(5e19, tempKeyPair.publicKey, { onAccount: new MemoryAccount(keypair.secretKey) }),
   ]);
-  return sdk;
+  return aeSdk;
 }
 
 export function randomName(length = 18) {

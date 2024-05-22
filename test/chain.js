@@ -5,12 +5,12 @@ import { executeProgram, getSdk } from './index.js';
 const executeChain = executeProgram.bind(null, 'chain');
 
 describe('Chain Module', () => {
-  let sdk;
+  let aeSdk;
 
   before(async () => {
-    sdk = await getSdk();
+    aeSdk = await getSdk();
     for (let i = 0; i < 5; i += 1) {
-      await sdk.spend(0, sdk.address); // eslint-disable-line no-await-in-loop
+      await aeSdk.spend(0, aeSdk.address); // eslint-disable-line no-await-in-loop
     }
   });
 
@@ -82,7 +82,7 @@ Syncing _________________________________ false
   });
 
   it('plays by height', async () => {
-    const res = await executeChain('play', '--height', await sdk.getHeight() - 4);
+    const res = await executeChain('play', '--height', await aeSdk.getHeight() - 4);
     const heights = res
       .split('\n')
       .filter((l) => l.includes('Block height'))
@@ -91,7 +91,7 @@ Syncing _________________________________ false
   });
 
   it('calculates ttl', async () => {
-    const height = await sdk.getHeight();
+    const height = await aeSdk.getHeight();
     const resJson = await executeChain('ttl', 10, '--json');
     expect(resJson).to.eql({
       absoluteTtl: 10,

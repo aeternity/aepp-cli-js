@@ -15,11 +15,11 @@ describe('Account Module', () => {
   const fileName = 'test-artifacts/message.txt';
   const fileData = 'Hello world!';
   const keypair = generateKeyPair();
-  let sdk;
+  let aeSdk;
 
   before(async () => {
     await fs.outputFile(fileName, fileData);
-    sdk = await getSdk();
+    aeSdk = await getSdk();
   });
 
   it('Create Wallet', async () => {
@@ -46,7 +46,7 @@ Address _________________________________ ${resJson.publicKey}
 
   it('Check Wallet Address', async () => {
     expect((await executeAccount('address', WALLET_NAME, '--json')).publicKey)
-      .to.equal(sdk.address);
+      .to.equal(aeSdk.address);
   });
 
   it('Check Wallet Address with Private Key', async () => {
@@ -77,10 +77,10 @@ Secret Key ______________________________ ${keypair.secretKey}
   it('Sign message', async () => {
     const data = 'Hello world';
     const signedMessage = await executeAccount('sign-message', WALLET_NAME, data, '--json', '--password', 'test');
-    const signedUsingSDK = Array.from(await sdk.signMessage(data));
+    const signedUsingSDK = Array.from(await aeSdk.signMessage(data));
     sig = signedMessage.signatureHex;
     signedMessage.data.should.be.equal(data);
-    signedMessage.address.should.be.equal(sdk.address);
+    signedMessage.address.should.be.equal(aeSdk.address);
     Array.isArray(signedMessage.signature).should.be.equal(true);
     signedMessage.signature.toString().should.be.equal(signedUsingSDK.toString());
     signedMessage.signatureHex.should.be.a('string');
@@ -90,20 +90,20 @@ Secret Key ______________________________ ${keypair.secretKey}
     const {
       data, signature, signatureHex, address,
     } = await executeAccount('sign-message', WALLET_NAME, '--json', '--filePath', fileName, '--password', 'test');
-    const signedUsingSDK = Array.from(await sdk.signMessage(data));
+    const signedUsingSDK = Array.from(await aeSdk.signMessage(data));
     sigFromFile = signatureHex;
     signature.toString().should.be.equal(signedUsingSDK.toString());
     data.toString().should.be.equal(Array.from(Buffer.from(fileData)).toString());
-    address.should.be.equal(sdk.address);
+    address.should.be.equal(aeSdk.address);
     Array.isArray(signature).should.be.equal(true);
     signatureHex.should.be.a('string');
   });
 
   it('verify message', async () => {
     const data = 'Hello world';
-    const verify = await executeAccount('verify-message', sdk.address, sig, data, '--json');
+    const verify = await executeAccount('verify-message', aeSdk.address, sig, data, '--json');
     verify.isCorrect.should.be.equal(true);
-    const verifyFromFile = await executeAccount('verify-message', sdk.address, sigFromFile, '--json', '--filePath', fileName);
+    const verifyFromFile = await executeAccount('verify-message', aeSdk.address, sigFromFile, '--json', '--filePath', fileName);
     verifyFromFile.isCorrect.should.be.equal(true);
   });
 });

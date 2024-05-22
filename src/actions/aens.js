@@ -4,8 +4,8 @@ import { printTransaction } from '../utils/print.js';
 import { getNameEntry, validateName } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
 
-async function ensureNameStatus(name, sdk, status, operation) {
-  const nameEntry = await getNameEntry(name, sdk);
+async function ensureNameStatus(name, aeSdk, status, operation) {
+  const nameEntry = await getNameEntry(name, aeSdk);
   if (nameEntry.status !== status) {
     throw new CliError(`AENS name is ${nameEntry.status} and cannot be ${operation}`);
   }
@@ -16,10 +16,10 @@ export async function preClaim(walletPath, name, options) {
     ttl, fee, nonce, json,
   } = options;
   validateName(name);
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  await ensureNameStatus(name, sdk, 'AVAILABLE', 'preclaimed');
-  const preClaimTx = await sdk.aensPreclaim(name, { ttl, fee, nonce });
-  await printTransaction(preClaimTx, json, sdk);
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  await ensureNameStatus(name, aeSdk, 'AVAILABLE', 'preclaimed');
+  const preClaimTx = await aeSdk.aensPreclaim(name, { ttl, fee, nonce });
+  await printTransaction(preClaimTx, json, aeSdk);
 }
 
 export async function claim(walletPath, name, salt, options) {
@@ -27,12 +27,12 @@ export async function claim(walletPath, name, salt, options) {
     ttl, fee, nonce, json, nameFee,
   } = options;
   validateName(name);
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  await ensureNameStatus(name, sdk, 'AVAILABLE', 'claimed');
-  const claimTx = await sdk.aensClaim(name, salt, {
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  await ensureNameStatus(name, aeSdk, 'AVAILABLE', 'claimed');
+  const claimTx = await aeSdk.aensClaim(name, salt, {
     nonce, ttl, fee, nameFee,
   });
-  await printTransaction(claimTx, json, sdk);
+  await printTransaction(claimTx, json, aeSdk);
 }
 
 export async function updateName(walletPath, name, addresses, options) {
@@ -42,16 +42,16 @@ export async function updateName(walletPath, name, addresses, options) {
   const invalidAddresses = addresses.filter((address) => !isAddressValid(address));
   if (invalidAddresses.length) throw new CliError(`Addresses "[${invalidAddresses}]" is not valid`);
   validateName(name);
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  await ensureNameStatus(name, sdk, 'CLAIMED', 'updated');
-  const updateTx = await sdk.aensUpdate(
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  await ensureNameStatus(name, aeSdk, 'CLAIMED', 'updated');
+  const updateTx = await aeSdk.aensUpdate(
     name,
     Object.fromEntries(addresses.map((address) => [getDefaultPointerKey(address), address])),
     {
       ttl, fee, nonce, nameTtl, clientTtl, extendPointers,
     },
   );
-  await printTransaction(updateTx, json, sdk);
+  await printTransaction(updateTx, json, aeSdk);
 }
 
 export async function extendName(walletPath, name, nameTtl, options) {
@@ -59,12 +59,12 @@ export async function extendName(walletPath, name, nameTtl, options) {
     ttl, fee, nonce, json,
   } = options;
   validateName(name);
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  await ensureNameStatus(name, sdk, 'CLAIMED', 'extended');
-  const updateTx = await sdk.aensUpdate(name, {}, {
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  await ensureNameStatus(name, aeSdk, 'CLAIMED', 'extended');
+  const updateTx = await aeSdk.aensUpdate(name, {}, {
     ttl, fee, nonce, nameTtl, extendPointers: true,
   });
-  await printTransaction(updateTx, json, sdk);
+  await printTransaction(updateTx, json, aeSdk);
 }
 
 export async function transferName(walletPath, name, address, options) {
@@ -73,10 +73,10 @@ export async function transferName(walletPath, name, address, options) {
   } = options;
   if (!isAddressValid(address)) throw new CliError(`Address "${address}" is not valid`);
   validateName(name);
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  await ensureNameStatus(name, sdk, 'CLAIMED', 'transferred');
-  const transferTX = await sdk.aensTransfer(name, address, { ttl, fee, nonce });
-  await printTransaction(transferTX, json, sdk);
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  await ensureNameStatus(name, aeSdk, 'CLAIMED', 'transferred');
+  const transferTX = await aeSdk.aensTransfer(name, address, { ttl, fee, nonce });
+  await printTransaction(transferTX, json, aeSdk);
 }
 
 export async function revokeName(walletPath, name, options) {
@@ -84,10 +84,10 @@ export async function revokeName(walletPath, name, options) {
     ttl, fee, nonce, json,
   } = options;
   validateName(name);
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  await ensureNameStatus(name, sdk, 'CLAIMED', 'revoked');
-  const revokeTx = await sdk.aensRevoke(name, { ttl, fee, nonce });
-  await printTransaction(revokeTx, json, sdk);
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  await ensureNameStatus(name, aeSdk, 'CLAIMED', 'revoked');
+  const revokeTx = await aeSdk.aensRevoke(name, { ttl, fee, nonce });
+  await printTransaction(revokeTx, json, aeSdk);
 }
 
 export async function nameBid(walletPath, name, nameFee, options) {
@@ -95,10 +95,10 @@ export async function nameBid(walletPath, name, nameFee, options) {
     ttl, fee, nonce, json,
   } = options;
   validateName(name);
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  await ensureNameStatus(name, sdk, 'AUCTION', 'bidded');
-  const nameBidTx = await sdk.aensBid(name, nameFee, { nonce, ttl, fee });
-  await printTransaction(nameBidTx, json, sdk);
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  await ensureNameStatus(name, aeSdk, 'AUCTION', 'bidded');
+  const nameBidTx = await aeSdk.aensBid(name, nameFee, { nonce, ttl, fee });
+  await printTransaction(nameBidTx, json, aeSdk);
 }
 
 export async function fullClaim(walletPath, name, options) {
@@ -107,10 +107,10 @@ export async function fullClaim(walletPath, name, options) {
   } = options;
   validateName(name);
   if (name.split('.')[0] < 13) throw new CliError('Full name claiming works only with name longer then 12 symbol (not trigger auction)');
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  await ensureNameStatus(name, sdk, 'AVAILABLE', 'claimed');
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  await ensureNameStatus(name, aeSdk, 'AVAILABLE', 'claimed');
   nonce = nonce && +nonce;
-  const preclaim = await sdk.aensPreclaim(name, { nonce, ttl, fee });
+  const preclaim = await aeSdk.aensPreclaim(name, { nonce, ttl, fee });
 
   nonce = nonce && nonce + 1;
   const nameInstance = await preclaim.claim({
@@ -119,10 +119,10 @@ export async function fullClaim(walletPath, name, options) {
 
   nonce = nonce && nonce + 1;
   const updateTx = await nameInstance.update(
-    { account_pubkey: sdk.address },
+    { account_pubkey: aeSdk.address },
     {
       nonce, ttl, fee, nameTtl, clientTtl,
     },
   );
-  await printTransaction(updateTx, json, sdk);
+  await printTransaction(updateTx, json, aeSdk);
 }

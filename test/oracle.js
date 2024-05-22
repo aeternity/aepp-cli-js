@@ -7,12 +7,12 @@ const executeOracle = executeProgram.bind(null, 'oracle');
 describe('Oracle Module', () => {
   const oracleFormat = 'string';
   const responseFormat = 'string';
-  let sdk;
+  let aeSdk;
   let oracleId;
   let queryId;
 
   before(async () => {
-    sdk = await getSdk();
+    aeSdk = await getSdk();
   });
 
   it('Oracle create', async () => {
@@ -35,7 +35,7 @@ describe('Oracle Module', () => {
   });
 
   it('Oracle extend', async () => {
-    const oracle = await sdk.getOracleObject(oracleId);
+    const oracle = await aeSdk.getOracleObject(oracleId);
     const oracleExtend = await executeOracle('extend', WALLET_NAME, '--password', 'test', 42, '--json');
     oracleExtend.blockHeight.should.be.gt(0);
     expect(oracleExtend.ttl).to.be.equal(oracle.ttl + 42);
@@ -61,7 +61,7 @@ describe('Oracle Module', () => {
     oracleQuery.decodedQuery.should.be.equal('Hello?');
     oracleQuery.id.split('_')[0].should.be.equal('oq');
     queryId = oracleQuery.id;
-    const oracle = await sdk.getOracleObject(oracleId);
+    const oracle = await aeSdk.getOracleObject(oracleId);
     oracle.queries.length.should.be.equal(1);
   });
 
@@ -79,7 +79,7 @@ describe('Oracle Module', () => {
     );
     expect(oracleQueryResponse.queries[0].ttl).to.be.equal(oracleQueryResponse.blockHeight + 21);
     oracleQueryResponse.blockHeight.should.be.gt(0);
-    const oracle = await sdk.getOracleObject(oracleId);
+    const oracle = await aeSdk.getOracleObject(oracleId);
     const query = await oracle.getQuery(queryId);
     query.decodedResponse.should.be.equal('Hi!');
   });

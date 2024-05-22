@@ -9,24 +9,24 @@ const executeInspect = executeProgram.bind(null, 'inspect');
 const executeChain = executeProgram.bind(null, 'chain');
 
 describe('Inspect Module', () => {
-  let sdk;
+  let aeSdk;
 
   before(async () => {
-    sdk = await getSdk();
+    aeSdk = await getSdk();
   });
 
   it('Inspect Account', async () => {
-    const balance = await sdk.getBalance(sdk.address);
-    const resJson = await executeInspect(sdk.address, '--json');
+    const balance = await aeSdk.getBalance(aeSdk.address);
+    const resJson = await executeInspect(aeSdk.address, '--json');
     expect(resJson).to.eql({
       balance,
-      hash: sdk.address,
+      hash: aeSdk.address,
       nonce: resJson.nonce,
       transactions: [],
     });
-    const res = await executeInspect(sdk.address);
+    const res = await executeInspect(aeSdk.address);
     expect(res).to.equal(`
-Account ID ______________________________ ${sdk.address}
+Account ID ______________________________ ${aeSdk.address}
 Account balance _________________________ 50ae
 Account nonce ___________________________ ${resJson.nonce}
 No pending transactions
@@ -36,7 +36,7 @@ No pending transactions
   it('Inspect Transaction Hash', async () => {
     const recipient = (generateKeyPair()).publicKey;
     const amount = '420';
-    const { hash } = await sdk.spend(amount, recipient);
+    const { hash } = await aeSdk.spend(amount, recipient);
     const resJson = await executeInspect(hash, '--json');
     expect(resJson.tx.fee).to.be.a('string');
     expect(resJson).to.eql({
@@ -47,7 +47,7 @@ No pending transactions
       signatures: [resJson.signatures[0]],
       tx: {
         recipientId: recipient,
-        senderId: sdk.address,
+        senderId: aeSdk.address,
         amount,
         fee: resJson.tx.fee,
         nonce: resJson.tx.nonce,
@@ -64,7 +64,7 @@ No pending transactions
       `Block height ____________________________ ${resJson.blockHeight} (about now)`,
       `Signatures ______________________________ ["${resJson.signatures[0]}"]`,
       'Transaction type ________________________ SpendTx (ver. 1)',
-      `Sender address __________________________ ${sdk.address}`,
+      `Sender address __________________________ ${aeSdk.address}`,
       `Recipient address _______________________ ${recipient}`,
       'Amount __________________________________ 0.00000000000000042ae',
       'Payload _________________________________ ba_Xfbg4g==',
@@ -77,8 +77,8 @@ No pending transactions
   it('Inspect Transaction', async () => {
     const recipientId = (generateKeyPair()).publicKey;
     const amount = '420';
-    const tx = await sdk.buildTx({
-      tag: Tag.SpendTx, amount, recipientId, senderId: sdk.address,
+    const tx = await aeSdk.buildTx({
+      tag: Tag.SpendTx, amount, recipientId, senderId: aeSdk.address,
     });
     const resJson = await executeInspect(tx, '--json');
     expect(resJson).to.eql({
@@ -87,7 +87,7 @@ No pending transactions
       nonce: resJson.nonce,
       payload: 'ba_Xfbg4g==',
       recipientId,
-      senderId: sdk.address,
+      senderId: aeSdk.address,
       tag: Tag.SpendTx,
       ttl: 0,
       version: 1,
@@ -97,7 +97,7 @@ No pending transactions
 Tx Type _________________________________ SpendTx
 tag _____________________________________ 12
 version _________________________________ 1
-senderId ________________________________ ${sdk.address}
+senderId ________________________________ ${aeSdk.address}
 recipientId _____________________________ ${recipientId}
 amount __________________________________ 420
 fee _____________________________________ 16700000000000
@@ -175,7 +175,7 @@ Target __________________________________ N/A
   });
 
   it('Inspect Contract', async () => {
-    const contract = await sdk.initializeContract({
+    const contract = await aeSdk.initializeContract({
       sourceCode: `
 contract Identity =
   entrypoint foo() = "test"
@@ -188,14 +188,14 @@ contract Identity =
       active: true,
       deposit: '0',
       id: address,
-      ownerId: sdk.address,
+      ownerId: aeSdk.address,
       referrerIds: [],
       vmVersion: VmVersion.Fate3.toString(),
     });
     const res = await executeInspect(address);
     expect(res).to.equal(`
 id ______________________________________ ${address}
-ownerId _________________________________ ${sdk.address}
+ownerId _________________________________ ${aeSdk.address}
 vmVersion _______________________________ 8
 abiVersion ______________________________ 3
 active __________________________________ true
@@ -211,8 +211,8 @@ deposit _________________________________ 0
   });
 
   it('Inspect Oracle', async () => {
-    const { id: oracleId } = await sdk.registerOracle('<request format>', '<response format>');
-    const { id: queryId } = await sdk.postQueryToOracle(oracleId, 'Hello?');
+    const { id: oracleId } = await aeSdk.registerOracle('<request format>', '<response format>');
+    const { id: queryId } = await aeSdk.postQueryToOracle(oracleId, 'Hello?');
     const resJson = await executeInspect(oracleId, '--json');
     expect(resJson).to.eql({
       id: oracleId,
@@ -227,7 +227,7 @@ deposit _________________________________ 0
           type: 'delta',
           value: '10',
         },
-        senderId: sdk.address,
+        senderId: aeSdk.address,
         senderNonce: '4',
         ttl: resJson.queries[0].ttl,
       }],
@@ -254,7 +254,7 @@ Query decoded ___________________________ Hello?
 Response ________________________________ or_Xfbg4g==
 Response decoded ________________________${' '}
 Response Ttl ____________________________ {"type":"delta","value":"10"}
-Sender Id _______________________________ ${sdk.address}
+Sender Id _______________________________ ${aeSdk.address}
 Sender Nonce ____________________________ 4
 Ttl _____________________________________ ${resJson.queries[0].ttl}
 ------------------------------------------------------------------------------
@@ -281,19 +281,19 @@ Name hash _______________________________ ${produceNameId(name)}
   });
 
   it('Inspect Claimed Name', async () => {
-    await (await (await sdk.aensPreclaim(name)).claim()).update({
-      myKey: sdk.address,
-      account_pubkey: sdk.address,
-      oracle_pubkey: sdk.address,
+    await (await (await aeSdk.aensPreclaim(name)).claim()).update({
+      myKey: aeSdk.address,
+      account_pubkey: aeSdk.address,
+      oracle_pubkey: aeSdk.address,
     });
     const resJson = await executeInspect(name, '--json');
     expect(resJson).to.eql({
       id: resJson.id,
-      owner: sdk.address,
+      owner: aeSdk.address,
       pointers: [
-        { id: sdk.address, key: 'myKey' },
-        { id: sdk.address, key: 'account_pubkey' },
-        { id: sdk.address, key: 'oracle_pubkey' },
+        { id: aeSdk.address, key: 'myKey' },
+        { id: aeSdk.address, key: 'account_pubkey' },
+        { id: aeSdk.address, key: 'oracle_pubkey' },
       ],
       status: 'CLAIMED',
       ttl: resJson.ttl,
@@ -302,23 +302,23 @@ Name hash _______________________________ ${produceNameId(name)}
     expectToMatchLines(res, [
       'Status __________________________________ CLAIMED',
       `Name hash _______________________________ ${resJson.id}`,
-      `Owner ___________________________________ ${sdk.address}`,
-      `Pointer myKey ___________________________ ${sdk.address}`,
-      `Pointer account_pubkey __________________ ${sdk.address}`,
-      `Pointer oracle_pubkey ___________________ ${sdk.address}`,
+      `Owner ___________________________________ ${aeSdk.address}`,
+      `Pointer myKey ___________________________ ${aeSdk.address}`,
+      `Pointer account_pubkey __________________ ${aeSdk.address}`,
+      `Pointer oracle_pubkey ___________________ ${aeSdk.address}`,
       /TTL _____________________________________ \d+ \(in 1 year\)/,
     ]);
   }).timeout(6000);
 
   it('Inspect Running Auction Name', async () => {
     const auctionName = `a${Math.random().toString().slice(2, 9)}.chain`;
-    await (await sdk.aensPreclaim(auctionName)).claim();
+    await (await aeSdk.aensPreclaim(auctionName)).claim();
     const resJson = await executeInspect(auctionName, '--json');
     const endsAt = +resJson.startedAt + 960;
     expect(resJson).to.eql({
       endsAt: String(endsAt),
       highestBid: '19641800000000000000',
-      highestBidder: sdk.address,
+      highestBidder: aeSdk.address,
       id: resJson.id,
       startedAt: resJson.startedAt,
       status: 'AUCTION',
@@ -327,7 +327,7 @@ Name hash _______________________________ ${produceNameId(name)}
     expect(res).to.equal(`
 Status __________________________________ AUCTION
 Name hash _______________________________ ${resJson.id}
-Highest bidder __________________________ ${sdk.address}
+Highest bidder __________________________ ${aeSdk.address}
 Highest bid _____________________________ 19.6418ae
 Ends at height __________________________ ${endsAt} (in 1 day)
 Started at height _______________________ ${resJson.startedAt} (about now)

@@ -128,8 +128,8 @@ function printTransactionSync(_tx, json, currentHeight) {
   printTxField(tx, 'TTL', 'ttl', formatTtl);
 }
 
-export async function printTransaction(tx, json, sdk) {
-  const height = await sdk.getHeight({ cache: true });
+export async function printTransaction(tx, json, aeSdk) {
+  const height = await aeSdk.getHeight({ cache: true });
   printTransactionSync(tx, json, height);
 }
 

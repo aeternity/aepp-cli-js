@@ -14,8 +14,8 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
   } = options;
 
   ensureTtlANumber(oracleTtl, 'Oracle');
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  const oracle = await sdk.registerOracle(queryFormat, responseFormat, {
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  const oracle = await aeSdk.registerOracle(queryFormat, responseFormat, {
     ttl,
     nonce,
     fee,
@@ -25,7 +25,7 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
     },
     queryFee,
   });
-  await printTransaction(oracle, json, sdk);
+  await printTransaction(oracle, json, aeSdk);
 }
 
 export async function extendOracle(walletPath, oracleTtl, options) {
@@ -34,8 +34,8 @@ export async function extendOracle(walletPath, oracleTtl, options) {
   } = options;
 
   ensureTtlANumber(oracleTtl, 'Oracle');
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  const oracle = await sdk.getOracleObject(sdk.address.replace('ak_', 'ok_'));
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  const oracle = await aeSdk.getOracleObject(aeSdk.address.replace('ak_', 'ok_'));
   const extended = await oracle.extendOracle({
     ttl,
     nonce,
@@ -45,7 +45,7 @@ export async function extendOracle(walletPath, oracleTtl, options) {
       oracleTtlValue: oracleTtl,
     },
   });
-  await printTransaction(extended, json, sdk);
+  await printTransaction(extended, json, aeSdk);
 }
 
 export async function createOracleQuery(walletPath, oracleId, query, options) {
@@ -54,11 +54,11 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
   } = options;
 
   decode(oracleId, 'ok');
-  const sdk = await initSdkByWalletFile(walletPath, options);
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
 
   ensureTtlANumber(queryTtl, 'Query');
   ensureTtlANumber(responseTtl, 'Response');
-  const oracle = await sdk.getOracleObject(oracleId);
+  const oracle = await aeSdk.getOracleObject(oracleId);
   const oracleQuery = await oracle.postQuery(query, {
     ttl,
     nonce,
@@ -73,7 +73,7 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
     },
     queryFee,
   });
-  await printTransaction(oracleQuery, json, sdk);
+  await printTransaction(oracleQuery, json, aeSdk);
 }
 
 export async function respondToQuery(walletPath, queryId, response, options) {
@@ -83,9 +83,9 @@ export async function respondToQuery(walletPath, queryId, response, options) {
 
   decode(queryId, 'oq');
   ensureTtlANumber(responseTtl, 'Response');
-  const sdk = await initSdkByWalletFile(walletPath, options);
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
 
-  const oracle = await sdk.getOracleObject(sdk.address.replace('ak_', 'ok_'));
+  const oracle = await aeSdk.getOracleObject(aeSdk.address.replace('ak_', 'ok_'));
   const queryResponse = await oracle.respondToQuery(queryId, response, {
     ttl,
     nonce,
@@ -95,5 +95,5 @@ export async function respondToQuery(walletPath, queryId, response, options) {
       responseTtlValue: responseTtl,
     },
   });
-  await printTransaction(queryResponse, json, sdk);
+  await printTransaction(queryResponse, json, aeSdk);
 }
