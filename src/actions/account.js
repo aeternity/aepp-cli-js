@@ -42,10 +42,10 @@ export async function verifyMessage(address, hexSignature, dataArray = [], optio
 }
 
 export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...options }) {
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  const networkId = networkIdOpt ?? await sdk.api.getNetworkId();
-  const signedTx = await sdk.signTransaction(tx, { networkId });
-  const { address } = sdk;
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  const networkId = networkIdOpt ?? await aeSdk.api.getNetworkId();
+  const signedTx = await aeSdk.signTransaction(tx, { networkId });
+  const { address } = aeSdk;
   if (json) {
     print({ signedTx, address, networkId });
   } else {

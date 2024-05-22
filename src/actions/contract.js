@@ -32,18 +32,18 @@ async function getContractParams({
 }
 
 export async function compile(contractSource, options) {
-  const sdk = initSdk(options);
-  const contract = await sdk.initializeContract({ sourceCodePath: contractSource });
+  const aeSdk = initSdk(options);
+  const contract = await aeSdk.initializeContract({ sourceCodePath: contractSource });
   const bytecode = await contract.$compile();
   if (options.json) print({ bytecode });
   else print(`Contract bytecode: ${bytecode}`);
 }
 
 export async function encodeCalldata(fn, args, options) {
-  const sdk = initSdk(options);
+  const aeSdk = initSdk(options);
   const contractParams = await getContractParams(options, { dummyBytecode: true });
   delete contractParams.address; // TODO: remove after dropping Iris support
-  const contract = await sdk.initializeContract(contractParams);
+  const contract = await aeSdk.initializeContract(contractParams);
   // eslint-disable-next-line no-underscore-dangle
   const calldata = contract._calldata.encode(contract._name, fn, args);
   if (options.json) print({ calldata });
@@ -51,8 +51,8 @@ export async function encodeCalldata(fn, args, options) {
 }
 
 export async function decodeCallResult(fn, calldata, options) {
-  const sdk = initSdk(options);
-  const contract = await sdk.initializeContract(await getContractParams(options, { dummyBytecode: true }));
+  const aeSdk = initSdk(options);
+  const contract = await aeSdk.initializeContract(await getContractParams(options, { dummyBytecode: true }));
   // eslint-disable-next-line no-underscore-dangle
   const decoded = contract._calldata.decode(contract._name, fn, calldata);
   if (options.json) print({ decoded });
@@ -63,8 +63,8 @@ export async function decodeCallResult(fn, calldata, options) {
 }
 
 export async function deploy(walletPath, args, options) {
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  const contract = await sdk.initializeContract(await getContractParams(options, { descrMayNotExist: true }));
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  const contract = await aeSdk.initializeContract(await getContractParams(options, { descrMayNotExist: true }));
   const result = await contract.$deploy(args, options);
   const filename = options.contractSource ?? options.contractBytecode;
   options.descrPath ??= getFullPath(`${filename}.deploy.${result.address.slice(3)}.json`);
@@ -92,8 +92,8 @@ export async function call(fn, args, walletPath, options) {
   if (callStatic !== true && walletPath == null) {
     throw new CliError('wallet_path is required for on-chain calls');
   }
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  const contract = await sdk.initializeContract(await getContractParams(options));
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  const contract = await aeSdk.initializeContract(await getContractParams(options));
   const callResult = await contract.$call(fn, args, {
     ttl: ttl && +ttl,
     gas,
@@ -105,7 +105,7 @@ export async function call(fn, args, walletPath, options) {
   });
   if (json) print(callResult);
   else {
-    await printTransaction(callResult.txData, json, sdk);
+    await printTransaction(callResult.txData, json, aeSdk);
     print('----------------------Call info-----------------------');
     const gasCoins = BigInt(callResult.result.gasUsed) * callResult.txData.tx.gasPrice;
     printUnderscored('Gas used', `${callResult.result.gasUsed} (${formatCoins(gasCoins)})`);

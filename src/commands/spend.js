@@ -42,8 +42,8 @@ const command = new Command('spend')
       ttl, json, nonce, fee, payload, ...options
     },
   ) => {
-    const sdk = await initSdkByWalletFile(walletPath, options);
-    const tx = await sdk[amount != null ? 'spend' : 'transferFunds'](
+    const aeSdk = await initSdkByWalletFile(walletPath, options);
+    const tx = await aeSdk[amount != null ? 'spend' : 'transferFunds'](
       amount ?? fraction / 100,
       receiverNameOrAddress,
       {
@@ -51,7 +51,7 @@ const command = new Command('spend')
       },
     );
     if (!json) print('Transaction mined');
-    await printTransaction(tx, json, sdk);
+    await printTransaction(tx, json, aeSdk);
   });
 
 addExamples(command, [

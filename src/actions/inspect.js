@@ -18,14 +18,14 @@ function printEntries(object) {
 
 async function getBlockByHash(hash, { json, ...options }) {
   checkPref(hash, [Encoding.KeyBlockHash, Encoding.MicroBlockHash]);
-  const sdk = initSdk(options);
-  printBlock(await getBlock(hash, sdk), json, true);
+  const aeSdk = initSdk(options);
+  printBlock(await getBlock(hash, aeSdk), json, true);
 }
 
 async function getTransactionByHash(hash, { json, ...options }) {
   checkPref(hash, Encoding.TxHash);
-  const sdk = initSdk(options);
-  await printTransaction(await sdk.api.getTransactionByHash(hash), json, sdk);
+  const aeSdk = initSdk(options);
+  await printTransaction(await aeSdk.api.getTransactionByHash(hash), json, aeSdk);
 }
 
 async function unpackTx(encodedTx, { json }) {
@@ -38,10 +38,10 @@ async function unpackTx(encodedTx, { json }) {
 
 async function getAccountByHash(hash, { json, ...options }) {
   checkPref(hash, Encoding.AccountAddress);
-  const sdk = initSdk(options);
-  const { nonce } = await sdk.api.getAccountByPubkey(hash);
-  const balance = await sdk.getBalance(hash);
-  const { transactions } = await sdk.api.getPendingAccountTransactionsByPubkey(hash);
+  const aeSdk = initSdk(options);
+  const { nonce } = await aeSdk.api.getAccountByPubkey(hash);
+  const balance = await aeSdk.getBalance(hash);
+  const { transactions } = await aeSdk.api.getPendingAccountTransactionsByPubkey(hash);
   if (json) {
     print({
       hash,
@@ -59,21 +59,21 @@ async function getAccountByHash(hash, { json, ...options }) {
 }
 
 async function getBlockByHeight(height, { json, ...options }) {
-  const sdk = initSdk(options);
-  printBlock(await sdk.api.getKeyBlockByHeight(+height), json);
+  const aeSdk = initSdk(options);
+  printBlock(await aeSdk.api.getKeyBlockByHeight(+height), json);
 }
 
 async function getName(name, { json, ...options }) {
   validateName(name);
-  const sdk = initSdk(options);
-  const nameEntry = await getNameEntry(name, sdk);
+  const aeSdk = initSdk(options);
+  const nameEntry = await getNameEntry(name, aeSdk);
 
   if (json) {
     print(nameEntry);
     return;
   }
 
-  const height = await sdk.getHeight({ cached: true });
+  const height = await aeSdk.getHeight({ cached: true });
   printUnderscored('Status', nameEntry.status);
   printUnderscored('Name hash', nameEntry.id);
   switch (nameEntry.status) {
@@ -98,16 +98,16 @@ async function getName(name, { json, ...options }) {
 }
 
 async function getContract(contractId, { json, ...options }) {
-  const sdk = initSdk(options);
-  const contract = await sdk.api.getContract(contractId);
+  const aeSdk = initSdk(options);
+  const contract = await aeSdk.api.getContract(contractId);
   if (json) print(contract);
   else printEntries(contract);
 }
 
 async function getOracle(oracleId, { json, ...options }) {
-  const sdk = initSdk(options);
-  const oracle = await sdk.api.getOracleByPubkey(oracleId);
-  oracle.queries = (await sdk.api.getOracleQueriesByPubkey(oracleId)).oracleQueries;
+  const aeSdk = initSdk(options);
+  const oracle = await aeSdk.api.getOracleByPubkey(oracleId);
+  oracle.queries = (await aeSdk.api.getOracleQueriesByPubkey(oracleId)).oracleQueries;
   if (json) {
     print(oracle);
     return;

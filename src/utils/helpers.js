@@ -28,15 +28,15 @@ export const addExamples = (command, examples) => {
   });
 };
 
-export async function getBlock(hash, sdk) {
+export async function getBlock(hash, aeSdk) {
   const type = hash.split('_')[0];
   switch (type) {
     case Encoding.KeyBlockHash:
-      return sdk.api.getKeyBlockByHash(hash);
+      return aeSdk.api.getKeyBlockByHash(hash);
     case Encoding.MicroBlockHash:
       return {
-        ...await sdk.api.getMicroBlockHeaderByHash(hash),
-        ...await sdk.api.getMicroBlockTransactionsByHash(hash),
+        ...await aeSdk.api.getMicroBlockHeaderByHash(hash),
+        ...await aeSdk.api.getMicroBlockTransactionsByHash(hash),
       };
     default:
       throw new CliError(`Unknown block hash type: ${type}`);
@@ -64,15 +64,15 @@ export function checkPref(hash, hashType) {
   }
 }
 
-export async function getNameEntry(nameAsString, sdk) {
+export async function getNameEntry(nameAsString, aeSdk) {
   const [name, auction] = await Promise.all([
-    sdk.api.getNameEntryByName(nameAsString).catch((error) => {
+    aeSdk.api.getNameEntryByName(nameAsString).catch((error) => {
       if (error.response?.status === 404) {
         return error.response.parsedBody?.reason === 'Name revoked' ? 'REVOKED' : 'AVAILABLE';
       }
       throw error;
     }),
-    sdk.api.getAuctionEntryByName(nameAsString).catch((error) => {
+    aeSdk.api.getAuctionEntryByName(nameAsString).catch((error) => {
       if (error.response?.status === 404) return undefined;
       throw error;
     }),
