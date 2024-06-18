@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { ORACLE_TTL, QUERY_TTL, RESPONSE_TTL } from '@aeternity/aepp-sdk';
 import * as Oracle from '../actions/oracle.js';
 import {
-  nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption,
+  nodeOption, jsonOption, feeOption, queryFeeOption, forceOption, passwordOption, ttlOption,
 } from '../arguments.js';
 import { addExamples, exampleOracle, exampleOracleQuery } from '../utils/helpers.js';
 
@@ -24,7 +24,7 @@ const addCommonOptions = (cmd, example) => {
 
 let command = program.command('create <wallet_path> <queryFormat> <responseFormat>')
   .option('--oracleTtl [oracleTtl]', 'Relative oracle time to leave', ORACLE_TTL.value)
-  .option('--queryFee [queryFee]', 'Oracle query fee', 0)
+  .addOption(queryFeeOption(true))
   .summary('register current account as oracle')
   .action(Oracle.createOracle);
 addCommonOptions(command, './wallet.json string string');
@@ -37,7 +37,7 @@ addCommonOptions(command, './wallet.json 200');
 command = program.command('create-query <wallet_path> <oracleId> <query>')
   .option('--responseTtl [responseTtl]', 'Relative query response time to leave', RESPONSE_TTL.value)
   .option('--queryTtl [queryTtl]', 'Relative query time to leave', QUERY_TTL.value)
-  .option('--queryFee [queryFee]', 'Oracle query fee', 0)
+  .addOption(queryFeeOption(false))
   .summary('create an oracle query')
   .action(Oracle.createOracleQuery);
 addCommonOptions(command, `./wallet.json ${exampleOracle} WhatTheWeatherIs?`);

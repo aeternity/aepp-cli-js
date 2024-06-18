@@ -3,7 +3,7 @@ import { NAME_TTL } from '@aeternity/aepp-sdk';
 import * as AENS from '../actions/aens.js';
 import {
   nodeOption, jsonOption, feeOption, forceOption, passwordOption, ttlOption, coinAmountParser,
-  clientTtlOption,
+  clientTtlOption, nameFeeOption,
 } from '../arguments.js';
 import {
   addExamples, exampleAddress1, exampleContract, exampleName,
@@ -34,7 +34,7 @@ const claimingGuide = [
 ].join(' ');
 
 let command = program.command('full-claim <wallet_path> <name>')
-  .option('--nameFee [nameFee]', 'Amount of coins to pay for name', coinAmountParser)
+  .addOption(nameFeeOption)
   .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
   .addOption(clientTtlOption)
   .summary('claim an AENS name in a single command')
@@ -61,7 +61,7 @@ command = program.command('pre-claim <wallet_path> <name>')
 addCommonOptions(command, `./wallet.json ${exampleName}`);
 
 command = program.command('claim <wallet_path> <name> <salt>')
-  .option('--nameFee [nameFee]', 'Amount of coins to pay for name', coinAmountParser)
+  .addOption(nameFeeOption)
   .summary('claim an AENS name (requires pre-claim)')
   .description([
     'Claim an AENS name, it requires a salt provided by `aecli name pre-claim`.',
