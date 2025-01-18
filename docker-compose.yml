@@ -1,4 +1,3 @@
-version: '3'
 services:
   node:
     image: aeternity/aeternity:v7.0.0-bundle
