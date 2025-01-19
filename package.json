@@ -7,8 +7,8 @@
   },
   "type": "module",
   "dependencies": {
-    "@aeternity/aepp-sdk": "^13.3.2",
-    "@azure/core-rest-pipeline": "^1.15.2",
+    "@aeternity/aepp-sdk": "^13.3.3",
+    "@azure/core-rest-pipeline": "~1.14.0",
     "bignumber.js": "^9.1.2",
     "commander": "^13.0.0",
     "env-paths": "^3.0.0",
