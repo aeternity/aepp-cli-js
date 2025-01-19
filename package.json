@@ -27,6 +27,8 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "mocha": "^11.0.1",
     "mock-fs": "^5.4.1",
+    "npm-run-all2": "^7.0.2",
+    "prettier": "^3.4.2",
     "sinon": "^19.0.2",
     "standard-version": "^9.5.0",
     "tsx": "^4.19.2"
@@ -38,7 +40,10 @@
   "scripts": {
     "commitlint": "commitlint --from develop",
     "docs": "npx tsx ./scripts/docs/index.ts",
-    "lint": "eslint .",
+    "lint": "run-p lint:*",
+    "lint:prettier": "prettier . --check",
+    "lint:eslint": "eslint .",
+    "format": "prettier . --write",
     "test": "mocha",
     "test:watch": "mocha --watch",
     "release": "standard-version --skip.tag"
