@@ -28,7 +28,7 @@ async function getWalletCreateOutput(): Promise<string> {
   return [
     '```',
     `$ aecli account create ${wallet}`,
-    output.replace(/([\w\/-]+)wallet\.json/, '/path/to/wallet.json'),
+    output.replace(/([\w/-]+)wallet\.json/, '/path/to/wallet.json'),
     '```',
   ].join('\n');
 }

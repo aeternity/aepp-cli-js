@@ -111,8 +111,6 @@ const units = [
 
 export function timeAgo(date) {
   const diff = Date.now() - date.getTime();
-  // TODO: revisit linter settings, the below rule is not relevant because babel is not used
-  // eslint-disable-next-line no-restricted-syntax
   for (const [name, size] of units) {
     const value = Math.floor(Math.abs(diff) / size);
     if (value > 0) {

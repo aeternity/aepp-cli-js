@@ -61,7 +61,7 @@ export async function play(options) {
   while (height ? block.height >= height : limit) {
     if (!height) limit -= 1;
     printBlock(block, json);
-    block = await getBlock(block.prevHash, aeSdk); // eslint-disable-line no-await-in-loop
+    block = await getBlock(block.prevHash, aeSdk);
   }
 }
 

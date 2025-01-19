@@ -148,7 +148,6 @@ Target __________________________________ ${keyJson.target}
 
     let microHash = keyJson.prevHash;
     while (microHash.startsWith('kh_')) {
-      // eslint-disable-next-line no-await-in-loop
       microHash = (await executeInspect(microHash, '--json')).prevHash;
     }
     const microJson = await executeInspect(microHash, '--json');

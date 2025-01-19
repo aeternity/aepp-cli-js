@@ -20,7 +20,7 @@ async function getContractParams(
       );
     }
   }
-  const { address, version, ...other } = descriptor;
+  const { address, ...other } = descriptor;
   return {
     address: contractAddress ?? address,
     // TODO: either remove calldata methods in cli or reconsider initializeContract requirements
@@ -51,7 +51,6 @@ export async function encodeCalldata(fn, args, options) {
   });
   delete contractParams.address; // TODO: remove after dropping Iris support
   const contract = await aeSdk.initializeContract(contractParams);
-  // eslint-disable-next-line no-underscore-dangle
   const calldata = contract._calldata.encode(contract._name, fn, args);
   if (options.json) print({ calldata });
   else print(`Contract encoded calldata: ${calldata}`);
@@ -62,7 +61,6 @@ export async function decodeCallResult(fn, calldata, options) {
   const contract = await aeSdk.initializeContract(
     await getContractParams(options, { dummyBytecode: true }),
   );
-  // eslint-disable-next-line no-underscore-dangle
   const decoded = contract._calldata.decode(contract._name, fn, calldata);
   if (options.json) print({ decoded });
   else {
@@ -83,7 +81,6 @@ export async function deploy(walletPath, args, options) {
     version: DESCRIPTOR_VERSION,
     address: result.address,
     bytecode: contract.$options.bytecode,
-    // eslint-disable-next-line no-underscore-dangle
     aci: contract._aci,
   };
   await fs.outputJson(options.descrPath, descriptor);

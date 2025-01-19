@@ -320,7 +320,6 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     nonce += 1;
     contract = await aeSdk.initializeContract({ sourceCode: testContract });
     const bytecode = await contract.$compile();
-    // eslint-disable-next-line no-underscore-dangle
     const callData = contract._calldata.encode(contract._name, 'init', []);
     const { tx, contractId: cId } = await executeTx(
       'contract-deploy',
@@ -366,7 +365,6 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds contract call tx and sends', async () => {
     nonce += 1;
-    // eslint-disable-next-line no-underscore-dangle
     const callData = contract._calldata.encode(contract._name, 'test', ['1', '2']);
     const { tx } = await executeTx(
       'contract-call',

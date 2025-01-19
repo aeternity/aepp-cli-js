@@ -32,7 +32,7 @@ async function getContractDeployOutput(): Promise<string> {
   return [
     '```',
     `$ aecli ${args.join(' ')}`,
-    output.replace(/([\w\/-]+)contract\.aes\.deploy/, '/path/to/contract.aes.deploy'),
+    output.replace(/([\w/-]+)contract\.aes\.deploy/, '/path/to/contract.aes.deploy'),
     '```',
   ].join('\n');
 }
