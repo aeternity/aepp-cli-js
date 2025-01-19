@@ -1,4 +1,4 @@
-import chai, { expect } from 'chai';
+import { expect, use, should } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { before, after } from 'mocha';
 import mockFs from 'mock-fs';
@@ -20,8 +20,8 @@ after(() => {
   mockFs.restore();
 });
 
-chai.use(chaiAsPromised);
-chai.should();
+use(chaiAsPromised);
+should();
 
 const secretKey = '9ebd7beda0c79af72a42ece3821a56eff16359b6df376cf049aee995565f022f840c974b97164776454ba119d84edc4d6058a8dec92b6edc578ab2d30b4c4200';
 export const networkId = 'ae_dev';
