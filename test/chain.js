@@ -46,8 +46,8 @@ Transactions ____________________________ 0
       hashrate: 0,
       listening: true,
       networkId: 'ae_dev',
-      nodeRevision: 'a9498268ce1ac837e553bba94d5dc6bdc455be11',
-      nodeVersion: '7.0.0',
+      nodeRevision: '57bc00b760dbb3ccd10be51f447e33cb3a2f56e3',
+      nodeVersion: '7.3.0-rc3',
       peerConnections: { inbound: 0, outbound: 0 },
       peerCount: 0,
       peerPubkey: resJson.peerPubkey,
@@ -68,9 +68,9 @@ Transactions ____________________________ 0
     expect(res).to.equal(
       `
 Difficulty ______________________________ ${resJson.difficulty}
-Node version ____________________________ 7.0.0
+Node version ____________________________ 7.3.0-rc3
 Consensus protocol version ______________ 6 (Ceres)
-Node revision ___________________________ a9498268ce1ac837e553bba94d5dc6bdc455be11
+Node revision ___________________________ 57bc00b760dbb3ccd10be51f447e33cb3a2f56e3
 Genesis hash ____________________________ ${resJson.genesisKeyBlockHash}
 Network ID ______________________________ ae_dev
 Listening _______________________________ true

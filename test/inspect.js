@@ -118,9 +118,10 @@ payload _________________________________ ba_Xfbg4g==
     const keyJson = await executeInspect(prevKeyHash, '--json');
     expect(keyJson).to.eql({
       beneficiary: keyJson.beneficiary,
+      flags: 'ba_wAAAAKv2ZV4=',
       hash: keyJson.hash,
       height: keyJson.height,
-      info: keyJson.info,
+      info: 'cb_AAAC2rLD9E0=',
       miner: keyJson.miner,
       prevHash: keyJson.prevHash,
       prevKeyHash: keyJson.prevKeyHash,
@@ -152,6 +153,7 @@ Target __________________________________ ${keyJson.target}
     }
     const microJson = await executeInspect(microHash, '--json');
     expect(microJson).to.eql({
+      flags: 'ba_AAAAAIy5ASU=',
       hash: microJson.hash,
       height: microJson.height,
       pofHash: 'no_fraud',
@@ -308,9 +310,9 @@ Name hash _______________________________ ${produceNameId(name)}
       id: resJson.id,
       owner: aeSdk.address,
       pointers: [
-        { id: aeSdk.address, key: 'myKey' },
-        { id: aeSdk.address, key: 'account_pubkey' },
-        { id: aeSdk.address, key: 'oracle_pubkey' },
+        { id: aeSdk.address, key: 'myKey', encoded_key: 'ba_bXlLZXltwTZ7' },
+        { id: aeSdk.address, key: 'account_pubkey', encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR' },
+        { id: aeSdk.address, key: 'oracle_pubkey', encoded_key: 'ba_b3JhY2xlX3B1YmtleV2vKNs=' },
       ],
       status: 'CLAIMED',
       ttl: resJson.ttl,

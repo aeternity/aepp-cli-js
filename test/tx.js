@@ -243,7 +243,9 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       nameId,
       nameTtl: 180000,
       nonce,
-      pointers: [{ id: aeSdk.address, key: 'account_pubkey' }],
+      pointers: [
+        { id: aeSdk.address, key: 'account_pubkey', encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR' },
+      ],
       type: 'NameUpdateTx',
       version: 1,
       accountId: aeSdk.address,

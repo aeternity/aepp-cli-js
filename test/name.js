@@ -30,7 +30,11 @@ describe('AENS Module', () => {
 
     updateTx.blockHeight.should.be.gt(0);
     const pointer = updateTx.pointers.find(({ id }) => id === aeSdk.address);
-    expect(pointer).to.be.eql({ id: aeSdk.address, key: 'account_pubkey' });
+    expect(pointer).to.be.eql({
+      id: aeSdk.address,
+      key: 'account_pubkey',
+      encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+    });
   }).timeout(10000);
 
   it('Full claim with options', async () => {
@@ -53,7 +57,11 @@ describe('AENS Module', () => {
     updateTx.tx.nameTtl.should.be.equal(50);
     updateTx.tx.clientTtl.should.be.equal(50);
     const pointer = updateTx.pointers.find(({ id }) => id === aeSdk.address);
-    expect(pointer).to.be.eql({ id: aeSdk.address, key: 'account_pubkey' });
+    expect(pointer).to.be.eql({
+      id: aeSdk.address,
+      key: 'account_pubkey',
+      encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+    });
   }).timeout(10000);
 
   it('Pre Claim Name', async () => {
