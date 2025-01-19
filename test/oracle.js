@@ -36,7 +36,14 @@ describe('Oracle Module', () => {
 
   it('Oracle extend', async () => {
     const oracle = await aeSdk.getOracleObject(oracleId);
-    const oracleExtend = await executeOracle('extend', WALLET_NAME, '--password', 'test', 42, '--json');
+    const oracleExtend = await executeOracle(
+      'extend',
+      WALLET_NAME,
+      '--password',
+      'test',
+      42,
+      '--json',
+    );
     oracleExtend.blockHeight.should.be.gt(0);
     expect(oracleExtend.ttl).to.be.equal(oracle.ttl + 42);
   });

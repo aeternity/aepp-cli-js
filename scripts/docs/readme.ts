@@ -6,15 +6,14 @@ import { replaceInTemplate, executeProgram, wallet, pass } from './utils.js';
 function getRootHelp(): string {
   let output = '';
   program
-    .configureOutput({ writeOut: (str) => { output += str; } })
+    .configureOutput({
+      writeOut: (str) => {
+        output += str;
+      },
+    })
     .exitOverride();
   program.outputHelp();
-  return [
-    '```',
-    '$ aecli',
-    output.trimEnd(),
-    '```',
-  ].join('\n');
+  return ['```', '$ aecli', output.trimEnd(), '```'].join('\n');
 }
 
 async function getWalletCreateOutput(): Promise<string> {
@@ -24,7 +23,7 @@ async function getWalletCreateOutput(): Promise<string> {
     wallet,
     '9ebd7beda0c79af72a42ece3821a56eff16359b6df376cf049aee995565f022f840c974b97164776454ba119d84edc4d6058a8dec92b6edc578ab2d30b4c4200',
     ...pass,
-    '--overwrite'
+    '--overwrite',
   );
   return [
     '```',
@@ -36,22 +35,12 @@ async function getWalletCreateOutput(): Promise<string> {
 
 async function getInspectOutput(): Promise<string> {
   const output = await executeProgram('inspect', exampleAddress1);
-  return [
-    '```',
-    `$ aecli inspect ${exampleAddress1}`,
-    output,
-    '```',
-  ].join('\n');
+  return ['```', `$ aecli inspect ${exampleAddress1}`, output, '```'].join('\n');
 }
 
 async function getSpendOutput(): Promise<string> {
   const output = await executeProgram('spend', wallet, exampleAddress2, '42ae', ...pass);
-  return [
-    '```',
-    `$ aecli spend ${wallet} ${exampleAddress2} 42ae`,
-    output,
-    '```',
-  ].join('\n');
+  return ['```', `$ aecli spend ${wallet} ${exampleAddress2} 42ae`, output, '```'].join('\n');
 }
 
 let readme = await fs.readFile('./README.md', 'utf-8');

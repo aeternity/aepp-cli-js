@@ -27,36 +27,66 @@ describe('Account Module', () => {
     expect(await fs.exists(walletName)).to.be.equal(true);
     const resJson = await executeAccount('address', walletName, '--json');
     expect(resJson.publicKey).to.be.a('string');
-    expect(createRes).to.be.equal(`
+    expect(createRes).to.be.equal(
+      `
 Address _________________________________ ${resJson.publicKey}
 Path ____________________________________ ${resolve(walletName)}
-    `.trim());
+    `.trim(),
+    );
     const res = await executeAccount('address', walletName);
-    expect(res).to.be.equal(`
+    expect(res).to.be.equal(
+      `
 Address _________________________________ ${resJson.publicKey}
-    `.trim());
+    `.trim(),
+    );
   });
 
   it('Create Wallet From Private Key', async () => {
-    await executeAccount('create', walletName, '--password', 'test', keypair.secretKey, '--overwrite');
+    await executeAccount(
+      'create',
+      walletName,
+      '--password',
+      'test',
+      keypair.secretKey,
+      '--overwrite',
+    );
     expect(await fs.exists(walletName)).to.be.equal(true);
-    expect((await executeAccount('address', walletName, '--json')).publicKey)
-      .to.equal(keypair.publicKey);
+    expect((await executeAccount('address', walletName, '--json')).publicKey).to.equal(
+      keypair.publicKey,
+    );
   });
 
   it('Check Wallet Address', async () => {
-    expect((await executeAccount('address', WALLET_NAME, '--json')).publicKey)
-      .to.equal(aeSdk.address);
+    expect((await executeAccount('address', WALLET_NAME, '--json')).publicKey).to.equal(
+      aeSdk.address,
+    );
   });
 
   it('Check Wallet Address with Private Key', async () => {
-    const resJson = await executeAccount('address', walletName, '--password', 'test', '--privateKey', '--forcePrompt', '--json');
+    const resJson = await executeAccount(
+      'address',
+      walletName,
+      '--password',
+      'test',
+      '--privateKey',
+      '--forcePrompt',
+      '--json',
+    );
     expect(resJson.secretKey).to.equal(keypair.secretKey);
-    const res = await executeAccount('address', walletName, '--password', 'test', '--privateKey', '--forcePrompt');
-    expect(res).to.be.equal(`
+    const res = await executeAccount(
+      'address',
+      walletName,
+      '--password',
+      'test',
+      '--privateKey',
+      '--forcePrompt',
+    );
+    expect(res).to.be.equal(
+      `
 Address _________________________________ ${keypair.publicKey}
 Secret Key ______________________________ ${keypair.secretKey}
-    `.trim());
+    `.trim(),
+    );
   });
 
   it('asks for password if it not provided', async () => {
@@ -66,17 +96,25 @@ Secret Key ______________________________ ${keypair.secretKey}
     expect(await executeAccount('address', walletPath, '--privateKey')).to.include(publicKey);
   });
 
-  it('don\'t asks for password if provided password is empty string', async () => {
+  it("don't asks for password if provided password is empty string", async () => {
     const name = 'test-artifacts/test-wallet-2.json';
     await executeAccount('create', name, '--password', '');
     prompts.inject(['y']);
-    expect((await executeAccount('address', name, '--password', '', '--privateKey', '--json')).publicKey)
-      .to.be.a('string');
+    expect(
+      (await executeAccount('address', name, '--password', '', '--privateKey', '--json')).publicKey,
+    ).to.be.a('string');
   });
 
   it('Sign message', async () => {
     const data = 'Hello world';
-    const signedMessage = await executeAccount('sign-message', WALLET_NAME, data, '--json', '--password', 'test');
+    const signedMessage = await executeAccount(
+      'sign-message',
+      WALLET_NAME,
+      data,
+      '--json',
+      '--password',
+      'test',
+    );
     const signedUsingSDK = Array.from(await aeSdk.signMessage(data));
     sig = signedMessage.signatureHex;
     signedMessage.data.should.be.equal(data);
@@ -87,9 +125,15 @@ Secret Key ______________________________ ${keypair.secretKey}
   });
 
   it('Sign message using file', async () => {
-    const {
-      data, signature, signatureHex, address,
-    } = await executeAccount('sign-message', WALLET_NAME, '--json', '--filePath', fileName, '--password', 'test');
+    const { data, signature, signatureHex, address } = await executeAccount(
+      'sign-message',
+      WALLET_NAME,
+      '--json',
+      '--filePath',
+      fileName,
+      '--password',
+      'test',
+    );
     const signedUsingSDK = Array.from(await aeSdk.signMessage(data));
     sigFromFile = signatureHex;
     signature.toString().should.be.equal(signedUsingSDK.toString());
@@ -103,7 +147,14 @@ Secret Key ______________________________ ${keypair.secretKey}
     const data = 'Hello world';
     const verify = await executeAccount('verify-message', aeSdk.address, sig, data, '--json');
     verify.isCorrect.should.be.equal(true);
-    const verifyFromFile = await executeAccount('verify-message', aeSdk.address, sigFromFile, '--json', '--filePath', fileName);
+    const verifyFromFile = await executeAccount(
+      'verify-message',
+      aeSdk.address,
+      sigFromFile,
+      '--json',
+      '--filePath',
+      fileName,
+    );
     verifyFromFile.isCorrect.should.be.equal(true);
   });
 });

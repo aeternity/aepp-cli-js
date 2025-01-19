@@ -8,7 +8,8 @@ export const exampleAddress2 = 'ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUD
 export const exampleContract = 'ct_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
 export const exampleOracle = 'ok_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi';
 export const exampleOracleQuery = 'oq_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
-export const exampleTransaction = 'tx_+FoMAaEBzqet5HDJ+Z2dTkAIgKhvHUm7REti8Rqeu2S7z+tz/vOhARX7Ovvi4N8rfRN/Dsvb2ei7AJ3ysIkBrG5pnY6qW3W7iQVrx14tYxAAAIYPUN430AAAKoBebL57';
+export const exampleTransaction =
+  'tx_+FoMAaEBzqet5HDJ+Z2dTkAIgKhvHUm7REti8Rqeu2S7z+tz/vOhARX7Ovvi4N8rfRN/Dsvb2ei7AJ3ysIkBrG5pnY6qW3W7iQVrx14tYxAAAIYPUN430AAAKoBebL57';
 export const exampleName = 'example-name.chain';
 export const exampleCalldata = 'cb_DA6sWJo=';
 export const exampleHeight = 929796;
@@ -35,8 +36,8 @@ export async function getBlock(hash, aeSdk) {
       return aeSdk.api.getKeyBlockByHash(hash);
     case Encoding.MicroBlockHash:
       return {
-        ...await aeSdk.api.getMicroBlockHeaderByHash(hash),
-        ...await aeSdk.api.getMicroBlockTransactionsByHash(hash),
+        ...(await aeSdk.api.getMicroBlockHeaderByHash(hash)),
+        ...(await aeSdk.api.getMicroBlockTransactionsByHash(hash)),
       };
     default:
       throw new CliError(`Unknown block hash type: ${type}`);
@@ -56,10 +57,11 @@ export function checkPref(hash, hashType) {
   }
 
   if (!hash.startsWith(`${hashType}_`)) {
-    const msg = {
-      [Encoding.TxHash]: 'Invalid transaction hash, it should be like: th_....',
-      [Encoding.AccountAddress]: 'Invalid account address, it should be like: ak_....',
-    }[hashType] || `Invalid hash, it should be like: ${hashType}_....`;
+    const msg =
+      {
+        [Encoding.TxHash]: 'Invalid transaction hash, it should be like: th_....',
+        [Encoding.AccountAddress]: 'Invalid account address, it should be like: ak_....',
+      }[hashType] || `Invalid hash, it should be like: ${hashType}_....`;
     throw new CliError(msg);
   }
 }

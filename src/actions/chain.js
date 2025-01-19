@@ -1,7 +1,11 @@
 import { verifyTransaction, ConsensusProtocolVersion } from '@aeternity/aepp-sdk';
 import { initSdk } from '../utils/cli.js';
 import {
-  printBlock, print, printUnderscored, printTransaction, printValidation,
+  printBlock,
+  print,
+  printUnderscored,
+  printTransaction,
+  printValidation,
 } from '../utils/print.js';
 import { getBlock } from '../utils/helpers.js';
 
@@ -16,7 +20,10 @@ export async function status(options) {
   }
   printUnderscored('Difficulty', st.difficulty);
   printUnderscored('Node version', st.nodeVersion);
-  printUnderscored('Consensus protocol version', `${consensusProtocolVersion} (${ConsensusProtocolVersion[consensusProtocolVersion]})`);
+  printUnderscored(
+    'Consensus protocol version',
+    `${consensusProtocolVersion} (${ConsensusProtocolVersion[consensusProtocolVersion]})`,
+  );
   printUnderscored('Node revision', st.nodeRevision);
   printUnderscored('Genesis hash', st.genesisKeyBlockHash);
   printUnderscored('Network ID', st.networkId);

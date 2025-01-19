@@ -20,7 +20,8 @@ describe('Chain Module', () => {
     expect(resJson.height).to.be.a('number');
 
     const res = await executeChain('top');
-    expect(res).to.equal(`
+    expect(res).to.equal(
+      `
 <<--------------- ${resJson.hash.startsWith('mh_') ? 'MicroBlock' : 'KeyBlock'} --------------->>
 Block hash ______________________________ ${resJson.hash}
 Block height ____________________________ ${resJson.height}
@@ -33,7 +34,8 @@ Previous key block hash _________________ ${resJson.prevKeyHash}
 Version _________________________________ 6
 Target __________________________________ ${resJson.target ?? 'N/A'}
 Transactions ____________________________ 0
-    `.trim());
+    `.trim(),
+    );
   });
 
   it('prints status', async () => {
@@ -50,7 +52,10 @@ Transactions ____________________________ 0
       peerCount: 0,
       peerPubkey: resJson.peerPubkey,
       pendingTransactionsCount: 0,
-      protocols: [{ effectiveAtHeight: 1, version: 6 }, { effectiveAtHeight: 0, version: 1 }],
+      protocols: [
+        { effectiveAtHeight: 1, version: 6 },
+        { effectiveAtHeight: 0, version: 1 },
+      ],
       solutions: 0,
       syncProgress: 100,
       syncing: false,
@@ -60,7 +65,8 @@ Transactions ____________________________ 0
     });
 
     const res = await executeChain('status');
-    expect(res).to.equal(`
+    expect(res).to.equal(
+      `
 Difficulty ______________________________ ${resJson.difficulty}
 Node version ____________________________ 7.0.0
 Consensus protocol version ______________ 6 (Ceres)
@@ -72,7 +78,8 @@ Peer count ______________________________ 0
 Pending transactions count ______________ 0
 Solutions _______________________________ 0
 Syncing _________________________________ false
-    `.trim());
+    `.trim(),
+    );
   });
 
   it('plays by limit', async () => {
@@ -82,7 +89,7 @@ Syncing _________________________________ false
   });
 
   it('plays by height', async () => {
-    const res = await executeChain('play', '--height', await aeSdk.getHeight() - 4);
+    const res = await executeChain('play', '--height', (await aeSdk.getHeight()) - 4);
     const heights = res
       .split('\n')
       .filter((l) => l.includes('Block height'))
@@ -99,9 +106,11 @@ Syncing _________________________________ false
     });
 
     const res = await executeChain('ttl', 10);
-    expect(res).to.equal(`
+    expect(res).to.equal(
+      `
 Absolute TTL ____________________________ 10
 Relative TTL ____________________________ ${resJson.relativeTtl}
-    `.trim());
+    `.trim(),
+    );
   });
 });

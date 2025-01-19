@@ -12,12 +12,14 @@ try {
   await program.parseAsync();
 } catch (error) {
   if (
-    error instanceof CliError
-    || error instanceof RestError
-    || error instanceof InvalidPasswordError
-    || error instanceof NodeInvocationError
-    || (error instanceof ContractError && error.message.includes('ACI doesn\'t match called contract'))
-    || error.code === 'ENOENT'
-  ) program.error(error.message);
+    error instanceof CliError ||
+    error instanceof RestError ||
+    error instanceof InvalidPasswordError ||
+    error instanceof NodeInvocationError ||
+    (error instanceof ContractError &&
+      error.message.includes("ACI doesn't match called contract")) ||
+    error.code === 'ENOENT'
+  )
+    program.error(error.message);
   else throw error;
 }

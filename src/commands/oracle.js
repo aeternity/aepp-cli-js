@@ -2,7 +2,13 @@ import { Command } from 'commander';
 import { ORACLE_TTL, QUERY_TTL, RESPONSE_TTL } from '@aeternity/aepp-sdk';
 import * as Oracle from '../actions/oracle.js';
 import {
-  nodeOption, jsonOption, feeOption, queryFeeOption, forceOption, passwordOption, ttlOption,
+  nodeOption,
+  jsonOption,
+  feeOption,
+  queryFeeOption,
+  forceOption,
+  passwordOption,
+  ttlOption,
 } from '../arguments.js';
 import { addExamples, exampleOracle, exampleOracleQuery } from '../utils/helpers.js';
 
@@ -22,27 +28,35 @@ const addCommonOptions = (cmd, example) => {
   addExamples(cmd, [example]);
 };
 
-let command = program.command('create <wallet_path> <queryFormat> <responseFormat>')
+let command = program
+  .command('create <wallet_path> <queryFormat> <responseFormat>')
   .option('--oracleTtl [oracleTtl]', 'Relative oracle time to leave', ORACLE_TTL.value)
   .addOption(queryFeeOption(true))
   .summary('register current account as oracle')
   .action(Oracle.createOracle);
 addCommonOptions(command, './wallet.json string string');
 
-command = program.command('extend <wallet_path> <oracleTtl>')
-  .summary('extend oracle\'s time to leave')
+command = program
+  .command('extend <wallet_path> <oracleTtl>')
+  .summary("extend oracle's time to leave")
   .action(Oracle.extendOracle);
 addCommonOptions(command, './wallet.json 200');
 
-command = program.command('create-query <wallet_path> <oracleId> <query>')
-  .option('--responseTtl [responseTtl]', 'Relative query response time to leave', RESPONSE_TTL.value)
+command = program
+  .command('create-query <wallet_path> <oracleId> <query>')
+  .option(
+    '--responseTtl [responseTtl]',
+    'Relative query response time to leave',
+    RESPONSE_TTL.value,
+  )
   .option('--queryTtl [queryTtl]', 'Relative query time to leave', QUERY_TTL.value)
   .addOption(queryFeeOption(false))
   .summary('create an oracle query')
   .action(Oracle.createOracleQuery);
 addCommonOptions(command, `./wallet.json ${exampleOracle} WhatTheWeatherIs?`);
 
-command = program.command('respond-query <wallet_path> <queryId> <response>')
+command = program
+  .command('respond-query <wallet_path> <queryId> <response>')
   .option('--responseTtl [responseTtl]', 'Query response time to leave', RESPONSE_TTL.value)
   .summary('respond to an oracle query')
   .action(Oracle.respondToQuery);

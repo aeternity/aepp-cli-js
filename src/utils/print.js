@@ -1,21 +1,18 @@
-import {
-  Encoding, unpackTx, AbiVersion, VmVersion,
-} from '@aeternity/aepp-sdk';
-import {
-  decode, formatCoins, formatTtl as formatTtlUnbound, timeAgo,
-} from './helpers.js';
+import { Encoding, unpackTx, AbiVersion, VmVersion } from '@aeternity/aepp-sdk';
+import { decode, formatCoins, formatTtl as formatTtlUnbound, timeAgo } from './helpers.js';
 
 const ROW_WIDTH = 40;
 
-const JsonStringifyEs = (object, spaced) => JSON.stringify(
-  object,
-  (key, value) => {
-    if (typeof value === 'bigint') return `${value}`;
-    if (value instanceof Map) return [...value.entries()];
-    return value;
-  },
-  spaced ? 2 : undefined,
-);
+const JsonStringifyEs = (object, spaced) =>
+  JSON.stringify(
+    object,
+    (key, value) => {
+      if (typeof value === 'bigint') return `${value}`;
+      if (value instanceof Map) return [...value.entries()];
+      return value;
+    },
+    spaced ? 2 : undefined,
+  );
 
 export function print(msg, obj) {
   if (typeof msg === 'object') {
@@ -31,11 +28,13 @@ export function print(msg, obj) {
 }
 
 export function printUnderscored(key, val) {
-  print([
-    key,
-    '_'.repeat(ROW_WIDTH - key.length),
-    typeof val !== 'object' ? val : JsonStringifyEs(val),
-  ].join(' '));
+  print(
+    [
+      key,
+      '_'.repeat(ROW_WIDTH - key.length),
+      typeof val !== 'object' ? val : JsonStringifyEs(val),
+    ].join(' '),
+  );
 }
 
 export function printValidation({ validation, transaction }) {
@@ -63,9 +62,12 @@ function printTransactionSync(_tx, json, currentHeight) {
   const formatTtl = (ttl) => (currentHeight ? formatTtlUnbound(ttl, currentHeight) : ttl);
   const formatTtlObject = ({ type, value }) => {
     switch (type) {
-      case 'delta': return formatTtl(+value + +tx.blockHeight);
-      case 'block': return formatTtl(value);
-      default: throw new Error(`Unknown ttl type: ${type}`);
+      case 'delta':
+        return formatTtl(+value + +tx.blockHeight);
+      case 'block':
+        return formatTtl(value);
+      default:
+        throw new Error(`Unknown ttl type: ${type}`);
     }
   };
   const formatTtlSeconds = (seconds) => {
@@ -199,7 +201,10 @@ export function printQueries(queries = [], json) {
     printUnderscored('Query', q.query ?? 'N/A');
     printUnderscored('Query decoded', decode(q.query, Encoding.OracleQuery).toString() ?? 'N/A');
     printUnderscored('Response', q.response ?? 'N/A');
-    printUnderscored('Response decoded', decode(q.response, Encoding.OracleResponse).toString() ?? 'N/A');
+    printUnderscored(
+      'Response decoded',
+      decode(q.response, Encoding.OracleResponse).toString() ?? 'N/A',
+    );
     printUnderscored('Response Ttl', q.responseTtl ?? 'N/A');
     printUnderscored('Sender Id', q.senderId ?? 'N/A');
     printUnderscored('Sender Nonce', q.senderNonce ?? 'N/A');

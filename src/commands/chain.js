@@ -14,22 +14,26 @@ const addCommonOptions = (cmd, examples) => {
   addExamples(cmd, examples);
 };
 
-let command = program.command('top')
+let command = program
+  .command('top')
   .summary('query the top key/micro block of the chain')
   .action(Chain.top);
 addCommonOptions(command, ['']);
 
-command = program.command('status')
+command = program
+  .command('status')
   .summary('query node version, network id, and related details of the selected node')
   .action(Chain.status);
 addCommonOptions(command, ['']);
 
-command = program.command('ttl <absoluteTtl>')
+command = program
+  .command('ttl <absoluteTtl>')
   .summary('get relative TTL by absolute TTL')
   .action(Chain.ttl);
 addCommonOptions(command, ['']);
 
-command = program.command('play')
+command = program
+  .command('play')
   .option('-L, --limit [playLimit]', 'amount of blocks to print', 10)
   .option('-P, --height [playToHeight]', 'print blocks till the height')
   .summary('prints blocks from top until condition')
@@ -39,8 +43,9 @@ addCommonOptions(command, [
   `--height ${exampleHeight}  # print blocks from top until reach height`,
 ]);
 
-command = program.command('broadcast <tx>')
-  .option('-W, --no-waitMined', 'Don\'t wait until transaction gets mined')
+command = program
+  .command('broadcast <tx>')
+  .option('-W, --no-waitMined', "Don't wait until transaction gets mined")
   .option('--verify', 'Verify Transaction before broadcasting.')
   .summary('send signed transaction to the chain')
   .description('Send signed transaction to the chain. Useful in offline signing scheme.')

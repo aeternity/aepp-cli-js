@@ -1,7 +1,5 @@
 import fs from 'fs-extra';
-import {
-  after, before, describe, it,
-} from 'mocha';
+import { after, before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { decode } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk, WALLET_NAME } from './index.js';
@@ -20,10 +18,7 @@ describe('Contract Module', function contractTests() {
 
   before(async () => {
     aeSdk = await getSdk();
-    await fs.outputJson(
-      contractAciFile,
-      (await aeSdk.compilerApi.compile(contractSourceFile)).aci,
-    );
+    await fs.outputJson(contractAciFile, (await aeSdk.compilerApi.compile(contractSourceFile)).aci);
   });
 
   after(async () => {
@@ -37,7 +32,13 @@ describe('Contract Module', function contractTests() {
   });
 
   it('compiles contract using cli compiler', async () => {
-    const { bytecode } = await executeContract('compile', contractSourceFile, '--json', '--compilerUrl', 'cli8');
+    const { bytecode } = await executeContract(
+      'compile',
+      contractSourceFile,
+      '--json',
+      '--compilerUrl',
+      'cli8',
+    );
     expect(bytecode).to.equal(contractBytecode);
   });
 
@@ -81,43 +82,55 @@ describe('Contract Module', function contractTests() {
       expect(descriptor).to.eql({
         version: 1,
         address,
-        bytecode: 'cb_+NRGA6CmFq9nCCwTbFoTpKtDko1jYl6CdmFWd0+re1zVAPUVJMC4p7hj/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYI/viMoQQENwAHAQMAuD0vBRFE1kQfEWluaXQRkosgNhF0ZXN0EdDiglIxLlRlc3RMaWIuc3VtEemMkBsZZ2V0TWFwEfiMoQQNcGF5gi8AhTguMC4wALYsKqQ=',
-        aci: [{
-          namespace: { name: 'TestLib', typedefs: [] },
-        }, {
-          contract: {
-            functions: [{
-              arguments: [{ name: '_z', type: 'int' }],
-              name: 'init',
-              payable: false,
-              returns: 'Identity.state',
-              stateful: false,
-            }, {
-              arguments: [{ name: 'x', type: 'int' }, { name: 'y', type: 'int' }],
-              name: 'test',
-              payable: false,
-              returns: 'int',
-              stateful: false,
-            }, {
-              arguments: [],
-              name: 'getMap',
-              payable: false,
-              returns: { map: ['int', 'int'] },
-              stateful: false,
-            }, {
-              arguments: [],
-              name: 'pay',
-              payable: true,
-              returns: 'int',
-              stateful: false,
-            }],
-            kind: 'contract_main',
-            name: 'Identity',
-            payable: false,
-            state: { record: [{ name: 'z', type: 'int' }] },
-            typedefs: [],
+        bytecode:
+          'cb_+NRGA6CmFq9nCCwTbFoTpKtDko1jYl6CdmFWd0+re1zVAPUVJMC4p7hj/kTWRB8ANwEHNwAaBoIAAQM//pKLIDYANwIHBwcMAoIMAQICAxHQ4oJSDAEABAMR0OKCUv7Q4oJSAjcCBwcHFBQAAgD+6YyQGwA3AGcHBwEDLwICBAYI/viMoQQENwAHAQMAuD0vBRFE1kQfEWluaXQRkosgNhF0ZXN0EdDiglIxLlRlc3RMaWIuc3VtEemMkBsZZ2V0TWFwEfiMoQQNcGF5gi8AhTguMC4wALYsKqQ=',
+        aci: [
+          {
+            namespace: { name: 'TestLib', typedefs: [] },
           },
-        }],
+          {
+            contract: {
+              functions: [
+                {
+                  arguments: [{ name: '_z', type: 'int' }],
+                  name: 'init',
+                  payable: false,
+                  returns: 'Identity.state',
+                  stateful: false,
+                },
+                {
+                  arguments: [
+                    { name: 'x', type: 'int' },
+                    { name: 'y', type: 'int' },
+                  ],
+                  name: 'test',
+                  payable: false,
+                  returns: 'int',
+                  stateful: false,
+                },
+                {
+                  arguments: [],
+                  name: 'getMap',
+                  payable: false,
+                  returns: { map: ['int', 'int'] },
+                  stateful: false,
+                },
+                {
+                  arguments: [],
+                  name: 'pay',
+                  payable: true,
+                  returns: 'int',
+                  stateful: false,
+                },
+              ],
+              kind: 'contract_main',
+              name: 'Identity',
+              payable: false,
+              state: { record: [{ name: 'z', type: 'int' }] },
+              typedefs: [],
+            },
+          },
+        ],
       });
       await fs.remove(descrPath);
     });
@@ -142,17 +155,19 @@ describe('Contract Module', function contractTests() {
     it('throws error if arguments invalid', async () => {
       const expectedError = process.version.startsWith('v18.')
         ? 'Unexpected end of JSON input'
-        : 'Can\'t parse contract arguments: Expected \',\' or \']\' after array element in JSON at position 2';
-      await expect(executeContract(
-        'deploy',
-        WALLET_NAME,
-        '--password',
-        'test',
-        '--contractSource',
-        contractSourceFile,
-        '[3',
-        '--json',
-      )).to.be.rejectedWith(CliError, expectedError);
+        : "Can't parse contract arguments: Expected ',' or ']' after array element in JSON at position 2";
+      await expect(
+        executeContract(
+          'deploy',
+          WALLET_NAME,
+          '--password',
+          'test',
+          '--contractSource',
+          contractSourceFile,
+          '[3',
+          '--json',
+        ),
+      ).to.be.rejectedWith(CliError, expectedError);
     });
 
     it('deploys contract with coins', async () => {
@@ -189,45 +204,44 @@ describe('Contract Module', function contractTests() {
       callResponse.decodedResult.should.be.equal('6');
     });
 
-    it('overrides descriptor\'s address using --contractAddress', async () => {
-      await expect(executeContract(
-        'call',
-        '--json',
-        '--contractAddress',
-        'ct_test',
-        '--descrPath',
-        deployDescriptorFile,
-        'test',
-        '[1, 2]',
-        WALLET_NAME,
-        '--password',
-        'test',
-      )).to.be.rejectedWith('Invalid name or address: ct_test');
+    it("overrides descriptor's address using --contractAddress", async () => {
+      await expect(
+        executeContract(
+          'call',
+          '--json',
+          '--contractAddress',
+          'ct_test',
+          '--descrPath',
+          deployDescriptorFile,
+          'test',
+          '[1, 2]',
+          WALLET_NAME,
+          '--password',
+          'test',
+        ),
+      ).to.be.rejectedWith('Invalid name or address: ct_test');
     });
 
     it('throws error if descriptor file not exists', async () => {
-      await expect(executeContract(
-        'call',
-        '--json',
-        '--descrPath',
-        `${deployDescriptorFile}test`,
-        'test',
-        '[1, 2]',
-        WALLET_NAME,
-        '--password',
-        'test',
-      )).to.be.rejectedWith('no such file or directory');
+      await expect(
+        executeContract(
+          'call',
+          '--json',
+          '--descrPath',
+          `${deployDescriptorFile}test`,
+          'test',
+          '[1, 2]',
+          WALLET_NAME,
+          '--password',
+          'test',
+        ),
+      ).to.be.rejectedWith('no such file or directory');
     });
 
     it('throws error when calls contract without wallet', async () => {
-      await expect(executeContract(
-        'call',
-        '--json',
-        '--descrPath',
-        deployDescriptorFile,
-        'test',
-        '[1, 2]',
-      )).to.be.rejectedWith(CliError, 'wallet_path is required for on-chain calls');
+      await expect(
+        executeContract('call', '--json', '--descrPath', deployDescriptorFile, 'test', '[1, 2]'),
+      ).to.be.rejectedWith(CliError, 'wallet_path is required for on-chain calls');
     });
 
     it('calls contract static', async () => {
@@ -271,7 +285,10 @@ describe('Contract Module', function contractTests() {
         'getMap',
         '--callStatic',
       );
-      expect(callResponse.decodedResult).to.be.eql([['1', '2'], ['3', '4']]);
+      expect(callResponse.decodedResult).to.be.eql([
+        ['1', '2'],
+        ['3', '4'],
+      ]);
     });
 
     it('calls contract by contract source and address', async () => {

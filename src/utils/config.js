@@ -14,7 +14,7 @@ async function readConfig() {
 }
 
 export async function addToConfig(configPart) {
-  await fs.outputJson(configPath, { ...await readConfig(), ...configPart });
+  await fs.outputJson(configPath, { ...(await readConfig()), ...configPart });
 }
 
 const configPromise = readConfig();

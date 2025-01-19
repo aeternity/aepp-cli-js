@@ -3,13 +3,13 @@
 This guide assumes that you have `aecli` [installed](./README.md#installation) and you checked the [Quick start]('./README.md#quick-start').
 
 # Table of Contents
+
 - [Account commands](#account-commands)
 - [The name group](#the-name-group)
 - [The contracts group](#the-contracts-group)
 - [The chain group](#the-chain-group)
 - [Inspect command examples](#inspect-command-examples)
 - [Offline signing](#offline-signing)
-
 
 ## Account commands
 
@@ -21,7 +21,6 @@ You can specify a password for accessing your wallet or just press Enter if you 
 Alternatively, you can pass the private key in `[privkey]` argument to generate a corresponding wallet.
 
 View the address (public key) of your wallet using [`aecli account address`](./reference.md#address) command. Also, it can be used to reveal your private key.
-
 
 ## The name group
 
@@ -42,7 +41,6 @@ You can [transfer](./reference.md#transfer) a name to another account or contrac
 At last, you can revoke your name using [`aecli name revoke`](./reference.md#revoke).
 The revoked name can be claimed again after a fixed timeout of 2016 blocks (~ 4 days).
 
-
 ## The contracts group
 
 A smart contract is a computer protocol intended to digitally facilitate, verify, or enforce the negotiation or performance of a contract. Smart contracts allow the performance of credible transactions without third parties. These transactions are trackable and irreversible. Smart contracts aim to provide security that is superior to traditional contract law and to reduce other transaction costs associated with contracting.
@@ -50,15 +48,22 @@ A smart contract is a computer protocol intended to digitally facilitate, verify
 The contracts group consists of the [following commands](./reference.md#contract-group).
 
 #### deploy
+
 Here is an example contract that we will deploy
+
 <!-- CONTRACT-BEGIN -->
+
 ```
 contract Example =
   entrypoint sum(a: int, b: int) = a + b
 ```
+
 <!-- CONTRACT-END -->
+
 To deploy a contract, run [`aecli contract deploy`](./reference.md#deploy) adding a file that should be compiled.
+
 <!-- CONTRACT-DEPLOY-BEGIN -->
+
 ```
 $ aecli contract deploy --contractSource ./contract.aes ./wallet.json
 Contract was successfully deployed
@@ -66,11 +71,15 @@ Contract address ________________________ ct_5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthot
 Transaction hash ________________________ th_5M77avjrPKezyBrUfkn19C79MnVh9SSoX4Euz4nY75kn9Fxto
 Deploy descriptor _______________________ /path/to/contract.aes.deploy.5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV.json
 ```
+
 <!-- CONTRACT-DEPLOY-END -->
 
 #### call
+
 To execute a function of the contract, run [`aecli contract call`](./reference.md#call) command. `sum` is a function which is executed by this contract, `[1, 2]` are arguments of this function:
+
 <!-- CONTRACT-CALL-BEGIN -->
+
 ```
 $ aecli contract call --descrPath contract.aes.deploy.5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV.json sum '[1, 2]' ./wallet.json
 Transaction hash ________________________ th_urgozuZRooNXrZxuvNDdT4BiApcGKsf6ZRpffargXcoZNHQ4C
@@ -93,18 +102,23 @@ Gas used ________________________________ 25 (0.000000025ae)
 Return value (encoded) __________________ cb_BvMDXHk=
 Return value (decoded) __________________ 3
 ```
-<!-- CONTRACT-CALL-END -->
-In the above, the "Return value (decoded)" is a result of contract execution — it is a sum of values 1 and 2.
 
+<!-- CONTRACT-CALL-END -->
+
+In the above, the "Return value (decoded)" is a result of contract execution — it is a sum of values 1 and 2.
 
 ## The chain group
 
 [These commands](./reference.md#chain-group) display basic information about the blockchain and require little explanation. [`play`](./reference.md#play) moves backward through the blockchain displaying blocks and transactions.
 
 ## Inspect command examples
+
 The [`inspect`](./reference.md#inspect) command allows you to see inside various æternity types. Because each æternity type starts with two letters identifying what sort of thing it is, you can throw anything you like at inspect, and it will bravely try to do the right thing.
+
 <!-- INSPECT-EXAMPLES-BEGIN -->
+
 #### inspect account by address
+
 ```
 $ aecli inspect ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
 Account ID ______________________________ ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
@@ -112,7 +126,9 @@ Account balance _________________________ 52.1342501ae
 Account nonce ___________________________ 3
 No pending transactions
 ```
+
 #### inspect transaction
+
 ```
 $ aecli inspect th_iirV7mw49NfFY8NbBhbXGBLv9PPT3h1ou11oKtPsJVHGVpWVC
 Transaction hash ________________________ th_iirV7mw49NfFY8NbBhbXGBLv9PPT3h1ou11oKtPsJVHGVpWVC
@@ -126,7 +142,9 @@ Name salt _______________________________ 6632125367082877
 Fee _____________________________________ 0.00001638ae
 Nonce ___________________________________ 2
 ```
+
 #### inspect block
+
 ```
 $ aecli inspect mh_2DhgyD4np6n3JMsNWVXdtWZE2rAx74sgxL6nb2GsCKB1VnbLxN
 <<--------------- MicroBlock --------------->>
@@ -154,10 +172,13 @@ Transactions ____________________________ 1
     Fee _____________________________________ 0.00001688ae
     Nonce ___________________________________ 1513
 ```
+
 <!-- INSPECT-EXAMPLES-END -->
 
 ## Offline signing
+
 One of `aecli` use cases is offline signing. It requires the below steps.
+
 1. prepare a transaction using [transaction builder](./reference.md#tx-group) on any device;
 1. optionally run [`aecli inspect`](./reference.md#inspect) to verify the generated transaction before signing on offline device;
 1. sign the transaction by [`aecli account sign`](./reference.md#sign) on offline device;

@@ -4,12 +4,18 @@ import {
   print,
   printBlock,
   printBlockTransactions,
-  printOracle, printQueries,
+  printOracle,
+  printQueries,
   printTransaction,
   printUnderscored,
 } from '../utils/print.js';
 import {
-  checkPref, getBlock, getNameEntry, formatCoins, formatTtl, validateName,
+  checkPref,
+  getBlock,
+  getNameEntry,
+  formatCoins,
+  formatTtl,
+  validateName,
 } from '../utils/helpers.js';
 
 function printEntries(object) {

@@ -29,15 +29,21 @@ export default async function executeProgram(...args) {
   let result = '';
   prepareOptions(program);
   program
-    .configureOutput({ writeOut: (str) => { result += str; } })
+    .configureOutput({
+      writeOut: (str) => {
+        result += str;
+      },
+    })
     .exitOverride();
 
-  const {
-    log, warn, group, groupEnd,
-  } = console;
+  const { log, warn, group, groupEnd } = console;
   let padding = 0;
-  console.group = () => { padding += 1; };
-  console.groupEnd = () => { padding -= 1; };
+  console.group = () => {
+    padding += 1;
+  };
+  console.groupEnd = () => {
+    padding -= 1;
+  };
   console.log = (...data) => {
     if (result) result += '\n';
     result += ' '.repeat(padding * 4) + data.join(' ');
@@ -50,24 +56,28 @@ export default async function executeProgram(...args) {
   try {
     const allArgs = [
       ...args.map((arg) => arg.toString()),
-      ...['config', 'select-node', 'select-compiler'].includes(args[0])
-      || args.includes('--url')
-      || (
-        args[0] === 'account'
-        && ['save', 'create', 'address', 'sign-message', 'verify-message'].includes(args[1])
-      )
-      || (
-        args[0] === 'contract'
-        && ['compile', 'encode-calldata', 'decode-call-result'].includes(args[1]))
-      || (args[0] === 'tx' && args[1] !== 'verify') ? [] : ['--url', url],
-      ...[
-        'compile', 'deploy', 'call', 'encode-calldata', 'decode-call-result',
-      ].includes(args[1]) && !args.includes('--compilerUrl') ? ['--compilerUrl', compilerUrl] : [],
+      ...(['config', 'select-node', 'select-compiler'].includes(args[0]) ||
+      args.includes('--url') ||
+      (args[0] === 'account' &&
+        ['save', 'create', 'address', 'sign-message', 'verify-message'].includes(args[1])) ||
+      (args[0] === 'contract' &&
+        ['compile', 'encode-calldata', 'decode-call-result'].includes(args[1])) ||
+      (args[0] === 'tx' && args[1] !== 'verify')
+        ? []
+        : ['--url', url]),
+      ...(['compile', 'deploy', 'call', 'encode-calldata', 'decode-call-result'].includes(
+        args[1],
+      ) && !args.includes('--compilerUrl')
+        ? ['--compilerUrl', compilerUrl]
+        : []),
     ];
     await program.parseAsync(allArgs, { from: 'user' });
   } finally {
     Object.assign(console, {
-      log, warn, group, groupEnd,
+      log,
+      warn,
+      group,
+      groupEnd,
     });
     isProgramExecuting = false;
     setProgramOptions(program, options);
