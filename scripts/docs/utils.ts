@@ -12,7 +12,10 @@ export async function executeProgram(...args: Array<string | number>): Promise<s
 export function replaceInTemplate(template: string, placeholder: string, content: string): string {
   const begin = `<!-- ${placeholder}-BEGIN -->`;
   const end = `<!-- ${placeholder}-END -->`;
-  return template.replace(new RegExp(`${begin}.*${end}`, 's'), [begin, content, end].join('\n'));
+  return template.replace(
+    new RegExp(`${begin}.*${end}`, 's'),
+    [begin, '', content, '', end].join('\n'),
+  );
 }
 
 export const wallet = './wallet.json';

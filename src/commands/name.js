@@ -50,8 +50,7 @@ let command = program
       'This command signs and sends a pre-claim transaction and waits until one block gets mined.',
       'After that, it sends a claim transaction. At the end, the update transaction is',
       'submitted, making a name point to the current account.',
-      `\n\n${claimingGuide}`,
-    ].join(' '),
+    ].join(' ') + `\n\n${claimingGuide}`,
   )
   .action(AENS.fullClaim);
 addCommonOptions(command, `./wallet.json ${exampleName}`);
@@ -65,8 +64,7 @@ command = program
       'Pre-claim an AENS name. The name should be claimed after one key block since the pre-claim gets mined.',
       'This command sends a pre-claim transaction,',
       'and outputs a salt that needs to be provided to `aecli name claim`.',
-      `\n\n${claimingGuide}`,
-    ].join(' '),
+    ].join(' ') + `\n\n${claimingGuide}`,
   )
   .action(AENS.preClaim);
 addCommonOptions(command, `./wallet.json ${exampleName}`);
@@ -76,10 +74,8 @@ command = program
   .addOption(nameFeeOption)
   .summary('claim an AENS name (requires pre-claim)')
   .description(
-    [
-      'Claim an AENS name, it requires a salt provided by `aecli name pre-claim`.',
+    'Claim an AENS name, it requires a salt provided by `aecli name pre-claim`.' +
       `\n\n${claimingGuide}`,
-    ].join(' '),
   )
   .action(AENS.claim);
 addCommonOptions(command, `./wallet.json ${exampleName} 12327389123`);

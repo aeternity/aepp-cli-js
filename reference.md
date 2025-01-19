@@ -161,8 +161,7 @@ Create a password-encrypted wallet by a secret key. Secret key can be provided i
 
 #### Arguments
 
-`wallet_path`
-
+`wallet_path`  
 `privkey`  
 Secret key as 64-bytes encoded as hex.
 
@@ -345,10 +344,8 @@ Bid on name in auction.
 
 #### Arguments
 
-`wallet_path`
-
-`name`
-
+`wallet_path`  
+`name`  
 `nameFee`  
 Amount of coins to pay for name.
 
@@ -422,10 +419,8 @@ Extend name TTL.
 
 #### Arguments
 
-`wallet_path`
-
-`name`
-
+`wallet_path`  
+`name`  
 `nameTtl`  
 A number of blocks until name expires (default: 180000).
 
@@ -551,8 +546,7 @@ Encode calldata for contract call.
 
 #### Arguments
 
-`fn`
-
+`fn`  
 `args`  
 JSON-encoded arguments array of contract call (default: []).
 
@@ -682,8 +676,7 @@ Deploy a contract on the chain and create a deployment descriptor with the contr
 
 #### Arguments
 
-`wallet_path`
-
+`wallet_path`  
 `args`  
 JSON-encoded arguments array of contract call (default: []).
 
@@ -1004,9 +997,9 @@ Prints details of:
 - name (string ending with '.chain'),
 - contract (ct\_-prefixed string),
 - oracle (ok\_-prefixed string),
-- keyblock or microblock (prefixed with kh*, mh*),
+- keyblock or microblock (prefixed with kh\_, mh\_),
 - keyblock by height (integer),
-- transaction (by th*-string or tx*).
+- transaction (by th\_-string or tx\_).
 
 #### Options
 
@@ -1043,10 +1036,8 @@ Build spend transaction.
 
 #### Arguments
 
-`senderId`
-
-`receiverId`
-
+`senderId`  
+`receiverId`  
 `amount`  
 Amount of coins to send.  
 `nonce`  
@@ -1079,10 +1070,8 @@ Build name preclaim transaction.
 
 #### Arguments
 
-`accountId`
-
-`name`
-
+`accountId`  
+`name`  
 `nonce`  
 Unique number that is required to sign transaction securely.
 
@@ -1111,12 +1100,9 @@ Build name claim transaction.
 
 #### Arguments
 
-`accountId`
-
-`salt`
-
-`name`
-
+`accountId`  
+`salt`  
+`name`  
 `nonce`  
 Unique number that is required to sign transaction securely.
 
@@ -1147,10 +1133,8 @@ Build name update transaction.
 
 #### Arguments
 
-`accountId`
-
-`nameId`
-
+`accountId`  
+`nameId`  
 `nonce`  
 Unique number that is required to sign transaction securely.  
 `pointers`
@@ -1184,12 +1168,9 @@ Build name transfer transaction.
 
 #### Arguments
 
-`accountId`
-
-`recipientId`
-
-`name`
-
+`accountId`  
+`recipientId`  
+`name`  
 `nonce`  
 Unique number that is required to sign transaction securely.
 
@@ -1218,10 +1199,8 @@ Build name revoke transaction.
 
 #### Arguments
 
-`accountId`
-
-`name`
-
+`accountId`  
+`name`  
 `nonce`  
 Unique number that is required to sign transaction securely.
 
@@ -1250,12 +1229,9 @@ Build contract deploy transaction.
 
 #### Arguments
 
-`ownerId`
-
-`contractBytecode`
-
-`initCallData`
-
+`ownerId`  
+`contractBytecode`  
+`initCallData`  
 `nonce`  
 Unique number that is required to sign transaction securely.
 
@@ -1290,12 +1266,9 @@ Build contract call transaction.
 
 #### Arguments
 
-`callerId`
-
-`contractId`
-
-`callData`
-
+`callerId`  
+`contractId`  
+`callData`  
 `nonce`  
 Unique number that is required to sign transaction securely.
 
@@ -1330,12 +1303,9 @@ Build oracle register transaction.
 
 #### Arguments
 
-`accountId`
-
-`queryFormat`
-
-`responseFormat`
-
+`accountId`  
+`queryFormat`  
+`responseFormat`  
 `nonce`  
 Unique number that is required to sign transaction securely.
 
@@ -1368,10 +1338,8 @@ Build oracle extend transaction.
 
 #### Arguments
 
-`oracleId`
-
-`oracleTtl`
-
+`oracleId`  
+`oracleTtl`  
 `nonce`  
 Unique number that is required to sign transaction securely.
 
@@ -1400,12 +1368,9 @@ Build oracle post query transaction.
 
 #### Arguments
 
-`accountId`
-
-`oracleId`
-
-`query`
-
+`accountId`  
+`oracleId`  
+`query`  
 `nonce`  
 Unique number that is required to sign transaction securely.
 
@@ -1440,12 +1405,9 @@ Build oracle respond transaction.
 
 #### Arguments
 
-`oracleId`
-
-`queryId`
-
-`response`
-
+`oracleId`  
+`queryId`  
+`response`  
 `nonce`  
 Unique number that is required to sign transaction securely.
 

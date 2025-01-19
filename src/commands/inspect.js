@@ -17,6 +17,7 @@ const command = new Command('inspect')
   .description(
     [
       'Prints details of:',
+      '',
       ...[
         'account (ak_-prefixed string)',
         "name (string ending with '.chain')",
@@ -25,7 +26,7 @@ const command = new Command('inspect')
         'keyblock or microblock (prefixed with kh_, mh_)',
         'keyblock by height (integer)',
         'transaction (by th_-string or tx_)',
-      ].map((el, i, arr) => `  - ${el}${arr.length === i + 1 ? '.' : ','}`),
+      ].map((el, i, arr) => `- ${el}${arr.length === i + 1 ? '.' : ','}`),
     ].join('\n'),
   )
   .addOption(nodeOption)

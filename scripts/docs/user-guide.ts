@@ -14,6 +14,7 @@ async function getInspectExamples(): Promise<string> {
   const inspect = async (name, id) =>
     [
       `#### inspect ${name}`,
+      '',
       '```',
       `$ aecli inspect ${id}`,
       await executeProgram('inspect', id, '--url', 'https://testnet.aeternity.io'),
@@ -23,7 +24,7 @@ async function getInspectExamples(): Promise<string> {
     await inspect('account by address', 'ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx'),
     await inspect('transaction', 'th_iirV7mw49NfFY8NbBhbXGBLv9PPT3h1ou11oKtPsJVHGVpWVC'),
     await inspect('block', 'mh_2DhgyD4np6n3JMsNWVXdtWZE2rAx74sgxL6nb2GsCKB1VnbLxN'),
-  ].join('\n');
+  ].join('\n\n');
 }
 
 async function getContractDeployOutput(): Promise<string> {

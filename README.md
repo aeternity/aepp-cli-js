@@ -161,4 +161,5 @@ Find out more in the [user guide](./user-guide.md).
 - [`config`](./reference.md#config) — print the current sdk configuration
 - [`select-node`](./reference.md#select-node) — specify node to use in other commands
 - [`select-compiler`](./reference.md#select-compiler) — specify compiler to use in other commands
+
 <!-- REFERENCE-TOC-END -->

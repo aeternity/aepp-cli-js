@@ -19,7 +19,7 @@ function buildToc(isReadme: boolean): string {
       getAnchor(name);
       return [
         `${' '.repeat(nesting)}- \`${name}\``,
-        ...cmd.commands.map((c) => rec(c, nesting + 4)),
+        ...cmd.commands.map((c) => rec(c, nesting + 2)),
       ].join('\n');
     }
     return [
@@ -28,7 +28,7 @@ function buildToc(isReadme: boolean): string {
         `- [\`${name}\`](${isReadme ? './reference.md' : ''}#${getAnchor(name)}) — `,
         cmd.summary(),
       ].join(''),
-      ...cmd.commands.map((c) => rec(c, nesting + 4)),
+      ...cmd.commands.map((c) => rec(c, nesting + 2)),
     ].join('\n');
   }
 
@@ -42,48 +42,52 @@ function asParagraph(summary: string) {
 
 function buildReference(command: Command): string {
   if (command.commands.length) {
-    return ['', '', `# ${command.name()} group`, ...command.commands.map(buildReference)].join(
-      '\n',
-    );
+    return ['', `# ${command.name()} group`, ...command.commands.map(buildReference)].join('\n');
   }
+
+  const escapeUnderscores = (text: string) => text.replaceAll('_', '\\_');
 
   const help = command.createHelp();
   const fullName = help.commandUsage(command).replace(' ' + command.usage(), '');
   const examples = commandExamples.get(command);
   return [
-    `\n\n## ${command.name()}`,
+    `\n## ${command.name()}\n`,
     `\`\`\`\n${help.commandUsage(command)}\n\`\`\``,
-    `\n${command.description()}`,
+    `\n${escapeUnderscores(command.description())}`,
 
     ...(command.registeredArguments.some((argument) => help.argumentDescription(argument))
       ? [
-          '\n#### Arguments',
-          ...command.registeredArguments
+          '\n#### Arguments\n',
+          command.registeredArguments
             .map((argument) => [
-              `\`${help.argumentTerm(argument)}\`  `,
-              `${asParagraph(help.argumentDescription(argument))}  `,
+              `\`${help.argumentTerm(argument)}\``,
+              asParagraph(help.argumentDescription(argument)),
             ])
-            .flat(Infinity),
+            .flat(1)
+            .filter((line) => line)
+            .join('  \n'),
         ]
       : []),
 
     ...(command.options.length
       ? [
-          '\n#### Options',
-          ...command.options
+          '\n#### Options\n',
+          command.options
             .map((option) => [
-              `\`${help.optionTerm(option)}\`  `,
-              `${asParagraph(help.optionDescription(option))}  `,
+              `\`${help.optionTerm(option)}\``,
+              asParagraph(help.optionDescription(option)),
             ])
-            .flat(Infinity),
+            .flat(1)
+            .filter((line) => line)
+            .join('  \n'),
         ]
       : []),
 
     ...(examples
       ? [
-          `\n#### Example calls`,
+          `\n#### Example calls\n`,
           '```',
-          ...examples.map((example) => `$ ${fullName} ${example}`),
+          ...examples.map((example) => `$ ${fullName}${example ? ` ${example}` : ''}`),
           '```',
         ]
       : []),
@@ -95,7 +99,9 @@ function buildReference(command: Command): string {
 await Promise.all([
   fs.writeFile(
     './reference.md',
-    ['# AECLI commands', '', buildToc(false), ...program.commands.map(buildReference)].join('\n'),
+    ['# AECLI commands', '', buildToc(false), ...program.commands.map(buildReference), ''].join(
+      '\n',
+    ),
   ),
   (async () => {
     let readme = await fs.readFile('./README.md', 'utf-8');
