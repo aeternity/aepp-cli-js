@@ -117,7 +117,7 @@ No pending transactions
 $ aecli inspect th_iirV7mw49NfFY8NbBhbXGBLv9PPT3h1ou11oKtPsJVHGVpWVC
 Transaction hash ________________________ th_iirV7mw49NfFY8NbBhbXGBLv9PPT3h1ou11oKtPsJVHGVpWVC
 Block hash ______________________________ mh_2RojH44UtAjf8pRQekPp7o78CmCqMQJkRdxmfXvVmWg9M6ymcr
-Block height ____________________________ 99005 (4 years ago)
+Block height ____________________________ 99005 (5 years ago)
 Signatures ______________________________ ["sg_MjwB8zrhqGTqYWY2c5jLrikuCcwppnhNhjXg9TcdFbCkSvGhPL6Hf4iu81eoxWWJFSgRSFQ3h3qMv6vVNqYfo5NNBNDFK"]
 Transaction type ________________________ NameClaimTx (ver. 2)
 Account address _________________________ ak_2i74vkHbdciAdr7Bw3ogdTHsLykPf4ii1DQEGLh6RpySyhtA9H

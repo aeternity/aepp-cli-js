@@ -25,7 +25,7 @@ jobs:
       - run: npm run lint
       - run: docker compose up -d --wait --quiet-pull
       - name: Ensure that docs are up to date
-        run: npm run docs && git diff
+        run: npm run docs && git diff --exit-code
       - run: npx c8 npm test
       - uses: codecov/codecov-action@v5
         env:
