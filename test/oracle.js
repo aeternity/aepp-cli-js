@@ -30,7 +30,7 @@ describe('Oracle Module', () => {
     );
     oracleId = aeSdk.address.replace('ak_', 'ok_');
     expect(resJson).to.eql({
-      abiVersion: '0',
+      abiVersion: 0,
       id: oracleId,
       queries: [],
       queryFee: '0',
@@ -44,9 +44,9 @@ describe('Oracle Module', () => {
         queryFormat,
         responseFormat,
         queryFee: '0',
-        oracleTtl: { type: 'delta', value: '420' },
+        oracleTtl: { type: 'delta', value: 420 },
         accountId: aeSdk.address,
-        abiVersion: '0',
+        abiVersion: 0,
         version: 1,
         type: 'OracleRegisterTx',
       },
@@ -62,7 +62,7 @@ describe('Oracle Module', () => {
   it('extends', async () => {
     const resJson = await executeOracle('extend', WALLET_NAME, '--password', 'test', 42, '--json');
     expect(resJson).to.eql({
-      abiVersion: '0',
+      abiVersion: 0,
       id: oracleId,
       queries: [],
       queryFee: '0',
@@ -73,7 +73,7 @@ describe('Oracle Module', () => {
         fee: toMatch(resJson.tx.fee, /1\d{13}/),
         ttl: toBeAbove0(resJson.tx.ttl),
         nonce: toBeAbove0(resJson.tx.nonce),
-        oracleTtl: { type: 'delta', value: '42' },
+        oracleTtl: { type: 'delta', value: 42 },
         oracleId,
         version: 1,
         type: 'OracleExtendTx',
@@ -124,12 +124,12 @@ describe('Oracle Module', () => {
     );
     expect(resJson).to.eql({
       senderId: aeSdk.address,
-      senderNonce: toBeAbove0(resJson.tx.nonce).toString(),
+      senderNonce: toBeAbove0(resJson.tx.nonce),
       oracleId,
       query: 'ov_SGVsbG8/Mal6ZBg=',
       response: 'or_Xfbg4g==',
       ttl: resJson.blockHeight + +resJson.tx.queryTtl.value,
-      responseTtl: { type: 'delta', value: '21' },
+      responseTtl: { type: 'delta', value: 21 },
       fee: '0',
       decodedQuery: 'Hello?1',
       decodedResponse: '',
@@ -141,8 +141,8 @@ describe('Oracle Module', () => {
         queryFee: '0',
         oracleId,
         query: 'Hello?1',
-        queryTtl: { type: 'delta', value: '42' },
-        responseTtl: { type: 'delta', value: '21' },
+        queryTtl: { type: 'delta', value: 42 },
+        responseTtl: { type: 'delta', value: 21 },
         version: 1,
         type: 'OracleQueryTx',
       },
@@ -198,7 +198,7 @@ describe('Oracle Module', () => {
       21,
     );
     expect(resJson).to.eql({
-      abiVersion: '0',
+      abiVersion: 0,
       id: oracleId,
       queries: resJson.queries.map((query) => {
         const isFirst = query.id === queryId1;
@@ -210,10 +210,10 @@ describe('Oracle Module', () => {
           response: isFirst ? 'or_SGkhMVTOsN8=' : 'or_Xfbg4g==',
           responseTtl: {
             type: 'delta',
-            value: isFirst ? '21' : '10',
+            value: isFirst ? 21 : 10,
           },
           senderId: aeSdk.address,
-          senderNonce: toBeAbove0(+query.senderNonce).toString(),
+          senderNonce: toBeAbove0(query.senderNonce),
           ttl: toBeAbove0(query.ttl),
         };
       }),
@@ -228,7 +228,7 @@ describe('Oracle Module', () => {
         nonce: toBeAbove0(resJson.tx.nonce),
         oracleId,
         response: 'Hi!1',
-        responseTtl: { type: 'delta', value: '21' },
+        responseTtl: { type: 'delta', value: 21 },
         version: 1,
         type: 'OracleRespondTx',
       },

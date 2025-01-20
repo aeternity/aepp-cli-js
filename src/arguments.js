@@ -63,7 +63,7 @@ export const nodeOption = new Option('-u, --url [nodeUrl]', 'Node to connect to'
   .env('AECLI_NODE_URL');
 
 export const compilerOption = new Option('--compilerUrl [compilerUrl]', 'Compiler to connect to')
-  .default('https://v7.compiler.aepps.com', 'stable compiler')
+  .default('https://v8.compiler.aepps.com', 'stable compiler')
   .env('AECLI_COMPILER_URL');
 
 export const jsonOption = new Option('--json', 'Print result in json format');

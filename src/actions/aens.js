@@ -1,4 +1,12 @@
-import { isAddressValid, getDefaultPointerKey, isAuctionName } from '@aeternity/aepp-sdk';
+import {
+  isAddressValid,
+  getDefaultPointerKey,
+  isAuctionName,
+  Name,
+  Tag,
+  genSalt,
+  commitmentHash,
+} from '@aeternity/aepp-sdk';
 import { initSdkByWalletFile } from '../utils/cli.js';
 import { printTransaction } from '../utils/print.js';
 import { getNameEntry, validateName } from '../utils/helpers.js';
@@ -16,8 +24,20 @@ export async function preClaim(walletPath, name, options) {
   validateName(name);
   const aeSdk = await initSdkByWalletFile(walletPath, options);
   await ensureNameStatus(name, aeSdk, 'AVAILABLE', 'preclaimed');
-  const preClaimTx = await aeSdk.aensPreclaim(name, { ttl, fee, nonce });
-  await printTransaction(preClaimTx, json, aeSdk);
+  // TODO: replace with Name:preclaim when it returns salt
+  const salt = genSalt();
+  const tx = await aeSdk.buildTx({
+    _isInternalBuild: true,
+    accountId: aeSdk.address,
+    tag: Tag.NamePreclaimTx,
+    nonce,
+    ttl,
+    fee,
+    commitmentId: commitmentHash(name, salt),
+  });
+  const res = await aeSdk.sendTransaction(tx);
+  res.salt = salt;
+  await printTransaction(res, json, aeSdk);
 }
 
 export async function claim(walletPath, name, salt, options) {
@@ -25,13 +45,22 @@ export async function claim(walletPath, name, salt, options) {
   validateName(name);
   const aeSdk = await initSdkByWalletFile(walletPath, options);
   await ensureNameStatus(name, aeSdk, 'AVAILABLE', 'claimed');
-  const claimTx = await aeSdk.aensClaim(name, salt, {
+  // TODO: replace with Name:claim after it accepts salt
+  const tx = await aeSdk.buildTx({
+    _isInternalBuild: true,
+    accountId: aeSdk.address,
+    tag: Tag.NameClaimTx,
+    name,
+    nameSalt: salt,
     nonce,
     ttl,
     fee,
     nameFee,
   });
-  await printTransaction(claimTx, json, aeSdk);
+  const res = await aeSdk.sendTransaction(tx);
+  const nameObj = new Name(name, aeSdk.getContext());
+  Object.assign(res, await nameObj.getState());
+  await printTransaction(res, json, aeSdk);
 }
 
 export async function updateName(walletPath, name, addresses, options) {
@@ -41,8 +70,8 @@ export async function updateName(walletPath, name, addresses, options) {
   validateName(name);
   const aeSdk = await initSdkByWalletFile(walletPath, options);
   await ensureNameStatus(name, aeSdk, 'CLAIMED', 'updated');
-  const updateTx = await aeSdk.aensUpdate(
-    name,
+  const nameObj = new Name(name, aeSdk.getContext());
+  const res = await nameObj.update(
     Object.fromEntries(addresses.map((address) => [getDefaultPointerKey(address), address])),
     {
       ttl,
@@ -53,7 +82,7 @@ export async function updateName(walletPath, name, addresses, options) {
       extendPointers,
     },
   );
-  await printTransaction(updateTx, json, aeSdk);
+  await printTransaction(res, json, aeSdk);
 }
 
 export async function extendName(walletPath, name, nameTtl, options) {
@@ -61,8 +90,8 @@ export async function extendName(walletPath, name, nameTtl, options) {
   validateName(name);
   const aeSdk = await initSdkByWalletFile(walletPath, options);
   await ensureNameStatus(name, aeSdk, 'CLAIMED', 'extended');
-  const updateTx = await aeSdk.aensUpdate(
-    name,
+  const nameObj = new Name(name, aeSdk.getContext());
+  const res = await nameObj.update(
     {},
     {
       ttl,
@@ -72,7 +101,7 @@ export async function extendName(walletPath, name, nameTtl, options) {
       extendPointers: true,
     },
   );
-  await printTransaction(updateTx, json, aeSdk);
+  await printTransaction(res, json, aeSdk);
 }
 
 export async function transferName(walletPath, name, address, options) {
@@ -81,12 +110,13 @@ export async function transferName(walletPath, name, address, options) {
   validateName(name);
   const aeSdk = await initSdkByWalletFile(walletPath, options);
   await ensureNameStatus(name, aeSdk, 'CLAIMED', 'transferred');
-  const transferTX = await aeSdk.aensTransfer(name, address, {
+  const nameObj = new Name(name, aeSdk.getContext());
+  const res = await nameObj.transfer(address, {
     ttl,
     fee,
     nonce,
   });
-  await printTransaction(transferTX, json, aeSdk);
+  await printTransaction(res, json, aeSdk);
 }
 
 export async function revokeName(walletPath, name, options) {
@@ -94,8 +124,9 @@ export async function revokeName(walletPath, name, options) {
   validateName(name);
   const aeSdk = await initSdkByWalletFile(walletPath, options);
   await ensureNameStatus(name, aeSdk, 'CLAIMED', 'revoked');
-  const revokeTx = await aeSdk.aensRevoke(name, { ttl, fee, nonce });
-  await printTransaction(revokeTx, json, aeSdk);
+  const nameObj = new Name(name, aeSdk.getContext());
+  const res = await nameObj.revoke({ ttl, fee, nonce });
+  await printTransaction(res, json, aeSdk);
 }
 
 export async function nameBid(walletPath, name, nameFee, options) {
@@ -103,8 +134,9 @@ export async function nameBid(walletPath, name, nameFee, options) {
   validateName(name);
   const aeSdk = await initSdkByWalletFile(walletPath, options);
   await ensureNameStatus(name, aeSdk, 'AUCTION', 'bidded');
-  const nameBidTx = await aeSdk.aensBid(name, nameFee, { nonce, ttl, fee });
-  await printTransaction(nameBidTx, json, aeSdk);
+  const nameObj = new Name(name, aeSdk.getContext());
+  const res = await nameObj.bid(nameFee, { nonce, ttl, fee });
+  await printTransaction(res, json, aeSdk);
 }
 
 export async function fullClaim(walletPath, name, options) {
@@ -117,10 +149,11 @@ export async function fullClaim(walletPath, name, options) {
   const aeSdk = await initSdkByWalletFile(walletPath, options);
   await ensureNameStatus(name, aeSdk, 'AVAILABLE', 'claimed');
   nonce = nonce && +nonce;
-  const preclaim = await aeSdk.aensPreclaim(name, { nonce, ttl, fee });
+  const nameObj = new Name(name, aeSdk.getContext());
+  await nameObj.preclaim(name, { nonce, ttl, fee });
 
   nonce = nonce && nonce + 1;
-  const nameInstance = await preclaim.claim({
+  const claimRes = await nameObj.claim({
     nonce,
     ttl,
     fee,
@@ -128,12 +161,12 @@ export async function fullClaim(walletPath, name, options) {
   });
 
   if (isAuctionName(name)) {
-    await printTransaction(nameInstance, json, aeSdk);
+    await printTransaction(claimRes, json, aeSdk);
     return;
   }
 
   nonce = nonce && nonce + 1;
-  const updateTx = await nameInstance.update(
+  const updateRes = await nameObj.update(
     { account_pubkey: aeSdk.address },
     {
       nonce,
@@ -143,5 +176,6 @@ export async function fullClaim(walletPath, name, options) {
       clientTtl,
     },
   );
-  await printTransaction(updateTx, json, aeSdk);
+  Object.assign(updateRes, await nameObj.getState());
+  await printTransaction(updateRes, json, aeSdk);
 }

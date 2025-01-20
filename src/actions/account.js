@@ -1,10 +1,6 @@
 import fs from 'fs-extra';
 import { parse } from 'path';
-import {
-  generateKeyPair,
-  verifyMessage as _verifyMessage,
-  getAddressFromPriv,
-} from '@aeternity/aepp-sdk';
+import { MemoryAccount, verifyMessage as _verifyMessage } from '@aeternity/aepp-sdk';
 import { dump } from '../utils/keystore.js';
 import { getFullPath } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
@@ -93,22 +89,21 @@ export async function getAddress(walletPath, options) {
 
 export async function createWallet(
   walletPath,
-  secretKey = generateKeyPair().secretKey,
+  secretKey = MemoryAccount.generate().secretKey,
   { password, overwrite, json },
 ) {
-  secretKey = Buffer.from(secretKey, 'hex');
   walletPath = getFullPath(walletPath);
   if (!overwrite && (await fs.exists(walletPath)) && !(await prompt(PROMPT_TYPE.askOverwrite))) {
     throw new CliError(`Wallet already exist at ${walletPath}`);
   }
   password ??= await prompt(PROMPT_TYPE.askPassword);
   await fs.outputJson(walletPath, await dump(parse(walletPath).name, password, secretKey));
-  const publicKey = getAddressFromPriv(secretKey);
+  const { address } = new MemoryAccount(secretKey);
   if (json) {
-    print({ publicKey, path: walletPath });
+    print({ publicKey: address, path: walletPath });
   } else {
     printTable([
-      ['Address', publicKey],
+      ['Address', address],
       ['Path', walletPath],
     ]);
   }

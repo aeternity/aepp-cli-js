@@ -6,7 +6,7 @@ describe('Other tests', () => {
   it('Config', async () => {
     expect(await executeProgram('config')).to.equal(
       'Node https://mainnet.aeternity.io network id ae_mainnet, version 7.1.0, protocol 6 (Ceres)\n' +
-        'Compiler https://v7.compiler.aepps.com version 7.4.0',
+        'Compiler https://v8.compiler.aepps.com version 8.0.0',
     );
   });
 

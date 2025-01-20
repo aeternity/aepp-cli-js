@@ -1,7 +1,7 @@
 import nacl from 'tweetnacl';
 import { v4 as uuid } from 'uuid';
 import { hash, argon2id } from 'argon2';
-import { MemoryAccount } from '@aeternity/aepp-sdk';
+import { MemoryAccount, encode, decode, Encoding } from '@aeternity/aepp-sdk';
 import CliError from './CliError.js';
 
 const CRYPTO_PARAMS = {
@@ -39,7 +39,7 @@ async function deriveKey(password, salt, { opslimit, memlimit_kib, ...options })
  * @category keystore
  * @param password - Keystore object password.
  * @param keystore - Keystore object.
- * @returns Plaintext secret key.
+ * @returns sk_-encoded secret key.
  */
 export async function recover(password, { crypto }) {
   if (crypto.symmetric_alg !== CRYPTO_PARAMS.symmetric_alg) {
@@ -58,7 +58,7 @@ export async function recover(password, { crypto }) {
     key,
   );
   if (secretKeyRaw == null) throw new CliError('Invalid keystore password');
-  return Buffer.from(secretKeyRaw).toString('hex');
+  return encode(secretKeyRaw.subarray(0, 32), Encoding.AccountSecretKey);
 }
 
 /**
@@ -66,18 +66,20 @@ export async function recover(password, { crypto }) {
  * @category keystore
  * @param name - Key name.
  * @param password - User-supplied password.
- * @param secretKey - Plaintext secret key.
+ * @param secretKey - sk_-encoded secret key.
  */
-export async function dump(name, password, secretKeyRaw) {
+export async function dump(name, password, secretKey) {
   const nonce = Buffer.from(nacl.randomBytes(24));
 
   const salt = Buffer.from(nacl.randomBytes(16));
   const key = await deriveKey(password, salt, CRYPTO_PARAMS.kdf_params);
 
+  const { secretKey: secretKeyRaw } = nacl.sign.keyPair.fromSeed(decode(secretKey));
+
   return {
     name,
     version: 1,
-    public_key: new MemoryAccount(secretKeyRaw).address,
+    public_key: new MemoryAccount(secretKey).address,
     id: uuid(),
     crypto: {
       ...CRYPTO_PARAMS,

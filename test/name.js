@@ -1,4 +1,4 @@
-import { Encoding, MemoryAccount } from '@aeternity/aepp-sdk';
+import { Encoding, MemoryAccount, Name } from '@aeternity/aepp-sdk';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { executeProgram, getSdk, WALLET_NAME } from './index.js';
@@ -63,7 +63,7 @@ describe('AENS Module', () => {
           {
             key: 'account_pubkey',
             id: aeSdk.address,
-            encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+            encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
           },
         ],
         clientTtl: 50,
@@ -83,7 +83,7 @@ describe('AENS Module', () => {
         {
           key: 'account_pubkey',
           id: aeSdk.address,
-          encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+          encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
         },
       ],
     });
@@ -131,7 +131,6 @@ describe('AENS Module', () => {
         type: 'NamePreclaimTx',
       },
       rawTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
-      commitmentId: toBeEncoded(res.tx.commitmentId, Encoding.CommitmentId),
       salt: toBeAbove0(res.salt),
     });
     salt2 = res.salt;
@@ -241,7 +240,7 @@ describe('AENS Module', () => {
           {
             key: 'account_pubkey',
             id: address,
-            encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+            encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
           },
         ],
         clientTtl: 3600,
@@ -292,7 +291,7 @@ describe('AENS Module', () => {
           {
             key: 'account_pubkey',
             id: address,
-            encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+            encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
           },
         ],
         clientTtl: 3600,
@@ -323,7 +322,7 @@ describe('AENS Module', () => {
           {
             key: 'account_pubkey',
             id: address,
-            encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+            encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
           },
         ],
         clientTtl: 3600,
@@ -392,8 +391,8 @@ describe('AENS Module', () => {
     ]);
 
     await aeSdk.spend(1e16, recipient.address);
-    const name = await aeSdk.aensQuery(name1);
-    await name.transfer(aeSdk.address, { onAccount: recipient });
+    const name = new Name(name1, { ...aeSdk.getContext(), onAccount: recipient });
+    await name.transfer(aeSdk.address);
   });
 
   it('transfers as json', async () => {
@@ -428,8 +427,8 @@ describe('AENS Module', () => {
     });
 
     await aeSdk.spend(1e16, recipient.address);
-    const name = await aeSdk.aensQuery(name2);
-    await name.transfer(aeSdk.address, { onAccount: recipient });
+    const name = new Name(name2, { ...aeSdk.getContext(), onAccount: recipient });
+    await name.transfer(aeSdk.address);
   });
 
   it('revokes', async () => {

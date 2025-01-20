@@ -2,7 +2,7 @@ import { use } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { before, after } from 'mocha';
 import mockFs from 'mock-fs';
-import { AeSdk, MemoryAccount, Node, generateKeyPair, CompilerHttpNode } from '@aeternity/aepp-sdk';
+import { AeSdk, MemoryAccount, Node, CompilerHttpNode } from '@aeternity/aepp-sdk';
 import executeProgram, { url, compilerUrl } from '../scripts/execute-program.js';
 
 export { default as executeProgram } from '../scripts/execute-program.js';
@@ -20,10 +20,9 @@ after(() => {
 
 use(chaiAsPromised);
 
-const secretKey =
-  '9ebd7beda0c79af72a42ece3821a56eff16359b6df376cf049aee995565f022f840c974b97164776454ba119d84edc4d6058a8dec92b6edc578ab2d30b4c4200';
+const secretKey = 'sk_2CuofqWZHrABCrM7GY95YSQn8PyFvKQadnvFnpwhjUnDCFAWmf';
 export const networkId = 'ae_dev';
-const keypair = generateKeyPair();
+const account = MemoryAccount.generate();
 export const WALLET_NAME = 'test-artifacts/wallet.json';
 
 class AeSdkWithEnv extends AeSdk {
@@ -39,14 +38,14 @@ class AeSdkWithEnv extends AeSdk {
 
 const spendPromise = (async () => {
   const aeSdk = new AeSdkWithEnv();
-  await aeSdk.spend(5e20, keypair.publicKey);
+  await aeSdk.spend(5e20, account.address);
 })();
 
 export async function getSdk() {
   await spendPromise;
-  const tempKeyPair = generateKeyPair();
+  const tempAccount = MemoryAccount.generate();
   const aeSdk = new AeSdkWithEnv({
-    accounts: [new MemoryAccount(tempKeyPair.secretKey)],
+    accounts: [new MemoryAccount(tempAccount.secretKey)],
   });
   await Promise.all([
     executeProgram(
@@ -55,12 +54,10 @@ export async function getSdk() {
       WALLET_NAME,
       '--password',
       'test',
-      tempKeyPair.secretKey,
+      tempAccount.secretKey,
       '--overwrite',
     ),
-    aeSdk.spend(5e19, tempKeyPair.publicKey, {
-      onAccount: new MemoryAccount(keypair.secretKey),
-    }),
+    aeSdk.spend(5e19, tempAccount.address, { onAccount: account }),
   ]);
   return aeSdk;
 }

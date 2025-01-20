@@ -72,7 +72,7 @@ addWalletOptions(command, [
 
 command = program
   .command('create <wallet_path>')
-  .argument('[privkey]', 'Secret key as 64-bytes encoded as hex')
+  .argument('[privkey]', 'sk_-encoded secret key')
   .option('--overwrite', 'Overwrite if exist')
   .summary('create a wallet by a private key or generate a new one')
   .description(
@@ -85,7 +85,7 @@ command = program
   .action(Account.createWallet);
 addWalletOptions(command, [
   './wallet.json',
-  './wallet.json 9ebd7beda0c79af72a42ece3821a56eff16359b6df376cf049aee995565f022f840c974b97164776454ba119d84edc4d6058a8dec92b6edc578ab2d30b4c4200',
+  './wallet.json sk_2CuofqWZHrABCrM7GY95YSQn8PyFvKQadnvFnpwhjUnDCFAWmf',
 ]);
 
 export default program;

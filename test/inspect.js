@@ -8,6 +8,9 @@ import {
   Contract,
   MemoryAccount,
   Encoding,
+  Name,
+  Oracle,
+  OracleClient,
 } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk } from './index.js';
 import { toBeAbove0, toBeEncoded, expectToMatchLines, toMatch } from './utils.js';
@@ -195,13 +198,13 @@ contract Identity =
     const { address } = await contract.$deploy([]);
     const resJson = await executeInspect(address, '--json');
     expect(resJson).to.eql({
-      abiVersion: AbiVersion.Fate.toString(),
+      abiVersion: AbiVersion.Fate,
       active: true,
       deposit: '0',
       id: address,
       ownerId: aeSdk.address,
       referrerIds: [],
-      vmVersion: VmVersion.Fate3.toString(),
+      vmVersion: VmVersion.Fate3,
     });
     const res = await executeInspect(address);
     expectToMatchLines(res, [
@@ -223,25 +226,27 @@ contract Identity =
   });
 
   it('Inspect Oracle', async () => {
-    const { id: oracleId } = await aeSdk.registerOracle('<request format>', '<response format>');
-    const { id: queryId } = await aeSdk.postQueryToOracle(oracleId, 'Hello?');
-    const resJson = await executeInspect(oracleId, '--json');
+    const oracle = new Oracle(aeSdk.accounts[aeSdk.address], aeSdk.getContext());
+    await oracle.register('<request format>', '<response format>');
+    const oracleClient = new OracleClient(oracle.address, aeSdk.getContext());
+    const { queryId } = await oracleClient.postQuery('Hello?');
+    const resJson = await executeInspect(oracle.address, '--json');
     expect(resJson).to.eql({
-      id: oracleId,
-      abiVersion: AbiVersion.NoAbi.toString(),
+      id: oracle.address,
+      abiVersion: AbiVersion.NoAbi,
       queries: [
         {
           fee: '0',
           id: queryId,
-          oracleId,
+          oracleId: oracle.address,
           query: 'ov_SGVsbG8/0oNcUw==',
           response: 'or_Xfbg4g==',
           responseTtl: {
             type: 'delta',
-            value: '10',
+            value: 10,
           },
           senderId: aeSdk.address,
-          senderNonce: '4',
+          senderNonce: 4,
           ttl: resJson.queries[0].ttl,
         },
       ],
@@ -250,24 +255,24 @@ contract Identity =
       responseFormat: '<response format>',
       ttl: resJson.ttl,
     });
-    const res = await executeInspect(oracleId);
+    const res = await executeInspect(oracle.address);
     // TODO: "no response" message instead of empty string in "Response decoded"
     expectToMatchLines(res, [
-      `Oracle ID               ${oracleId}`,
+      `Oracle ID               ${oracle.address}`,
       `Oracle Query Fee        0`,
       `Oracle Query Format     <request format>`,
       `Oracle Response Format  <response format>`,
       `Ttl                     ${resJson.ttl}`,
       ``,
       `--------------------------------- QUERIES ------------------------------------`,
-      `Oracle ID         ${oracleId}`,
+      `Oracle ID         ${oracle.address}`,
       `Query ID          ${queryId}`,
       `Fee               0`,
       `Query             ov_SGVsbG8/0oNcUw==`,
       `Query decoded     Hello?`,
       `Response          or_Xfbg4g==`,
       `Response decoded  `,
-      `Response Ttl      {"type":"delta","value":"10"}`,
+      `Response Ttl      {"type":"delta","value":10}`,
       `Sender Id         ${aeSdk.address}`,
       `Sender Nonce      4`,
       `Ttl               ${resJson.queries[0].ttl}`,
@@ -292,9 +297,9 @@ contract Identity =
   });
 
   it('Inspect Claimed Name', async () => {
-    await (
-      await (await aeSdk.aensPreclaim(name)).claim()
-    ).update({
+    const nameObj = new Name(name, aeSdk.getContext());
+    await nameObj.claim();
+    await nameObj.update({
       myKey: aeSdk.address,
       account_pubkey: aeSdk.address,
       oracle_pubkey: aeSdk.address,
@@ -304,9 +309,9 @@ contract Identity =
       id: resJson.id,
       owner: aeSdk.address,
       pointers: [
-        { id: aeSdk.address, key: 'myKey', encoded_key: 'ba_bXlLZXltwTZ7' },
-        { id: aeSdk.address, key: 'account_pubkey', encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR' },
-        { id: aeSdk.address, key: 'oracle_pubkey', encoded_key: 'ba_b3JhY2xlX3B1YmtleV2vKNs=' },
+        { id: aeSdk.address, key: 'myKey', encodedKey: 'ba_bXlLZXltwTZ7' },
+        { id: aeSdk.address, key: 'account_pubkey', encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR' },
+        { id: aeSdk.address, key: 'oracle_pubkey', encodedKey: 'ba_b3JhY2xlX3B1YmtleV2vKNs=' },
       ],
       status: 'CLAIMED',
       ttl: resJson.ttl,
@@ -325,12 +330,13 @@ contract Identity =
 
   it('Inspect Running Auction Name', async () => {
     const auctionName = `a${Math.random().toString().slice(2, 9)}.chain`;
-    await (await aeSdk.aensPreclaim(auctionName)).claim();
+    const auctionNameObj = new Name(auctionName, aeSdk.getContext());
+    await auctionNameObj.claim();
     const resJson = await executeInspect(auctionName, '--json');
     const endsAt = +resJson.startedAt + 960;
     expect(resJson).to.eql({
-      endsAt: String(endsAt),
-      highestBid: '19641800000000000000',
+      endsAt,
+      highestBid: 19641800000000000000,
       highestBidder: aeSdk.address,
       id: resJson.id,
       startedAt: resJson.startedAt,

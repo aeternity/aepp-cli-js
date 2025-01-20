@@ -163,7 +163,7 @@ Create a password-encrypted wallet by a secret key. Secret key can be provided i
 
 `wallet_path`  
 `privkey`  
-Secret key as 64-bytes encoded as hex.
+Sk_-encoded secret key.
 
 #### Options
 
@@ -178,7 +178,7 @@ Print result in json format.
 
 ```
 $ aecli account create ./wallet.json
-$ aecli account create ./wallet.json 9ebd7beda0c79af72a42ece3821a56eff16359b6df376cf049aee995565f022f840c974b97164776454ba119d84edc4d6058a8dec92b6edc578ab2d30b4c4200
+$ aecli account create ./wallet.json sk_2CuofqWZHrABCrM7GY95YSQn8PyFvKQadnvFnpwhjUnDCFAWmf
 ```
 
 ## spend
