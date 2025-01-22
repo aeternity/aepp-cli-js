@@ -1,5 +1,5 @@
 import { Command, Argument } from 'commander';
-import { NAME_TTL, ORACLE_TTL, QUERY_TTL, RESPONSE_TTL } from '@aeternity/aepp-sdk';
+import { ORACLE_TTL, QUERY_TTL, RESPONSE_TTL } from '@aeternity/aepp-sdk';
 import * as Transaction from '../actions/transaction.js';
 import {
   nodeOption,
@@ -14,6 +14,7 @@ import {
   amountOption,
   coinAmountParser,
   clientTtlOption,
+  nameTtlOption,
 } from '../arguments.js';
 import {
   addExamples,
@@ -67,7 +68,7 @@ addTxBuilderOptions(command, `${exampleAddress1} 12327389123 ${exampleName} 42`)
 
 command = program
   .command('name-update <accountId> <nameId>')
-  .option('--nameTtl [nameTtl]', 'Validity of name', NAME_TTL)
+  .addOption(nameTtlOption)
   .addOption(clientTtlOption)
   .action(Transaction.nameUpdate);
 addTxBuilderOptions(command, `${exampleAddress1} ${exampleName} 42 ${exampleContract}`);

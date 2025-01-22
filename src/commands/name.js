@@ -1,5 +1,4 @@
 import { Command } from 'commander';
-import { NAME_TTL } from '@aeternity/aepp-sdk';
 import * as AENS from '../actions/aens.js';
 import {
   nodeOption,
@@ -11,6 +10,8 @@ import {
   coinAmountParser,
   clientTtlOption,
   nameFeeOption,
+  nameTtlOption,
+  nameTtlArgument,
 } from '../arguments.js';
 import { addExamples, exampleAddress1, exampleContract, exampleName } from '../utils/helpers.js';
 
@@ -41,7 +42,7 @@ const claimingGuide = [
 let command = program
   .command('full-claim <wallet_path> <name>')
   .addOption(nameFeeOption)
-  .option('--nameTtl [nameTtl]', 'Validity of name.', NAME_TTL)
+  .addOption(nameTtlOption)
   .addOption(clientTtlOption)
   .summary('claim an AENS name in a single command')
   .description(
@@ -90,7 +91,7 @@ addCommonOptions(command, `./wallet.json ${exampleName} 4.2ae`);
 command = program
   .command('update <wallet_path> <name> [addresses...]')
   .option('--extendPointers', 'Extend pointers', false)
-  .option('--nameTtl [nameTtl]', 'A number of blocks until name expires', NAME_TTL)
+  .addOption(nameTtlOption)
   .addOption(clientTtlOption)
   .summary('update a name pointer')
   .action(AENS.updateName);
@@ -98,7 +99,7 @@ addCommonOptions(command, `./wallet.json ${exampleName} ${exampleContract}`);
 
 command = program
   .command('extend <wallet_path> <name>')
-  .argument('[nameTtl]', 'A number of blocks until name expires', NAME_TTL)
+  .addArgument(nameTtlArgument)
   .addOption(clientTtlOption)
   .summary('extend name TTL')
   .action(AENS.extendName);

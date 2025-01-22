@@ -242,9 +242,9 @@ A name in arguments should end with ".chain". Be careful, shorter names are more
 `--nameFee [nameFee]`  
 Amount of coins to pay for name.  
 `--nameTtl [nameTtl]`  
-Validity of name. (default: 180000).  
+A number of blocks until name expires (default: 180000 (1 year)).  
 `--clientTtl [clientTtl]`  
-A suggestion measured in seconds on how long clients should cache name pointers (default: 1 hour).  
+A suggestion measured in seconds on how long clients should cache name pointers (default: 3600 (1 hour)).  
 `-u, --url [nodeUrl]`  
 Node to connect to (default: mainnet, env: AECLI_NODE_URL).  
 `-T, --ttl [ttl]`  
@@ -385,9 +385,9 @@ Update a name pointer.
 `--extendPointers`  
 Extend pointers (default: false).  
 `--nameTtl [nameTtl]`  
-A number of blocks until name expires (default: 180000).  
+A number of blocks until name expires (default: 180000 (1 year)).  
 `--clientTtl [clientTtl]`  
-A suggestion measured in seconds on how long clients should cache name pointers (default: 1 hour).  
+A suggestion measured in seconds on how long clients should cache name pointers (default: 3600 (1 hour)).  
 `-u, --url [nodeUrl]`  
 Node to connect to (default: mainnet, env: AECLI_NODE_URL).  
 `-T, --ttl [ttl]`  
@@ -422,12 +422,12 @@ Extend name TTL.
 `wallet_path`  
 `name`  
 `nameTtl`  
-A number of blocks until name expires (default: 180000).
+A number of blocks until name expires (default: 180000 (1 year)).
 
 #### Options
 
 `--clientTtl [clientTtl]`  
-A suggestion measured in seconds on how long clients should cache name pointers (default: 1 hour).  
+A suggestion measured in seconds on how long clients should cache name pointers (default: 3600 (1 hour)).  
 `-u, --url [nodeUrl]`  
 Node to connect to (default: mainnet, env: AECLI_NODE_URL).  
 `-T, --ttl [ttl]`  
@@ -1142,9 +1142,9 @@ Unique number that is required to sign transaction securely.
 #### Options
 
 `--nameTtl [nameTtl]`  
-Validity of name (default: 180000).  
+A number of blocks until name expires (default: 180000 (1 year)).  
 `--clientTtl [clientTtl]`  
-A suggestion measured in seconds on how long clients should cache name pointers (default: 1 hour).  
+A suggestion measured in seconds on how long clients should cache name pointers (default: 3600 (1 hour)).  
 `-F, --fee [fee]`  
 Override the transaction fee.  
 `-T, --ttl [ttl]`  
