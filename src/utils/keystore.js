@@ -11,7 +11,7 @@ const CRYPTO_PARAMS = {
   kdf_params: {
     memlimit_kib: 65536,
     opslimit: 3,
-    parallelism: 1,
+    parallelism: 4,
   },
 };
 

@@ -63,7 +63,7 @@ describe('Account Module', () => {
         kdf_params: {
           memlimit_kib: 65536,
           opslimit: 3,
-          parallelism: 1,
+          parallelism: 4,
           salt: toMatch(wallet.crypto.kdf_params.salt, /[0-9a-f]{32}/),
         },
       },
