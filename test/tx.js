@@ -1,4 +1,4 @@
-import { decode, encode, Encoding, buildTxHash } from '@aeternity/aepp-sdk';
+import { decode, encode, Encoding, buildTxHash, Contract } from '@aeternity/aepp-sdk';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { executeProgram, getSdk, networkId, WALLET_NAME } from './index.js';
@@ -213,7 +213,7 @@ describe('Transaction Module', () => {
       `Nonce ___________________________________ ${nonce}`,
     ]);
 
-    nameId = (await aeSdk.aensQuery(name)).id;
+    nameId = (await aeSdk.api.getNameEntryByName(name)).id;
   }).timeout(10000);
 
   it('builds name update tx and sends', async () => {
@@ -312,7 +312,10 @@ describe('Transaction Module', () => {
   let contract;
   it('builds contract create tx and sends', async () => {
     nonce += 1;
-    contract = await aeSdk.initializeContract({ sourceCode: testContract });
+    contract = await Contract.initialize({
+      ...aeSdk.getContext(),
+      sourceCode: testContract,
+    });
     const bytecode = await contract.$compile();
     const callData = contract._calldata.encode(contract._name, 'init', []);
     const { tx, contractId: cId } = await executeTx(

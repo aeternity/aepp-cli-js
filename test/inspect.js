@@ -1,6 +1,13 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { AbiVersion, generateKeyPair, produceNameId, Tag, VmVersion } from '@aeternity/aepp-sdk';
+import {
+  AbiVersion,
+  produceNameId,
+  Tag,
+  VmVersion,
+  Contract,
+  MemoryAccount,
+} from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk } from './index.js';
 import { expectToMatchLines } from './utils.js';
 
@@ -33,7 +40,7 @@ describe('Inspect Module', () => {
   });
 
   it('Inspect Transaction Hash', async () => {
-    const recipient = generateKeyPair().publicKey;
+    const recipient = MemoryAccount.generate().address;
     const amount = '420';
     const { hash } = await aeSdk.spend(amount, recipient);
     const resJson = await executeInspect(hash, '--json');
@@ -74,7 +81,7 @@ describe('Inspect Module', () => {
   });
 
   it('Inspect Transaction', async () => {
-    const recipientId = generateKeyPair().publicKey;
+    const recipientId = MemoryAccount.generate().address;
     const amount = '420';
     const tx = await aeSdk.buildTx({
       tag: Tag.SpendTx,
@@ -178,7 +185,8 @@ describe('Inspect Module', () => {
   });
 
   it('Inspect Contract', async () => {
-    const contract = await aeSdk.initializeContract({
+    const contract = await Contract.initialize({
+      ...aeSdk.getContext(),
       sourceCode: `
 contract Identity =
   entrypoint foo() = "test"
@@ -208,7 +216,7 @@ contract Identity =
   });
 
   it('Inspect non existing Oracle', async () => {
-    const fakeOracleId = generateKeyPair().publicKey.replace('ak_', 'ok_');
+    const fakeOracleId = MemoryAccount.generate().address.replace('ak_', 'ok_');
     await executeInspect(fakeOracleId, '--json').should.be.rejectedWith('error: Oracle not found');
   });
 

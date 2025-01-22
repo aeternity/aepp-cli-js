@@ -1,6 +1,6 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { generateKeyPair } from '@aeternity/aepp-sdk';
+import { Contract, MemoryAccount } from '@aeternity/aepp-sdk';
 import { getSdk, executeProgram, WALLET_NAME } from './index.js';
 import { expectToMatchLines } from './utils.js';
 
@@ -15,9 +15,9 @@ describe('Spend', () => {
 
   it('spends', async () => {
     const amount = 100;
-    const { publicKey } = generateKeyPair();
-    const resJson = await executeSpend(publicKey, amount, '--json');
-    const receiverBalance = await aeSdk.getBalance(publicKey);
+    const { address } = MemoryAccount.generate();
+    const resJson = await executeSpend(address, amount, '--json');
+    const receiverBalance = await aeSdk.getBalance(address);
     expect(+receiverBalance).to.be.equal(amount);
 
     expect(resJson.tx.fee).to.be.a('string');
@@ -41,7 +41,7 @@ describe('Spend', () => {
       },
     });
 
-    const res = await executeSpend(publicKey, amount);
+    const res = await executeSpend(address, amount);
     expectToMatchLines(res, [
       'Transaction mined',
       /Transaction hash ________________________ th_\w+/,
@@ -60,23 +60,24 @@ describe('Spend', () => {
   });
 
   it('spends in ae', async () => {
-    const receiverKeys = generateKeyPair();
+    const { address } = MemoryAccount.generate();
     const {
       tx: { fee },
-    } = await executeSpend('--json', receiverKeys.publicKey, '1ae', '--fee', '0.02ae');
-    expect(await aeSdk.getBalance(receiverKeys.publicKey)).to.be.equal('1000000000000000000');
+    } = await executeSpend('--json', address, '1ae', '--fee', '0.02ae');
+    expect(await aeSdk.getBalance(address)).to.be.equal('1000000000000000000');
     expect(fee).to.be.equal('20000000000000000');
   });
 
   it('spends percent of balance', async () => {
-    const { publicKey } = generateKeyPair();
+    const { address } = MemoryAccount.generate();
     const balanceBefore = await aeSdk.getBalance(aeSdk.address);
-    await executeSpend(publicKey, '42%');
-    expect(+(await aeSdk.getBalance(publicKey))).to.be.equal(balanceBefore * 0.42);
+    await executeSpend(address, '42%');
+    expect(+(await aeSdk.getBalance(address))).to.be.equal(balanceBefore * 0.42);
   });
 
   it('spends to contract', async () => {
-    const contract = await aeSdk.initializeContract({
+    const contract = await Contract.initialize({
+      ...aeSdk.getContext(),
       sourceCode:
         'payable contract Main =\n' +
         '  record state = { key: int }\n' +
