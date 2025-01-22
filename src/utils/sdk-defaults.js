@@ -17,3 +17,30 @@ const nameUpdateDefaults = unpackTx(
 export const nameTtl = nameUpdateDefaults.nameTtl;
 
 export const nameClientTtl = nameUpdateDefaults.clientTtl;
+
+const oracleRegisterDefaults = unpackTx(
+  buildTx({
+    tag: Tag.OracleRegisterTx,
+    accountId,
+    nonce,
+    queryFormat: '<query-format>',
+    responseFormat: '<response-format>',
+  }),
+  Tag.OracleRegisterTx,
+);
+
+export const oracleTtl = oracleRegisterDefaults.oracleTtlValue;
+
+const oracleQueryDefaults = unpackTx(
+  buildTx({
+    tag: Tag.OracleQueryTx,
+    senderId: accountId,
+    nonce,
+    oracleId: accountId.replace('ak_', 'ok_'),
+    query: '<query>',
+  }),
+  Tag.OracleQueryTx,
+);
+
+export const queryTtl = oracleQueryDefaults.queryTtlValue;
+export const responseTtl = oracleQueryDefaults.responseTtlValue;

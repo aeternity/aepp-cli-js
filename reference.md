@@ -734,7 +734,7 @@ Register current account as oracle.
 #### Options
 
 `--oracleTtl [oracleTtl]`  
-Relative oracle time to leave (default: 500).  
+A number of blocks until oracle expires (default: 500 (1 day)).  
 `--queryFee [queryFee]`  
 Oracle query fee (default: 0ae).  
 `-P, --password [password]`  
@@ -799,10 +799,10 @@ Create an oracle query.
 
 #### Options
 
-`--responseTtl [responseTtl]`  
-Relative query response time to leave (default: 10).  
 `--queryTtl [queryTtl]`  
-Relative query time to leave (default: 10).  
+A number of blocks while oracle can respond (default: 10 (30 minutes)).  
+`--responseTtl [responseTtl]`  
+A number of blocks while response available (default: 10 (30 minutes)).  
 `--queryFee [queryFee]`  
 Oracle query fee (default: provided by oracle).  
 `-P, --password [password]`  
@@ -837,7 +837,7 @@ Respond to an oracle query.
 #### Options
 
 `--responseTtl [responseTtl]`  
-Query response time to leave (default: 10).  
+A number of blocks while response available (default: 10 (30 minutes)).  
 `-P, --password [password]`  
 Wallet Password, may be recorded to shell history (env: AECLI_WALLET_PASSWORD).  
 `-T, --ttl [ttl]`  
@@ -1314,7 +1314,7 @@ Unique number that is required to sign transaction securely.
 `--queryFee [queryFee]`  
 Oracle query fee (default: 0ae).  
 `--oracleTtl [oracleTtl]`  
-Oracle TTL (default: 500).  
+A number of blocks until oracle expires (default: 500 (1 day)).  
 `-F, --fee [fee]`  
 Override the transaction fee.  
 `-T, --ttl [ttl]`  
@@ -1378,10 +1378,10 @@ Unique number that is required to sign transaction securely.
 
 `--queryFee [queryFee]`  
 Oracle query fee (default: provided by oracle).  
-`--queryTtl [oracleTtl]`  
-Oracle TTL (default: 10).  
-`--responseTtl [oracleTtl]`  
-Oracle TTL (default: 10).  
+`--queryTtl [queryTtl]`  
+A number of blocks while oracle can respond (default: 10 (30 minutes)).  
+`--responseTtl [responseTtl]`  
+A number of blocks while response available (default: 10 (30 minutes)).  
 `-F, --fee [fee]`  
 Override the transaction fee.  
 `-T, --ttl [ttl]`  
@@ -1413,8 +1413,8 @@ Unique number that is required to sign transaction securely.
 
 #### Options
 
-`--responseTtl [oracleTtl]`  
-Oracle TTL (default: 10).  
+`--responseTtl [responseTtl]`  
+A number of blocks while response available (default: 10 (30 minutes)).  
 `-F, --fee [fee]`  
 Override the transaction fee.  
 `-T, --ttl [ttl]`  

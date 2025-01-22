@@ -1,5 +1,4 @@
 import { Command, Argument } from 'commander';
-import { ORACLE_TTL, QUERY_TTL, RESPONSE_TTL } from '@aeternity/aepp-sdk';
 import * as Transaction from '../actions/transaction.js';
 import {
   nodeOption,
@@ -15,6 +14,9 @@ import {
   coinAmountParser,
   clientTtlOption,
   nameTtlOption,
+  oracleTtlOption,
+  queryTtlOption,
+  responseTtlOption,
 } from '../arguments.js';
 import {
   addExamples,
@@ -107,7 +109,7 @@ addTxBuilderOptions(command, `${exampleAddress1} ${exampleContract} ${exampleCal
 command = program
   .command('oracle-register <accountId> <queryFormat> <responseFormat>')
   .addOption(queryFeeOption(true))
-  .option('--oracleTtl [oracleTtl]', 'Oracle TTL', ORACLE_TTL.value)
+  .addOption(oracleTtlOption)
   .action(Transaction.oracleRegister);
 addTxBuilderOptions(command, `${exampleAddress1} '{"city": "string"}' '{"tmp": "number"}' 42`);
 
@@ -118,14 +120,14 @@ addTxBuilderOptions(command, `${exampleOracle} 100 42`);
 command = program
   .command('oracle-post-query <accountId> <oracleId> <query>')
   .addOption(queryFeeOption(false))
-  .option('--queryTtl [oracleTtl]', 'Oracle TTL', QUERY_TTL.value)
-  .option('--responseTtl [oracleTtl]', 'Oracle TTL', RESPONSE_TTL.value)
+  .addOption(queryTtlOption)
+  .addOption(responseTtlOption)
   .action(Transaction.oraclePostQuery);
 addTxBuilderOptions(command, `${exampleAddress2} ${exampleOracle} '{"city": "Berlin"}' 42`);
 
 command = program
   .command('oracle-respond <oracleId> <queryId> <response>')
-  .option('--responseTtl [oracleTtl]', 'Oracle TTL', RESPONSE_TTL.value)
+  .addOption(responseTtlOption)
   .action(Transaction.oracleRespond);
 addTxBuilderOptions(command, `${exampleOracle} ${exampleOracleQuery} '{"tmp": 1}' 42`);
 

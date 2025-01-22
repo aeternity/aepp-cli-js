@@ -2,7 +2,7 @@ import { Argument, Option } from 'commander';
 import BigNumber from 'bignumber.js';
 import { MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
 import { noValue } from './utils/default-option-description.js';
-import { nameTtl, nameClientTtl } from './utils/sdk-defaults.js';
+import { nameTtl, nameClientTtl, oracleTtl, queryTtl, responseTtl } from './utils/sdk-defaults.js';
 import { formatBlocks, formatSeconds } from './utils/helpers.js';
 
 export const coinAmountParser = (amount) => {
@@ -32,6 +32,21 @@ export const nameTtlOption = new Option(
   '--nameTtl [nameTtl]',
   'A number of blocks until name expires',
 ).default(nameTtl, formatBlocks(nameTtl));
+
+export const oracleTtlOption = new Option(
+  '--oracleTtl [oracleTtl]',
+  'A number of blocks until oracle expires',
+).default(oracleTtl, formatBlocks(oracleTtl));
+
+export const queryTtlOption = new Option(
+  '--queryTtl [queryTtl]',
+  'A number of blocks while oracle can respond',
+).default(queryTtl, formatBlocks(queryTtl));
+
+export const responseTtlOption = new Option(
+  '--responseTtl [responseTtl]',
+  'A number of blocks while response available',
+).default(responseTtl, formatBlocks(responseTtl));
 
 export const queryFeeOption = (isCreate) =>
   new Option('--queryFee [queryFee]', 'Oracle query fee')
