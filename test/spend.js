@@ -1,7 +1,8 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { generateKeyPair } from '@aeternity/aepp-sdk';
-import { getSdk, executeProgram, WALLET_NAME, expectToMatchLines } from './index.js';
+import { getSdk, executeProgram, WALLET_NAME } from './index.js';
+import { expectToMatchLines } from './utils.js';
 
 const executeSpend = executeProgram.bind(null, 'spend', WALLET_NAME, '--password', 'test');
 

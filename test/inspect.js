@@ -1,7 +1,8 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { AbiVersion, generateKeyPair, produceNameId, Tag, VmVersion } from '@aeternity/aepp-sdk';
-import { executeProgram, expectToMatchLines, getSdk } from './index.js';
+import { executeProgram, getSdk } from './index.js';
+import { expectToMatchLines } from './utils.js';
 
 const executeInspect = executeProgram.bind(null, 'inspect');
 const executeChain = executeProgram.bind(null, 'chain');

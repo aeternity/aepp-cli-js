@@ -1,6 +1,7 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { executeProgram, expectToMatchLines, getSdk } from './index.js';
+import { executeProgram, getSdk } from './index.js';
+import { expectToMatchLines } from './utils.js';
 
 const executeChain = executeProgram.bind(null, 'chain');
 

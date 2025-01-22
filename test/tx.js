@@ -1,14 +1,8 @@
 import { decode, encode, Encoding, buildTxHash } from '@aeternity/aepp-sdk';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import {
-  executeProgram,
-  randomName,
-  getSdk,
-  networkId,
-  expectToMatchLines,
-  WALLET_NAME,
-} from './index.js';
+import { executeProgram, getSdk, networkId, WALLET_NAME } from './index.js';
+import { randomName, expectToMatchLines } from './utils.js';
 
 const executeTx = executeProgram.bind(null, 'tx');
 

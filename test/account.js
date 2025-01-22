@@ -3,8 +3,8 @@ import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import prompts from 'prompts';
 import { resolve } from 'path';
-import { generateKeyPair } from '@aeternity/aepp-sdk';
-import { getSdk, executeProgram, WALLET_NAME, expectToMatchLines } from './index.js';
+import { getSdk, executeProgram, WALLET_NAME } from './index.js';
+import { expectToMatchLines, toMatch } from './utils.js';
 
 const executeAccount = executeProgram.bind(null, 'account');
 const walletName = 'test-artifacts/test-wallet.json';
@@ -14,7 +14,11 @@ describe('Account Module', () => {
   let sigFromFile;
   const fileName = 'test-artifacts/message.txt';
   const fileData = 'Hello world!';
-  const keypair = generateKeyPair();
+  const keypair = {
+    publicKey: 'ak_2KheQoFPBcQjp3gVCyRp6dxzKeF9qz7QeeM8EMjWjXcbonathp',
+    secretKey:
+      'ca6575a97fd692e710ebfc8d4656f43e568857f0e7bbca6c606fec3649baad9bae28931e199ef3e574fc67b518233f8188cbb663a86708a43422b779240ac7af',
+  };
   let aeSdk;
 
   before(async () => {
@@ -44,15 +48,51 @@ describe('Account Module', () => {
       keypair.secretKey,
       '--overwrite',
     );
-    expect(await fs.exists(walletName)).to.be.equal(true);
-    expect((await executeAccount('address', walletName, '--json')).publicKey).to.equal(
-      keypair.publicKey,
-    );
+    const wallet = await fs.readJson(walletName);
+    expect(wallet).to.eql({
+      name: '/full-path/test-artifacts/test-wallet.json',
+      version: 1,
+      public_key: 'ak_2KheQoFPBcQjp3gVCyRp6dxzKeF9qz7QeeM8EMjWjXcbonathp',
+      id: toMatch(wallet.id, /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/),
+      crypto: {
+        secret_type: 'ed25519',
+        symmetric_alg: 'xsalsa20-poly1305',
+        ciphertext: toMatch(wallet.crypto.ciphertext, /[0-9a-f]{160}/),
+        cipher_params: { nonce: toMatch(wallet.crypto.cipher_params.nonce, /[0-9a-f]{48}/) },
+        kdf: 'argon2id',
+        kdf_params: {
+          memlimit_kib: 65536,
+          opslimit: 3,
+          parallelism: 1,
+          salt: toMatch(wallet.crypto.kdf_params.salt, /[0-9a-f]{32}/),
+        },
+      },
+    });
   });
 
   it('Check Wallet Address', async () => {
-    expect((await executeAccount('address', WALLET_NAME, '--json')).publicKey).to.equal(
-      aeSdk.address,
+    await fs.writeJson(walletName, {
+      name: 'test-wallet',
+      version: 1,
+      public_key: 'ak_2KheQoFPBcQjp3gVCyRp6dxzKeF9qz7QeeM8EMjWjXcbonathp',
+      id: '859f833a-598b-44fa-9bde-554fa4972cbb',
+      crypto: {
+        secret_type: 'ed25519',
+        symmetric_alg: 'xsalsa20-poly1305',
+        ciphertext:
+          '5649321dd2f78f17dd5797de6599d9719b9996de8979ab5603dea3f5333f2e6a254af931ac49bfa69e76c7deac10f9673b5ecbe2db1c8f3b3cd221931c0bfc4e218bee89ac9f3c8bcf9db61794772de3',
+        cipher_params: { nonce: 'c4fae7feefe3ac3fd7588e085c04810e4bacd9fd1652a917' },
+        kdf: 'argon2id',
+        kdf_params: {
+          memlimit_kib: 65536,
+          opslimit: 3,
+          parallelism: 1,
+          salt: '222aeeab076f4be7a69537c33d16a517',
+        },
+      },
+    });
+    expect((await executeAccount('address', walletName, '--json')).publicKey).to.equal(
+      keypair.publicKey,
     );
   });
 
