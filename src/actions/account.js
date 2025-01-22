@@ -4,8 +4,8 @@ import {
   generateKeyPair,
   verifyMessage as _verifyMessage,
   getAddressFromPriv,
-  dump,
 } from '@aeternity/aepp-sdk';
+import { dump } from '../utils/keystore.js';
 import { getFullPath } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
 import { initSdkByWalletFile, AccountCli } from '../utils/cli.js';

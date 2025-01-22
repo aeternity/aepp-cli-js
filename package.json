@@ -9,12 +9,14 @@
   "dependencies": {
     "@aeternity/aepp-sdk": "^13.3.3",
     "@azure/core-rest-pipeline": "~1.14.0",
+    "argon2": "^0.41.1",
     "bignumber.js": "^9.1.2",
     "commander": "^13.0.0",
     "env-paths": "^3.0.0",
     "fs-extra": "^11.3.0",
     "prompts": "^2.4.2",
-    "update-notifier": "^7.3.1"
+    "update-notifier": "^7.3.1",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",

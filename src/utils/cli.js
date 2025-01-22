@@ -6,12 +6,12 @@ import {
   CompilerCli,
   CompilerCli8,
   CompilerHttpNode,
-  recover,
   sign,
   getExecutionCost,
   unpackTx,
   Tag,
 } from '@aeternity/aepp-sdk';
+import { recover } from './keystore.js';
 import { PROMPT_TYPE, prompt } from './prompt.js';
 import { getFullPath } from './helpers.js';
 
