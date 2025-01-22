@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import { parse } from 'path';
 import {
   generateKeyPair,
   verifyMessage as _verifyMessage,
@@ -93,7 +94,7 @@ export async function createWallet(
     throw new CliError(`Wallet already exist at ${walletPath}`);
   }
   password ??= await prompt(PROMPT_TYPE.askPassword);
-  await fs.outputJson(walletPath, await dump(walletPath, password, secretKey));
+  await fs.outputJson(walletPath, await dump(parse(walletPath).name, password, secretKey));
   const publicKey = getAddressFromPriv(secretKey);
   if (json) {
     print({ publicKey, path: walletPath });

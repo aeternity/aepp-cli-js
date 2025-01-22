@@ -50,7 +50,7 @@ describe('Account Module', () => {
     );
     const wallet = await fs.readJson(walletName);
     expect(wallet).to.eql({
-      name: '/full-path/test-artifacts/test-wallet.json',
+      name: 'test-wallet',
       version: 1,
       public_key: 'ak_2KheQoFPBcQjp3gVCyRp6dxzKeF9qz7QeeM8EMjWjXcbonathp',
       id: toMatch(wallet.id, /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/),
