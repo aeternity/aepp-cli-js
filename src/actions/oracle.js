@@ -1,4 +1,4 @@
-import { ORACLE_TTL_TYPES } from '@aeternity/aepp-sdk';
+import { Encoding, ORACLE_TTL_TYPES } from '@aeternity/aepp-sdk';
 import { initSdkByWalletFile } from '../utils/cli.js';
 import { decode } from '../utils/helpers.js';
 import { printTransaction } from '../utils/print.js';
@@ -47,7 +47,7 @@ export async function extendOracle(walletPath, oracleTtl, options) {
 export async function createOracleQuery(walletPath, oracleId, query, options) {
   const { ttl, fee, nonce, json, queryTtl, queryFee, responseTtl } = options;
 
-  decode(oracleId, 'ok');
+  decode(oracleId, Encoding.OracleAddress);
   const aeSdk = await initSdkByWalletFile(walletPath, options);
 
   ensureTtlANumber(queryTtl, 'Query');
@@ -73,7 +73,7 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
 export async function respondToQuery(walletPath, queryId, response, options) {
   const { ttl, fee, nonce, json, responseTtl } = options;
 
-  decode(queryId, 'oq');
+  decode(queryId, Encoding.OracleQueryId);
   ensureTtlANumber(responseTtl, 'Response');
   const aeSdk = await initSdkByWalletFile(walletPath, options);
 
