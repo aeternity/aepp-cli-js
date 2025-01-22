@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import prompts from 'prompts';
 import { resolve } from 'path';
 import { generateKeyPair } from '@aeternity/aepp-sdk';
-import { getSdk, executeProgram, WALLET_NAME } from './index.js';
+import { getSdk, executeProgram, WALLET_NAME, expectToMatchLines } from './index.js';
 
 const executeAccount = executeProgram.bind(null, 'account');
 const walletName = 'test-artifacts/test-wallet.json';
@@ -27,18 +27,12 @@ describe('Account Module', () => {
     expect(await fs.exists(walletName)).to.be.equal(true);
     const resJson = await executeAccount('address', walletName, '--json');
     expect(resJson.publicKey).to.be.a('string');
-    expect(createRes).to.be.equal(
-      `
-Address _________________________________ ${resJson.publicKey}
-Path ____________________________________ ${resolve(walletName)}
-    `.trim(),
-    );
+    expectToMatchLines(createRes, [
+      `Address _________________________________ ${resJson.publicKey}`,
+      `Path ____________________________________ ${resolve(walletName)}`,
+    ]);
     const res = await executeAccount('address', walletName);
-    expect(res).to.be.equal(
-      `
-Address _________________________________ ${resJson.publicKey}
-    `.trim(),
-    );
+    expectToMatchLines(res, [`Address _________________________________ ${resJson.publicKey}`]);
   });
 
   it('Create Wallet From Private Key', async () => {
@@ -81,12 +75,10 @@ Address _________________________________ ${resJson.publicKey}
       '--privateKey',
       '--forcePrompt',
     );
-    expect(res).to.be.equal(
-      `
-Address _________________________________ ${keypair.publicKey}
-Secret Key ______________________________ ${keypair.secretKey}
-    `.trim(),
-    );
+    expectToMatchLines(res, [
+      `Address _________________________________ ${keypair.publicKey}`,
+      `Secret Key ______________________________ ${keypair.secretKey}`,
+    ]);
   });
 
   it('asks for password if it not provided', async () => {

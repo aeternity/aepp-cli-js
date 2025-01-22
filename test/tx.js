@@ -56,24 +56,22 @@ describe('Transaction Module', () => {
     });
 
     const response = await executeTx(...args);
-    expect(response).to.equal(
-      `
-Transaction type ________________________ SpendTx
-Summary
-    TAG _________________________________ 12
-    VERSION _____________________________ 1
-    SENDERID ____________________________ ${aeSdk.address}
-    RECIPIENTID _________________________ ${aeSdk.address}
-    AMOUNT ______________________________ ${amount}
-    FEE _________________________________ 16660000000000
-    TTL _________________________________ 0
-    NONCE _______________________________ ${nonce}
-    PAYLOAD _____________________________ ba_Xfbg4g==
-Output
-    Encoded _____________________________ ${responseJson.tx}
-This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to submit the transaction to the network, or verify that it will be accepted with \`tx verify\`.
-    `.trim(),
-    );
+    expectToMatchLines(response, [
+      `Transaction type ________________________ SpendTx`,
+      `Summary`,
+      `    TAG _________________________________ 12`,
+      `    VERSION _____________________________ 1`,
+      `    SENDERID ____________________________ ${aeSdk.address}`,
+      `    RECIPIENTID _________________________ ${aeSdk.address}`,
+      `    AMOUNT ______________________________ ${amount}`,
+      `    FEE _________________________________ 16660000000000`,
+      `    TTL _________________________________ 0`,
+      `    NONCE _______________________________ ${nonce}`,
+      `    PAYLOAD _____________________________ ba_Xfbg4g==`,
+      `Output`,
+      `    Encoded _____________________________ ${responseJson.tx}`,
+      `This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to submit the transaction to the network, or verify that it will be accepted with \`tx verify\`.`,
+    ]);
   });
 
   it('signs tx', async () => {
