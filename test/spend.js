@@ -1,8 +1,8 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { Contract, MemoryAccount } from '@aeternity/aepp-sdk';
+import { Contract, Encoding, MemoryAccount } from '@aeternity/aepp-sdk';
 import { getSdk, executeProgram, WALLET_NAME } from './index.js';
-import { expectToMatchLines } from './utils.js';
+import { toBeAbove0, toBeEncoded, expectToMatchLines, toMatch } from './utils.js';
 
 const executeSpend = executeProgram.bind(null, 'spend', WALLET_NAME, '--password', 'test');
 
@@ -22,20 +22,20 @@ describe('Spend', () => {
 
     expect(resJson.tx.fee).to.be.a('string');
     expect(resJson).to.eql({
-      blockHash: resJson.blockHash,
-      blockHeight: resJson.blockHeight,
-      encodedTx: resJson.encodedTx,
-      hash: resJson.hash,
-      rawTx: resJson.rawTx,
-      signatures: [resJson.signatures[0]],
+      blockHash: toBeEncoded(resJson.blockHash, Encoding.MicroBlockHash),
+      blockHeight: toBeAbove0(resJson.blockHeight),
+      encodedTx: toBeEncoded(resJson.encodedTx, Encoding.Transaction),
+      hash: toBeEncoded(resJson.hash, Encoding.TxHash),
+      rawTx: toBeEncoded(resJson.encodedTx, Encoding.Transaction),
+      signatures: [toBeEncoded(resJson.signatures[0], Encoding.Signature)],
       tx: {
         amount: '100',
-        fee: resJson.tx.fee,
+        fee: toMatch(resJson.tx.fee, /1\d{13}/),
         nonce: 1,
         payload: 'ba_Xfbg4g==',
-        recipientId: resJson.tx.recipientId,
-        senderId: resJson.tx.senderId,
-        ttl: resJson.tx.ttl,
+        recipientId: address,
+        senderId: aeSdk.address,
+        ttl: toBeAbove0(resJson.tx.ttl),
         type: 'SpendTx',
         version: 1,
       },
@@ -45,12 +45,12 @@ describe('Spend', () => {
     expectToMatchLines(res, [
       'Transaction mined',
       /Transaction hash ________________________ th_\w+/,
-      /Block hash ______________________________ \w+/,
+      /Block hash ______________________________ mh_\w+/,
       /Block height ____________________________ \d+/,
-      /Signatures ______________________________ .+/,
+      /Signatures ______________________________ \["sg_\w+"\]/,
       'Transaction type ________________________ SpendTx (ver. 1)',
-      `Sender address __________________________ ${resJson.tx.senderId}`,
-      `Recipient address _______________________ ${resJson.tx.recipientId}`,
+      `Sender address __________________________ ${aeSdk.address}`,
+      `Recipient address _______________________ ${address}`,
       'Amount __________________________________ 0.0000000000000001ae',
       'Payload _________________________________ ba_Xfbg4g==',
       /Fee _____________________________________ 0.000016\d+ae/,

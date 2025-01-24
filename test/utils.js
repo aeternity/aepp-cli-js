@@ -1,3 +1,4 @@
+import { decode } from '@aeternity/aepp-sdk';
 import { expect } from 'chai';
 
 export function randomName(length = 18) {
@@ -25,6 +26,17 @@ export function expectToMatchLines(value, testLines) {
     error.message += `\nWhole value:\n${value}`;
     throw error;
   }
+}
+
+export function toBeEncoded(value, encoding) {
+  decode(value, encoding);
+  return value;
+}
+
+export function toBeAbove0(value) {
+  expect(value).to.be.a('number');
+  expect(value).to.be.above(0);
+  return value;
 }
 
 export function toMatch(value, template) {

@@ -7,9 +7,10 @@ import {
   VmVersion,
   Contract,
   MemoryAccount,
+  Encoding,
 } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk } from './index.js';
-import { expectToMatchLines } from './utils.js';
+import { toBeAbove0, toBeEncoded, expectToMatchLines, toMatch } from './utils.js';
 
 const executeInspect = executeProgram.bind(null, 'inspect');
 const executeChain = executeProgram.bind(null, 'chain');
@@ -44,21 +45,20 @@ describe('Inspect Module', () => {
     const amount = '420';
     const { hash } = await aeSdk.spend(amount, recipient);
     const resJson = await executeInspect(hash, '--json');
-    expect(resJson.tx.fee).to.be.a('string');
     expect(resJson).to.eql({
-      blockHash: resJson.blockHash,
-      blockHeight: resJson.blockHeight,
-      encodedTx: resJson.encodedTx,
-      hash: resJson.hash,
-      signatures: [resJson.signatures[0]],
+      blockHash: toBeEncoded(resJson.blockHash, Encoding.MicroBlockHash),
+      blockHeight: toBeAbove0(resJson.blockHeight),
+      encodedTx: toBeEncoded(resJson.encodedTx, Encoding.Transaction),
+      hash: toBeEncoded(resJson.hash, Encoding.TxHash),
+      signatures: [toBeEncoded(resJson.signatures[0], Encoding.Signature)],
       tx: {
         recipientId: recipient,
         senderId: aeSdk.address,
         amount,
-        fee: resJson.tx.fee,
-        nonce: resJson.tx.nonce,
+        fee: toMatch(resJson.tx.fee, /1\d{13}/),
+        nonce: toBeAbove0(resJson.tx.nonce),
         payload: 'ba_Xfbg4g==',
-        ttl: resJson.tx.ttl,
+        ttl: toBeAbove0(resJson.tx.ttl),
         type: 'SpendTx',
         version: 1,
       },

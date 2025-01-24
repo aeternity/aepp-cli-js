@@ -112,6 +112,9 @@ function printTransactionSync(_tx, json, currentHeight) {
   // oracle query
   printTxField(tx, 'Query', 'query');
   printTxField(tx, 'Query ID', 'queryId');
+  if ('query' in tx) {
+    printTxField(tx, 'Query ID', 'id');
+  }
   printTxField(tx, 'Query fee', 'queryFee', formatCoins);
   printTxField(tx, 'Query TTL', 'queryTtl', formatTtlObject);
   printTxField(tx, 'Query format', 'queryFormat');
