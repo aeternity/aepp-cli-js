@@ -86,7 +86,7 @@ describe('Oracle Module', () => {
       rawTx: toBeEncoded(resJson.encodedTx, Encoding.Transaction),
     });
 
-    const res = await executeOracle('extend', WALLET_NAME, '--password', 'test', 42);
+    const res = await executeOracle('extend', WALLET_NAME, '--password', 'test');
     expectToMatchLines(res, [
       /Transaction hash ________________________ th_\w+/,
       /Block hash ______________________________ mh_\w+/,
@@ -94,7 +94,7 @@ describe('Oracle Module', () => {
       /Signatures ______________________________ \["sg_\w+"\]/,
       'Transaction type ________________________ OracleExtendTx (ver. 1)',
       `Oracle ID _______________________________ ${oracleId}`,
-      /Oracle TTL ______________________________ \d+ \(in 2 hours\)/,
+      /Oracle TTL ______________________________ \d+ \(in 1 day\)/,
       'ABI version _____________________________ 0 (NoAbi)',
       'Query fee _______________________________ 0ae',
       'Query format ____________________________ <query-format>',
@@ -163,10 +163,6 @@ describe('Oracle Module', () => {
       'test',
       oracleId,
       'Hello?2',
-      '--queryTtl',
-      42,
-      '--responseTtl',
-      21,
     );
     expectToMatchLines(res, [
       /Transaction hash ________________________ th_\w+/,
@@ -179,9 +175,9 @@ describe('Oracle Module', () => {
       'Query ___________________________________ Hello?2',
       /Query ID ________________________________ oq_\w+/,
       'Query fee _______________________________ 0ae',
-      `Query TTL _______________________________ ${resJson.ttl + 1} (in 2 hours)`,
+      `Query TTL _______________________________ ${resJson.ttl - 31} (in 27 minutes)`,
       'Response ________________________________ or_Xfbg4g==',
-      `Response TTL ____________________________ ${resJson.blockHeight + +resJson.responseTtl.value + 1} (in 1 hour)`,
+      `Response TTL ____________________________ ${resJson.blockHeight + +resJson.responseTtl.value - 10} (in 27 minutes)`,
       /Fee _____________________________________ 0.00001\d+ae/,
       /Nonce ___________________________________ \d+/,
       /TTL _____________________________________ \d+ \(in [56] minutes\)/,
@@ -214,7 +210,7 @@ describe('Oracle Module', () => {
           response: isFirst ? 'or_SGkhMVTOsN8=' : 'or_Xfbg4g==',
           responseTtl: {
             type: 'delta',
-            value: '21',
+            value: isFirst ? '21' : '10',
           },
           senderId: aeSdk.address,
           senderNonce: toBeAbove0(+query.senderNonce).toString(),
@@ -251,8 +247,6 @@ describe('Oracle Module', () => {
       'test',
       queryId2,
       'Hi!2',
-      '--responseTtl',
-      21,
     );
     expectToMatchLines(res, [
       /Transaction hash ________________________ th_\w+/,
@@ -266,7 +260,7 @@ describe('Oracle Module', () => {
       'Query fee _______________________________ 0ae',
       'Query format ____________________________ <query-format>',
       'Response ________________________________ Hi!2',
-      /Response TTL ____________________________ \d+ \(in 1 hour\)/,
+      /Response TTL ____________________________ \d+ \(in 27 minutes\)/,
       'Response format _________________________ <response-format>',
       /Fee _____________________________________ 0.000016\d+ae/,
       /Nonce ___________________________________ \d+/,

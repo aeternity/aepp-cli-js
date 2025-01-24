@@ -33,6 +33,11 @@ export const nameTtlOption = new Option(
   'A number of blocks until name expires',
 ).default(nameTtl, formatBlocks(nameTtl));
 
+export const oracleTtlArgument = new Argument(
+  '[oracleTtl]',
+  'A number of blocks until oracle expires',
+).default(oracleTtl, formatBlocks(oracleTtl));
+
 export const oracleTtlOption = new Option(
   '--oracleTtl [oracleTtl]',
   'A number of blocks until oracle expires',

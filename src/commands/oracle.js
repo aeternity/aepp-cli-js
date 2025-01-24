@@ -8,6 +8,7 @@ import {
   forceOption,
   passwordOption,
   ttlOption,
+  oracleTtlArgument,
   oracleTtlOption,
   queryTtlOption,
   responseTtlOption,
@@ -39,7 +40,8 @@ let command = program
 addCommonOptions(command, './wallet.json string string');
 
 command = program
-  .command('extend <wallet_path> <oracleTtl>')
+  .command('extend <wallet_path>')
+  .addArgument(oracleTtlArgument)
   .summary("extend oracle's time to leave")
   .action(Oracle.extendOracle);
 addCommonOptions(command, './wallet.json 200');

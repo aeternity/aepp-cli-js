@@ -761,10 +761,16 @@ $ aecli oracle create ./wallet.json string string
 ## extend
 
 ```
-aecli oracle extend [options] <wallet_path> <oracleTtl>
+aecli oracle extend [options] <wallet_path> [oracleTtl]
 ```
 
 Extend oracle's time to leave.
+
+#### Arguments
+
+`wallet_path`  
+`oracleTtl`  
+A number of blocks until oracle expires (default: 500 (1 day)).
 
 #### Options
 

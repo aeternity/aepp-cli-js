@@ -17,10 +17,8 @@ export async function createOracle(walletPath, queryFormat, responseFormat, opti
     ttl,
     nonce,
     fee,
-    ...(oracleTtl && {
-      oracleTtlType: ORACLE_TTL_TYPES.delta,
-      oracleTtlValue: oracleTtl,
-    }),
+    oracleTtlType: ORACLE_TTL_TYPES.delta,
+    oracleTtlValue: oracleTtl,
     queryFee,
   });
   await printTransaction(oracle, json, aeSdk);
@@ -36,10 +34,8 @@ export async function extendOracle(walletPath, oracleTtl, options) {
     ttl,
     nonce,
     fee,
-    ...(oracleTtl && {
-      oracleTtlType: ORACLE_TTL_TYPES.delta,
-      oracleTtlValue: oracleTtl,
-    }),
+    oracleTtlType: ORACLE_TTL_TYPES.delta,
+    oracleTtlValue: oracleTtl,
   });
   await printTransaction(extended, json, aeSdk);
 }
@@ -57,14 +53,10 @@ export async function createOracleQuery(walletPath, oracleId, query, options) {
     ttl,
     nonce,
     fee,
-    ...(queryTtl && {
-      queryTtlType: ORACLE_TTL_TYPES.delta,
-      queryTtlValue: queryTtl,
-    }),
-    ...(responseTtl && {
-      responseTtlType: ORACLE_TTL_TYPES.delta,
-      responseTtlValue: responseTtl,
-    }),
+    queryTtlType: ORACLE_TTL_TYPES.delta,
+    queryTtlValue: queryTtl,
+    responseTtlType: ORACLE_TTL_TYPES.delta,
+    responseTtlValue: responseTtl,
     queryFee,
   });
   await printTransaction(oracleQuery, json, aeSdk);
@@ -82,10 +74,8 @@ export async function respondToQuery(walletPath, queryId, response, options) {
     ttl,
     nonce,
     fee,
-    ...(responseTtl && {
-      responseTtlType: ORACLE_TTL_TYPES.delta,
-      responseTtlValue: responseTtl,
-    }),
+    responseTtlType: ORACLE_TTL_TYPES.delta,
+    responseTtlValue: responseTtl,
   });
   await printTransaction(queryResponse, json, aeSdk);
 }
