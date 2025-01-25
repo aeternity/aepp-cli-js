@@ -466,8 +466,7 @@ describe('Transaction Module', () => {
     ]);
 
     const oracleTtl = await aeSdk.api.getOracleByPubkey(oracleId);
-    const isExtended = +oracleTtl.ttl === +oracleCurrentTtl.ttl + 100;
-    isExtended.should.be.equal(true);
+    expect(+oracleTtl.ttl).to.be.equal(+oracleCurrentTtl.ttl + 100);
   });
 
   it('builds oracle post query tx and sends', async () => {
@@ -508,9 +507,8 @@ describe('Transaction Module', () => {
     ]);
 
     const { oracleQueries: queries } = await aeSdk.api.getOracleQueriesByPubkey(oracleId);
+    expect(queries).to.have.length(1);
     queryId = queries[0].id;
-    const hasQuery = !!queries.length;
-    hasQuery.should.be.equal(true);
   });
 
   it('builds oracle respond tx and sends', async () => {
@@ -541,9 +539,8 @@ describe('Transaction Module', () => {
     ]);
 
     const { oracleQueries: queries } = await aeSdk.api.getOracleQueriesByPubkey(oracleId);
+    expect(queries).to.have.length(1);
     const responseQuery = decode(queries[0].response).toString();
-    const hasQuery = !!queries.length;
-    hasQuery.should.be.equal(true);
-    response.should.be.equal(responseQuery);
+    expect(response).to.be.equal(responseQuery);
   });
 });

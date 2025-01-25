@@ -217,7 +217,9 @@ contract Identity =
 
   it('Inspect non existing Oracle', async () => {
     const fakeOracleId = MemoryAccount.generate().address.replace('ak_', 'ok_');
-    await executeInspect(fakeOracleId, '--json').should.be.rejectedWith('error: Oracle not found');
+    await expect(executeInspect(fakeOracleId, '--json')).to.be.rejectedWith(
+      'error: Oracle not found',
+    );
   });
 
   it('Inspect Oracle', async () => {

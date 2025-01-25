@@ -1,10 +1,11 @@
 import fs from 'fs-extra';
 import { after, before, describe, it } from 'mocha';
-import { expect } from 'chai';
+import { expect, should } from 'chai';
 import { decode } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk, WALLET_NAME } from './index.js';
 import CliError from '../src/utils/CliError.js';
 
+should();
 const executeContract = executeProgram.bind(null, 'contract');
 
 describe('Contract Module', () => {
