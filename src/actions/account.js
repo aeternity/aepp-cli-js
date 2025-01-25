@@ -9,7 +9,7 @@ import { dump } from '../utils/keystore.js';
 import { getFullPath } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
 import { initSdkByWalletFile, AccountCli } from '../utils/cli.js';
-import { print, printUnderscored } from '../utils/print.js';
+import { print, printTable } from '../utils/print.js';
 import { PROMPT_TYPE, prompt } from '../utils/prompt.js';
 
 export async function signMessage(walletPath, data = [], options) {
@@ -26,10 +26,12 @@ export async function signMessage(walletPath, data = [], options) {
   if (json) {
     print(result);
   } else {
-    printUnderscored('Unsigned', result.data);
-    printUnderscored('Signing account address', result.address);
-    printUnderscored('Signature', result.signature);
-    printUnderscored('Signature Hex', result.signatureHex);
+    printTable([
+      ['Unsigned', result.data],
+      ['Signing account address', result.address],
+      ['Signature', result.signature],
+      ['Signature Hex', result.signatureHex],
+    ]);
   }
 }
 
@@ -40,8 +42,10 @@ export async function verifyMessage(address, hexSignature, dataArray = [], optio
   if (json) {
     print({ data, isCorrect });
   } else {
-    printUnderscored('Valid signature', isCorrect);
-    printUnderscored('Data', data);
+    printTable([
+      ['Valid signature', isCorrect],
+      ['Data', data],
+    ]);
   }
 }
 
@@ -53,11 +57,13 @@ export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...o
   if (json) {
     print({ signedTx, address, networkId });
   } else {
-    printUnderscored('Signing account address', address);
-    printUnderscored('Network ID', networkId);
-    // TODO: remove unsigned tx because it is already accepted in arguments
-    printUnderscored('Unsigned', tx);
-    printUnderscored('Signed', signedTx);
+    printTable([
+      ['Signing account address', address],
+      ['Network ID', networkId],
+      // TODO: remove unsigned tx because it is already accepted in arguments
+      ['Unsigned', tx],
+      ['Signed', signedTx],
+    ]);
   }
 }
 
@@ -78,8 +84,10 @@ export async function getAddress(walletPath, options) {
       ...(printPrivateKey && { secretKey }),
     });
   } else {
-    printUnderscored('Address', account.address);
-    if (printPrivateKey) printUnderscored('Secret Key', secretKey);
+    printTable([
+      ['Address', account.address],
+      ...(printPrivateKey ? [['Secret Key', secretKey]] : []),
+    ]);
   }
 }
 
@@ -99,7 +107,9 @@ export async function createWallet(
   if (json) {
     print({ publicKey, path: walletPath });
   } else {
-    printUnderscored('Address', publicKey);
-    printUnderscored('Path', walletPath);
+    printTable([
+      ['Address', publicKey],
+      ['Path', walletPath],
+    ]);
   }
 }

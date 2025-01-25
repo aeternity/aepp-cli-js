@@ -6,8 +6,8 @@ import {
   printBlockTransactions,
   printOracle,
   printQueries,
+  printTable,
   printTransaction,
-  printUnderscored,
 } from '../utils/print.js';
 import {
   checkPref,
@@ -19,7 +19,7 @@ import {
 } from '../utils/helpers.js';
 
 function printEntries(object) {
-  Object.entries(object).forEach((entry) => printUnderscored(...entry));
+  printTable(Object.entries(object));
 }
 
 async function getBlockByHash(hash, { json, ...options }) {
@@ -56,9 +56,11 @@ async function getAccountByHash(hash, { json, ...options }) {
       transactions,
     });
   } else {
-    printUnderscored('Account ID', hash);
-    printUnderscored('Account balance', formatCoins(balance));
-    printUnderscored('Account nonce', nonce);
+    printTable([
+      ['Account ID', hash],
+      ['Account balance', formatCoins(balance)],
+      ['Account nonce', nonce],
+    ]);
     print(transactions.length ? 'Pending transactions:' : 'No pending transactions');
     printBlockTransactions(transactions);
   }
@@ -80,27 +82,32 @@ async function getName(name, { json, ...options }) {
   }
 
   const height = await aeSdk.getHeight({ cached: true });
-  printUnderscored('Status', nameEntry.status);
-  printUnderscored('Name hash', nameEntry.id);
+  const details = [
+    ['Status', nameEntry.status],
+    ['Name hash', nameEntry.id],
+  ];
   switch (nameEntry.status) {
     case 'CLAIMED':
-      printUnderscored('Owner', nameEntry.owner);
+      details.push(['Owner', nameEntry.owner]);
       if (nameEntry.pointers?.length) {
-        nameEntry.pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
-      } else printUnderscored('Pointers', 'N/A');
-      printUnderscored('TTL', formatTtl(nameEntry.ttl, height));
+        nameEntry.pointers.forEach(({ key, id }) => details.push([`Pointer ${key}`, id]));
+      } else details.push(['Pointers', 'N/A']);
+      details.push(['TTL', formatTtl(nameEntry.ttl, height)]);
       break;
     case 'AUCTION':
-      printUnderscored('Highest bidder', nameEntry.highestBidder);
-      printUnderscored('Highest bid', formatCoins(nameEntry.highestBid));
-      printUnderscored('Ends at height', formatTtl(nameEntry.endsAt, height));
-      printUnderscored('Started at height', formatTtl(nameEntry.startedAt, height));
+      details.push(
+        ['Highest bidder', nameEntry.highestBidder],
+        ['Highest bid', formatCoins(nameEntry.highestBid)],
+        ['Ends at height', formatTtl(nameEntry.endsAt, height)],
+        ['Started at height', formatTtl(nameEntry.startedAt, height)],
+      );
       break;
     case 'AVAILABLE':
       break;
     default:
       throw new Error(`Unknown name status: ${nameEntry.status}`);
   }
+  printTable(details);
 }
 
 async function getContract(contractId, { json, ...options }) {

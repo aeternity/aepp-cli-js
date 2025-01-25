@@ -14,7 +14,7 @@ import {
   VmVersion,
   AbiVersion,
 } from '@aeternity/aepp-sdk';
-import { print, printUnderscored, printValidation } from '../utils/print.js';
+import { print, printTable, printValidation } from '../utils/print.js';
 import { validateName, decode } from '../utils/helpers.js';
 
 function buildAndPrintTx(params, json, extraKeys = {}) {
@@ -25,14 +25,17 @@ function buildAndPrintTx(params, json, extraKeys = {}) {
     print({ tx, txObject, ...extraKeys });
     return;
   }
-  printUnderscored('Transaction type', Tag[params.tag]);
+  printTable([['Transaction type', Tag[params.tag]]]);
   print('Summary');
   // TODO: print the same way as transactions from node
-  Object.entries({ ...txObject, ...extraKeys }).forEach(([key, value]) =>
-    printUnderscored(`    ${key.toUpperCase()}`, value),
+  printTable(
+    Object.entries({ ...txObject, ...extraKeys }).map(([key, value]) => [
+      `    ${key.toUpperCase()}`,
+      value,
+    ]),
   );
   print('Output');
-  printUnderscored('    Encoded', tx);
+  printTable([['    Encoded', tx]]);
   print(
     'This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.',
   );

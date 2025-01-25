@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import { encode, Contract } from '@aeternity/aepp-sdk';
 import { initSdk, initSdkByWalletFile } from '../utils/cli.js';
-import { print, printTransaction, printUnderscored } from '../utils/print.js';
+import { print, printTable, printTransaction } from '../utils/print.js';
 import CliError from '../utils/CliError.js';
 import { formatCoins, getFullPath } from '../utils/helpers.js';
 
@@ -93,9 +93,11 @@ export async function deploy(walletPath, args, options) {
   if (options.json) print({ ...result, descrPath: options.descrPath });
   else {
     print('Contract was successfully deployed');
-    printUnderscored('Contract address', result.address);
-    printUnderscored('Transaction hash', result.transaction);
-    printUnderscored('Deploy descriptor', options.descrPath);
+    printTable([
+      ['Contract address', result.address],
+      ['Transaction hash', result.transaction],
+      ['Deploy descriptor', options.descrPath],
+    ]);
   }
 }
 
@@ -123,8 +125,10 @@ export async function call(fn, args, walletPath, options) {
     await printTransaction(callResult.txData, json, aeSdk);
     print('----------------------Call info-----------------------');
     const gasCoins = BigInt(callResult.result.gasUsed) * callResult.txData.tx.gasPrice;
-    printUnderscored('Gas used', `${callResult.result.gasUsed} (${formatCoins(gasCoins)})`);
-    printUnderscored('Return value (encoded)', callResult.result.returnValue);
-    printUnderscored('Return value (decoded)', callResult.decodedResult);
+    printTable([
+      ['Gas used', `${callResult.result.gasUsed} (${formatCoins(gasCoins)})`],
+      ['Return value (encoded)', callResult.result.returnValue],
+      ['Return value (decoded)', callResult.decodedResult],
+    ]);
   }
 }
