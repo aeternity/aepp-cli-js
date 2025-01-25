@@ -49,8 +49,8 @@ The next step is to create a wallet to use in other commands:
 
 ```
 $ aecli account create ./wallet.json
-Address _________________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
-Path ____________________________________ /path/to/wallet.json
+Address  ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
+Path     /path/to/wallet.json
 ```
 
 <!-- WALLET-CREATE-END -->
@@ -67,9 +67,9 @@ Run `$ aecli inspect <wallet address>` to ensure that it got coins.
 
 ```
 $ aecli inspect ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
-Account ID ______________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
-Account balance _________________________ 10000ae
-Account nonce ___________________________ 0
+Account ID       ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
+Account balance  10000ae
+Account nonce    0
 No pending transactions
 ```
 
@@ -82,18 +82,18 @@ At the last step, we will send our coins to another account:
 ```
 $ aecli spend ./wallet.json ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT 42ae
 Transaction mined
-Transaction hash ________________________ th_2muLsbZeFaVJ3tePTnLqobPhxBzwFsm1zUv8sjgMX4LKuevX2T
-Block hash ______________________________ mh_dnoULQWpiRtcrntd5yJPUxcu7YrTu18xZ1e9EC2b8prKdShME
-Block height ____________________________ 2 (about now)
-Signatures ______________________________ ["sg_SG5uW5KEGiy5iG1cCkKq4VEdpyvewcW4NjVf4vj2ZoCiap5iB7UQoknWpyWsD4FkziBuGPE88zwXemq3ZvPrdzNtXtKuD"]
-Transaction type ________________________ SpendTx (ver. 1)
-Sender address __________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
-Recipient address _______________________ ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT
-Amount __________________________________ 42ae
-Payload _________________________________ ba_Xfbg4g==
-Fee _____________________________________ 0.00001684ae
-Nonce ___________________________________ 1
-TTL _____________________________________ 4 (about now)
+Transaction hash   th_2muLsbZeFaVJ3tePTnLqobPhxBzwFsm1zUv8sjgMX4LKuevX2T
+Block hash         mh_dnoULQWpiRtcrntd5yJPUxcu7YrTu18xZ1e9EC2b8prKdShME
+Block height       2 (about now)
+Signatures         ["sg_SG5uW5KEGiy5iG1cCkKq4VEdpyvewcW4NjVf4vj2ZoCiap5iB7UQoknWpyWsD4FkziBuGPE88zwXemq3ZvPrdzNtXtKuD"]
+Transaction type   SpendTx (ver. 1)
+Sender address     ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
+Recipient address  ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUDE8NT
+Amount             42ae
+Payload            ba_Xfbg4g==
+Fee                0.00001684ae
+Nonce              1
+TTL                4 (about now)
 ```
 
 <!-- SPEND-END -->

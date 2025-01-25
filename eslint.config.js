@@ -8,4 +8,8 @@ export default [
   { languageOptions: { globals: globals.node } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
+  {
+    files: ['test/*.js'],
+    rules: { 'no-regex-spaces': 'off' },
+  },
 ];

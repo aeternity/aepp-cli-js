@@ -1,8 +1,6 @@
 import { Encoding, unpackTx, AbiVersion, VmVersion } from '@aeternity/aepp-sdk';
 import { decode, formatCoins, formatTtl as formatTtlUnbound, formatSeconds } from './helpers.js';
 
-const ROW_WIDTH = 40;
-
 const JsonStringifyEs = (object, spaced) =>
   JSON.stringify(
     object,
@@ -27,19 +25,13 @@ export function print(msg, obj) {
   }
 }
 
-function printUnderscored(key, val) {
-  print(
-    [
-      key,
-      '_'.repeat(ROW_WIDTH - key.length),
-      typeof val !== 'object' ? val : JsonStringifyEs(val),
-    ].join(' '),
-  );
-}
-
 export function printTable(data) {
-  for (const row of data) {
-    printUnderscored(...row);
+  const firstColumnWidth = Math.max(...data.map(([key]) => key.length));
+  for (const [key, val] of data) {
+    console.log(
+      key.padEnd(firstColumnWidth + 1),
+      typeof val !== 'object' ? val : JsonStringifyEs(val),
+    );
   }
 }
 

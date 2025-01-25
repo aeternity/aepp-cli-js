@@ -44,18 +44,18 @@ describe('Spend', () => {
     const res = await executeSpend(address, amount);
     expectToMatchLines(res, [
       'Transaction mined',
-      /Transaction hash ________________________ th_\w+/,
-      /Block hash ______________________________ mh_\w+/,
-      /Block height ____________________________ \d+/,
-      /Signatures ______________________________ \["sg_\w+"\]/,
-      'Transaction type ________________________ SpendTx (ver. 1)',
-      `Sender address __________________________ ${aeSdk.address}`,
-      `Recipient address _______________________ ${address}`,
-      'Amount __________________________________ 0.0000000000000001ae',
-      'Payload _________________________________ ba_Xfbg4g==',
-      /Fee _____________________________________ 0.000016\d+ae/,
-      'Nonce ___________________________________ 2',
-      /TTL _____________________________________ \d+/,
+      /Transaction hash   th_\w+/,
+      /Block hash         mh_\w+/,
+      /Block height       \d+/,
+      /Signatures         \["sg_\w+"\]/,
+      'Transaction type   SpendTx (ver. 1)',
+      `Sender address     ${aeSdk.address}`,
+      `Recipient address  ${address}`,
+      'Amount             0.0000000000000001ae',
+      'Payload            ba_Xfbg4g==',
+      /Fee                0.000016\d+ae/,
+      'Nonce              2',
+      /TTL                \d+/,
     ]);
   });
 

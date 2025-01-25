@@ -25,17 +25,17 @@ function buildAndPrintTx(params, json, extraKeys = {}) {
     print({ tx, txObject, ...extraKeys });
     return;
   }
-  printTable([['Transaction type', Tag[params.tag]]]);
-  print('Summary');
   // TODO: print the same way as transactions from node
-  printTable(
-    Object.entries({ ...txObject, ...extraKeys }).map(([key, value]) => [
+  printTable([
+    ['Transaction type', Tag[params.tag]],
+    ['Summary', ''],
+    ...Object.entries({ ...txObject, ...extraKeys }).map(([key, value]) => [
       `    ${key.toUpperCase()}`,
       value,
     ]),
-  );
-  print('Output');
-  printTable([['    Encoded', tx]]);
+    ['Output', ''],
+    ['    Encoded', tx],
+  ]);
   print(
     'This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.',
   );

@@ -67,9 +67,9 @@ To deploy a contract, run [`aecli contract deploy`](./reference.md#deploy) addin
 ```
 $ aecli contract deploy --contractSource ./contract.aes ./wallet.json
 Contract was successfully deployed
-Contract address ________________________ ct_5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV
-Transaction hash ________________________ th_5M77avjrPKezyBrUfkn19C79MnVh9SSoX4Euz4nY75kn9Fxto
-Deploy descriptor _______________________ /path/to/contract.aes.deploy.5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV.json
+Contract address   ct_5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV
+Transaction hash   th_5M77avjrPKezyBrUfkn19C79MnVh9SSoX4Euz4nY75kn9Fxto
+Deploy descriptor  /path/to/contract.aes.deploy.5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV.json
 ```
 
 <!-- CONTRACT-DEPLOY-END -->
@@ -82,25 +82,25 @@ To execute a function of the contract, run [`aecli contract call`](./reference.m
 
 ```
 $ aecli contract call --descrPath contract.aes.deploy.5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV.json sum '[1, 2]' ./wallet.json
-Transaction hash ________________________ th_urgozuZRooNXrZxuvNDdT4BiApcGKsf6ZRpffargXcoZNHQ4C
-Block hash ______________________________ mh_dnoULQWpiRtcrntd5yJPUxcu7YrTu18xZ1e9EC2b8prKdShME
-Block height ____________________________ 4 (about now)
-Signatures ______________________________ ["sg_Vn2cCsMk8RvBKyNTKTbq8V4vm6beuHxfYA7vLBNLnRF3x9hoydWWAtNkaiix8KhyEFSLmsmTy6jz9Lps2TQqVdmH6qmCG"]
-Transaction type ________________________ ContractCallTx (ver. 1)
-Caller address __________________________ ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
-Contract address ________________________ ct_5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV
-Gas _____________________________________ 31 (0.000000031ae)
-Gas price _______________________________ 0.000000001ae
-Call data _______________________________ cb_KxHrtMsKKwIE32Kmfg==
-ABI version _____________________________ 3 (Fate)
-Amount __________________________________ 0ae
-Fee _____________________________________ 0.00018198ae
-Nonce ___________________________________ 3
-TTL _____________________________________ 7 (in 6 minutes)
+Transaction hash  th_urgozuZRooNXrZxuvNDdT4BiApcGKsf6ZRpffargXcoZNHQ4C
+Block hash        mh_dnoULQWpiRtcrntd5yJPUxcu7YrTu18xZ1e9EC2b8prKdShME
+Block height      4 (about now)
+Signatures        ["sg_Vn2cCsMk8RvBKyNTKTbq8V4vm6beuHxfYA7vLBNLnRF3x9hoydWWAtNkaiix8KhyEFSLmsmTy6jz9Lps2TQqVdmH6qmCG"]
+Transaction type  ContractCallTx (ver. 1)
+Caller address    ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pnWo7E
+Contract address  ct_5MbRKEb77pJVZrjVrQYHu2nzr2EKojuthotio1vZ2Q23dkYkV
+Gas               31 (0.000000031ae)
+Gas price         0.000000001ae
+Call data         cb_KxHrtMsKKwIE32Kmfg==
+ABI version       3 (Fate)
+Amount            0ae
+Fee               0.00018198ae
+Nonce             3
+TTL               7 (in 6 minutes)
 ----------------------Call info-----------------------
-Gas used ________________________________ 25 (0.000000025ae)
-Return value (encoded) __________________ cb_BvMDXHk=
-Return value (decoded) __________________ 3
+Gas used                25 (0.000000025ae)
+Return value (encoded)  cb_BvMDXHk=
+Return value (decoded)  3
 ```
 
 <!-- CONTRACT-CALL-END -->
@@ -121,9 +121,9 @@ The [`inspect`](./reference.md#inspect) command allows you to see inside various
 
 ```
 $ aecli inspect ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
-Account ID ______________________________ ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
-Account balance _________________________ 52.1342501ae
-Account nonce ___________________________ 3
+Account ID       ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
+Account balance  52.1342501ae
+Account nonce    3
 No pending transactions
 ```
 
@@ -131,16 +131,16 @@ No pending transactions
 
 ```
 $ aecli inspect th_iirV7mw49NfFY8NbBhbXGBLv9PPT3h1ou11oKtPsJVHGVpWVC
-Transaction hash ________________________ th_iirV7mw49NfFY8NbBhbXGBLv9PPT3h1ou11oKtPsJVHGVpWVC
-Block hash ______________________________ mh_2RojH44UtAjf8pRQekPp7o78CmCqMQJkRdxmfXvVmWg9M6ymcr
-Block height ____________________________ 99005 (5 years ago)
-Signatures ______________________________ ["sg_MjwB8zrhqGTqYWY2c5jLrikuCcwppnhNhjXg9TcdFbCkSvGhPL6Hf4iu81eoxWWJFSgRSFQ3h3qMv6vVNqYfo5NNBNDFK"]
-Transaction type ________________________ NameClaimTx (ver. 2)
-Account address _________________________ ak_2i74vkHbdciAdr7Bw3ogdTHsLykPf4ii1DQEGLh6RpySyhtA9H
-Name ____________________________________ yanislav.test
-Name salt _______________________________ 6632125367082877
-Fee _____________________________________ 0.00001638ae
-Nonce ___________________________________ 2
+Transaction hash  th_iirV7mw49NfFY8NbBhbXGBLv9PPT3h1ou11oKtPsJVHGVpWVC
+Block hash        mh_2RojH44UtAjf8pRQekPp7o78CmCqMQJkRdxmfXvVmWg9M6ymcr
+Block height      99005 (5 years ago)
+Signatures        ["sg_MjwB8zrhqGTqYWY2c5jLrikuCcwppnhNhjXg9TcdFbCkSvGhPL6Hf4iu81eoxWWJFSgRSFQ3h3qMv6vVNqYfo5NNBNDFK"]
+Transaction type  NameClaimTx (ver. 2)
+Account address   ak_2i74vkHbdciAdr7Bw3ogdTHsLykPf4ii1DQEGLh6RpySyhtA9H
+Name              yanislav.test
+Name salt         6632125367082877
+Fee               0.00001638ae
+Nonce             2
 ```
 
 #### inspect block
@@ -148,29 +148,29 @@ Nonce ___________________________________ 2
 ```
 $ aecli inspect mh_2DhgyD4np6n3JMsNWVXdtWZE2rAx74sgxL6nb2GsCKB1VnbLxN
 <<--------------- MicroBlock --------------->>
-Block hash ______________________________ mh_2DhgyD4np6n3JMsNWVXdtWZE2rAx74sgxL6nb2GsCKB1VnbLxN
-Block height ____________________________ 762850
-State hash ______________________________ bs_9vEQ2hkjJLFoqbmUq2YB3PyZN4TGV6Viv686wgX3i4t21PUK3
-Nonce ___________________________________ N/A
-Miner ___________________________________ N/A
-Time ____________________________________ 17/04/2023, 05:54:40
-Previous block hash _____________________ mh_2VaToyVbe8joVts9SjzdGJZqK7nk6w4MfvGC32Nfwp9KnTa7Z6
-Previous key block hash _________________ kh_2gVG4vzZwWJfzMe5Ug2jwwDcgcpmjEd1umsWqKA9CkSPidCYuw
-Version _________________________________ 5
-Target __________________________________ N/A
-Transactions ____________________________ 1
+Block hash               mh_2DhgyD4np6n3JMsNWVXdtWZE2rAx74sgxL6nb2GsCKB1VnbLxN
+Block height             762850
+State hash               bs_9vEQ2hkjJLFoqbmUq2YB3PyZN4TGV6Viv686wgX3i4t21PUK3
+Nonce                    N/A
+Miner                    N/A
+Time                     17/04/2023, 05:54:40
+Previous block hash      mh_2VaToyVbe8joVts9SjzdGJZqK7nk6w4MfvGC32Nfwp9KnTa7Z6
+Previous key block hash  kh_2gVG4vzZwWJfzMe5Ug2jwwDcgcpmjEd1umsWqKA9CkSPidCYuw
+Version                  5
+Target                   N/A
+Transactions             1
     <<--------------- Transaction --------------->>
-    Transaction hash ________________________ th_2uc2RDDQnDV2BsyVLHA36GP3UZJNn16utV6uivWjLAQoTVBA3u
-    Block hash ______________________________ mh_2DhgyD4np6n3JMsNWVXdtWZE2rAx74sgxL6nb2GsCKB1VnbLxN
-    Block height ____________________________ 762850
-    Signatures ______________________________ ["sg_4UUxNZhGLXWjGsfAMEddccjQ1wpZfwUkZ9qMczjRUNFGAWAS3fahHWqgwxLf79RQ3J3ZRnEaazz259dPzUjj5J3EHcNYj"]
-    Transaction type ________________________ SpendTx (ver. 1)
-    Sender address __________________________ ak_2swhLkgBPeeADxVTAVCJnZLY5NZtCFiM93JxsEaMuC59euuFRQ
-    Recipient address _______________________ ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
-    Amount __________________________________ 50ae
-    Payload _________________________________ ba_Xfbg4g==
-    Fee _____________________________________ 0.00001688ae
-    Nonce ___________________________________ 1513
+    Transaction hash   th_2uc2RDDQnDV2BsyVLHA36GP3UZJNn16utV6uivWjLAQoTVBA3u
+    Block hash         mh_2DhgyD4np6n3JMsNWVXdtWZE2rAx74sgxL6nb2GsCKB1VnbLxN
+    Block height       762850
+    Signatures         ["sg_4UUxNZhGLXWjGsfAMEddccjQ1wpZfwUkZ9qMczjRUNFGAWAS3fahHWqgwxLf79RQ3J3ZRnEaazz259dPzUjj5J3EHcNYj"]
+    Transaction type   SpendTx (ver. 1)
+    Sender address     ak_2swhLkgBPeeADxVTAVCJnZLY5NZtCFiM93JxsEaMuC59euuFRQ
+    Recipient address  ak_22xzfNRfgYWJmsB1nFAGF3kmabuaGFTzWRobNdpturBgHF83Cx
+    Amount             50ae
+    Payload            ba_Xfbg4g==
+    Fee                0.00001688ae
+    Nonce              1513
 ```
 
 <!-- INSPECT-EXAMPLES-END -->

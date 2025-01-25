@@ -33,9 +33,9 @@ describe('Inspect Module', () => {
     });
     const res = await executeInspect(aeSdk.address);
     expectToMatchLines(res, [
-      `Account ID ______________________________ ${aeSdk.address}`,
-      `Account balance _________________________ 50ae`,
-      `Account nonce ___________________________ ${resJson.nonce}`,
+      `Account ID       ${aeSdk.address}`,
+      `Account balance  50ae`,
+      `Account nonce    ${resJson.nonce}`,
       `No pending transactions`,
     ]);
   });
@@ -65,18 +65,18 @@ describe('Inspect Module', () => {
     });
     const res = await executeInspect(hash);
     expectToMatchLines(res, [
-      `Transaction hash ________________________ ${resJson.hash}`,
-      `Block hash ______________________________ ${resJson.blockHash}`,
-      `Block height ____________________________ ${resJson.blockHeight} (about now)`,
-      `Signatures ______________________________ ["${resJson.signatures[0]}"]`,
-      'Transaction type ________________________ SpendTx (ver. 1)',
-      `Sender address __________________________ ${aeSdk.address}`,
-      `Recipient address _______________________ ${recipient}`,
-      'Amount __________________________________ 0.00000000000000042ae',
-      'Payload _________________________________ ba_Xfbg4g==',
-      /Fee _____________________________________ 0.000016\d+ae/,
-      `Nonce ___________________________________ ${resJson.tx.nonce}`,
-      /TTL _____________________________________ \d+ \(in [56] minutes\)/,
+      `Transaction hash   ${resJson.hash}`,
+      `Block hash         ${resJson.blockHash}`,
+      `Block height       ${resJson.blockHeight} (about now)`,
+      `Signatures         ["${resJson.signatures[0]}"]`,
+      'Transaction type   SpendTx (ver. 1)',
+      `Sender address     ${aeSdk.address}`,
+      `Recipient address  ${recipient}`,
+      'Amount             0.00000000000000042ae',
+      'Payload            ba_Xfbg4g==',
+      /Fee                0.000016\d+ae/,
+      `Nonce              ${resJson.tx.nonce}`,
+      /TTL                \d+ \(in [56] minutes\)/,
     ]);
   });
 
@@ -103,16 +103,16 @@ describe('Inspect Module', () => {
     });
     const res = await executeInspect(tx);
     expectToMatchLines(res, [
-      `Tx Type _________________________________ SpendTx`,
-      `tag _____________________________________ 12`,
-      `version _________________________________ 1`,
-      `senderId ________________________________ ${aeSdk.address}`,
-      `recipientId _____________________________ ${recipientId}`,
-      `amount __________________________________ 420`,
-      `fee _____________________________________ 16700000000000`,
-      `ttl _____________________________________ 0`,
-      `nonce ___________________________________ ${resJson.nonce}`,
-      `payload _________________________________ ba_Xfbg4g==`,
+      `Tx Type      SpendTx`,
+      `tag          12`,
+      `version      1`,
+      `senderId     ${aeSdk.address}`,
+      `recipientId  ${recipientId}`,
+      `amount       420`,
+      `fee          16700000000000`,
+      `ttl          0`,
+      `nonce        ${resJson.nonce}`,
+      `payload      ba_Xfbg4g==`,
     ]);
   });
 
@@ -137,16 +137,16 @@ describe('Inspect Module', () => {
     const key = await executeInspect(prevKeyHash);
     expectToMatchLines(key.split('\nTransactions')[0], [
       `<<--------------- KeyBlock --------------->>`,
-      `Block hash ______________________________ ${keyJson.hash}`,
-      `Block height ____________________________ ${keyJson.height}`,
-      `State hash ______________________________ ${keyJson.stateHash}`,
-      `Nonce ___________________________________ N/A`,
-      `Miner ___________________________________ ${keyJson.miner}`,
-      `Time ____________________________________ ${new Date(keyJson.time).toString()}`,
-      `Previous block hash _____________________ ${keyJson.prevHash}`,
-      `Previous key block hash _________________ ${keyJson.prevKeyHash}`,
-      `Version _________________________________ 6`,
-      `Target __________________________________ ${keyJson.target}`,
+      `Block hash               ${keyJson.hash}`,
+      `Block height             ${keyJson.height}`,
+      `State hash               ${keyJson.stateHash}`,
+      `Nonce                    N/A`,
+      `Miner                    ${keyJson.miner}`,
+      `Time                     ${new Date(keyJson.time).toString()}`,
+      `Previous block hash      ${keyJson.prevHash}`,
+      `Previous key block hash  ${keyJson.prevKeyHash}`,
+      `Version                  6`,
+      `Target                   ${keyJson.target}`,
     ]);
 
     let microHash = keyJson.prevHash;
@@ -171,16 +171,16 @@ describe('Inspect Module', () => {
     const micro = await executeInspect(microHash);
     expectToMatchLines(micro.split('\nTransactions')[0], [
       `<<--------------- MicroBlock --------------->>`,
-      `Block hash ______________________________ ${microJson.hash}`,
-      `Block height ____________________________ ${microJson.height}`,
-      `State hash ______________________________ ${microJson.stateHash}`,
-      `Nonce ___________________________________ N/A`,
-      `Miner ___________________________________ N/A`,
-      `Time ____________________________________ ${new Date(microJson.time).toString()}`,
-      `Previous block hash _____________________ ${microJson.prevHash}`,
-      `Previous key block hash _________________ ${microJson.prevKeyHash}`,
-      `Version _________________________________ 6`,
-      `Target __________________________________ N/A`,
+      `Block hash               ${microJson.hash}`,
+      `Block height             ${microJson.height}`,
+      `State hash               ${microJson.stateHash}`,
+      `Nonce                    N/A`,
+      `Miner                    N/A`,
+      `Time                     ${new Date(microJson.time).toString()}`,
+      `Previous block hash      ${microJson.prevHash}`,
+      `Previous key block hash  ${microJson.prevKeyHash}`,
+      `Version                  6`,
+      `Target                   N/A`,
     ]);
   });
 
@@ -205,13 +205,13 @@ contract Identity =
     });
     const res = await executeInspect(address);
     expectToMatchLines(res, [
-      `id ______________________________________ ${address}`,
-      `ownerId _________________________________ ${aeSdk.address}`,
-      `vmVersion _______________________________ 8`,
-      `abiVersion ______________________________ 3`,
-      `active __________________________________ true`,
-      `referrerIds _____________________________ []`,
-      `deposit _________________________________ 0`,
+      `id           ${address}`,
+      `ownerId      ${aeSdk.address}`,
+      `vmVersion    8`,
+      `abiVersion   3`,
+      `active       true`,
+      `referrerIds  []`,
+      `deposit      0`,
     ]);
   });
 
@@ -251,24 +251,24 @@ contract Identity =
     const res = await executeInspect(oracleId);
     // TODO: "no response" message instead of empty string in "Response decoded"
     expectToMatchLines(res, [
-      `Oracle ID _______________________________ ${oracleId}`,
-      `Oracle Query Fee ________________________ 0`,
-      `Oracle Query Format _____________________ <request format>`,
-      `Oracle Response Format __________________ <response format>`,
-      `Ttl _____________________________________ ${resJson.ttl}`,
+      `Oracle ID               ${oracleId}`,
+      `Oracle Query Fee        0`,
+      `Oracle Query Format     <request format>`,
+      `Oracle Response Format  <response format>`,
+      `Ttl                     ${resJson.ttl}`,
       ``,
       `--------------------------------- QUERIES ------------------------------------`,
-      `Oracle ID _______________________________ ${oracleId}`,
-      `Query ID ________________________________ ${queryId}`,
-      `Fee _____________________________________ 0`,
-      `Query ___________________________________ ov_SGVsbG8/0oNcUw==`,
-      `Query decoded ___________________________ Hello?`,
-      `Response ________________________________ or_Xfbg4g==`,
-      `Response decoded ________________________${' '}`,
-      `Response Ttl ____________________________ {"type":"delta","value":"10"}`,
-      `Sender Id _______________________________ ${aeSdk.address}`,
-      `Sender Nonce ____________________________ 4`,
-      `Ttl _____________________________________ ${resJson.queries[0].ttl}`,
+      `Oracle ID         ${oracleId}`,
+      `Query ID          ${queryId}`,
+      `Fee               0`,
+      `Query             ov_SGVsbG8/0oNcUw==`,
+      `Query decoded     Hello?`,
+      `Response          or_Xfbg4g==`,
+      `Response decoded  `,
+      `Response Ttl      {"type":"delta","value":"10"}`,
+      `Sender Id         ${aeSdk.address}`,
+      `Sender Nonce      4`,
+      `Ttl               ${resJson.queries[0].ttl}`,
       `------------------------------------------------------------------------------`,
     ]);
   });
@@ -286,10 +286,7 @@ contract Identity =
       status: 'AVAILABLE',
     });
     const res = await executeInspect(name);
-    expectToMatchLines(res, [
-      `Status __________________________________ AVAILABLE`,
-      `Name hash _______________________________ ${produceNameId(name)}`,
-    ]);
+    expectToMatchLines(res, [`Status     AVAILABLE`, `Name hash  ${produceNameId(name)}`]);
   });
 
   it('Inspect Claimed Name', async () => {
@@ -314,13 +311,13 @@ contract Identity =
     });
     const res = await executeInspect(name);
     expectToMatchLines(res, [
-      'Status __________________________________ CLAIMED',
-      `Name hash _______________________________ ${resJson.id}`,
-      `Owner ___________________________________ ${aeSdk.address}`,
-      `Pointer myKey ___________________________ ${aeSdk.address}`,
-      `Pointer account_pubkey __________________ ${aeSdk.address}`,
-      `Pointer oracle_pubkey ___________________ ${aeSdk.address}`,
-      /TTL _____________________________________ \d+ \(in 1 year\)/,
+      'Status                  CLAIMED',
+      `Name hash               ${resJson.id}`,
+      `Owner                   ${aeSdk.address}`,
+      `Pointer myKey           ${aeSdk.address}`,
+      `Pointer account_pubkey  ${aeSdk.address}`,
+      `Pointer oracle_pubkey   ${aeSdk.address}`,
+      /TTL                     \d+ \(in 1 year\)/,
     ]);
   }).timeout(6000);
 
@@ -339,12 +336,12 @@ contract Identity =
     });
     const res = await executeInspect(auctionName);
     expectToMatchLines(res, [
-      `Status __________________________________ AUCTION`,
-      `Name hash _______________________________ ${resJson.id}`,
-      `Highest bidder __________________________ ${aeSdk.address}`,
-      `Highest bid _____________________________ 19.6418ae`,
-      `Ends at height __________________________ ${endsAt} (in 1 day)`,
-      `Started at height _______________________ ${resJson.startedAt} (about now)`,
+      `Status             AUCTION`,
+      `Name hash          ${resJson.id}`,
+      `Highest bidder     ${aeSdk.address}`,
+      `Highest bid        19.6418ae`,
+      `Ends at height     ${endsAt} (in 1 day)`,
+      `Started at height  ${resJson.startedAt} (about now)`,
     ]);
   }).timeout(4000);
 });
