@@ -215,7 +215,7 @@ describe('Transaction Module', () => {
     ]);
 
     nameId = (await aeSdk.api.getNameEntryByName(name)).id;
-  }).timeout(10000);
+  });
 
   it('builds name update tx and sends', async () => {
     nonce += 1;
@@ -359,7 +359,7 @@ describe('Transaction Module', () => {
       /Fee               0.000078\d+ae/,
       `Nonce             ${nonce}`,
     ]);
-  }).timeout(8000);
+  });
 
   it('builds contract call tx and sends', async () => {
     nonce += 1;
@@ -402,7 +402,7 @@ describe('Transaction Module', () => {
       /Fee               0.000182\d+ae/,
       `Nonce             ${nonce}`,
     ]);
-  }).timeout(4000);
+  });
 
   it('builds oracle register tx and sends', async () => {
     nonce += 1;

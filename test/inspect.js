@@ -319,7 +319,7 @@ contract Identity =
       `Pointer oracle_pubkey   ${aeSdk.address}`,
       /TTL                     \d+ \(in 1 year\)/,
     ]);
-  }).timeout(6000);
+  });
 
   it('Inspect Running Auction Name', async () => {
     const auctionName = `a${Math.random().toString().slice(2, 9)}.chain`;
@@ -343,5 +343,5 @@ contract Identity =
       `Ends at height     ${endsAt} (in 1 day)`,
       `Started at height  ${resJson.startedAt} (about now)`,
     ]);
-  }).timeout(4000);
+  });
 });

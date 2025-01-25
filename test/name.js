@@ -36,7 +36,7 @@ describe('AENS Module', () => {
       key: 'account_pubkey',
       encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
     });
-  }).timeout(10000);
+  });
 
   it('Full claim with options', async () => {
     const updateTx = await executeName(
@@ -63,7 +63,7 @@ describe('AENS Module', () => {
       key: 'account_pubkey',
       encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
     });
-  }).timeout(10000);
+  });
 
   it('Pre Claim Name', async () => {
     const preClaim = await executeName(
@@ -82,7 +82,7 @@ describe('AENS Module', () => {
     preClaim.commitmentId.should.contain('cm');
     nameResult.id.should.satisfy((id) => id.startsWith('nm_'));
     nameResult.status.should.equal('AVAILABLE');
-  }).timeout(4000);
+  });
 
   it('Claim Name', async () => {
     const claim = await executeName(
@@ -99,7 +99,7 @@ describe('AENS Module', () => {
     claim.blockHeight.should.be.gt(0);
     claim.pointers.length.should.be.equal(0);
     nameResult.status.should.equal('CLAIMED');
-  }).timeout(10000);
+  });
 
   it('Update Name', async () => {
     const updateTx = await executeName(
@@ -224,7 +224,7 @@ describe('AENS Module', () => {
       const preclaim = await aeSdk.aensPreclaim(name, { onAccount });
       const claim = await preclaim.claim({ onAccount });
       claim.blockHeight.should.be.gt(0);
-    }).timeout(10000);
+    });
 
     it('Make bid', async () => {
       const bid = await executeName(

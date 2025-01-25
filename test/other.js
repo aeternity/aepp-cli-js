@@ -8,7 +8,7 @@ describe('Other tests', () => {
       'Node https://mainnet.aeternity.io network id ae_mainnet, version 7.1.0, protocol 6 (Ceres)\n' +
         'Compiler https://v7.compiler.aepps.com version 7.4.0',
     );
-  }).timeout(4000);
+  });
 
   it('selects node', async () => {
     expect(await executeProgram('select-node', 'http://example.com/node')).to.equal('');

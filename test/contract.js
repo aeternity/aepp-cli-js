@@ -7,8 +7,7 @@ import CliError from '../src/utils/CliError.js';
 
 const executeContract = executeProgram.bind(null, 'contract');
 
-describe('Contract Module', function contractTests() {
-  this.timeout(4000);
+describe('Contract Module', () => {
   const contractSourceFile = 'test/contracts/contract.aes';
   const contractAciFile = 'test-artifacts/contract-aci.json';
   let deployDescriptorFile;
@@ -61,7 +60,7 @@ describe('Contract Module', function contractTests() {
       transaction.should.be.a('string');
       name.should.satisfy((n) => n.endsWith(contractSourceFile));
       add.should.be.equal(`${address.split('_')[1]}.json`);
-    }).timeout(8000);
+    });
 
     it('deploys contract with custom descrPath', async () => {
       const descrPath = './not-existing/testDescriptor.json';
