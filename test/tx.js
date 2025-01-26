@@ -247,7 +247,7 @@ describe('Transaction Module', () => {
       'Transaction type        NameUpdateTx (ver. 1)',
       `Account address         ${aeSdk.address}`,
       `Name ID                 ${nameId}`,
-      'Name TTL                180000 (in 1 year)',
+      'Name TTL                180000 (1 year)',
       `Pointer account_pubkey  ${aeSdk.address}`,
       'Client TTL              3600 (1 hour)',
       /Fee                     0.000017\d+ae/,

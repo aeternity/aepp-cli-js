@@ -1,4 +1,4 @@
-import { isAddressValid, getDefaultPointerKey } from '@aeternity/aepp-sdk';
+import { isAddressValid, getDefaultPointerKey, isAuctionName } from '@aeternity/aepp-sdk';
 import { initSdkByWalletFile } from '../utils/cli.js';
 import { printTransaction } from '../utils/print.js';
 import { getNameEntry, validateName } from '../utils/helpers.js';
@@ -126,6 +126,11 @@ export async function fullClaim(walletPath, name, options) {
     fee,
     nameFee,
   });
+
+  if (isAuctionName(name)) {
+    await printTransaction(nameInstance, json, aeSdk);
+    return;
+  }
 
   nonce = nonce && nonce + 1;
   const updateTx = await nameInstance.update(

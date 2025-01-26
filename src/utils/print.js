@@ -1,5 +1,11 @@
 import { Encoding, unpackTx, AbiVersion, VmVersion } from '@aeternity/aepp-sdk';
-import { decode, formatCoins, formatTtl as formatTtlUnbound, formatSeconds } from './helpers.js';
+import {
+  decode,
+  formatCoins,
+  formatTtl as formatTtlUnbound,
+  formatSeconds,
+  formatBlocks,
+} from './helpers.js';
 
 const JsonStringifyEs = (object, spaced) =>
   JSON.stringify(
@@ -81,10 +87,11 @@ function printTransactionSync(_tx, json, currentHeight) {
     txFieldRow(tx, 'Caller address', 'callerId'),
     // name
     txFieldRow(tx, 'Name ID', 'nameId'),
-    txFieldRow(tx, 'Name TTL', 'nameTtl', formatTtl),
+    txFieldRow(tx, 'Name TTL', 'nameTtl', formatBlocks),
     txFieldRow(tx, 'Name', 'name'),
     txFieldRow(tx, 'Name fee', 'nameFee', formatCoins),
     txFieldRow(tx, 'Name salt', 'nameSalt'),
+    txFieldRow(tx, 'Name salt', 'salt'),
   ];
 
   if ('pointers' in tx) {
