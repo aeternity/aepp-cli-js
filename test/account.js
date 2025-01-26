@@ -37,7 +37,7 @@ describe('Account Module', () => {
     expectToMatchLines(res, [`Address  ${resJson.publicKey}`]);
   });
 
-  it('Create Wallet From Private Key', async () => {
+  it('Create Wallet From Secret Key', async () => {
     await executeAccount(
       'create',
       walletName,
@@ -94,13 +94,13 @@ describe('Account Module', () => {
     );
   });
 
-  it('Check Wallet Address with Private Key', async () => {
+  it('Check Wallet Address with Secret Key', async () => {
     const resJson = await executeAccount(
       'address',
       walletName,
       '--password',
       'test',
-      '--privateKey',
+      '--secretKey',
       '--forcePrompt',
       '--json',
     );
@@ -110,7 +110,7 @@ describe('Account Module', () => {
       walletName,
       '--password',
       'test',
-      '--privateKey',
+      '--secretKey',
       '--forcePrompt',
     );
     expectToMatchLines(res, [`Address     ${account.address}`, `Secret Key  ${account.secretKey}`]);
@@ -120,7 +120,7 @@ describe('Account Module', () => {
     const walletPath = 'test-artifacts/test-wallet-1.json';
     prompts.inject(['test-password', 'y', 'test-password']);
     const { publicKey } = await executeAccount('create', walletPath, '--json');
-    expect(await executeAccount('address', walletPath, '--privateKey')).to.include(publicKey);
+    expect(await executeAccount('address', walletPath, '--secretKey')).to.include(publicKey);
   });
 
   it("don't asks for password if provided password is empty string", async () => {
@@ -128,7 +128,7 @@ describe('Account Module', () => {
     await executeAccount('create', name, '--password', '');
     prompts.inject(['y']);
     expect(
-      (await executeAccount('address', name, '--password', '', '--privateKey', '--json')).publicKey,
+      (await executeAccount('address', name, '--password', '', '--secretKey', '--json')).publicKey,
     ).to.be.a('string');
   });
 

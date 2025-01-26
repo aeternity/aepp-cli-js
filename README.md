@@ -114,8 +114,8 @@ Find out more in the [user guide](./user-guide.md).
   - [`sign`](./reference.md#sign) — sign a transaction using wallet
   - [`sign-message`](./reference.md#sign-message) — sign a personal message using wallet
   - [`verify-message`](./reference.md#verify-message) — check if message was signed by address
-  - [`address`](./reference.md#address) — get wallet address and optionally private key
-  - [`create`](./reference.md#create) — create a wallet by a private key or generate a new one
+  - [`address`](./reference.md#address) — get wallet address and optionally secret key
+  - [`create`](./reference.md#create) — create a wallet by a secret key or generate a new one
 - [`spend`](./reference.md#spend) — send coins to another account or contract
 - `name`
   - [`full-claim`](./reference.md#full-claim) — claim an AENS name in a single command

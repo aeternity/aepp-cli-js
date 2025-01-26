@@ -61,20 +61,20 @@ addCommonOptions(command, [
 
 command = program
   .command('address <wallet_path>')
-  .option('--privateKey', 'Print private key')
+  .option('--secretKey', 'Print secret key')
   .option('--forcePrompt', 'Force prompting')
-  .summary('get wallet address and optionally private key')
+  .summary('get wallet address and optionally secret key')
   .action(Account.getAddress);
 addWalletOptions(command, [
   './wallet.json  # show only public key',
-  './wallet.json --privateKey  # show public key and private key',
+  './wallet.json --secretKey  # show public key and secret key',
 ]);
 
 command = program
   .command('create <wallet_path>')
-  .argument('[privkey]', 'sk_-encoded secret key')
+  .argument('[secretKey]', '`sk_`-encoded secret key')
   .option('--overwrite', 'Overwrite if exist')
-  .summary('create a wallet by a private key or generate a new one')
+  .summary('create a wallet by a secret key or generate a new one')
   .description(
     [
       'Create a password-encrypted wallet by a secret key.',

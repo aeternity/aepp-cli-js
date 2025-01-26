@@ -64,26 +64,23 @@ export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...o
 }
 
 export async function getAddress(walletPath, options) {
-  const { privateKey, forcePrompt = false, json, password } = options;
+  const { forcePrompt = false, json, password } = options;
   const account = await AccountCli.read(walletPath, password);
-  const printPrivateKey =
-    privateKey &&
+  const secretKey =
+    options.secretKey &&
     (forcePrompt ||
       (await prompt(PROMPT_TYPE.confirm, {
         message: 'Are you sure you want print your secret key?',
-      })));
+      }))) &&
+    (await account.getSecretKey());
 
-  const secretKey = printPrivateKey && (await account.getSecretKey());
   if (json) {
     print({
       publicKey: account.address,
-      ...(printPrivateKey && { secretKey }),
+      ...(secretKey && { secretKey }),
     });
   } else {
-    printTable([
-      ['Address', account.address],
-      ...(printPrivateKey ? [['Secret Key', secretKey]] : []),
-    ]);
+    printTable([['Address', account.address], ...(secretKey ? [['Secret Key', secretKey]] : [])]);
   }
 }
 
