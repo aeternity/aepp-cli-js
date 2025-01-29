@@ -1,11 +1,11 @@
 import fs from 'fs-extra';
 import { after, before, describe, it } from 'mocha';
-import { expect, should } from 'chai';
-import { decode } from '@aeternity/aepp-sdk';
+import { expect } from 'chai';
+import { decode, Encoding, Tag } from '@aeternity/aepp-sdk';
 import { executeProgram, getSdk, WALLET_NAME } from './index.js';
 import CliError from '../src/utils/CliError.js';
+import { expectToMatchLines, toBeAbove0, toBeEncoded, toMatch } from './utils.js';
 
-should();
 const executeContract = executeProgram.bind(null, 'contract');
 
 describe('Contract Module', () => {
@@ -26,25 +26,50 @@ describe('Contract Module', () => {
   });
 
   it('compiles contract', async () => {
-    const { bytecode } = await executeContract('compile', contractSourceFile, '--json');
-    contractBytecode = bytecode;
-    expect(bytecode).to.satisfy((b) => b.startsWith('cb_'));
+    const res = await executeContract('compile', contractSourceFile);
+    expectToMatchLines(res, [/Contract bytecode: cb_[+/=\w]+/]);
+  });
+
+  it('compiles contract as json', async () => {
+    const res = await executeContract('compile', contractSourceFile, '--json');
+    contractBytecode = res.bytecode;
+    expect(res).to.eql({
+      bytecode: toBeEncoded(res.bytecode, Encoding.Bytecode),
+    });
   });
 
   it('compiles contract using cli compiler', async () => {
-    const { bytecode } = await executeContract(
+    const res = await executeContract(
       'compile',
       contractSourceFile,
       '--json',
       '--compilerUrl',
       'cli8',
     );
-    expect(bytecode).to.equal(contractBytecode);
+    expect(res).to.eql({ bytecode: contractBytecode });
   });
 
   describe('Deploy', () => {
     it('deploys contract', async () => {
-      const { address, transaction, descrPath } = await executeContract(
+      const res = await executeContract(
+        'deploy',
+        WALLET_NAME,
+        '--password',
+        'test',
+        '--contractSource',
+        contractSourceFile,
+        '[3]',
+      );
+      expectToMatchLines(res, [
+        'Contract was successfully deployed',
+        /Contract address   ct_\w+/,
+        /Transaction hash   th_\w+/,
+        /Deploy descriptor  .+\/contract.aes.deploy\.\w+\.json/,
+      ]);
+    });
+
+    it('deploys contract as json', async () => {
+      const res = await executeContract(
         'deploy',
         WALLET_NAME,
         '--password',
@@ -54,13 +79,83 @@ describe('Contract Module', () => {
         '[3]',
         '--json',
       );
-      deployDescriptorFile = descrPath;
+      deployDescriptorFile = res.descrPath;
+      contractAddress = res.address;
+      // TODO: remove duplicate data in output
+      expect(res).to.eql({
+        tx: {
+          tag: Tag.SignedTx,
+          version: 1,
+          signatures: [
+            {
+              type: 'Buffer',
+              data: res.tx.signatures[0].data,
+            },
+          ],
+          encodedTx: {
+            tag: Tag.ContractCreateTx,
+            version: 1,
+            ownerId: aeSdk.address,
+            nonce: toBeAbove0(res.tx.encodedTx.nonce),
+            code: contractBytecode,
+            ctVersion: {
+              abiVersion: 3,
+              vmVersion: 8,
+            },
+            fee: toMatch(res.tx.encodedTx.fee, /8\d{13}/),
+            ttl: toBeAbove0(res.tx.encodedTx.ttl),
+            deposit: '0',
+            amount: '0',
+            gasLimit: 76,
+            gasPrice: '1000000000',
+            callData: 'cb_KxFE1kQfGwYpzHZy',
+          },
+        },
+        txData: {
+          tx: {
+            amount: '0',
+            fee: toMatch(res.tx.encodedTx.fee, /8\d{13}/),
+            ttl: toBeAbove0(res.txData.tx.ttl),
+            nonce: toBeAbove0(res.tx.encodedTx.nonce),
+            abiVersion: '3',
+            ownerId: aeSdk.address,
+            code: contractBytecode,
+            vmVersion: '8',
+            deposit: '0',
+            gas: 76,
+            gasPrice: '1000000000',
+            callData: 'cb_KxFE1kQfGwYpzHZy',
+            version: 1,
+            type: 'ContractCreateTx',
+          },
+          blockHeight: toBeAbove0(res.txData.blockHeight),
+          blockHash: toBeEncoded(res.txData.blockHash, Encoding.MicroBlockHash),
+          hash: toBeEncoded(res.txData.hash, Encoding.TxHash),
+          encodedTx: toBeEncoded(res.txData.encodedTx, Encoding.Transaction),
+          signatures: [toBeEncoded(res.txData.signatures[0], Encoding.Signature)],
+          rawTx: toBeEncoded(res.txData.encodedTx, Encoding.Transaction),
+        },
+        rawTx: toBeEncoded(res.txData.encodedTx, Encoding.Transaction),
+        decodedEvents: [],
+        result: {
+          callerId: aeSdk.address,
+          callerNonce: toBeAbove0(+res.tx.encodedTx.nonce).toString(),
+          height: toBeAbove0(res.result.height),
+          contractId: toBeEncoded(res.address, Encoding.ContractId),
+          gasPrice: '1000000000',
+          gasUsed: 61,
+          log: [],
+          returnValue: 'cb_Xfbg4g==',
+          returnType: 'ok',
+        },
+        owner: aeSdk.address,
+        transaction: toBeEncoded(res.transaction, Encoding.TxHash),
+        address: toBeEncoded(res.address, Encoding.ContractId),
+        descrPath: deployDescriptorFile,
+      });
       const [name, add] = deployDescriptorFile.split('.deploy.');
-      contractAddress = address;
-      address.should.be.a('string');
-      transaction.should.be.a('string');
-      name.should.satisfy((n) => n.endsWith(contractSourceFile));
-      add.should.be.equal(`${address.split('_')[1]}.json`);
+      expect(name).to.satisfy((n) => n.endsWith(contractSourceFile));
+      expect(add).to.equal(`${res.address.split('_')[1]}.json`);
     });
 
     it('deploys contract with custom descrPath', async () => {
@@ -77,7 +172,7 @@ describe('Contract Module', () => {
         '[3]',
         '--json',
       );
-      expect(await fs.exists(descrPath)).to.be.equal(true);
+      expect(await fs.exists(descrPath)).to.equal(true);
       const descriptor = await fs.readJson(descrPath);
       expect(descriptor).to.eql({
         version: 1,
@@ -138,7 +233,7 @@ describe('Contract Module', () => {
     it('deploys contract by bytecode', async () => {
       const contractBytecodeFile = 'test-artifacts/bytecode.bin';
       await fs.outputFile(contractBytecodeFile, decode(contractBytecode));
-      await executeContract(
+      const res = await executeContract(
         'deploy',
         WALLET_NAME,
         '--password',
@@ -148,8 +243,13 @@ describe('Contract Module', () => {
         '--contractBytecode',
         contractBytecodeFile,
         '[3]',
-        '--json',
       );
+      expectToMatchLines(res, [
+        'Contract was successfully deployed',
+        /Contract address   ct_\w+/,
+        /Transaction hash   th_\w+/,
+        /Deploy descriptor  .+\/bytecode.bin.deploy\.\w+\.json/,
+      ]);
     });
 
     it('throws error if arguments invalid', async () => {
@@ -165,7 +265,6 @@ describe('Contract Module', () => {
           '--contractSource',
           contractSourceFile,
           '[3',
-          '--json',
         ),
       ).to.be.rejectedWith(CliError, expectedError);
     });
@@ -183,13 +282,47 @@ describe('Contract Module', () => {
         '--amount',
         '1',
       );
-      expect(await aeSdk.getBalance(address)).to.be.equal('1');
+      expect(await aeSdk.getBalance(address)).to.equal('1');
     });
   });
 
   describe('Call', () => {
     it('calls contract', async () => {
-      const callResponse = await executeContract(
+      const res = await executeContract(
+        'call',
+        '--descrPath',
+        deployDescriptorFile,
+        'test',
+        '[1, 2]',
+        WALLET_NAME,
+        '--password',
+        'test',
+      );
+      expectToMatchLines(res, [
+        /Transaction hash  th_\w+/,
+        /Block hash        mh_\w+/,
+        /Block height      \d+ \(about now\)/,
+        /Signatures        \["sg_\w+"\]/,
+        'Transaction type  ContractCallTx (ver. 1)',
+        `Caller address    ${aeSdk.address}`,
+        `Contract address  ${contractAddress}`,
+        'Gas               2625 (0.000002625ae)',
+        'Gas price         0.000000001ae',
+        'Call data         cb_KxGSiyA2KwIEFfUrtQ==',
+        'ABI version       3 (Fate)',
+        'Amount            0ae',
+        /Fee               0\.00018\d+ae/,
+        /Nonce             \d+/,
+        /TTL               \d+ \(in [56] minutes\)/,
+        '----------------------Call info-----------------------',
+        'Gas used                2100 (0.0000021ae)',
+        'Return value (encoded)  cb_DA6sWJo=',
+        'Return value (decoded)  6',
+      ]);
+    });
+
+    it('calls contract as json', async () => {
+      const res = await executeContract(
         'call',
         '--json',
         '--descrPath',
@@ -200,15 +333,76 @@ describe('Contract Module', () => {
         '--password',
         'test',
       );
-      callResponse.result.returnValue.should.contain('cb_');
-      callResponse.decodedResult.should.be.equal('6');
+      // TODO: remove duplicate data in output
+      expect(res).to.eql({
+        hash: toBeEncoded(res.hash, Encoding.TxHash),
+        tx: {
+          tag: Tag.SignedTx,
+          version: 1,
+          signatures: [
+            {
+              type: 'Buffer',
+              data: res.tx.signatures[0].data,
+            },
+          ],
+          encodedTx: {
+            tag: Tag.ContractCallTx,
+            version: 1,
+            callerId: aeSdk.address,
+            nonce: toBeAbove0(res.tx.encodedTx.nonce),
+            contractId: contractAddress,
+            abiVersion: 3,
+            fee: toMatch(res.tx.encodedTx.fee, /18\d{13}/),
+            ttl: toBeAbove0(res.tx.encodedTx.ttl),
+            amount: '0',
+            gasLimit: 2625,
+            gasPrice: '1000000000',
+            callData: 'cb_KxGSiyA2KwIEFfUrtQ==',
+          },
+        },
+        txData: {
+          tx: {
+            amount: '0',
+            fee: toMatch(res.tx.encodedTx.fee, /18\d{13}/),
+            ttl: toBeAbove0(res.tx.encodedTx.ttl),
+            nonce: toBeAbove0(res.tx.encodedTx.nonce),
+            abiVersion: '3',
+            gas: 2625,
+            gasPrice: '1000000000',
+            callData: 'cb_KxGSiyA2KwIEFfUrtQ==',
+            callerId: aeSdk.address,
+            contractId: contractAddress,
+            version: 1,
+            type: 'ContractCallTx',
+          },
+          blockHeight: toBeAbove0(res.txData.blockHeight),
+          blockHash: toBeEncoded(res.txData.blockHash, Encoding.MicroBlockHash),
+          hash: toBeEncoded(res.txData.hash, Encoding.TxHash),
+          encodedTx: toBeEncoded(res.txData.encodedTx, Encoding.Transaction),
+          signatures: [toBeEncoded(res.txData.signatures[0], Encoding.Signature)],
+          rawTx: toBeEncoded(res.txData.encodedTx, Encoding.Transaction),
+        },
+        rawTx: toBeEncoded(res.txData.encodedTx, Encoding.Transaction),
+        decodedResult: '6',
+        decodedEvents: [],
+        result: {
+          callerId: aeSdk.address,
+          callerNonce: toBeAbove0(res.tx.encodedTx.nonce).toString(),
+          height: toBeAbove0(res.txData.blockHeight),
+          contractId: contractAddress,
+          gasPrice: '1000000000',
+          gasUsed: 2100,
+          log: [],
+          returnValue: 'cb_DA6sWJo=',
+          returnType: 'ok',
+        },
+      });
     });
 
     it("overrides descriptor's address using --contractAddress", async () => {
       await expect(
         executeContract(
           'call',
-          '--json',
           '--contractAddress',
           'ct_test',
           '--descrPath',
@@ -226,7 +420,6 @@ describe('Contract Module', () => {
       await expect(
         executeContract(
           'call',
-          '--json',
           '--descrPath',
           `${deployDescriptorFile}test`,
           'test',
@@ -240,12 +433,26 @@ describe('Contract Module', () => {
 
     it('throws error when calls contract without wallet', async () => {
       await expect(
-        executeContract('call', '--json', '--descrPath', deployDescriptorFile, 'test', '[1, 2]'),
+        executeContract('call', '--descrPath', deployDescriptorFile, 'test', '[1, 2]'),
       ).to.be.rejectedWith(CliError, 'wallet_path is required for on-chain calls');
     });
 
-    it('calls contract static', async () => {
-      const callResponse = await executeContract(
+    // TODO: enable after fixing "Cannot read properties of undefined (reading 'tx')"
+    it.skip('calls contract static', async () => {
+      const res = await executeContract(
+        'call',
+        '--descrPath',
+        deployDescriptorFile,
+        'test',
+        '[1, 2]',
+        '--callStatic',
+        WALLET_NAME,
+      );
+      expectToMatchLines(res, []);
+    });
+
+    it('calls contract static as json', async () => {
+      const res = await executeContract(
         'call',
         '--json',
         '--descrPath',
@@ -254,11 +461,39 @@ describe('Contract Module', () => {
         '[1, 2]',
         '--callStatic',
         WALLET_NAME,
-        '--password',
-        'test',
       );
-      callResponse.result.returnValue.should.contain('cb_');
-      callResponse.decodedResult.should.equal('6');
+      expect(res).to.eql({
+        type: 'contract_call',
+        decodedResult: '6',
+        decodedEvents: [],
+        tx: {
+          tag: Tag.ContractCallTx,
+          version: 1,
+          callerId: aeSdk.address,
+          nonce: toBeAbove0(res.tx.nonce),
+          contractId: contractAddress,
+          abiVersion: 3,
+          fee: toMatch(res.tx.fee, /18\d{13}/),
+          ttl: 0,
+          amount: '0',
+          gasLimit: 5817960,
+          gasPrice: '1000000000',
+          callData: 'cb_KxGSiyA2KwIEFfUrtQ==',
+        },
+        result: {
+          callerId: aeSdk.address,
+          callerNonce: toBeAbove0(res.tx.nonce).toString(),
+          height: toBeAbove0(res.result.height),
+          contractId: contractAddress,
+          gasPrice: '1000000000',
+          gasUsed: 2100,
+          log: [],
+          returnValue: 'cb_DA6sWJo=',
+          returnType: 'ok',
+        },
+        rawTx: toBeEncoded(res.rawTx, Encoding.Transaction),
+        hash: toBeEncoded(res.hash, Encoding.TxHash),
+      });
     });
 
     it('calls contract static with dry run account', async () => {
@@ -271,9 +506,12 @@ describe('Contract Module', () => {
         '[1, 2]',
         '--callStatic',
       );
-      callResponse.result.returnValue.should.contain('cb_');
+      expect(callResponse.result.returnValue).to.satisfies((s) =>
+        s.startsWith(Encoding.ContractBytearray),
+      );
+      expect(callResponse.tx.callerId).to.equal('ak_11111111111111111111111111111111273Yts');
       expect(callResponse.result.callerId).to.equal('ak_11111111111111111111111111111111273Yts');
-      callResponse.decodedResult.should.equal('6');
+      expect(callResponse.decodedResult).to.equal('6');
     });
 
     it('returns Maps correctly', async () => {
@@ -285,7 +523,7 @@ describe('Contract Module', () => {
         'getMap',
         '--callStatic',
       );
-      expect(callResponse.decodedResult).to.be.eql([
+      expect(callResponse.decodedResult).to.eql([
         ['1', '2'],
         ['3', '4'],
       ]);
@@ -305,7 +543,7 @@ describe('Contract Module', () => {
         '--password',
         'test',
       );
-      callResponse.decodedResult.should.equal('6');
+      expect(callResponse.decodedResult).to.equal('6');
     });
 
     it('calls contract by contract ACI and address', async () => {
@@ -322,13 +560,12 @@ describe('Contract Module', () => {
         '--password',
         'test',
       );
-      callResponse.decodedResult.should.equal('6');
+      expect(callResponse.decodedResult).to.equal('6');
     });
 
     it('calls contract with coins', async () => {
       await executeContract(
         'call',
-        '--json',
         '--descrPath',
         deployDescriptorFile,
         'pay',
@@ -339,13 +576,24 @@ describe('Contract Module', () => {
         '--amount',
         '0.000000001ae',
       );
-      expect(await aeSdk.getBalance(contractAddress)).to.be.equal('1000000000');
+      expect(await aeSdk.getBalance(contractAddress)).to.equal('1000000000');
     });
   });
 
   describe('Calldata', () => {
     it('encodes calldata', async () => {
-      const { calldata } = await executeContract(
+      const res = await executeContract(
+        'encode-calldata',
+        'test',
+        '[1, 2]',
+        '--contractSource',
+        contractSourceFile,
+      );
+      expectToMatchLines(res, ['Contract encoded calldata: cb_KxGSiyA2KwIEFfUrtQ==']);
+    });
+
+    it('encodes calldata as json', async () => {
+      const res = await executeContract(
         'encode-calldata',
         'test',
         '[1, 2]',
@@ -353,11 +601,11 @@ describe('Contract Module', () => {
         contractSourceFile,
         '--json',
       );
-      expect(calldata).to.be.equal('cb_KxGSiyA2KwIEFfUrtQ==');
+      expect(res).to.eql({ calldata: 'cb_KxGSiyA2KwIEFfUrtQ==' });
     });
 
     it('encodes calldata by aci', async () => {
-      const { calldata } = await executeContract(
+      const res = await executeContract(
         'encode-calldata',
         'test',
         '[1, 2]',
@@ -365,11 +613,11 @@ describe('Contract Module', () => {
         contractAciFile,
         '--json',
       );
-      expect(calldata).to.be.equal('cb_KxGSiyA2KwIEFfUrtQ==');
+      expect(res).to.eql({ calldata: 'cb_KxGSiyA2KwIEFfUrtQ==' });
     });
 
     it('encodes calldata by deploy descriptor', async () => {
-      const { calldata } = await executeContract(
+      const res = await executeContract(
         'encode-calldata',
         'test',
         '[1, 2]',
@@ -377,11 +625,22 @@ describe('Contract Module', () => {
         deployDescriptorFile,
         '--json',
       );
-      expect(calldata).to.be.equal('cb_KxGSiyA2KwIEFfUrtQ==');
+      expect(res).to.eql({ calldata: 'cb_KxGSiyA2KwIEFfUrtQ==' });
     });
 
     it('decodes call result', async () => {
-      const { decoded } = await executeContract(
+      const res = await executeContract(
+        'decode-call-result',
+        'test',
+        'cb_BvMDXHk=',
+        '--contractSource',
+        contractSourceFile,
+      );
+      expectToMatchLines(res, ['Contract decoded call result:', '3']);
+    });
+
+    it('decodes call result as json', async () => {
+      const res = await executeContract(
         'decode-call-result',
         'test',
         'cb_BvMDXHk=',
@@ -389,7 +648,7 @@ describe('Contract Module', () => {
         contractSourceFile,
         '--json',
       );
-      decoded.should.be.equal('3');
+      expect(res).to.eql({ decoded: '3' });
     });
   });
 });
