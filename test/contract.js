@@ -437,8 +437,7 @@ describe('Contract Module', () => {
       ).to.be.rejectedWith(CliError, 'wallet_path is required for on-chain calls');
     });
 
-    // TODO: enable after fixing "Cannot read properties of undefined (reading 'tx')"
-    it.skip('calls contract static', async () => {
+    it('calls contract static', async () => {
       const res = await executeContract(
         'call',
         '--descrPath',
@@ -448,7 +447,25 @@ describe('Contract Module', () => {
         '--callStatic',
         WALLET_NAME,
       );
-      expectToMatchLines(res, []);
+      expectToMatchLines(res, [
+        /Transaction hash  th_\w+/,
+        'Block hash        N/A',
+        'Signatures        N/A',
+        'Transaction type  ContractCallTx (ver. 1)',
+        `Caller address    ${aeSdk.address}`,
+        `Contract address  ${contractAddress}`,
+        'Gas price         0.000000001ae',
+        'Call data         cb_KxGSiyA2KwIEFfUrtQ==',
+        'ABI version       3 (Fate)',
+        'Amount            0ae',
+        /Fee               0\.00018\d+ae/,
+        /Nonce             \d+/,
+        /TTL               0 \([\w ]+\)/,
+        '----------------------Call info-----------------------',
+        'Gas used                2100 (0.0000021ae)',
+        'Return value (encoded)  cb_DA6sWJo=',
+        'Return value (decoded)  6',
+      ]);
     });
 
     it('calls contract static as json', async () => {
