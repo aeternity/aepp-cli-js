@@ -15,7 +15,12 @@ export function expectToMatchLines(value, testLines) {
     const valueLines = value.split('\n');
     testLines.forEach((test) => {
       if (typeof test === 'string') return expect(valueLines.shift()).to.be.equal(test);
-      if (test instanceof RegExp) return expect(valueLines.shift()).to.be.match(test);
+      if (test instanceof RegExp) {
+        const line = valueLines.shift();
+        expect(line).to.match(test);
+        expect(line).to.equal(line.match(test)[0]);
+        return;
+      }
       throw new Error(`Unexpected test line: ${test}`);
     });
     expect(valueLines.join('\n')).to.be.equal('');
@@ -42,5 +47,6 @@ export function toBeAbove0(value) {
 export function toMatch(value, template) {
   expect(value).to.be.a('string');
   expect(value).to.match(template);
+  expect(value).to.equal(value.match(template)[0]);
   return value;
 }

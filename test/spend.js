@@ -46,7 +46,7 @@ describe('Spend', () => {
       'Transaction mined',
       /Transaction hash   th_\w+/,
       /Block hash         mh_\w+/,
-      /Block height       \d+/,
+      /Block height       \d+ \(about now\)/,
       /Signatures         \["sg_\w+"\]/,
       'Transaction type   SpendTx (ver. 1)',
       `Sender address     ${aeSdk.address}`,
@@ -55,7 +55,7 @@ describe('Spend', () => {
       'Payload            ba_Xfbg4g==',
       /Fee                0.000016\d+ae/,
       'Nonce              2',
-      /TTL                \d+/,
+      /TTL                \d+ \(in [56] minutes\)/,
     ]);
   });
 
