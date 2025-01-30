@@ -1,6 +1,6 @@
 {
   "name": "@aeternity/aepp-cli",
-  "version": "6.0.1",
+  "version": "7.0.0",
   "description": "Aeternity command line interface",
   "bin": {
     "aecli": "src/aecli.js"
