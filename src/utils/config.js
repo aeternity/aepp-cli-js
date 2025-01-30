@@ -24,5 +24,5 @@ export async function setCommandOptions(program) {
   options
     .filter((option) => option in config)
     .forEach((option) => program.setOptionValueWithSource(option, config[option], 'config'));
-  program.commands.forEach(setCommandOptions);
+  await Promise.all(program.commands.map(setCommandOptions));
 }
