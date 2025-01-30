@@ -4,47 +4,46 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [7.0.0](https://github.com/aeternity/aepp-cli-js/compare/v6.0.1...v7.0.0) (2025-01-30)
 
-
 ### ⚠ BREAKING CHANGES
 
-* **account:** `aecli account address` accepts `--secretKey` instead `--privateKey`
-* **deps:** uses v8 compiler by default
-* **deps:** not compatible with v7 compiler
-* **deps:** `aecli account address` prints secret key as `sk_`-encoded
-* **deps:** `aecli account create` accepts `sk_`-encoded secret key
-Use SDK [tools] page to convert secret keys.
-[tools]: https://docs.aeternity.com/aepp-sdk-js/v14.0.0/examples/browser/tools/
-* **deps:** `commitmentId` removed from the JSON output of `aecli name pre-claim`
-Use `tx.commitmentId` instead.
-* **deps:** some fields in node responses returned as numbers instead of strings
-Namely:
-- `abiVersion`
-- `vmVersion`
-- `callerNonce`
-- `senderNonce`
-- `oracleTtl.value`
-- `responseTtl.value`
-- `queryTtl.value`
-- `endsAt`
-* tabbed data aligned without underscores
-* width of the first column in tabbed data depends on the content
+- **account:** `aecli account address` accepts `--secretKey` instead `--privateKey`
+- **deps:** uses v8 compiler by default
+- **deps:** not compatible with v7 compiler
+- **deps:** `aecli account address` prints secret key as `sk_`-encoded
+- **deps:** `aecli account create` accepts `sk_`-encoded secret key
+  Use SDK [tools] page to convert secret keys.
+  [tools]: https://docs.aeternity.com/aepp-sdk-js/v14.0.0/examples/browser/tools/
+- **deps:** `commitmentId` removed from the JSON output of `aecli name pre-claim`
+  Use `tx.commitmentId` instead.
+- **deps:** some fields in node responses returned as numbers instead of strings
+  Namely:
+
+* `abiVersion`
+* `vmVersion`
+* `callerNonce`
+* `senderNonce`
+* `oracleTtl.value`
+* `responseTtl.value`
+* `queryTtl.value`
+* `endsAt`
+
+- tabbed data aligned without underscores
+- width of the first column in tabbed data depends on the content
 
 ### Features
 
-* **account:** support legacy secret keys in hex ([9e0e003](https://github.com/aeternity/aepp-cli-js/commit/9e0e00351bcf61f0a04b615f7fb5d3ce2241db2e))
-* narrow first column and remove `_` in tables ([b5dfdda](https://github.com/aeternity/aepp-cli-js/commit/b5dfdda5a97c372f1f2c6ddf6c54f2f44612d5f5))
-* **oracle:** make `oracleTtl` optional ([457e4c4](https://github.com/aeternity/aepp-cli-js/commit/457e4c40bfb882aaeaa200149ad67d8580390fbd))
-
+- **account:** support legacy secret keys in hex ([9e0e003](https://github.com/aeternity/aepp-cli-js/commit/9e0e00351bcf61f0a04b615f7fb5d3ce2241db2e))
+- narrow first column and remove `_` in tables ([b5dfdda](https://github.com/aeternity/aepp-cli-js/commit/b5dfdda5a97c372f1f2c6ddf6c54f2f44612d5f5))
+- **oracle:** make `oracleTtl` optional ([457e4c4](https://github.com/aeternity/aepp-cli-js/commit/457e4c40bfb882aaeaa200149ad67d8580390fbd))
 
 ### Bug Fixes
 
-* **contract:** print details of static call ([5c119c5](https://github.com/aeternity/aepp-cli-js/commit/5c119c56753974442061f1951a2d0e73bc8396b4))
-* name keystore as filename instead of full path ([d8325f6](https://github.com/aeternity/aepp-cli-js/commit/d8325f64333ff5376267f7a6eb6e906beb596cf6))
-* race condition while setting options ([1f03275](https://github.com/aeternity/aepp-cli-js/commit/1f0327525e69fe2191952a9001e36c2d25c192ec))
+- **contract:** print details of static call ([5c119c5](https://github.com/aeternity/aepp-cli-js/commit/5c119c56753974442061f1951a2d0e73bc8396b4))
+- name keystore as filename instead of full path ([d8325f6](https://github.com/aeternity/aepp-cli-js/commit/d8325f64333ff5376267f7a6eb6e906beb596cf6))
+- race condition while setting options ([1f03275](https://github.com/aeternity/aepp-cli-js/commit/1f0327525e69fe2191952a9001e36c2d25c192ec))
 
-
-* **account:** consistently use secret key instead private key ([476aec1](https://github.com/aeternity/aepp-cli-js/commit/476aec13d1152b7dff0e71e985b5020315d0eb66))
-* **deps:** update sdk to 14.0.0 ([894083f](https://github.com/aeternity/aepp-cli-js/commit/894083fb7426128b3d7da7e97e4eda79d9b08de1))
+- **account:** consistently use secret key instead private key ([476aec1](https://github.com/aeternity/aepp-cli-js/commit/476aec13d1152b7dff0e71e985b5020315d0eb66))
+- **deps:** update sdk to 14.0.0 ([894083f](https://github.com/aeternity/aepp-cli-js/commit/894083fb7426128b3d7da7e97e4eda79d9b08de1))
 
 ### [6.0.1](https://github.com/aeternity/aepp-cli-js/compare/v6.0.0...v6.0.1) (2024-04-22)
 
