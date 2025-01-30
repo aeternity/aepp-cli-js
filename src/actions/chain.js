@@ -3,9 +3,9 @@ import { initSdk } from '../utils/cli.js';
 import {
   printBlock,
   print,
-  printUnderscored,
   printTransaction,
   printValidation,
+  printTable,
 } from '../utils/print.js';
 import { getBlock } from '../utils/helpers.js';
 
@@ -18,20 +18,22 @@ export async function status(options) {
     print(st);
     return;
   }
-  printUnderscored('Difficulty', st.difficulty);
-  printUnderscored('Node version', st.nodeVersion);
-  printUnderscored(
-    'Consensus protocol version',
-    `${consensusProtocolVersion} (${ConsensusProtocolVersion[consensusProtocolVersion]})`,
-  );
-  printUnderscored('Node revision', st.nodeRevision);
-  printUnderscored('Genesis hash', st.genesisKeyBlockHash);
-  printUnderscored('Network ID', st.networkId);
-  printUnderscored('Listening', st.listening);
-  printUnderscored('Peer count', st.peerCount);
-  printUnderscored('Pending transactions count', st.pendingTransactionsCount);
-  printUnderscored('Solutions', st.solutions);
-  printUnderscored('Syncing', st.syncing);
+  printTable([
+    ['Difficulty', st.difficulty],
+    ['Node version', st.nodeVersion],
+    [
+      'Consensus protocol version',
+      `${consensusProtocolVersion} (${ConsensusProtocolVersion[consensusProtocolVersion]})`,
+    ],
+    ['Node revision', st.nodeRevision],
+    ['Genesis hash', st.genesisKeyBlockHash],
+    ['Network ID', st.networkId],
+    ['Listening', st.listening],
+    ['Peer count', st.peerCount],
+    ['Pending transactions count', st.pendingTransactionsCount],
+    ['Solutions', st.solutions],
+    ['Syncing', st.syncing],
+  ]);
 }
 
 export async function ttl(_absoluteTtl, { json, ...options }) {
@@ -42,8 +44,10 @@ export async function ttl(_absoluteTtl, { json, ...options }) {
   if (json) {
     print({ absoluteTtl, relativeTtl });
   } else {
-    printUnderscored('Absolute TTL', absoluteTtl);
-    printUnderscored('Relative TTL', relativeTtl);
+    printTable([
+      ['Absolute TTL', absoluteTtl],
+      ['Relative TTL', relativeTtl],
+    ]);
   }
 }
 

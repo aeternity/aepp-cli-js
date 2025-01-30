@@ -51,19 +51,19 @@ describe('Transaction Module', () => {
 
     const response = await executeTx(...args);
     expectToMatchLines(response, [
-      `Transaction type ________________________ SpendTx`,
-      `Summary`,
-      `    TAG _________________________________ 12`,
-      `    VERSION _____________________________ 1`,
-      `    SENDERID ____________________________ ${aeSdk.address}`,
-      `    RECIPIENTID _________________________ ${aeSdk.address}`,
-      `    AMOUNT ______________________________ ${amount}`,
-      `    FEE _________________________________ 16660000000000`,
-      `    TTL _________________________________ 0`,
-      `    NONCE _______________________________ ${nonce}`,
-      `    PAYLOAD _____________________________ ba_Xfbg4g==`,
-      `Output`,
-      `    Encoded _____________________________ ${responseJson.tx}`,
+      `Transaction type  SpendTx`,
+      `Summary           `,
+      `    TAG           12`,
+      `    VERSION       1`,
+      `    SENDERID      ${aeSdk.address}`,
+      `    RECIPIENTID   ${aeSdk.address}`,
+      `    AMOUNT        ${amount}`,
+      `    FEE           16660000000000`,
+      `    TTL           0`,
+      `    NONCE         ${nonce}`,
+      `    PAYLOAD       ba_Xfbg4g==`,
+      `Output            `,
+      `    Encoded       ${responseJson.tx}`,
       `This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to submit the transaction to the network, or verify that it will be accepted with \`tx verify\`.`,
     ]);
   });
@@ -82,10 +82,10 @@ describe('Transaction Module', () => {
 
     const response = await executeProgram('account', ...args);
     expectToMatchLines(response, [
-      `Signing account address _________________ ${aeSdk.address}`,
-      'Network ID ______________________________ ae_dev',
-      `Unsigned ________________________________ ${tx}`,
-      `Signed __________________________________ ${responseJson.signedTx}`,
+      `Signing account address  ${aeSdk.address}`,
+      'Network ID               ae_dev',
+      `Unsigned                 ${tx}`,
+      `Signed                   ${responseJson.signedTx}`,
     ]);
   });
 
@@ -117,11 +117,12 @@ describe('Transaction Module', () => {
     expect(signatures[0]).to.satisfy((s) => s.startsWith(Encoding.Signature));
 
     const [commonDetails, specificDetails] = details.split('\nTransaction type');
+    const spacing = commonDetails.match(/Transaction hash(\s+)/)[1];
     expectToMatchLines(commonDetails, [
-      `Transaction hash ________________________ ${hash}`,
-      `Block hash ______________________________ ${blockHash}`,
-      `Block height ____________________________ ${blockHeight} (about now)`,
-      `Signatures ______________________________ ["${signatures}"]`,
+      `Transaction hash${spacing}${hash}`,
+      `Block hash      ${spacing}${blockHash}`,
+      `Block height    ${spacing}${blockHeight} (about now)`,
+      `Signatures      ${spacing}["${signatures}"]`,
     ]);
 
     return [tx, `Transaction type${specificDetails}`];
@@ -145,13 +146,13 @@ describe('Transaction Module', () => {
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ SpendTx (ver. 1)',
-      `Sender address __________________________ ${aeSdk.address}`,
-      `Recipient address _______________________ ${aeSdk.address}`,
-      'Amount __________________________________ 0.0000000000000001ae',
-      'Payload _________________________________ ba_Xfbg4g==',
-      /Fee _____________________________________ 0.000016\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type   SpendTx (ver. 1)',
+      `Sender address     ${aeSdk.address}`,
+      `Recipient address  ${aeSdk.address}`,
+      'Amount             0.0000000000000001ae',
+      'Payload            ba_Xfbg4g==',
+      /Fee                0.000016\d+ae/,
+      `Nonce              ${nonce}`,
     ]);
   });
 
@@ -178,11 +179,11 @@ describe('Transaction Module', () => {
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ NamePreclaimTx (ver. 1)',
-      `Account address _________________________ ${aeSdk.address}`,
-      `Commitment ______________________________ ${detailsJson.commitmentId}`,
-      /Fee _____________________________________ 0.000016\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type  NamePreclaimTx (ver. 1)',
+      `Account address   ${aeSdk.address}`,
+      `Commitment        ${detailsJson.commitmentId}`,
+      /Fee               0.000016\d+ae/,
+      `Nonce             ${nonce}`,
     ]);
   });
 
@@ -204,13 +205,13 @@ describe('Transaction Module', () => {
       version: 2,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ NameClaimTx (ver. 2)',
-      `Account address _________________________ ${aeSdk.address}`,
-      `Name ____________________________________ ${name}`,
-      'Name fee ________________________________ 0.1597ae',
-      `Name salt _______________________________ ${salt}`,
-      /Fee _____________________________________ 0.000016\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type  NameClaimTx (ver. 2)',
+      `Account address   ${aeSdk.address}`,
+      `Name              ${name}`,
+      'Name fee          0.1597ae',
+      `Name salt         ${salt}`,
+      /Fee               0.000016\d+ae/,
+      `Nonce             ${nonce}`,
     ]);
 
     nameId = (await aeSdk.api.getNameEntryByName(name)).id;
@@ -243,14 +244,14 @@ describe('Transaction Module', () => {
       accountId: aeSdk.address,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ NameUpdateTx (ver. 1)',
-      `Account address _________________________ ${aeSdk.address}`,
-      `Name ID _________________________________ ${nameId}`,
-      'Name TTL ________________________________ 180000 (in 1 year)',
-      `Pointer account_pubkey __________________ ${aeSdk.address}`,
-      'Client TTL ______________________________ 3600 (1 hour)',
-      /Fee _____________________________________ 0.000017\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type        NameUpdateTx (ver. 1)',
+      `Account address         ${aeSdk.address}`,
+      `Name ID                 ${nameId}`,
+      'Name TTL                180000 (in 1 year)',
+      `Pointer account_pubkey  ${aeSdk.address}`,
+      'Client TTL              3600 (1 hour)',
+      /Fee                     0.000017\d+ae/,
+      `Nonce                   ${nonce}`,
     ]);
   });
 
@@ -277,12 +278,12 @@ describe('Transaction Module', () => {
       accountId: aeSdk.address,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ NameTransferTx (ver. 1)',
-      `Account address _________________________ ${aeSdk.address}`,
-      `Recipient address _______________________ ${aeSdk.address}`,
-      `Name ID _________________________________ ${nameId}`,
-      /Fee _____________________________________ 0.000017\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type   NameTransferTx (ver. 1)',
+      `Account address    ${aeSdk.address}`,
+      `Recipient address  ${aeSdk.address}`,
+      `Name ID            ${nameId}`,
+      /Fee                0.000017\d+ae/,
+      `Nonce              ${nonce}`,
     ]);
   });
 
@@ -301,11 +302,11 @@ describe('Transaction Module', () => {
       accountId: aeSdk.address,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ NameRevokeTx (ver. 1)',
-      `Account address _________________________ ${aeSdk.address}`,
-      `Name ID _________________________________ ${nameId}`,
-      /Fee _____________________________________ 0.000016\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type  NameRevokeTx (ver. 1)',
+      `Account address   ${aeSdk.address}`,
+      `Name ID           ${nameId}`,
+      /Fee               0.000016\d+ae/,
+      `Nonce             ${nonce}`,
     ]);
   });
 
@@ -346,17 +347,17 @@ describe('Transaction Module', () => {
       ownerId: aeSdk.address,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ ContractCreateTx (ver. 1)',
-      `Owner address ___________________________ ${aeSdk.address}`,
-      'Gas _____________________________________ 5921420 (0.00592142ae)',
-      'Gas price _______________________________ 0.000000001ae',
-      `Bytecode ________________________________ ${bytecode}`,
-      `Call data _______________________________ ${callData}`,
-      'VM version ______________________________ 8 (Fate3)',
-      'ABI version _____________________________ 3 (Fate)',
-      'Amount __________________________________ 0ae',
-      /Fee _____________________________________ 0.000078\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type  ContractCreateTx (ver. 1)',
+      `Owner address     ${aeSdk.address}`,
+      'Gas               5921420 (0.00592142ae)',
+      'Gas price         0.000000001ae',
+      `Bytecode          ${bytecode}`,
+      `Call data         ${callData}`,
+      'VM version        8 (Fate3)',
+      'ABI version       3 (Fate)',
+      'Amount            0ae',
+      /Fee               0.000078\d+ae/,
+      `Nonce             ${nonce}`,
     ]);
   }).timeout(8000);
 
@@ -390,16 +391,16 @@ describe('Transaction Module', () => {
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ ContractCallTx (ver. 1)',
-      `Caller address __________________________ ${aeSdk.address}`,
-      `Contract address ________________________ ${contractId}`,
-      'Gas _____________________________________ 5817860 (0.00581786ae)',
-      'Gas price _______________________________ 0.000000001ae',
-      `Call data _______________________________ ${callData}`,
-      'ABI version _____________________________ 3 (Fate)',
-      'Amount __________________________________ 0.00000042ae',
-      /Fee _____________________________________ 0.000182\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type  ContractCallTx (ver. 1)',
+      `Caller address    ${aeSdk.address}`,
+      `Contract address  ${contractId}`,
+      'Gas               5817860 (0.00581786ae)',
+      'Gas price         0.000000001ae',
+      `Call data         ${callData}`,
+      'ABI version       3 (Fate)',
+      'Amount            0.00000042ae',
+      /Fee               0.000182\d+ae/,
+      `Nonce             ${nonce}`,
     ]);
   }).timeout(4000);
 
@@ -429,15 +430,15 @@ describe('Transaction Module', () => {
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ OracleRegisterTx (ver. 1)',
-      `Account address _________________________ ${aeSdk.address}`,
-      /Oracle TTL ______________________________ \d+ \(in 1 day\)/,
-      'ABI version _____________________________ 0 (NoAbi)',
-      'Query fee _______________________________ 0ae',
-      'Query format ____________________________ {city: "str"}',
-      'Response format _________________________ {tmp:""num}',
-      /Fee _____________________________________ 0.000016\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type  OracleRegisterTx (ver. 1)',
+      `Account address   ${aeSdk.address}`,
+      /Oracle TTL        \d+ \(in 1 day\)/,
+      'ABI version       0 (NoAbi)',
+      'Query fee         0ae',
+      'Query format      {city: "str"}',
+      'Response format   {tmp:""num}',
+      /Fee               0.000016\d+ae/,
+      `Nonce             ${nonce}`,
     ]);
   });
 
@@ -457,11 +458,11 @@ describe('Transaction Module', () => {
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ OracleExtendTx (ver. 1)',
-      `Oracle ID _______________________________ ${oracleId}`,
-      /Oracle TTL ______________________________ \d+ \(in 4 hours\)/,
-      /Fee _____________________________________ 0.000015\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type  OracleExtendTx (ver. 1)',
+      `Oracle ID         ${oracleId}`,
+      /Oracle TTL        \d+ \(in 4 hours\)/,
+      /Fee               0.000015\d+ae/,
+      `Nonce             ${nonce}`,
     ]);
 
     const oracleTtl = await aeSdk.api.getOracleByPubkey(oracleId);
@@ -495,15 +496,15 @@ describe('Transaction Module', () => {
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ OracleQueryTx (ver. 1)',
-      `Sender address __________________________ ${aeSdk.address}`,
-      `Oracle ID _______________________________ ${oracleId}`,
-      'Query ___________________________________ {city: "Berlin"}',
-      'Query fee _______________________________ 0ae',
-      /Query TTL _______________________________ \d+ \(in 27 minutes\)/,
-      /Response TTL ____________________________ \d+ \(in 27 minutes\)/,
-      /Fee _____________________________________ 0.000017\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type  OracleQueryTx (ver. 1)',
+      `Sender address    ${aeSdk.address}`,
+      `Oracle ID         ${oracleId}`,
+      'Query             {city: "Berlin"}',
+      'Query fee         0ae',
+      /Query TTL         \d+ \(in 27 minutes\)/,
+      /Response TTL      \d+ \(in 27 minutes\)/,
+      /Fee               0.000017\d+ae/,
+      `Nonce             ${nonce}`,
     ]);
 
     const { oracleQueries: queries } = await aeSdk.api.getOracleQueriesByPubkey(oracleId);
@@ -530,13 +531,13 @@ describe('Transaction Module', () => {
       version: 1,
     });
     expectToMatchLines(details, [
-      'Transaction type ________________________ OracleRespondTx (ver. 1)',
-      `Oracle ID _______________________________ ${oracleId}`,
-      `Query ID ________________________________ ${queryId}`,
-      'Response ________________________________ {tmp: 10}',
-      /Response TTL ____________________________ \d+ \(in 27 minutes\)/,
-      /Fee _____________________________________ 0.000016\d+ae/,
-      `Nonce ___________________________________ ${nonce}`,
+      'Transaction type  OracleRespondTx (ver. 1)',
+      `Oracle ID         ${oracleId}`,
+      `Query ID          ${queryId}`,
+      'Response          {tmp: 10}',
+      /Response TTL      \d+ \(in 27 minutes\)/,
+      /Fee               0.000016\d+ae/,
+      `Nonce             ${nonce}`,
     ]);
 
     const { oracleQueries: queries } = await aeSdk.api.getOracleQueriesByPubkey(oracleId);

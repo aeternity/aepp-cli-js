@@ -32,11 +32,11 @@ describe('Account Module', () => {
     const resJson = await executeAccount('address', walletName, '--json');
     expect(resJson.publicKey).to.be.a('string');
     expectToMatchLines(createRes, [
-      `Address _________________________________ ${resJson.publicKey}`,
-      `Path ____________________________________ ${resolve(walletName)}`,
+      `Address  ${resJson.publicKey}`,
+      `Path     ${resolve(walletName)}`,
     ]);
     const res = await executeAccount('address', walletName);
-    expectToMatchLines(res, [`Address _________________________________ ${resJson.publicKey}`]);
+    expectToMatchLines(res, [`Address  ${resJson.publicKey}`]);
   });
 
   it('Create Wallet From Private Key', async () => {
@@ -116,8 +116,8 @@ describe('Account Module', () => {
       '--forcePrompt',
     );
     expectToMatchLines(res, [
-      `Address _________________________________ ${keypair.publicKey}`,
-      `Secret Key ______________________________ ${keypair.secretKey}`,
+      `Address     ${keypair.publicKey}`,
+      `Secret Key  ${keypair.secretKey}`,
     ]);
   });
 
