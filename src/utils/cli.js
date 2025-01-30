@@ -1,25 +1,38 @@
 import fs from 'fs-extra';
 import {
-  AeSdk, Node, MemoryAccount, CompilerCli, CompilerCli8, CompilerHttpNode, recover, sign,
-  getExecutionCost, unpackTx, Tag,
+  AeSdk,
+  Node,
+  MemoryAccount,
+  CompilerCli,
+  CompilerHttpNode,
+  getExecutionCost,
+  unpackTx,
+  Tag,
+  encode,
+  Encoding,
 } from '@aeternity/aepp-sdk';
+import { recover } from './keystore.js';
 import { PROMPT_TYPE, prompt } from './prompt.js';
 import { getFullPath } from './helpers.js';
 
 export function getCompilerByUrl(url) {
-  if (url === 'cli') return new CompilerCli();
-  if (url === 'cli8') return new CompilerCli8();
+  if (url === 'cli8') return new CompilerCli();
   return new CompilerHttpNode(url);
 }
 
 export function initSdk({
-  url, keypair, compilerUrl, force: ignoreVersion, networkId, accounts = [],
+  url,
+  keypair,
+  compilerUrl,
+  force: ignoreVersion,
+  networkId,
+  accounts = [],
 } = {}) {
   return new AeSdk({
     nodes: url ? [{ name: 'test-node', instance: new Node(url, { ignoreVersion }) }] : [],
-    ...compilerUrl && { onCompiler: getCompilerByUrl(compilerUrl) },
+    ...(compilerUrl && { onCompiler: getCompilerByUrl(compilerUrl) }),
     networkId,
-    accounts: [...keypair ? [new MemoryAccount(keypair.secretKey)] : [], ...accounts],
+    accounts: [...(keypair ? [new MemoryAccount(keypair.secretKey)] : []), ...accounts],
   });
 }
 
@@ -28,26 +41,29 @@ export class AccountCli extends MemoryAccount {
 
   #password;
 
-  #secretKey;
+  #account;
 
   constructor(keyFile, password) {
-    super(Buffer.alloc(64));
+    super(encode(Buffer.alloc(32), Encoding.AccountSecretKey));
     this.#keyFile = keyFile;
     this.#password = password;
     this.address = keyFile.public_key;
   }
 
-  async getSecretKey() {
-    this.#secretKey ??= await recover(
-      this.#password ?? await prompt(PROMPT_TYPE.askPassword),
-      this.#keyFile,
+  async #getAccount() {
+    this.#account ??= new MemoryAccount(
+      await recover(this.#password ?? (await prompt(PROMPT_TYPE.askPassword)), this.#keyFile),
     );
-    return this.#secretKey;
+    return this.#account;
+  }
+
+  async getSecretKey() {
+    return (await this.#getAccount()).secretKey;
   }
 
   async sign(data) {
-    const secretKey = await this.getSecretKey();
-    return sign(data, Buffer.from(secretKey, 'hex'));
+    const account = await this.#getAccount();
+    return account.sign(data);
   }
 
   async signTransaction(transaction, options) {

@@ -4,28 +4,34 @@ import {
   print,
   printBlock,
   printBlockTransactions,
-  printOracle, printQueries,
+  printOracle,
+  printQueries,
+  printTable,
   printTransaction,
-  printUnderscored,
 } from '../utils/print.js';
 import {
-  checkPref, getBlock, getNameEntry, formatCoins, formatTtl, validateName,
+  checkPref,
+  getBlock,
+  getNameEntry,
+  formatCoins,
+  formatTtl,
+  validateName,
 } from '../utils/helpers.js';
 
 function printEntries(object) {
-  Object.entries(object).forEach((entry) => printUnderscored(...entry));
+  printTable(Object.entries(object));
 }
 
 async function getBlockByHash(hash, { json, ...options }) {
   checkPref(hash, [Encoding.KeyBlockHash, Encoding.MicroBlockHash]);
-  const sdk = initSdk(options);
-  printBlock(await getBlock(hash, sdk), json, true);
+  const aeSdk = initSdk(options);
+  printBlock(await getBlock(hash, aeSdk), json, true);
 }
 
 async function getTransactionByHash(hash, { json, ...options }) {
   checkPref(hash, Encoding.TxHash);
-  const sdk = initSdk(options);
-  await printTransaction(await sdk.api.getTransactionByHash(hash), json, sdk);
+  const aeSdk = initSdk(options);
+  await printTransaction(await aeSdk.api.getTransactionByHash(hash), json, aeSdk);
 }
 
 async function unpackTx(encodedTx, { json }) {
@@ -38,10 +44,10 @@ async function unpackTx(encodedTx, { json }) {
 
 async function getAccountByHash(hash, { json, ...options }) {
   checkPref(hash, Encoding.AccountAddress);
-  const sdk = initSdk(options);
-  const { nonce } = await sdk.api.getAccountByPubkey(hash);
-  const balance = await sdk.getBalance(hash);
-  const { transactions } = await sdk.api.getPendingAccountTransactionsByPubkey(hash);
+  const aeSdk = initSdk(options);
+  const { nonce } = await aeSdk.api.getAccountByPubkey(hash);
+  const balance = await aeSdk.getBalance(hash);
+  const { transactions } = await aeSdk.api.getPendingAccountTransactionsByPubkey(hash);
   if (json) {
     print({
       hash,
@@ -50,64 +56,71 @@ async function getAccountByHash(hash, { json, ...options }) {
       transactions,
     });
   } else {
-    printUnderscored('Account ID', hash);
-    printUnderscored('Account balance', formatCoins(balance));
-    printUnderscored('Account nonce', nonce);
+    printTable([
+      ['Account ID', hash],
+      ['Account balance', formatCoins(balance)],
+      ['Account nonce', nonce],
+    ]);
     print(transactions.length ? 'Pending transactions:' : 'No pending transactions');
     printBlockTransactions(transactions);
   }
 }
 
 async function getBlockByHeight(height, { json, ...options }) {
-  const sdk = initSdk(options);
-  printBlock(await sdk.api.getKeyBlockByHeight(+height), json);
+  const aeSdk = initSdk(options);
+  printBlock(await aeSdk.api.getKeyBlockByHeight(+height), json);
 }
 
 async function getName(name, { json, ...options }) {
   validateName(name);
-  const sdk = initSdk(options);
-  const nameEntry = await getNameEntry(name, sdk);
+  const aeSdk = initSdk(options);
+  const nameEntry = await getNameEntry(name, aeSdk);
 
   if (json) {
     print(nameEntry);
     return;
   }
 
-  const height = await sdk.getHeight({ cached: true });
-  printUnderscored('Status', nameEntry.status);
-  printUnderscored('Name hash', nameEntry.id);
+  const height = await aeSdk.getHeight({ cached: true });
+  const details = [
+    ['Status', nameEntry.status],
+    ['Name hash', nameEntry.id],
+  ];
   switch (nameEntry.status) {
     case 'CLAIMED':
-      printUnderscored('Owner', nameEntry.owner);
+      details.push(['Owner', nameEntry.owner]);
       if (nameEntry.pointers?.length) {
-        nameEntry.pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
-      } else printUnderscored('Pointers', 'N/A');
-      printUnderscored('TTL', formatTtl(nameEntry.ttl, height));
+        nameEntry.pointers.forEach(({ key, id }) => details.push([`Pointer ${key}`, id]));
+      } else details.push(['Pointers', 'N/A']);
+      details.push(['TTL', formatTtl(nameEntry.ttl, height)]);
       break;
     case 'AUCTION':
-      printUnderscored('Highest bidder', nameEntry.highestBidder);
-      printUnderscored('Highest bid', formatCoins(nameEntry.highestBid));
-      printUnderscored('Ends at height', formatTtl(nameEntry.endsAt, height));
-      printUnderscored('Started at height', formatTtl(nameEntry.startedAt, height));
+      details.push(
+        ['Highest bidder', nameEntry.highestBidder],
+        ['Highest bid', formatCoins(nameEntry.highestBid)],
+        ['Ends at height', formatTtl(nameEntry.endsAt, height)],
+        ['Started at height', formatTtl(nameEntry.startedAt, height)],
+      );
       break;
     case 'AVAILABLE':
       break;
     default:
       throw new Error(`Unknown name status: ${nameEntry.status}`);
   }
+  printTable(details);
 }
 
 async function getContract(contractId, { json, ...options }) {
-  const sdk = initSdk(options);
-  const contract = await sdk.api.getContract(contractId);
+  const aeSdk = initSdk(options);
+  const contract = await aeSdk.api.getContract(contractId);
   if (json) print(contract);
   else printEntries(contract);
 }
 
 async function getOracle(oracleId, { json, ...options }) {
-  const sdk = initSdk(options);
-  const oracle = await sdk.api.getOracleByPubkey(oracleId);
-  oracle.queries = (await sdk.api.getOracleQueriesByPubkey(oracleId)).oracleQueries;
+  const aeSdk = initSdk(options);
+  const oracle = await aeSdk.api.getOracleByPubkey(oracleId);
+  oracle.queries = (await aeSdk.api.getOracleQueriesByPubkey(oracleId)).oracleQueries;
   if (json) {
     print(oracle);
     return;

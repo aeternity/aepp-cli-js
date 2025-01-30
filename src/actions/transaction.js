@@ -1,9 +1,20 @@
 import {
-  Tag, ORACLE_TTL_TYPES,
-  Node, genSalt, unpackTx, commitmentHash, buildContractId, verifyTransaction,
-  getDefaultPointerKey, buildTx, encode, Encoding,
+  Tag,
+  ORACLE_TTL_TYPES,
+  Node,
+  genSalt,
+  unpackTx,
+  commitmentHash,
+  buildContractId,
+  verifyTransaction,
+  getDefaultPointerKey,
+  buildTx,
+  encode,
+  Encoding,
+  VmVersion,
+  AbiVersion,
 } from '@aeternity/aepp-sdk';
-import { print, printUnderscored, printValidation } from '../utils/print.js';
+import { print, printTable, printValidation } from '../utils/print.js';
 import { validateName, decode } from '../utils/helpers.js';
 
 function buildAndPrintTx(params, json, extraKeys = {}) {
@@ -14,15 +25,20 @@ function buildAndPrintTx(params, json, extraKeys = {}) {
     print({ tx, txObject, ...extraKeys });
     return;
   }
-  printUnderscored('Transaction type', Tag[params.tag]);
-  print('Summary');
   // TODO: print the same way as transactions from node
-  Object
-    .entries({ ...txObject, ...extraKeys })
-    .forEach(([key, value]) => printUnderscored(`    ${key.toUpperCase()}`, value));
-  print('Output');
-  printUnderscored('    Encoded', tx);
-  print('This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.');
+  printTable([
+    ['Transaction type', Tag[params.tag]],
+    ['Summary', ''],
+    ...Object.entries({ ...txObject, ...extraKeys }).map(([key, value]) => [
+      `    ${key.toUpperCase()}`,
+      value,
+    ]),
+    ['Output', ''],
+    ['    Encoded', tx],
+  ]);
+  print(
+    'This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.',
+  );
 }
 
 export function spend(senderId, recipientId, amount, nonce, { json, payload, ...options }) {
@@ -109,6 +125,8 @@ export function contractDeploy(ownerId, code, callData, nonce, { json, gas, ...o
     ownerId,
     nonce,
     callData,
+    // TODO: remove after updating sdk to 14
+    ctVersion: { vmVersion: VmVersion.Fate3, abiVersion: AbiVersion.Fate },
   };
   buildAndPrintTx(params, json, {
     contractId: buildContractId(ownerId, nonce),
@@ -128,9 +146,13 @@ export function contractCall(callerId, contractId, callData, nonce, { json, gas,
   buildAndPrintTx(params, json);
 }
 
-export function oracleRegister(accountId, queryFormat, responseFormat, nonce, {
-  json, oracleTtl, ...options
-}) {
+export function oracleRegister(
+  accountId,
+  queryFormat,
+  responseFormat,
+  nonce,
+  { json, oracleTtl, ...options },
+) {
   const params = {
     tag: Tag.OracleRegisterTx,
     ...options,
@@ -144,9 +166,13 @@ export function oracleRegister(accountId, queryFormat, responseFormat, nonce, {
   buildAndPrintTx(params, json);
 }
 
-export function oraclePostQuery(senderId, oracleId, query, nonce, {
-  json, queryTtl, responseTtl, ...options
-}) {
+export function oraclePostQuery(
+  senderId,
+  oracleId,
+  query,
+  nonce,
+  { json, queryTtl, responseTtl, ...options },
+) {
   const params = {
     tag: Tag.OracleQueryTx,
     ...options,
@@ -174,9 +200,13 @@ export function oracleExtend(oracleId, oracleTtl, nonce, { json, ...options }) {
   buildAndPrintTx(params, json);
 }
 
-export function oracleRespond(oracleId, queryId, response, nonce, {
-  json, responseTtl, ...options
-}) {
+export function oracleRespond(
+  oracleId,
+  queryId,
+  response,
+  nonce,
+  { json, responseTtl, ...options },
+) {
   const params = {
     tag: Tag.OracleResponseTx,
     ...options,
@@ -191,7 +221,7 @@ export function oracleRespond(oracleId, queryId, response, nonce, {
 }
 
 export async function verify(transaction, { json, ...options }) {
-  decode(transaction, 'tx');
+  decode(transaction, Encoding.Transaction);
   const validation = await verifyTransaction(transaction, new Node(options.url));
   const { tag, ...tx } = unpackTx(transaction);
   if (json) {

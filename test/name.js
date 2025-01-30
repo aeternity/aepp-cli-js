@@ -1,42 +1,42 @@
-import { generateKeyPair, MemoryAccount } from '@aeternity/aepp-sdk';
+import { Encoding, MemoryAccount, Name } from '@aeternity/aepp-sdk';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import {
-  executeProgram, randomName, getSdk, WALLET_NAME,
-} from './index.js';
+import { executeProgram, getSdk, WALLET_NAME } from './index.js';
+import { expectToMatchLines, randomName, toBeAbove0, toBeEncoded, toMatch } from './utils.js';
 
 const executeName = executeProgram.bind(null, 'name');
-const executeInspect = executeProgram.bind(null, 'inspect');
 const executeSpend = executeProgram.bind(null, 'spend');
 
 describe('AENS Module', () => {
-  const { publicKey } = generateKeyPair();
-  const name = randomName(12);
-  const name2 = randomName(13);
-  let sdk;
-  let salt;
+  const { address } = MemoryAccount.generate();
+  let aeSdk;
 
   before(async () => {
-    sdk = await getSdk();
+    aeSdk = await getSdk();
   });
 
-  it('Full claim', async () => {
-    const updateTx = await executeName(
-      'full-claim',
-      WALLET_NAME,
-      '--password',
-      'test',
-      randomName(13),
-      '--json',
-    );
+  it('full claims', async () => {
+    const res = await executeName('full-claim', WALLET_NAME, '--password', 'test', randomName(13));
 
-    updateTx.blockHeight.should.be.gt(0);
-    const pointer = updateTx.pointers.find(({ id }) => id === sdk.address);
-    expect(pointer).to.be.eql({ id: sdk.address, key: 'account_pubkey' });
-  }).timeout(10000);
+    expectToMatchLines(res, [
+      /Transaction hash        th_\w+/,
+      /Block hash              mh_\w+/,
+      /Block height            \d+ \(about now\)/,
+      /Signatures              \["sg_\w+"\]/,
+      'Transaction type        NameUpdateTx (ver. 1)',
+      `Account address         ${aeSdk.address}`,
+      /Name ID                 nm_\w+/,
+      `Name TTL                180000 (1 year)`,
+      `Pointer account_pubkey  ${aeSdk.address}`,
+      `Client TTL              3600 (1 hour)`,
+      /Fee                     0.000017\d+ae/,
+      /Nonce                   \d+/,
+      /TTL                     \d+ \(in [56] minutes\)/,
+    ]);
+  });
 
-  it('Full claim with options', async () => {
-    const updateTx = await executeName(
+  it('full claims with options as json', async () => {
+    const res = await executeName(
       'full-claim',
       WALLET_NAME,
       '--password',
@@ -51,204 +51,500 @@ describe('AENS Module', () => {
       50,
     );
 
-    updateTx.blockHeight.should.be.gt(0);
-    updateTx.tx.nameTtl.should.be.equal(50);
-    updateTx.tx.clientTtl.should.be.equal(50);
-    const pointer = updateTx.pointers.find(({ id }) => id === sdk.address);
-    expect(pointer).to.be.eql({ id: sdk.address, key: 'account_pubkey' });
-  }).timeout(10000);
+    expect(res).to.be.eql({
+      tx: {
+        fee: toMatch(res.tx.fee, /17\d{12}/),
+        ttl: toBeAbove0(res.tx.ttl),
+        nonce: toBeAbove0(res.tx.nonce),
+        accountId: aeSdk.address,
+        nameId: toBeEncoded(res.tx.nameId, Encoding.NameId),
+        nameTtl: 50,
+        pointers: [
+          {
+            key: 'account_pubkey',
+            id: aeSdk.address,
+            encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+          },
+        ],
+        clientTtl: 50,
+        version: 1,
+        type: 'NameUpdateTx',
+      },
+      blockHeight: toBeAbove0(res.blockHeight),
+      blockHash: toBeEncoded(res.blockHash, Encoding.MicroBlockHash),
+      hash: toBeEncoded(res.hash, Encoding.TxHash),
+      encodedTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      signatures: [toBeEncoded(res.signatures[0], Encoding.Signature)],
+      rawTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      id: toBeEncoded(res.tx.nameId, Encoding.NameId),
+      owner: aeSdk.address,
+      ttl: res.blockHeight + res.tx.nameTtl,
+      pointers: [
+        {
+          key: 'account_pubkey',
+          id: aeSdk.address,
+          encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+        },
+      ],
+    });
+  });
 
-  it('Pre Claim Name', async () => {
-    const preClaim = await executeName(
-      'pre-claim',
-      WALLET_NAME,
-      '--password',
-      'test',
-      name2,
-      '--json',
-    );
-    const nameResult = await executeInspect(name2, '--json');
-    salt = preClaim.salt;
+  const name1 = randomName(13);
+  let salt1;
+  it('preclaims', async () => {
+    const res = await executeName('pre-claim', WALLET_NAME, '--password', 'test', name1);
 
-    preClaim.blockHeight.should.be.gt(0);
-    preClaim.salt.should.be.a('number');
-    preClaim.commitmentId.should.contain('cm');
-    nameResult.id.should.satisfy((id) => id.startsWith('nm_'));
-    nameResult.status.should.equal('AVAILABLE');
-  }).timeout(4000);
+    expectToMatchLines(res, [
+      /Transaction hash  th_\w+/,
+      /Block hash        mh_\w+/,
+      /Block height      \d+ \(about now\)/,
+      /Signatures        \["sg_\w+"\]/,
+      'Transaction type  NamePreclaimTx (ver. 1)',
+      `Account address   ${aeSdk.address}`,
+      /Name salt         \d+/,
+      /Commitment        cm_\w+/,
+      /Fee               0.000016\d+ae/,
+      /Nonce             \d+/,
+      /TTL               \d+ \(in [56] minutes\)/,
+    ]);
+    salt1 = res.match(/Name salt\s+(\d+)/)[1];
+  });
 
-  it('Claim Name', async () => {
-    const claim = await executeName(
+  const name2 = randomName(13);
+  let salt2;
+  it('preclaims as json', async () => {
+    const res = await executeName('pre-claim', WALLET_NAME, '--password', 'test', name2, '--json');
+
+    expect(res).to.be.eql({
+      blockHash: toBeEncoded(res.blockHash, Encoding.MicroBlockHash),
+      blockHeight: toBeAbove0(res.blockHeight),
+      hash: toBeEncoded(res.hash, Encoding.TxHash),
+      encodedTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      signatures: [toBeEncoded(res.signatures[0], Encoding.Signature)],
+      tx: {
+        fee: toMatch(res.tx.fee, /16\d{12}/),
+        ttl: toBeAbove0(res.tx.ttl),
+        nonce: toBeAbove0(res.tx.nonce),
+        accountId: aeSdk.address,
+        commitmentId: toBeEncoded(res.tx.commitmentId, Encoding.CommitmentId),
+        version: 1,
+        type: 'NamePreclaimTx',
+      },
+      rawTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      salt: toBeAbove0(res.salt),
+    });
+    salt2 = res.salt;
+  });
+
+  it('claims', async () => {
+    const res = await executeName('claim', WALLET_NAME, '--password', 'test', name1, salt1);
+
+    expectToMatchLines(res, [
+      /Transaction hash  th_\w+/,
+      /Block hash        mh_\w+/,
+      /Block height      \d+ \(about now\)/,
+      /Signatures        \["sg_\w+"\]/,
+      'Transaction type  NameClaimTx (ver. 2)',
+      `Account address   ${aeSdk.address}`,
+      `Name              ${name1}`,
+      'Name fee          1.7711ae',
+      `Name salt         ${salt1}`,
+      'Pointers          N/A',
+      /Fee               0.000016\d+ae/,
+      /Nonce             \d+/,
+      /TTL               \d+ \(in [56] minutes\)/,
+    ]);
+  });
+
+  it('claims as json', async () => {
+    const res = await executeName(
       'claim',
       WALLET_NAME,
       '--password',
       'test',
       name2,
-      salt,
+      salt2,
       '--json',
     );
-    const nameResult = await executeInspect(name2, '--json');
 
-    claim.blockHeight.should.be.gt(0);
-    claim.pointers.length.should.be.equal(0);
-    nameResult.status.should.equal('CLAIMED');
-  }).timeout(10000);
+    expect(res).to.be.eql({
+      blockHash: toBeEncoded(res.blockHash, Encoding.MicroBlockHash),
+      blockHeight: toBeAbove0(res.blockHeight),
+      hash: toBeEncoded(res.hash, Encoding.TxHash),
+      encodedTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      signatures: [toBeEncoded(res.signatures[0], Encoding.Signature)],
+      tx: {
+        fee: toMatch(res.tx.fee, /16\d{12}/),
+        ttl: toBeAbove0(res.tx.ttl),
+        nonce: toBeAbove0(res.tx.nonce),
+        accountId: aeSdk.address,
+        name: name2,
+        nameSalt: salt2,
+        nameFee: '1771100000000000000',
+        version: 2,
+        type: 'NameClaimTx',
+      },
+      rawTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      id: toBeEncoded(res.id, Encoding.NameId),
+      owner: aeSdk.address,
+      ttl: res.blockHeight + 180000,
+      pointers: [],
+    });
+  });
 
-  it('Update Name', async () => {
-    const updateTx = await executeName(
+  it('updates', async () => {
+    const res = await executeName('update', WALLET_NAME, name1, address, '--password', 'test');
+
+    expectToMatchLines(res, [
+      /Transaction hash        th_\w+/,
+      /Block hash              mh_\w+/,
+      /Block height            \d+ \(about now\)/,
+      /Signatures              \["sg_\w+"\]/,
+      'Transaction type        NameUpdateTx (ver. 1)',
+      `Account address         ${aeSdk.address}`,
+      /Name ID                 nm_\w+/,
+      'Name TTL                180000 (1 year)',
+      `Pointer account_pubkey  ${address}`,
+      'Client TTL              3600 (1 hour)',
+      /Fee                     0.000017\d+ae/,
+      /Nonce                   \d+/,
+      /TTL                     \d+ \(in [56] minutes\)/,
+    ]);
+  });
+
+  it('updates as json', async () => {
+    const res = await executeName(
       'update',
       WALLET_NAME,
       name2,
-      publicKey,
+      address,
       '--password',
       'test',
       '--json',
     );
-    const nameResult = await executeInspect(name2, '--json');
 
-    updateTx.blockHeight.should.be.gt(0);
-    const isUpdatedNode = !!nameResult.pointers.find(
-      ({ id }) => id === publicKey,
-    );
-    isUpdatedNode.should.be.equal(true);
-    nameResult.status.should.equal('CLAIMED');
+    expect(res).to.be.eql({
+      blockHash: toBeEncoded(res.blockHash, Encoding.MicroBlockHash),
+      blockHeight: toBeAbove0(res.blockHeight),
+      hash: toBeEncoded(res.hash, Encoding.TxHash),
+      encodedTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      signatures: [toBeEncoded(res.signatures[0], Encoding.Signature)],
+      tx: {
+        fee: toMatch(res.tx.fee, /17\d{12}/),
+        ttl: toBeAbove0(res.tx.ttl),
+        nonce: toBeAbove0(res.tx.nonce),
+        accountId: aeSdk.address,
+        nameId: toBeEncoded(res.tx.nameId, Encoding.NameId),
+        nameTtl: 180000,
+        pointers: [
+          {
+            key: 'account_pubkey',
+            id: address,
+            encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+          },
+        ],
+        clientTtl: 3600,
+        version: 1,
+        type: 'NameUpdateTx',
+      },
+      rawTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+    });
   });
 
-  it('extend name ttl', async () => {
-    const height = await sdk.getHeight();
-    const extendTx = await executeName(
-      'extend',
-      WALLET_NAME,
-      name2,
-      50,
-      '--password',
-      'test',
-      '--json',
-    );
-    expect(extendTx.blockHeight - height).within(0, 3);
-    const nameResult = await executeInspect(name2, '--json');
-    expect(nameResult.ttl - extendTx.blockHeight).to.be.equal(50);
-    expect(nameResult.status).to.equal('CLAIMED');
+  it('extends', async () => {
+    const res = await executeName('extend', WALLET_NAME, name1, 50, '--password', 'test');
+
+    expectToMatchLines(res, [
+      /Transaction hash        th_\w+/,
+      /Block hash              mh_\w+/,
+      /Block height            \d+ \(about now\)/,
+      /Signatures              \["sg_\w+"\]/,
+      'Transaction type        NameUpdateTx (ver. 1)',
+      `Account address         ${aeSdk.address}`,
+      /Name ID                 nm_\w+/,
+      'Name TTL                50 (2 hours)',
+      `Pointer account_pubkey  ${address}`,
+      'Client TTL              3600 (1 hour)',
+      /Fee                     0.000017\d+ae/,
+      /Nonce                   \d+/,
+      /TTL                     \d+ \(in [56] minutes\)/,
+    ]);
   });
 
-  it('extend name with max ttl', async () => {
-    const extendTx = await executeName('extend', WALLET_NAME, name2, '--password', 'test', '--json');
-    const nameResult = await executeInspect(name2, '--json');
-    expect(nameResult.ttl - extendTx.blockHeight).to.be.equal(180000);
+  it('extends as json', async () => {
+    const res = await executeName('extend', WALLET_NAME, name2, 50, '--password', 'test', '--json');
+
+    expect(res).to.be.eql({
+      blockHash: toBeEncoded(res.blockHash, Encoding.MicroBlockHash),
+      blockHeight: toBeAbove0(res.blockHeight),
+      hash: toBeEncoded(res.hash, Encoding.TxHash),
+      encodedTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      signatures: [toBeEncoded(res.signatures[0], Encoding.Signature)],
+      tx: {
+        fee: toMatch(res.tx.fee, /17\d{12}/),
+        ttl: toBeAbove0(res.tx.ttl),
+        nonce: toBeAbove0(res.tx.nonce),
+        accountId: aeSdk.address,
+        nameId: toBeEncoded(res.tx.nameId, Encoding.NameId),
+        nameTtl: 50,
+        pointers: [
+          {
+            key: 'account_pubkey',
+            id: address,
+            encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+          },
+        ],
+        clientTtl: 3600,
+        version: 1,
+        type: 'NameUpdateTx',
+      },
+      rawTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+    });
   });
 
-  it('Fail spend by name on invalid input', async () => {
+  it('extends with max ttl as json', async () => {
+    const res = await executeName('extend', WALLET_NAME, name2, '--password', 'test', '--json');
+
+    expect(res).to.be.eql({
+      blockHash: toBeEncoded(res.blockHash, Encoding.MicroBlockHash),
+      blockHeight: toBeAbove0(res.blockHeight),
+      hash: toBeEncoded(res.hash, Encoding.TxHash),
+      encodedTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      signatures: [toBeEncoded(res.signatures[0], Encoding.Signature)],
+      tx: {
+        fee: toMatch(res.tx.fee, /17\d{12}/),
+        ttl: toBeAbove0(res.tx.ttl),
+        nonce: toBeAbove0(res.tx.nonce),
+        accountId: aeSdk.address,
+        nameId: toBeEncoded(res.tx.nameId, Encoding.NameId),
+        nameTtl: 180000,
+        pointers: [
+          {
+            key: 'account_pubkey',
+            id: address,
+            encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR',
+          },
+        ],
+        clientTtl: 3600,
+        version: 1,
+        type: 'NameUpdateTx',
+      },
+      rawTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+    });
+  });
+
+  it('fails spend by name on invalid input', async () => {
     const amount = 100000009;
-    await executeSpend(
-      WALLET_NAME,
-      '--password',
-      'test',
-      'sdasdaasdas',
-      amount,
-      '--json',
-    ).should.be.rejectedWith('Invalid name or address');
+    await expect(
+      executeSpend(WALLET_NAME, '--password', 'test', 'sdasdaasdas', amount, '--json'),
+    ).to.be.rejectedWith('Invalid name or address');
   });
 
-  it('Spend by name', async () => {
+  it('spends by name', async () => {
     const amount = 100000009;
-    const { tx: { recipientId } } = await executeSpend(
+    const res = await executeSpend(WALLET_NAME, '--password', 'test', name2, amount, '--json');
+
+    expect(res).to.be.eql({
+      blockHash: toBeEncoded(res.blockHash, Encoding.MicroBlockHash),
+      blockHeight: toBeAbove0(res.blockHeight),
+      hash: toBeEncoded(res.hash, Encoding.TxHash),
+      encodedTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      signatures: [toBeEncoded(res.signatures[0], Encoding.Signature)],
+      tx: {
+        recipientId: toBeEncoded(res.tx.recipientId, Encoding.Name),
+        fee: toMatch(res.tx.fee, /16\d{12}/),
+        ttl: toBeAbove0(res.tx.ttl),
+        nonce: toBeAbove0(res.tx.nonce),
+        amount: amount.toString(),
+        senderId: aeSdk.address,
+        version: 1,
+        type: 'SpendTx',
+        payload: 'ba_Xfbg4g==',
+      },
+      rawTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+    });
+  });
+
+  it('transfers', async () => {
+    const recipient = MemoryAccount.generate();
+    const res = await executeName(
+      'transfer',
       WALLET_NAME,
+      name1,
+      recipient.address,
       '--password',
       'test',
-      name2,
-      amount,
-      '--json',
     );
 
-    const nameObject = await sdk.aensQuery(name2);
-    recipientId.should.be.equal(nameObject.id);
-    const balance = await sdk.getBalance(publicKey);
-    balance.should.be.equal(`${amount}`);
+    expectToMatchLines(res, [
+      /Transaction hash   th_\w+/,
+      /Block hash         mh_\w+/,
+      /Block height       \d+ \(about now\)/,
+      /Signatures         \["sg_\w+"\]/,
+      'Transaction type   NameTransferTx (ver. 1)',
+      `Account address    ${aeSdk.address}`,
+      `Recipient address  ${recipient.address}`,
+      /Name ID            nm_\w+/,
+      /Fee                0.000017\d+ae/,
+      /Nonce              \d+/,
+      /TTL                \d+ \(in [56] minutes\)/,
+    ]);
+
+    await aeSdk.spend(1e16, recipient.address);
+    const name = new Name(name1, { ...aeSdk.getContext(), onAccount: recipient });
+    await name.transfer(aeSdk.address);
   });
 
-  it('Transfer name', async () => {
-    const keypair = generateKeyPair();
-
-    const transferTx = await executeName(
+  it('transfers as json', async () => {
+    const recipient = MemoryAccount.generate();
+    const res = await executeName(
       'transfer',
       WALLET_NAME,
       name2,
-      keypair.publicKey,
+      recipient.address,
       '--password',
       'test',
       '--json',
     );
 
-    transferTx.blockHeight.should.be.gt(0);
-    await sdk.spend(1, keypair.publicKey, { denomination: 'ae' });
-    const claim2 = await sdk.aensQuery(name2);
-    const transferBack = await claim2
-      .transfer(sdk.address, { onAccount: new MemoryAccount(keypair.secretKey) });
-    transferBack.blockHeight.should.be.gt(0);
+    expect(res).to.be.eql({
+      blockHash: toBeEncoded(res.blockHash, Encoding.MicroBlockHash),
+      blockHeight: toBeAbove0(res.blockHeight),
+      hash: toBeEncoded(res.hash, Encoding.TxHash),
+      encodedTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      signatures: [toBeEncoded(res.signatures[0], Encoding.Signature)],
+      tx: {
+        fee: toMatch(res.tx.fee, /17\d{12}/),
+        ttl: toBeAbove0(res.tx.ttl),
+        nonce: toBeAbove0(res.tx.nonce),
+        accountId: aeSdk.address,
+        nameId: toBeEncoded(res.tx.nameId, Encoding.NameId),
+        recipientId: recipient.address,
+        version: 1,
+        type: 'NameTransferTx',
+      },
+      rawTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+    });
+
+    await aeSdk.spend(1e16, recipient.address);
+    const name = new Name(name2, { ...aeSdk.getContext(), onAccount: recipient });
+    await name.transfer(aeSdk.address);
   });
 
-  it('Revoke Name', async () => {
-    const revoke = await executeName(
-      'revoke',
-      WALLET_NAME,
-      '--password',
-      'test',
-      name2,
-      '--json',
-    );
-
-    const nameResult = await executeInspect(name2, '--json');
-
-    revoke.blockHeight.should.be.gt(0);
-    nameResult.status.should.equal('REVOKED');
+  it('revokes', async () => {
+    const res = await executeName('revoke', WALLET_NAME, '--password', 'test', name1);
+    expectToMatchLines(res, [
+      /Transaction hash  th_\w+/,
+      /Block hash        mh_\w+/,
+      /Block height      \d+ \(about now\)/,
+      /Signatures        \["sg_\w+"\]/,
+      'Transaction type  NameRevokeTx (ver. 1)',
+      `Account address   ${aeSdk.address}`,
+      /Name ID           nm_\w+/,
+      /Fee               0.000016\d+ae/,
+      /Nonce             \d+/,
+      /TTL               \d+ \(in [56] minutes\)/,
+    ]);
   });
 
-  it('can\'t claim revoked name', async () => {
-    await executeName(
-      'pre-claim',
-      WALLET_NAME,
-      '--password',
-      'test',
-      name2,
-      '--json',
-    ).should.be.rejectedWith('AENS name is REVOKED and cannot be preclaimed');
+  it('revokes as json', async () => {
+    const res = await executeName('revoke', WALLET_NAME, '--password', 'test', name2, '--json');
+    expect(res).to.be.eql({
+      blockHash: toBeEncoded(res.blockHash, Encoding.MicroBlockHash),
+      blockHeight: toBeAbove0(res.blockHeight),
+      hash: toBeEncoded(res.hash, Encoding.TxHash),
+      encodedTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      signatures: [toBeEncoded(res.signatures[0], Encoding.Signature)],
+      tx: {
+        fee: toMatch(res.tx.fee, /16\d{12}/),
+        ttl: toBeAbove0(res.tx.ttl),
+        nonce: toBeAbove0(res.tx.nonce),
+        accountId: aeSdk.address,
+        nameId: toBeEncoded(res.tx.nameId, Encoding.NameId),
+        version: 1,
+        type: 'NameRevokeTx',
+      },
+      rawTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+    });
+  });
+
+  it('fails to claim revoked name', async () => {
+    await expect(
+      executeName('pre-claim', WALLET_NAME, '--password', 'test', name2),
+    ).to.be.rejectedWith('AENS name is REVOKED and cannot be preclaimed');
   });
 
   describe('Name Auction', () => {
-    const nameFee = '3665700000000000000';
+    const name = randomName(12);
 
-    it('Open auction', async () => {
-      const onAccount = MemoryAccount.generate();
-      await sdk.spend(5e18, onAccount.address);
-      const preclaim = await sdk.aensPreclaim(name, { onAccount });
-      const claim = await preclaim.claim({ onAccount });
-      claim.blockHeight.should.be.gt(0);
-    }).timeout(10000);
+    it('starts auction', async () => {
+      const res = await executeName('full-claim', WALLET_NAME, '--password', 'test', name);
 
-    it('Make bid', async () => {
-      const bid = await executeName(
-        'bid',
-        WALLET_NAME,
-        '--password',
-        'test',
-        name,
-        nameFee,
-        '--json',
-      );
-
-      bid.tx.nameSalt.should.be.equal(0);
-      bid.tx.nameFee.should.be.equal(nameFee);
+      expectToMatchLines(res, [
+        /Transaction hash  th_\w+/,
+        /Block hash        mh_\w+/,
+        /Block height      \d+ \(about now\)/,
+        /Signatures        \["sg_\w+"\]/,
+        'Transaction type  NameClaimTx (ver. 2)',
+        `Account address   ${aeSdk.address}`,
+        `Name              ${name}`,
+        'Name fee          2.8657ae',
+        /Name salt         \d+/,
+        /Fee               0.000016\d+ae/,
+        /Nonce             \d+/,
+        /TTL               \d+ \(in [56] minutes\)/,
+      ]);
     });
 
-    it('Fail on open again', async () => {
-      await executeName(
-        'pre-claim',
-        WALLET_NAME,
-        '--password',
-        'test',
-        name,
-        '--json',
-      ).should.be.rejectedWith('AENS name is AUCTION and cannot be preclaimed');
+    const bid1 = '3665700000000000000';
+    it('bids', async () => {
+      const res = await executeName('bid', WALLET_NAME, '--password', 'test', name, bid1);
+
+      expectToMatchLines(res, [
+        /Transaction hash  th_\w+/,
+        /Block hash        mh_\w+/,
+        /Block height      \d+ \(about now\)/,
+        /Signatures        \["sg_\w+"\]/,
+        'Transaction type  NameClaimTx (ver. 2)',
+        `Account address   ${aeSdk.address}`,
+        `Name              ${name}`,
+        'Name fee          3.6657ae',
+        'Name salt         0',
+        /Fee               0.000016\d+ae/,
+        /Nonce             \d+/,
+        /TTL               \d+ \(in [56] minutes\)/,
+      ]);
+    });
+
+    it('bids as json', async () => {
+      const bid2 = (bid1 * 1.06).toString();
+      const res = await executeName('bid', WALLET_NAME, '--password', 'test', name, bid2, '--json');
+
+      expect(res).to.be.eql({
+        blockHash: toBeEncoded(res.blockHash, Encoding.MicroBlockHash),
+        blockHeight: toBeAbove0(res.blockHeight),
+        hash: toBeEncoded(res.hash, Encoding.TxHash),
+        encodedTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+        signatures: [toBeEncoded(res.signatures[0], Encoding.Signature)],
+        tx: {
+          fee: toMatch(res.tx.fee, /16\d{12}/),
+          ttl: toBeAbove0(res.tx.ttl),
+          nonce: toBeAbove0(res.tx.nonce),
+          accountId: aeSdk.address,
+          name,
+          nameFee: bid2,
+          nameSalt: 0,
+          version: 2,
+          type: 'NameClaimTx',
+        },
+        rawTx: toBeEncoded(res.encodedTx, Encoding.Transaction),
+      });
+    });
+
+    it('fails to open again', async () => {
+      await expect(
+        executeName('pre-claim', WALLET_NAME, '--password', 'test', name),
+      ).to.be.rejectedWith('AENS name is AUCTION and cannot be preclaimed');
     });
   });
 });

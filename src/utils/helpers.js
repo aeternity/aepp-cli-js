@@ -8,7 +8,8 @@ export const exampleAddress2 = 'ak_AgV756Vfo99juwzNVgnjP1gXX1op1QN3NXTxvkPnHJPUD
 export const exampleContract = 'ct_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
 export const exampleOracle = 'ok_2a1j2Mk9YSmC1gioUq4PWRm3bsv887MbuRVwyv4KaUGoR1eiKi';
 export const exampleOracleQuery = 'oq_6y3N9KqQb74QsvR9NrESyhWeLNiA9aJgJ7ua8CvsTuGot6uzh';
-export const exampleTransaction = 'tx_+FoMAaEBzqet5HDJ+Z2dTkAIgKhvHUm7REti8Rqeu2S7z+tz/vOhARX7Ovvi4N8rfRN/Dsvb2ei7AJ3ysIkBrG5pnY6qW3W7iQVrx14tYxAAAIYPUN430AAAKoBebL57';
+export const exampleTransaction =
+  'tx_+FoMAaEBzqet5HDJ+Z2dTkAIgKhvHUm7REti8Rqeu2S7z+tz/vOhARX7Ovvi4N8rfRN/Dsvb2ei7AJ3ysIkBrG5pnY6qW3W7iQVrx14tYxAAAIYPUN430AAAKoBebL57';
 export const exampleName = 'example-name.chain';
 export const exampleCalldata = 'cb_DA6sWJo=';
 export const exampleHeight = 929796;
@@ -28,15 +29,15 @@ export const addExamples = (command, examples) => {
   });
 };
 
-export async function getBlock(hash, sdk) {
+export async function getBlock(hash, aeSdk) {
   const type = hash.split('_')[0];
   switch (type) {
     case Encoding.KeyBlockHash:
-      return sdk.api.getKeyBlockByHash(hash);
+      return aeSdk.api.getKeyBlockByHash(hash);
     case Encoding.MicroBlockHash:
       return {
-        ...await sdk.api.getMicroBlockHeaderByHash(hash),
-        ...await sdk.api.getMicroBlockTransactionsByHash(hash),
+        ...(await aeSdk.api.getMicroBlockHeaderByHash(hash)),
+        ...(await aeSdk.api.getMicroBlockTransactionsByHash(hash)),
       };
     default:
       throw new CliError(`Unknown block hash type: ${type}`);
@@ -56,23 +57,24 @@ export function checkPref(hash, hashType) {
   }
 
   if (!hash.startsWith(`${hashType}_`)) {
-    const msg = {
-      [Encoding.TxHash]: 'Invalid transaction hash, it should be like: th_....',
-      [Encoding.AccountAddress]: 'Invalid account address, it should be like: ak_....',
-    }[hashType] || `Invalid hash, it should be like: ${hashType}_....`;
+    const msg =
+      {
+        [Encoding.TxHash]: 'Invalid transaction hash, it should be like: th_....',
+        [Encoding.AccountAddress]: 'Invalid account address, it should be like: ak_....',
+      }[hashType] || `Invalid hash, it should be like: ${hashType}_....`;
     throw new CliError(msg);
   }
 }
 
-export async function getNameEntry(nameAsString, sdk) {
+export async function getNameEntry(nameAsString, aeSdk) {
   const [name, auction] = await Promise.all([
-    sdk.api.getNameEntryByName(nameAsString).catch((error) => {
+    aeSdk.api.getNameEntryByName(nameAsString).catch((error) => {
       if (error.response?.status === 404) {
         return error.response.parsedBody?.reason === 'Name revoked' ? 'REVOKED' : 'AVAILABLE';
       }
       throw error;
     }),
-    sdk.api.getAuctionEntryByName(nameAsString).catch((error) => {
+    aeSdk.api.getAuctionEntryByName(nameAsString).catch((error) => {
       if (error.response?.status === 404) return undefined;
       throw error;
     }),
@@ -98,35 +100,48 @@ export function decode(data, requiredPrefix) {
 
 export const getFullPath = (path) => resolve(process.cwd(), path);
 
-const units = [
-  ['year', 365 * 24 * 60 * 60 * 1000],
-  ['month', 30.5 * 24 * 60 * 60 * 1000],
-  ['day', 24 * 60 * 60 * 1000],
-  ['hour', 60 * 60 * 1000],
-  ['minute', 60 * 1000],
-  ['second', 1000],
+const timeUnits = [
+  ['year', 365 * 24 * 60 * 60],
+  ['month', 30.5 * 24 * 60 * 60],
+  ['day', 24 * 60 * 60],
+  ['hour', 60 * 60],
+  ['minute', 60],
+  ['second', 1],
 ];
 
-export function timeAgo(date) {
-  const diff = Date.now() - date.getTime();
-  // TODO: revisit linter settings, the below rule is not relevant because babel is not used
-  // eslint-disable-next-line no-restricted-syntax
-  for (const [name, size] of units) {
-    const value = Math.floor(Math.abs(diff) / size);
+const secondsToBiggerUnit = (seconds) => {
+  for (const [name, size] of timeUnits) {
+    const value = Math.floor(seconds / size);
     if (value > 0) {
       const plural = value > 1 ? 's' : '';
-      const description = `${value} ${name}${plural}`;
-      return diff > 0 ? `${description} ago` : `in ${description}`;
+      return `${value} ${name}${plural}`;
     }
   }
-  return 'about now';
-}
+  return '0 seconds';
+};
+
+const timeAgo = (date) => {
+  const diff = (Date.now() - date.getTime()) / 1000;
+  const description = secondsToBiggerUnit(Math.abs(diff));
+  if (description === '0 seconds') return 'about now';
+  return diff > 0 ? `${description} ago` : `in ${description}`;
+};
 
 export const formatCoins = (coins) => `${new BigNumber(coins).shiftedBy(-18).toFixed()}ae`;
 
+const blocksIntervalInSeconds = 3 * 60;
+
 export const formatTtl = (ttl, height) => {
-  const date = new Date();
   const diff = Math.abs(ttl - height) < 2 ? 0 : ttl - height;
-  date.setMinutes(date.getMinutes() + diff * 3);
+  const date = new Date();
+  date.setSeconds(date.getSeconds() + diff * blocksIntervalInSeconds);
   return `${ttl} (${timeAgo(date)})`;
+};
+
+export const formatBlocks = (blocks) => {
+  return `${blocks} (${secondsToBiggerUnit(blocks * blocksIntervalInSeconds)})`;
+};
+
+export const formatSeconds = (seconds) => {
+  return `${seconds} (${secondsToBiggerUnit(seconds)})`;
 };

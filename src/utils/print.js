@@ -1,21 +1,22 @@
+import { Encoding, unpackTx, AbiVersion, VmVersion } from '@aeternity/aepp-sdk';
 import {
-  Encoding, unpackTx, AbiVersion, VmVersion,
-} from '@aeternity/aepp-sdk';
-import {
-  decode, formatCoins, formatTtl as formatTtlUnbound, timeAgo,
+  decode,
+  formatCoins,
+  formatTtl as formatTtlUnbound,
+  formatSeconds,
+  formatBlocks,
 } from './helpers.js';
 
-const ROW_WIDTH = 40;
-
-const JsonStringifyEs = (object, spaced) => JSON.stringify(
-  object,
-  (key, value) => {
-    if (typeof value === 'bigint') return `${value}`;
-    if (value instanceof Map) return [...value.entries()];
-    return value;
-  },
-  spaced ? 2 : undefined,
-);
+const JsonStringifyEs = (object, spaced) =>
+  JSON.stringify(
+    object,
+    (key, value) => {
+      if (typeof value === 'bigint') return `${value}`;
+      if (value instanceof Map) return [...value.entries()];
+      return value;
+    },
+    spaced ? 2 : undefined,
+  );
 
 export function print(msg, obj) {
   if (typeof msg === 'object') {
@@ -30,28 +31,27 @@ export function print(msg, obj) {
   }
 }
 
-export function printUnderscored(key, val) {
-  print([
-    key,
-    '_'.repeat(ROW_WIDTH - key.length),
-    typeof val !== 'object' ? val : JsonStringifyEs(val),
-  ].join(' '));
+export function printTable(data) {
+  const firstColumnWidth = Math.max(...data.map(([key]) => key.length));
+  for (const [key, val] of data) {
+    console.log(
+      key.padEnd(firstColumnWidth + 1),
+      typeof val !== 'object' ? val : JsonStringifyEs(val),
+    );
+  }
 }
 
 export function printValidation({ validation, transaction }) {
   print('---------------------------------------- TX DATA ↓↓↓ \n');
-  const tx = unpackTx(transaction);
-  // TODO: print the same way as transaction by hash
-  Object.entries(tx).forEach(([key, value]) => printUnderscored(key, value));
+  printTable(Object.entries(unpackTx(transaction)));
+
   print('\n---------------------------------------- ERRORS ↓↓↓ \n');
-  validation.forEach(({ message, checkedKeys }) => {
-    printUnderscored(checkedKeys.join(', '), message);
-  });
+  printTable(validation.map(({ message, checkedKeys }) => [checkedKeys.join(', '), message]));
 }
 
-function printTxField(tx, verboseName, field, handleValue = (a) => a) {
+function txFieldRow(tx, verboseName, field, handleValue = (a) => a) {
   if (!(field in tx)) return;
-  printUnderscored(verboseName, tx[field] == null ? 'N/A' : handleValue(tx[field]));
+  return [verboseName, tx[field] == null ? 'N/A' : handleValue(tx[field])];
 }
 
 function printTransactionSync(_tx, json, currentHeight) {
@@ -63,73 +63,81 @@ function printTransactionSync(_tx, json, currentHeight) {
   const formatTtl = (ttl) => (currentHeight ? formatTtlUnbound(ttl, currentHeight) : ttl);
   const formatTtlObject = ({ type, value }) => {
     switch (type) {
-      case 'delta': return formatTtl(+value + +tx.blockHeight);
-      case 'block': return formatTtl(value);
-      default: throw new Error(`Unknown ttl type: ${type}`);
+      case 'delta':
+        return formatTtl(+value + +tx.blockHeight);
+      case 'block':
+        return formatTtl(value);
+      default:
+        throw new Error(`Unknown ttl type: ${type}`);
     }
   };
-  const formatTtlSeconds = (seconds) => {
-    const date = new Date();
-    date.setSeconds(date.getSeconds() + seconds);
-    return `${seconds} (${timeAgo(date).replace('in ', '')})`;
-  };
 
-  // meta
-  printUnderscored('Transaction hash', tx.hash);
-  printUnderscored('Block hash', tx.blockHash);
-  printTxField(tx, 'Block height', 'blockHeight', formatTtl);
-  printUnderscored('Signatures', tx.signatures);
-  printUnderscored('Transaction type', `${tx.type} (ver. ${tx.version})`);
-  // sender
-  printTxField(tx, 'Account address', 'accountId');
-  printTxField(tx, 'Sender address', 'senderId');
-  printTxField(tx, 'Recipient address', 'recipientId');
-  printTxField(tx, 'Owner address', 'ownerId');
-  printTxField(tx, 'Caller address', 'callerId');
-  // name
-  printTxField(tx, 'Name ID', 'nameId');
-  printTxField(tx, 'Name TTL', 'nameTtl', formatTtl);
-  printTxField(tx, 'Name', 'name');
-  printTxField(tx, 'Name fee', 'nameFee', formatCoins);
-  printTxField(tx, 'Name salt', 'nameSalt');
+  const table = [
+    // meta
+    ['Transaction hash', tx.hash],
+    ['Block hash', tx.blockHash],
+    txFieldRow(tx, 'Block height', 'blockHeight', formatTtl),
+    ['Signatures', tx.signatures],
+    ['Transaction type', `${tx.type} (ver. ${tx.version})`],
+    // sender
+    txFieldRow(tx, 'Account address', 'accountId'),
+    txFieldRow(tx, 'Sender address', 'senderId'),
+    txFieldRow(tx, 'Recipient address', 'recipientId'),
+    txFieldRow(tx, 'Owner address', 'ownerId'),
+    txFieldRow(tx, 'Caller address', 'callerId'),
+    // name
+    txFieldRow(tx, 'Name ID', 'nameId'),
+    txFieldRow(tx, 'Name TTL', 'nameTtl', formatBlocks),
+    txFieldRow(tx, 'Name', 'name'),
+    txFieldRow(tx, 'Name fee', 'nameFee', formatCoins),
+    txFieldRow(tx, 'Name salt', 'nameSalt'),
+    txFieldRow(tx, 'Name salt', 'salt'),
+  ];
+
   if ('pointers' in tx) {
-    if (tx.pointers.length === 0) printUnderscored('Pointers', 'N/A');
-    else tx.pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
+    if (tx.pointers.length === 0) table.push(['Pointers', 'N/A']);
+    else tx.pointers.forEach(({ key, id }) => table.push([`Pointer ${key}`, id]));
   }
-  printTxField(tx, 'Client TTL', 'clientTtl', formatTtlSeconds);
-  printTxField(tx, 'Commitment', 'commitmentId');
-  // contract
-  printTxField(tx, 'Contract address', 'contractId');
-  printTxField(tx, 'Gas', 'gas', (gas) => `${gas} (${formatCoins(tx.gasPrice * BigInt(gas))})`);
-  printTxField(tx, 'Gas price', 'gasPrice', formatCoins);
-  printTxField(tx, 'Bytecode', 'code');
-  printTxField(tx, 'Call data', 'callData');
-  // oracle
-  printTxField(tx, 'Oracle ID', 'oracleId');
-  printTxField(tx, 'Oracle TTL', 'oracleTtl', formatTtlObject);
-  printTxField(tx, 'VM version', 'vmVersion', (v) => `${v} (${VmVersion[v]})`);
-  printTxField(tx, 'ABI version', 'abiVersion', (v) => `${v} (${AbiVersion[v]})`);
-  // spend
-  printTxField(tx, 'Amount', 'amount', formatCoins);
-  printTxField(tx, 'Payload', 'payload');
-  // oracle query
-  printTxField(tx, 'Query', 'query');
-  printTxField(tx, 'Query ID', 'queryId');
-  printTxField(tx, 'Query fee', 'queryFee', formatCoins);
-  printTxField(tx, 'Query TTL', 'queryTtl', formatTtlObject);
-  printTxField(tx, 'Query format', 'queryFormat');
-  // oracle response
-  printTxField(tx, 'Response', 'response');
-  printTxField(tx, 'Response TTL', 'responseTtl', formatTtlObject);
-  printTxField(tx, 'Response format', 'responseFormat');
-  // common fields
-  printTxField(tx, 'Fee', 'fee', formatCoins);
-  printTxField(tx, 'Nonce', 'nonce');
-  printTxField(tx, 'TTL', 'ttl', formatTtl);
+
+  table.push(
+    txFieldRow(tx, 'Client TTL', 'clientTtl', formatSeconds),
+    txFieldRow(tx, 'Commitment', 'commitmentId'),
+    // contract
+    txFieldRow(tx, 'Contract address', 'contractId'),
+    txFieldRow(tx, 'Gas', 'gas', (gas) => `${gas} (${formatCoins(tx.gasPrice * BigInt(gas))})`),
+    txFieldRow(tx, 'Gas price', 'gasPrice', formatCoins),
+    txFieldRow(tx, 'Bytecode', 'code'),
+    txFieldRow(tx, 'Call data', 'callData'),
+    // oracle
+    txFieldRow(tx, 'Oracle ID', 'oracleId'),
+    txFieldRow(tx, 'Oracle TTL', 'oracleTtl', formatTtlObject),
+    txFieldRow(tx, 'VM version', 'vmVersion', (v) => `${v} (${VmVersion[v]})`),
+    txFieldRow(tx, 'ABI version', 'abiVersion', (v) => `${v} (${AbiVersion[v]})`),
+    // spend
+    txFieldRow(tx, 'Amount', 'amount', formatCoins),
+    txFieldRow(tx, 'Payload', 'payload'),
+    // oracle query
+    txFieldRow(tx, 'Query', 'query'),
+    txFieldRow(tx, 'Query ID', 'queryId'),
+    ...('query' in tx ? [txFieldRow(tx, 'Query ID', 'id')] : []),
+    txFieldRow(tx, 'Query fee', 'queryFee', formatCoins),
+    txFieldRow(tx, 'Query TTL', 'queryTtl', formatTtlObject),
+    txFieldRow(tx, 'Query format', 'queryFormat'),
+    // oracle response
+    txFieldRow(tx, 'Response', 'response'),
+    txFieldRow(tx, 'Response TTL', 'responseTtl', formatTtlObject),
+    txFieldRow(tx, 'Response format', 'responseFormat'),
+    // common fields
+    txFieldRow(tx, 'Fee', 'fee', formatCoins),
+    txFieldRow(tx, 'Nonce', 'nonce'),
+    txFieldRow(tx, 'TTL', 'ttl', formatTtl),
+  );
+
+  printTable(table.filter(Boolean));
 }
 
-export async function printTransaction(tx, json, sdk) {
-  const height = await sdk.getHeight({ cache: true });
+export async function printTransaction(tx, json, aeSdk) {
+  const height = await aeSdk.getHeight({ cache: true });
   printTransactionSync(tx, json, height);
 }
 
@@ -153,18 +161,20 @@ export function printBlock(block, json, isRoot = false) {
   const name = reverseEncoding[encoding].replace('Hash', '');
   print(`<<--------------- ${name} --------------->>`);
 
-  printUnderscored('Block hash', block.hash);
-  printUnderscored('Block height', block.height);
-  printUnderscored('State hash', block.stateHash);
-  printUnderscored('Nonce', block.nonce ?? 'N/A');
-  printUnderscored('Miner', block.miner ?? 'N/A');
-  printUnderscored('Time', new Date(block.time).toString());
-  printUnderscored('Previous block hash', block.prevHash);
-  printUnderscored('Previous key block hash', block.prevKeyHash);
-  printUnderscored('Version', block.version);
-  printUnderscored('Target', block.target ?? 'N/A');
   const txCount = block.transactions?.length ?? 0;
-  printUnderscored('Transactions', txCount);
+  printTable([
+    ['Block hash', block.hash],
+    ['Block height', block.height],
+    ['State hash', block.stateHash],
+    ['Nonce', block.nonce ?? 'N/A'],
+    ['Miner', block.miner ?? 'N/A'],
+    ['Time', new Date(block.time).toString()],
+    ['Previous block hash', block.prevHash],
+    ['Previous key block hash', block.prevKeyHash],
+    ['Version', block.version],
+    ['Target', block.target ?? 'N/A'],
+    ['Transactions', txCount],
+  ]);
   if (txCount) {
     console.group();
     printBlockTransactions(block.transactions);
@@ -178,11 +188,13 @@ export function printOracle(oracle, json) {
     print(oracle);
     return;
   }
-  printUnderscored('Oracle ID', oracle.id ?? 'N/A');
-  printUnderscored('Oracle Query Fee', oracle.queryFee ?? 'N/A');
-  printUnderscored('Oracle Query Format', oracle.queryFormat ?? 'N/A');
-  printUnderscored('Oracle Response Format', oracle.responseFormat ?? 'N/A');
-  printUnderscored('Ttl', oracle.ttl ?? 'N/A');
+  printTable([
+    ['Oracle ID', oracle.id ?? 'N/A'],
+    ['Oracle Query Fee', oracle.queryFee ?? 'N/A'],
+    ['Oracle Query Format', oracle.queryFormat ?? 'N/A'],
+    ['Oracle Response Format', oracle.responseFormat ?? 'N/A'],
+    ['Ttl', oracle.ttl ?? 'N/A'],
+  ]);
 }
 
 export function printQueries(queries = [], json) {
@@ -193,17 +205,19 @@ export function printQueries(queries = [], json) {
   print('');
   print('--------------------------------- QUERIES ------------------------------------');
   queries.forEach((q) => {
-    printUnderscored('Oracle ID', q.oracleId ?? 'N/A');
-    printUnderscored('Query ID', q.id ?? 'N/A');
-    printUnderscored('Fee', q.fee ?? 'N/A');
-    printUnderscored('Query', q.query ?? 'N/A');
-    printUnderscored('Query decoded', decode(q.query, Encoding.OracleQuery).toString() ?? 'N/A');
-    printUnderscored('Response', q.response ?? 'N/A');
-    printUnderscored('Response decoded', decode(q.response, Encoding.OracleResponse).toString() ?? 'N/A');
-    printUnderscored('Response Ttl', q.responseTtl ?? 'N/A');
-    printUnderscored('Sender Id', q.senderId ?? 'N/A');
-    printUnderscored('Sender Nonce', q.senderNonce ?? 'N/A');
-    printUnderscored('Ttl', q.ttl ?? 'N/A');
+    printTable([
+      ['Oracle ID', q.oracleId ?? 'N/A'],
+      ['Query ID', q.id ?? 'N/A'],
+      ['Fee', q.fee ?? 'N/A'],
+      ['Query', q.query ?? 'N/A'],
+      ['Query decoded', decode(q.query, Encoding.OracleQuery).toString() ?? 'N/A'],
+      ['Response', q.response ?? 'N/A'],
+      ['Response decoded', decode(q.response, Encoding.OracleResponse).toString() ?? 'N/A'],
+      ['Response Ttl', q.responseTtl ?? 'N/A'],
+      ['Sender Id', q.senderId ?? 'N/A'],
+      ['Sender Nonce', q.senderNonce ?? 'N/A'],
+      ['Ttl', q.ttl ?? 'N/A'],
+    ]);
     print('------------------------------------------------------------------------------');
   });
 }

@@ -1,11 +1,18 @@
 import fs from 'fs-extra';
+import { parse } from 'path';
 import {
-  generateKeyPair, verifyMessage as _verifyMessage, getAddressFromPriv, dump,
+  Encoding,
+  MemoryAccount,
+  verifyMessage as _verifyMessage,
+  decode,
+  encode,
+  isAddressValid,
 } from '@aeternity/aepp-sdk';
+import { dump } from '../utils/keystore.js';
 import { getFullPath } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
 import { initSdkByWalletFile, AccountCli } from '../utils/cli.js';
-import { print, printUnderscored } from '../utils/print.js';
+import { print, printTable } from '../utils/print.js';
 import { PROMPT_TYPE, prompt } from '../utils/prompt.js';
 
 export async function signMessage(walletPath, data = [], options) {
@@ -22,10 +29,12 @@ export async function signMessage(walletPath, data = [], options) {
   if (json) {
     print(result);
   } else {
-    printUnderscored('Unsigned', result.data);
-    printUnderscored('Signing account address', result.address);
-    printUnderscored('Signature', result.signature);
-    printUnderscored('Signature Hex', result.signatureHex);
+    printTable([
+      ['Unsigned', result.data],
+      ['Signing account address', result.address],
+      ['Signature', result.signature],
+      ['Signature Hex', result.signatureHex],
+    ]);
   }
 }
 
@@ -36,64 +45,84 @@ export async function verifyMessage(address, hexSignature, dataArray = [], optio
   if (json) {
     print({ data, isCorrect });
   } else {
-    printUnderscored('Valid signature', isCorrect);
-    printUnderscored('Data', data);
+    printTable([
+      ['Valid signature', isCorrect],
+      ['Data', data],
+    ]);
   }
 }
 
 export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...options }) {
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  const networkId = networkIdOpt ?? await sdk.api.getNetworkId();
-  const signedTx = await sdk.signTransaction(tx, { networkId });
-  const { address } = sdk;
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  const networkId = networkIdOpt ?? (await aeSdk.api.getNetworkId());
+  const signedTx = await aeSdk.signTransaction(tx, { networkId });
+  const { address } = aeSdk;
   if (json) {
     print({ signedTx, address, networkId });
   } else {
-    printUnderscored('Signing account address', address);
-    printUnderscored('Network ID', networkId);
-    // TODO: remove unsigned tx because it is already accepted in arguments
-    printUnderscored('Unsigned', tx);
-    printUnderscored('Signed', signedTx);
+    printTable([
+      ['Signing account address', address],
+      ['Network ID', networkId],
+      // TODO: remove unsigned tx because it is already accepted in arguments
+      ['Unsigned', tx],
+      ['Signed', signedTx],
+    ]);
   }
 }
 
 export async function getAddress(walletPath, options) {
-  const {
-    privateKey, forcePrompt = false, json, password,
-  } = options;
+  const { forcePrompt = false, json, password } = options;
   const account = await AccountCli.read(walletPath, password);
-  const printPrivateKey = privateKey && (forcePrompt
-    || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' }));
+  const secretKey =
+    options.secretKey &&
+    (forcePrompt ||
+      (await prompt(PROMPT_TYPE.confirm, {
+        message: 'Are you sure you want print your secret key?',
+      }))) &&
+    (await account.getSecretKey());
 
-  const secretKey = printPrivateKey && await account.getSecretKey();
+  // TODO: remove after sk_-encoded keys become supported everywhere
+  const secretKeyHex =
+    secretKey && Buffer.concat([decode(secretKey), decode(account.address)]).toString('hex');
   if (json) {
     print({
       publicKey: account.address,
-      ...printPrivateKey && { secretKey },
+      ...(secretKey && { secretKey, secretKeyHex }),
     });
   } else {
-    printUnderscored('Address', account.address);
-    if (printPrivateKey) printUnderscored('Secret Key', secretKey);
+    printTable([
+      ['Address', account.address],
+      ...(secretKey
+        ? [
+            ['Secret Key', secretKey],
+            ['Secret Key in hex', secretKeyHex],
+          ]
+        : []),
+    ]);
   }
 }
 
 export async function createWallet(
   walletPath,
-  secretKey = generateKeyPair().secretKey,
+  secretKeyInSkOrHex = MemoryAccount.generate().secretKey,
   { password, overwrite, json },
 ) {
-  secretKey = Buffer.from(secretKey, 'hex');
   walletPath = getFullPath(walletPath);
-  if (!overwrite && await fs.exists(walletPath) && !await prompt(PROMPT_TYPE.askOverwrite)) {
+  if (!overwrite && (await fs.exists(walletPath)) && !(await prompt(PROMPT_TYPE.askOverwrite))) {
     throw new CliError(`Wallet already exist at ${walletPath}`);
   }
   password ??= await prompt(PROMPT_TYPE.askPassword);
-  await fs.outputJson(walletPath, await dump(walletPath, password, secretKey));
-  const publicKey = getAddressFromPriv(secretKey);
+  const secretKey = isAddressValid(secretKeyInSkOrHex, Encoding.AccountSecretKey)
+    ? secretKeyInSkOrHex
+    : encode(Buffer.from(secretKeyInSkOrHex, 'hex').subarray(0, 32), Encoding.AccountSecretKey);
+  await fs.outputJson(walletPath, await dump(parse(walletPath).name, password, secretKey));
+  const { address } = new MemoryAccount(secretKey);
   if (json) {
-    print({ publicKey, path: walletPath });
+    print({ publicKey: address, path: walletPath });
   } else {
-    printUnderscored('Address', publicKey);
-    printUnderscored('Path', walletPath);
+    printTable([
+      ['Address', address],
+      ['Path', walletPath],
+    ]);
   }
 }

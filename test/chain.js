@@ -1,16 +1,17 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { executeProgram, getSdk } from './index.js';
+import { expectToMatchLines } from './utils.js';
 
 const executeChain = executeProgram.bind(null, 'chain');
 
 describe('Chain Module', () => {
-  let sdk;
+  let aeSdk;
 
   before(async () => {
-    sdk = await getSdk();
+    aeSdk = await getSdk();
     for (let i = 0; i < 5; i += 1) {
-      await sdk.spend(0, sdk.address); // eslint-disable-line no-await-in-loop
+      await aeSdk.spend(0, aeSdk.address);
     }
   });
 
@@ -20,20 +21,20 @@ describe('Chain Module', () => {
     expect(resJson.height).to.be.a('number');
 
     const res = await executeChain('top');
-    expect(res).to.equal(`
-<<--------------- ${resJson.hash.startsWith('mh_') ? 'MicroBlock' : 'KeyBlock'} --------------->>
-Block hash ______________________________ ${resJson.hash}
-Block height ____________________________ ${resJson.height}
-State hash ______________________________ ${resJson.stateHash}
-Nonce ___________________________________ ${resJson.nonce ?? 'N/A'}
-Miner ___________________________________ ${resJson.miner ?? 'N/A'}
-Time ____________________________________ ${new Date(resJson.time).toString()}
-Previous block hash _____________________ ${resJson.prevHash}
-Previous key block hash _________________ ${resJson.prevKeyHash}
-Version _________________________________ 5
-Target __________________________________ ${resJson.target ?? 'N/A'}
-Transactions ____________________________ 0
-    `.trim());
+    expectToMatchLines(res, [
+      `<<--------------- ${resJson.hash.startsWith('mh_') ? 'MicroBlock' : 'KeyBlock'} --------------->>`,
+      `Block hash               ${resJson.hash}`,
+      `Block height             ${resJson.height}`,
+      `State hash               ${resJson.stateHash}`,
+      `Nonce                    ${resJson.nonce ?? 'N/A'}`,
+      `Miner                    ${resJson.miner ?? 'N/A'}`,
+      `Time                     ${new Date(resJson.time).toString()}`,
+      `Previous block hash      ${resJson.prevHash}`,
+      `Previous key block hash  ${resJson.prevKeyHash}`,
+      `Version                  6`,
+      `Target                   ${resJson.target ?? 'N/A'}`,
+      `Transactions             0`,
+    ]);
   });
 
   it('prints status', async () => {
@@ -44,13 +45,16 @@ Transactions ____________________________ 0
       hashrate: 0,
       listening: true,
       networkId: 'ae_dev',
-      nodeRevision: '805c662b260cfbdb197cfef96ed07124db4b4896',
-      nodeVersion: '6.13.0',
+      nodeRevision: '57bc00b760dbb3ccd10be51f447e33cb3a2f56e3',
+      nodeVersion: '7.3.0-rc3',
       peerConnections: { inbound: 0, outbound: 0 },
       peerCount: 0,
       peerPubkey: resJson.peerPubkey,
       pendingTransactionsCount: 0,
-      protocols: [{ effectiveAtHeight: 1, version: 5 }, { effectiveAtHeight: 0, version: 1 }],
+      protocols: [
+        { effectiveAtHeight: 1, version: 6 },
+        { effectiveAtHeight: 0, version: 1 },
+      ],
       solutions: 0,
       syncProgress: 100,
       syncing: false,
@@ -60,19 +64,19 @@ Transactions ____________________________ 0
     });
 
     const res = await executeChain('status');
-    expect(res).to.equal(`
-Difficulty ______________________________ ${resJson.difficulty}
-Node version ____________________________ 6.13.0
-Consensus protocol version ______________ 5 (Iris)
-Node revision ___________________________ 805c662b260cfbdb197cfef96ed07124db4b4896
-Genesis hash ____________________________ ${resJson.genesisKeyBlockHash}
-Network ID ______________________________ ae_dev
-Listening _______________________________ true
-Peer count ______________________________ 0
-Pending transactions count ______________ 0
-Solutions _______________________________ 0
-Syncing _________________________________ false
-    `.trim());
+    expectToMatchLines(res, [
+      `Difficulty                  ${resJson.difficulty}`,
+      `Node version                7.3.0-rc3`,
+      `Consensus protocol version  6 (Ceres)`,
+      `Node revision               57bc00b760dbb3ccd10be51f447e33cb3a2f56e3`,
+      `Genesis hash                ${resJson.genesisKeyBlockHash}`,
+      `Network ID                  ae_dev`,
+      `Listening                   true`,
+      `Peer count                  0`,
+      `Pending transactions count  0`,
+      `Solutions                   0`,
+      `Syncing                     false`,
+    ]);
   });
 
   it('plays by limit', async () => {
@@ -82,7 +86,7 @@ Syncing _________________________________ false
   });
 
   it('plays by height', async () => {
-    const res = await executeChain('play', '--height', await sdk.getHeight() - 4);
+    const res = await executeChain('play', '--height', (await aeSdk.getHeight()) - 4);
     const heights = res
       .split('\n')
       .filter((l) => l.includes('Block height'))
@@ -91,7 +95,7 @@ Syncing _________________________________ false
   });
 
   it('calculates ttl', async () => {
-    const height = await sdk.getHeight();
+    const height = await aeSdk.getHeight();
     const resJson = await executeChain('ttl', 10, '--json');
     expect(resJson).to.eql({
       absoluteTtl: 10,
@@ -99,9 +103,6 @@ Syncing _________________________________ false
     });
 
     const res = await executeChain('ttl', 10);
-    expect(res).to.equal(`
-Absolute TTL ____________________________ 10
-Relative TTL ____________________________ ${resJson.relativeTtl}
-    `.trim());
+    expectToMatchLines(res, [`Absolute TTL  10`, `Relative TTL  ${resJson.relativeTtl}`]);
   });
 });

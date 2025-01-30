@@ -1,4 +1,4 @@
-import { ORACLE_TTL_TYPES } from '@aeternity/aepp-sdk';
+import { Encoding, ORACLE_TTL_TYPES, Oracle, OracleClient } from '@aeternity/aepp-sdk';
 import { initSdkByWalletFile } from '../utils/cli.js';
 import { decode } from '../utils/helpers.js';
 import { printTransaction } from '../utils/print.js';
@@ -8,92 +8,94 @@ function ensureTtlANumber(ttl, name) {
   if (isNaN(+ttl)) throw new CliError(`${name} TTL should be a number`);
 }
 
+async function getStateAndQueries(oracle, node) {
+  const [state, { oracleQueries }] = await Promise.all([
+    oracle.getState(),
+    // TODO: replace with an Oracle method
+    node.getOracleQueriesByPubkey(oracle.address),
+  ]);
+  return {
+    ...state,
+    queries: oracleQueries,
+  };
+}
+
 export async function createOracle(walletPath, queryFormat, responseFormat, options) {
-  const {
-    ttl, fee, nonce, json, oracleTtl, queryFee,
-  } = options;
+  const { ttl, fee, nonce, json, oracleTtl, queryFee } = options;
 
   ensureTtlANumber(oracleTtl, 'Oracle');
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  const oracle = await sdk.registerOracle(queryFormat, responseFormat, {
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  const context = aeSdk.getContext();
+  const oracle = new Oracle(context.onAccount, context);
+  const res = await oracle.register(queryFormat, responseFormat, {
     ttl,
     nonce,
     fee,
-    ...oracleTtl && {
-      oracleTtlType: ORACLE_TTL_TYPES.delta,
-      oracleTtlValue: oracleTtl,
-    },
+    oracleTtlType: ORACLE_TTL_TYPES.delta,
+    oracleTtlValue: oracleTtl,
     queryFee,
   });
-  await printTransaction(oracle, json, sdk);
+  Object.assign(res, await getStateAndQueries(oracle, aeSdk.api));
+  await printTransaction(res, json, aeSdk);
 }
 
 export async function extendOracle(walletPath, oracleTtl, options) {
-  const {
-    ttl, fee, nonce, json,
-  } = options;
+  const { ttl, fee, nonce, json } = options;
 
   ensureTtlANumber(oracleTtl, 'Oracle');
-  const sdk = await initSdkByWalletFile(walletPath, options);
-  const oracle = await sdk.getOracleObject(sdk.address.replace('ak_', 'ok_'));
-  const extended = await oracle.extendOracle({
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
+  const context = aeSdk.getContext();
+  const oracle = new Oracle(context.onAccount, context);
+  const res = await oracle.extendTtl({
     ttl,
     nonce,
     fee,
-    ...oracleTtl && {
-      oracleTtlType: ORACLE_TTL_TYPES.delta,
-      oracleTtlValue: oracleTtl,
-    },
+    oracleTtlType: ORACLE_TTL_TYPES.delta,
+    oracleTtlValue: oracleTtl,
   });
-  await printTransaction(extended, json, sdk);
+  Object.assign(res, await getStateAndQueries(oracle, aeSdk.api));
+  await printTransaction(res, json, aeSdk);
 }
 
 export async function createOracleQuery(walletPath, oracleId, query, options) {
-  const {
-    ttl, fee, nonce, json, queryTtl, queryFee, responseTtl,
-  } = options;
+  const { ttl, fee, nonce, json, queryTtl, queryFee, responseTtl } = options;
 
-  decode(oracleId, 'ok');
-  const sdk = await initSdkByWalletFile(walletPath, options);
+  decode(oracleId, Encoding.OracleAddress);
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
 
   ensureTtlANumber(queryTtl, 'Query');
   ensureTtlANumber(responseTtl, 'Response');
-  const oracle = await sdk.getOracleObject(oracleId);
-  const oracleQuery = await oracle.postQuery(query, {
+  const oracle = new OracleClient(oracleId, aeSdk.getContext());
+  const { queryId, ...res } = await oracle.postQuery(query, {
     ttl,
     nonce,
     fee,
-    ...queryTtl && {
-      queryTtlType: ORACLE_TTL_TYPES.delta,
-      queryTtlValue: queryTtl,
-    },
-    ...responseTtl && {
-      responseTtlType: ORACLE_TTL_TYPES.delta,
-      responseTtlValue: responseTtl,
-    },
+    queryTtlType: ORACLE_TTL_TYPES.delta,
+    queryTtlValue: queryTtl,
+    responseTtlType: ORACLE_TTL_TYPES.delta,
+    responseTtlValue: responseTtl,
     queryFee,
   });
-  await printTransaction(oracleQuery, json, sdk);
+  Object.assign(res, await oracle.getQuery(queryId));
+  await printTransaction(res, json, aeSdk);
 }
 
 export async function respondToQuery(walletPath, queryId, response, options) {
-  const {
-    ttl, fee, nonce, json, responseTtl,
-  } = options;
+  const { ttl, fee, nonce, json, responseTtl } = options;
 
-  decode(queryId, 'oq');
+  decode(queryId, Encoding.OracleQueryId);
   ensureTtlANumber(responseTtl, 'Response');
-  const sdk = await initSdkByWalletFile(walletPath, options);
+  const aeSdk = await initSdkByWalletFile(walletPath, options);
 
-  const oracle = await sdk.getOracleObject(sdk.address.replace('ak_', 'ok_'));
-  const queryResponse = await oracle.respondToQuery(queryId, response, {
+  const context = aeSdk.getContext();
+  const oracle = new Oracle(context.onAccount, context);
+  const res = await oracle.respondToQuery(queryId, response, {
     ttl,
     nonce,
     fee,
-    ...responseTtl && {
-      responseTtlType: ORACLE_TTL_TYPES.delta,
-      responseTtlValue: responseTtl,
-    },
+    responseTtlType: ORACLE_TTL_TYPES.delta,
+    responseTtlValue: responseTtl,
   });
-  await printTransaction(queryResponse, json, sdk);
+  Object.assign(res, await getStateAndQueries(oracle, aeSdk.api));
+  await printTransaction(res, json, aeSdk);
 }

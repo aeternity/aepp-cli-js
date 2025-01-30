@@ -6,19 +6,15 @@ export const compilerUrl = 'http://localhost:3080';
 
 function getProgramOptions(command) {
   return {
-    /* eslint-disable no-underscore-dangle */
     optionValues: { ...command._optionValues },
     optionValueSources: { ...command._optionValueSources },
-    /* eslint-enable no-underscore-dangle */
     commands: command.commands.map((c) => getProgramOptions(c)),
   };
 }
 
 function setProgramOptions(command, options) {
-  /* eslint-disable no-underscore-dangle */
   command._optionValues = options.optionValues;
   command._optionValueSources = options.optionValueSources;
-  /* eslint-enable no-underscore-dangle */
   command.commands.forEach((c, i) => setProgramOptions(c, options.commands[i]));
 }
 
@@ -29,15 +25,21 @@ export default async function executeProgram(...args) {
   let result = '';
   prepareOptions(program);
   program
-    .configureOutput({ writeOut: (str) => { result += str; } })
+    .configureOutput({
+      writeOut: (str) => {
+        result += str;
+      },
+    })
     .exitOverride();
 
-  const {
-    log, warn, group, groupEnd,
-  } = console;
+  const { log, warn, group, groupEnd } = console;
   let padding = 0;
-  console.group = () => { padding += 1; };
-  console.groupEnd = () => { padding -= 1; };
+  console.group = () => {
+    padding += 1;
+  };
+  console.groupEnd = () => {
+    padding -= 1;
+  };
   console.log = (...data) => {
     if (result) result += '\n';
     result += ' '.repeat(padding * 4) + data.join(' ');
@@ -50,24 +52,28 @@ export default async function executeProgram(...args) {
   try {
     const allArgs = [
       ...args.map((arg) => arg.toString()),
-      ...['config', 'select-node', 'select-compiler'].includes(args[0])
-      || args.includes('--url')
-      || (
-        args[0] === 'account'
-        && ['save', 'create', 'address', 'sign-message', 'verify-message'].includes(args[1])
-      )
-      || (
-        args[0] === 'contract'
-        && ['compile', 'encode-calldata', 'decode-call-result'].includes(args[1]))
-      || (args[0] === 'tx' && args[1] !== 'verify') ? [] : ['--url', url],
-      ...[
-        'compile', 'deploy', 'call', 'encode-calldata', 'decode-call-result',
-      ].includes(args[1]) && !args.includes('--compilerUrl') ? ['--compilerUrl', compilerUrl] : [],
+      ...(['config', 'select-node', 'select-compiler'].includes(args[0]) ||
+      args.includes('--url') ||
+      (args[0] === 'account' &&
+        ['save', 'create', 'address', 'sign-message', 'verify-message'].includes(args[1])) ||
+      (args[0] === 'contract' &&
+        ['compile', 'encode-calldata', 'decode-call-result'].includes(args[1])) ||
+      (args[0] === 'tx' && args[1] !== 'verify')
+        ? []
+        : ['--url', url]),
+      ...(['compile', 'deploy', 'call', 'encode-calldata', 'decode-call-result'].includes(
+        args[1],
+      ) && !args.includes('--compilerUrl')
+        ? ['--compilerUrl', compilerUrl]
+        : []),
     ];
     await program.parseAsync(allArgs, { from: 'user' });
   } finally {
     Object.assign(console, {
-      log, warn, group, groupEnd,
+      log,
+      warn,
+      group,
+      groupEnd,
     });
     isProgramExecuting = false;
     setProgramOptions(program, options);
@@ -76,7 +82,7 @@ export default async function executeProgram(...args) {
   if (!args.includes('--json')) return result;
   try {
     return JSON.parse(result);
-  } catch (error) {
+  } catch {
     throw new Error(`Can't parse as JSON:\n${result}`);
   }
 }
