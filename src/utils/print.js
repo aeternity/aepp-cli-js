@@ -1,5 +1,5 @@
 import { Encoding, unpackTx, AbiVersion, VmVersion } from '@aeternity/aepp-sdk';
-import { decode, formatCoins, formatTtl as formatTtlUnbound, timeAgo } from './helpers.js';
+import { decode, formatCoins, formatTtl as formatTtlUnbound, formatSeconds } from './helpers.js';
 
 const ROW_WIDTH = 40;
 
@@ -70,11 +70,6 @@ function printTransactionSync(_tx, json, currentHeight) {
         throw new Error(`Unknown ttl type: ${type}`);
     }
   };
-  const formatTtlSeconds = (seconds) => {
-    const date = new Date();
-    date.setSeconds(date.getSeconds() + seconds);
-    return `${seconds} (${timeAgo(date).replace('in ', '')})`;
-  };
 
   // meta
   printUnderscored('Transaction hash', tx.hash);
@@ -98,7 +93,7 @@ function printTransactionSync(_tx, json, currentHeight) {
     if (tx.pointers.length === 0) printUnderscored('Pointers', 'N/A');
     else tx.pointers.forEach(({ key, id }) => printUnderscored(`Pointer ${key}`, id));
   }
-  printTxField(tx, 'Client TTL', 'clientTtl', formatTtlSeconds);
+  printTxField(tx, 'Client TTL', 'clientTtl', formatSeconds);
   printTxField(tx, 'Commitment', 'commitmentId');
   // contract
   printTxField(tx, 'Contract address', 'contractId');
@@ -117,6 +112,9 @@ function printTransactionSync(_tx, json, currentHeight) {
   // oracle query
   printTxField(tx, 'Query', 'query');
   printTxField(tx, 'Query ID', 'queryId');
+  if ('query' in tx) {
+    printTxField(tx, 'Query ID', 'id');
+  }
   printTxField(tx, 'Query fee', 'queryFee', formatCoins);
   printTxField(tx, 'Query TTL', 'queryTtl', formatTtlObject);
   printTxField(tx, 'Query format', 'queryFormat');

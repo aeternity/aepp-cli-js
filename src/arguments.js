@@ -1,7 +1,9 @@
-import { Option } from 'commander';
+import { Argument, Option } from 'commander';
 import BigNumber from 'bignumber.js';
-import { MIN_GAS_PRICE, CLIENT_TTL } from '@aeternity/aepp-sdk';
+import { MIN_GAS_PRICE } from '@aeternity/aepp-sdk';
 import { noValue } from './utils/default-option-description.js';
+import { nameTtl, nameClientTtl, oracleTtl, queryTtl, responseTtl } from './utils/sdk-defaults.js';
+import { formatBlocks, formatSeconds } from './utils/helpers.js';
 
 export const coinAmountParser = (amount) => {
   if (amount.endsWith('ae')) return new BigNumber(amount.slice(0, -2)).shiftedBy(18);
@@ -20,6 +22,36 @@ export const nameFeeOption = new Option(
   '--nameFee [nameFee]',
   'Amount of coins to pay for name',
 ).argParser(coinAmountParser);
+
+export const nameTtlArgument = new Argument(
+  '[nameTtl]',
+  'A number of blocks until name expires',
+).default(nameTtl, formatBlocks(nameTtl));
+
+export const nameTtlOption = new Option(
+  '--nameTtl [nameTtl]',
+  'A number of blocks until name expires',
+).default(nameTtl, formatBlocks(nameTtl));
+
+export const oracleTtlArgument = new Argument(
+  '[oracleTtl]',
+  'A number of blocks until oracle expires',
+).default(oracleTtl, formatBlocks(oracleTtl));
+
+export const oracleTtlOption = new Option(
+  '--oracleTtl [oracleTtl]',
+  'A number of blocks until oracle expires',
+).default(oracleTtl, formatBlocks(oracleTtl));
+
+export const queryTtlOption = new Option(
+  '--queryTtl [queryTtl]',
+  'A number of blocks while oracle can respond',
+).default(queryTtl, formatBlocks(queryTtl));
+
+export const responseTtlOption = new Option(
+  '--responseTtl [responseTtl]',
+  'A number of blocks while response available',
+).default(responseTtl, formatBlocks(responseTtl));
 
 export const queryFeeOption = (isCreate) =>
   new Option('--queryFee [queryFee]', 'Oracle query fee')
@@ -65,4 +97,4 @@ export const networkIdOption = new Option('--networkId [networkId]', 'Network id
 export const clientTtlOption = new Option(
   '--clientTtl [clientTtl]',
   'a suggestion measured in seconds on how long clients should cache name pointers',
-).default(CLIENT_TTL, '1 hour');
+).default(nameClientTtl, formatSeconds(nameClientTtl));

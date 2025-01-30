@@ -218,7 +218,7 @@ export function oracleRespond(
 }
 
 export async function verify(transaction, { json, ...options }) {
-  decode(transaction, 'tx');
+  decode(transaction, Encoding.Transaction);
   const validation = await verifyTransaction(transaction, new Node(options.url));
   const { tag, ...tx } = unpackTx(transaction);
   if (json) {

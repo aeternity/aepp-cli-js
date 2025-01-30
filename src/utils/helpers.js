@@ -100,33 +100,48 @@ export function decode(data, requiredPrefix) {
 
 export const getFullPath = (path) => resolve(process.cwd(), path);
 
-const units = [
-  ['year', 365 * 24 * 60 * 60 * 1000],
-  ['month', 30.5 * 24 * 60 * 60 * 1000],
-  ['day', 24 * 60 * 60 * 1000],
-  ['hour', 60 * 60 * 1000],
-  ['minute', 60 * 1000],
-  ['second', 1000],
+const timeUnits = [
+  ['year', 365 * 24 * 60 * 60],
+  ['month', 30.5 * 24 * 60 * 60],
+  ['day', 24 * 60 * 60],
+  ['hour', 60 * 60],
+  ['minute', 60],
+  ['second', 1],
 ];
 
-export function timeAgo(date) {
-  const diff = Date.now() - date.getTime();
-  for (const [name, size] of units) {
-    const value = Math.floor(Math.abs(diff) / size);
+const secondsToBiggerUnit = (seconds) => {
+  for (const [name, size] of timeUnits) {
+    const value = Math.floor(seconds / size);
     if (value > 0) {
       const plural = value > 1 ? 's' : '';
-      const description = `${value} ${name}${plural}`;
-      return diff > 0 ? `${description} ago` : `in ${description}`;
+      return `${value} ${name}${plural}`;
     }
   }
-  return 'about now';
-}
+  return '0 seconds';
+};
+
+const timeAgo = (date) => {
+  const diff = (Date.now() - date.getTime()) / 1000;
+  const description = secondsToBiggerUnit(Math.abs(diff));
+  if (description === '0 seconds') return 'about now';
+  return diff > 0 ? `${description} ago` : `in ${description}`;
+};
 
 export const formatCoins = (coins) => `${new BigNumber(coins).shiftedBy(-18).toFixed()}ae`;
 
+const blocksIntervalInSeconds = 3 * 60;
+
 export const formatTtl = (ttl, height) => {
-  const date = new Date();
   const diff = Math.abs(ttl - height) < 2 ? 0 : ttl - height;
-  date.setMinutes(date.getMinutes() + diff * 3);
+  const date = new Date();
+  date.setSeconds(date.getSeconds() + diff * blocksIntervalInSeconds);
   return `${ttl} (${timeAgo(date)})`;
+};
+
+export const formatBlocks = (blocks) => {
+  return `${blocks} (${secondsToBiggerUnit(blocks * blocksIntervalInSeconds)})`;
+};
+
+export const formatSeconds = (seconds) => {
+  return `${seconds} (${secondsToBiggerUnit(seconds)})`;
 };

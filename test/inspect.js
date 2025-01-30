@@ -1,7 +1,16 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { AbiVersion, generateKeyPair, produceNameId, Tag, VmVersion } from '@aeternity/aepp-sdk';
-import { executeProgram, expectToMatchLines, getSdk } from './index.js';
+import {
+  AbiVersion,
+  produceNameId,
+  Tag,
+  VmVersion,
+  Contract,
+  MemoryAccount,
+  Encoding,
+} from '@aeternity/aepp-sdk';
+import { executeProgram, getSdk } from './index.js';
+import { toBeAbove0, toBeEncoded, expectToMatchLines, toMatch } from './utils.js';
 
 const executeInspect = executeProgram.bind(null, 'inspect');
 const executeChain = executeProgram.bind(null, 'chain');
@@ -23,36 +32,33 @@ describe('Inspect Module', () => {
       transactions: [],
     });
     const res = await executeInspect(aeSdk.address);
-    expect(res).to.equal(
-      `
-Account ID ______________________________ ${aeSdk.address}
-Account balance _________________________ 50ae
-Account nonce ___________________________ ${resJson.nonce}
-No pending transactions
-    `.trim(),
-    );
+    expectToMatchLines(res, [
+      `Account ID ______________________________ ${aeSdk.address}`,
+      `Account balance _________________________ 50ae`,
+      `Account nonce ___________________________ ${resJson.nonce}`,
+      `No pending transactions`,
+    ]);
   });
 
   it('Inspect Transaction Hash', async () => {
-    const recipient = generateKeyPair().publicKey;
+    const recipient = MemoryAccount.generate().address;
     const amount = '420';
     const { hash } = await aeSdk.spend(amount, recipient);
     const resJson = await executeInspect(hash, '--json');
-    expect(resJson.tx.fee).to.be.a('string');
     expect(resJson).to.eql({
-      blockHash: resJson.blockHash,
-      blockHeight: resJson.blockHeight,
-      encodedTx: resJson.encodedTx,
-      hash: resJson.hash,
-      signatures: [resJson.signatures[0]],
+      blockHash: toBeEncoded(resJson.blockHash, Encoding.MicroBlockHash),
+      blockHeight: toBeAbove0(resJson.blockHeight),
+      encodedTx: toBeEncoded(resJson.encodedTx, Encoding.Transaction),
+      hash: toBeEncoded(resJson.hash, Encoding.TxHash),
+      signatures: [toBeEncoded(resJson.signatures[0], Encoding.Signature)],
       tx: {
         recipientId: recipient,
         senderId: aeSdk.address,
         amount,
-        fee: resJson.tx.fee,
-        nonce: resJson.tx.nonce,
+        fee: toMatch(resJson.tx.fee, /1\d{13}/),
+        nonce: toBeAbove0(resJson.tx.nonce),
         payload: 'ba_Xfbg4g==',
-        ttl: resJson.tx.ttl,
+        ttl: toBeAbove0(resJson.tx.ttl),
         type: 'SpendTx',
         version: 1,
       },
@@ -75,7 +81,7 @@ No pending transactions
   });
 
   it('Inspect Transaction', async () => {
-    const recipientId = generateKeyPair().publicKey;
+    const recipientId = MemoryAccount.generate().address;
     const amount = '420';
     const tx = await aeSdk.buildTx({
       tag: Tag.SpendTx,
@@ -96,20 +102,18 @@ No pending transactions
       version: 1,
     });
     const res = await executeInspect(tx);
-    expect(res).to.equal(
-      `
-Tx Type _________________________________ SpendTx
-tag _____________________________________ 12
-version _________________________________ 1
-senderId ________________________________ ${aeSdk.address}
-recipientId _____________________________ ${recipientId}
-amount __________________________________ 420
-fee _____________________________________ 16700000000000
-ttl _____________________________________ 0
-nonce ___________________________________ ${resJson.nonce}
-payload _________________________________ ba_Xfbg4g==
-    `.trim(),
-    );
+    expectToMatchLines(res, [
+      `Tx Type _________________________________ SpendTx`,
+      `tag _____________________________________ 12`,
+      `version _________________________________ 1`,
+      `senderId ________________________________ ${aeSdk.address}`,
+      `recipientId _____________________________ ${recipientId}`,
+      `amount __________________________________ 420`,
+      `fee _____________________________________ 16700000000000`,
+      `ttl _____________________________________ 0`,
+      `nonce ___________________________________ ${resJson.nonce}`,
+      `payload _________________________________ ba_Xfbg4g==`,
+    ]);
   });
 
   it('Inspect Block', async () => {
@@ -131,21 +135,19 @@ payload _________________________________ ba_Xfbg4g==
       version: 6,
     });
     const key = await executeInspect(prevKeyHash);
-    expect(key.split('\nTransactions')[0]).to.equal(
-      `
-<<--------------- KeyBlock --------------->>
-Block hash ______________________________ ${keyJson.hash}
-Block height ____________________________ ${keyJson.height}
-State hash ______________________________ ${keyJson.stateHash}
-Nonce ___________________________________ N/A
-Miner ___________________________________ ${keyJson.miner}
-Time ____________________________________ ${new Date(keyJson.time).toString()}
-Previous block hash _____________________ ${keyJson.prevHash}
-Previous key block hash _________________ ${keyJson.prevKeyHash}
-Version _________________________________ 6
-Target __________________________________ ${keyJson.target}
-    `.trim(),
-    );
+    expectToMatchLines(key.split('\nTransactions')[0], [
+      `<<--------------- KeyBlock --------------->>`,
+      `Block hash ______________________________ ${keyJson.hash}`,
+      `Block height ____________________________ ${keyJson.height}`,
+      `State hash ______________________________ ${keyJson.stateHash}`,
+      `Nonce ___________________________________ N/A`,
+      `Miner ___________________________________ ${keyJson.miner}`,
+      `Time ____________________________________ ${new Date(keyJson.time).toString()}`,
+      `Previous block hash _____________________ ${keyJson.prevHash}`,
+      `Previous key block hash _________________ ${keyJson.prevKeyHash}`,
+      `Version _________________________________ 6`,
+      `Target __________________________________ ${keyJson.target}`,
+    ]);
 
     let microHash = keyJson.prevHash;
     while (microHash.startsWith('kh_')) {
@@ -167,25 +169,24 @@ Target __________________________________ ${keyJson.target}
       version: 6,
     });
     const micro = await executeInspect(microHash);
-    expect(micro.split('\nTransactions')[0]).to.equal(
-      `
-<<--------------- MicroBlock --------------->>
-Block hash ______________________________ ${microJson.hash}
-Block height ____________________________ ${microJson.height}
-State hash ______________________________ ${microJson.stateHash}
-Nonce ___________________________________ N/A
-Miner ___________________________________ N/A
-Time ____________________________________ ${new Date(microJson.time).toString()}
-Previous block hash _____________________ ${microJson.prevHash}
-Previous key block hash _________________ ${microJson.prevKeyHash}
-Version _________________________________ 6
-Target __________________________________ N/A
-    `.trim(),
-    );
+    expectToMatchLines(micro.split('\nTransactions')[0], [
+      `<<--------------- MicroBlock --------------->>`,
+      `Block hash ______________________________ ${microJson.hash}`,
+      `Block height ____________________________ ${microJson.height}`,
+      `State hash ______________________________ ${microJson.stateHash}`,
+      `Nonce ___________________________________ N/A`,
+      `Miner ___________________________________ N/A`,
+      `Time ____________________________________ ${new Date(microJson.time).toString()}`,
+      `Previous block hash _____________________ ${microJson.prevHash}`,
+      `Previous key block hash _________________ ${microJson.prevKeyHash}`,
+      `Version _________________________________ 6`,
+      `Target __________________________________ N/A`,
+    ]);
   });
 
   it('Inspect Contract', async () => {
-    const contract = await aeSdk.initializeContract({
+    const contract = await Contract.initialize({
+      ...aeSdk.getContext(),
       sourceCode: `
 contract Identity =
   entrypoint foo() = "test"
@@ -203,21 +204,19 @@ contract Identity =
       vmVersion: VmVersion.Fate3.toString(),
     });
     const res = await executeInspect(address);
-    expect(res).to.equal(
-      `
-id ______________________________________ ${address}
-ownerId _________________________________ ${aeSdk.address}
-vmVersion _______________________________ 8
-abiVersion ______________________________ 3
-active __________________________________ true
-referrerIds _____________________________ []
-deposit _________________________________ 0
-    `.trim(),
-    );
+    expectToMatchLines(res, [
+      `id ______________________________________ ${address}`,
+      `ownerId _________________________________ ${aeSdk.address}`,
+      `vmVersion _______________________________ 8`,
+      `abiVersion ______________________________ 3`,
+      `active __________________________________ true`,
+      `referrerIds _____________________________ []`,
+      `deposit _________________________________ 0`,
+    ]);
   });
 
   it('Inspect non existing Oracle', async () => {
-    const fakeOracleId = generateKeyPair().publicKey.replace('ak_', 'ok_');
+    const fakeOracleId = MemoryAccount.generate().address.replace('ak_', 'ok_');
     await executeInspect(fakeOracleId, '--json').should.be.rejectedWith('error: Oracle not found');
   });
 
@@ -251,29 +250,27 @@ deposit _________________________________ 0
     });
     const res = await executeInspect(oracleId);
     // TODO: "no response" message instead of empty string in "Response decoded"
-    expect(res).to.equal(
-      `
-Oracle ID _______________________________ ${oracleId}
-Oracle Query Fee ________________________ 0
-Oracle Query Format _____________________ <request format>
-Oracle Response Format __________________ <response format>
-Ttl _____________________________________ ${resJson.ttl}
-
---------------------------------- QUERIES ------------------------------------
-Oracle ID _______________________________ ${oracleId}
-Query ID ________________________________ ${queryId}
-Fee _____________________________________ 0
-Query ___________________________________ ov_SGVsbG8/0oNcUw==
-Query decoded ___________________________ Hello?
-Response ________________________________ or_Xfbg4g==
-Response decoded ________________________${' '}
-Response Ttl ____________________________ {"type":"delta","value":"10"}
-Sender Id _______________________________ ${aeSdk.address}
-Sender Nonce ____________________________ 4
-Ttl _____________________________________ ${resJson.queries[0].ttl}
-------------------------------------------------------------------------------
-    `.trim(),
-    );
+    expectToMatchLines(res, [
+      `Oracle ID _______________________________ ${oracleId}`,
+      `Oracle Query Fee ________________________ 0`,
+      `Oracle Query Format _____________________ <request format>`,
+      `Oracle Response Format __________________ <response format>`,
+      `Ttl _____________________________________ ${resJson.ttl}`,
+      ``,
+      `--------------------------------- QUERIES ------------------------------------`,
+      `Oracle ID _______________________________ ${oracleId}`,
+      `Query ID ________________________________ ${queryId}`,
+      `Fee _____________________________________ 0`,
+      `Query ___________________________________ ov_SGVsbG8/0oNcUw==`,
+      `Query decoded ___________________________ Hello?`,
+      `Response ________________________________ or_Xfbg4g==`,
+      `Response decoded ________________________${' '}`,
+      `Response Ttl ____________________________ {"type":"delta","value":"10"}`,
+      `Sender Id _______________________________ ${aeSdk.address}`,
+      `Sender Nonce ____________________________ 4`,
+      `Ttl _____________________________________ ${resJson.queries[0].ttl}`,
+      `------------------------------------------------------------------------------`,
+    ]);
   });
 
   it('Inspect Invalid Name', async () => {
@@ -289,12 +286,10 @@ Ttl _____________________________________ ${resJson.queries[0].ttl}
       status: 'AVAILABLE',
     });
     const res = await executeInspect(name);
-    expect(res).to.equal(
-      `
-Status __________________________________ AVAILABLE
-Name hash _______________________________ ${produceNameId(name)}
-    `.trim(),
-    );
+    expectToMatchLines(res, [
+      `Status __________________________________ AVAILABLE`,
+      `Name hash _______________________________ ${produceNameId(name)}`,
+    ]);
   });
 
   it('Inspect Claimed Name', async () => {
@@ -343,15 +338,13 @@ Name hash _______________________________ ${produceNameId(name)}
       status: 'AUCTION',
     });
     const res = await executeInspect(auctionName);
-    expect(res).to.equal(
-      `
-Status __________________________________ AUCTION
-Name hash _______________________________ ${resJson.id}
-Highest bidder __________________________ ${aeSdk.address}
-Highest bid _____________________________ 19.6418ae
-Ends at height __________________________ ${endsAt} (in 1 day)
-Started at height _______________________ ${resJson.startedAt} (about now)
-    `.trim(),
-    );
+    expectToMatchLines(res, [
+      `Status __________________________________ AUCTION`,
+      `Name hash _______________________________ ${resJson.id}`,
+      `Highest bidder __________________________ ${aeSdk.address}`,
+      `Highest bid _____________________________ 19.6418ae`,
+      `Ends at height __________________________ ${endsAt} (in 1 day)`,
+      `Started at height _______________________ ${resJson.startedAt} (about now)`,
+    ]);
   }).timeout(4000);
 });

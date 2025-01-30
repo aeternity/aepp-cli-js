@@ -1,14 +1,8 @@
-import { decode, encode, Encoding, buildTxHash } from '@aeternity/aepp-sdk';
+import { decode, encode, Encoding, buildTxHash, Contract } from '@aeternity/aepp-sdk';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import {
-  executeProgram,
-  randomName,
-  getSdk,
-  networkId,
-  expectToMatchLines,
-  WALLET_NAME,
-} from './index.js';
+import { executeProgram, getSdk, networkId, WALLET_NAME } from './index.js';
+import { randomName, expectToMatchLines } from './utils.js';
 
 const executeTx = executeProgram.bind(null, 'tx');
 
@@ -56,24 +50,22 @@ describe('Transaction Module', () => {
     });
 
     const response = await executeTx(...args);
-    expect(response).to.equal(
-      `
-Transaction type ________________________ SpendTx
-Summary
-    TAG _________________________________ 12
-    VERSION _____________________________ 1
-    SENDERID ____________________________ ${aeSdk.address}
-    RECIPIENTID _________________________ ${aeSdk.address}
-    AMOUNT ______________________________ ${amount}
-    FEE _________________________________ 16660000000000
-    TTL _________________________________ 0
-    NONCE _______________________________ ${nonce}
-    PAYLOAD _____________________________ ba_Xfbg4g==
-Output
-    Encoded _____________________________ ${responseJson.tx}
-This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to submit the transaction to the network, or verify that it will be accepted with \`tx verify\`.
-    `.trim(),
-    );
+    expectToMatchLines(response, [
+      `Transaction type ________________________ SpendTx`,
+      `Summary`,
+      `    TAG _________________________________ 12`,
+      `    VERSION _____________________________ 1`,
+      `    SENDERID ____________________________ ${aeSdk.address}`,
+      `    RECIPIENTID _________________________ ${aeSdk.address}`,
+      `    AMOUNT ______________________________ ${amount}`,
+      `    FEE _________________________________ 16660000000000`,
+      `    TTL _________________________________ 0`,
+      `    NONCE _______________________________ ${nonce}`,
+      `    PAYLOAD _____________________________ ba_Xfbg4g==`,
+      `Output`,
+      `    Encoded _____________________________ ${responseJson.tx}`,
+      `This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to submit the transaction to the network, or verify that it will be accepted with \`tx verify\`.`,
+    ]);
   });
 
   it('signs tx', async () => {
@@ -221,7 +213,7 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       `Nonce ___________________________________ ${nonce}`,
     ]);
 
-    nameId = (await aeSdk.aensQuery(name)).id;
+    nameId = (await aeSdk.api.getNameEntryByName(name)).id;
   }).timeout(10000);
 
   it('builds name update tx and sends', async () => {
@@ -320,7 +312,10 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
   let contract;
   it('builds contract create tx and sends', async () => {
     nonce += 1;
-    contract = await aeSdk.initializeContract({ sourceCode: testContract });
+    contract = await Contract.initialize({
+      ...aeSdk.getContext(),
+      sourceCode: testContract,
+    });
     const bytecode = await contract.$compile();
     const callData = contract._calldata.encode(contract._name, 'init', []);
     const { tx, contractId: cId } = await executeTx(

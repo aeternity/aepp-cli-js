@@ -1,6 +1,7 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { executeProgram, getSdk } from './index.js';
+import { expectToMatchLines } from './utils.js';
 
 const executeChain = executeProgram.bind(null, 'chain');
 
@@ -20,22 +21,20 @@ describe('Chain Module', () => {
     expect(resJson.height).to.be.a('number');
 
     const res = await executeChain('top');
-    expect(res).to.equal(
-      `
-<<--------------- ${resJson.hash.startsWith('mh_') ? 'MicroBlock' : 'KeyBlock'} --------------->>
-Block hash ______________________________ ${resJson.hash}
-Block height ____________________________ ${resJson.height}
-State hash ______________________________ ${resJson.stateHash}
-Nonce ___________________________________ ${resJson.nonce ?? 'N/A'}
-Miner ___________________________________ ${resJson.miner ?? 'N/A'}
-Time ____________________________________ ${new Date(resJson.time).toString()}
-Previous block hash _____________________ ${resJson.prevHash}
-Previous key block hash _________________ ${resJson.prevKeyHash}
-Version _________________________________ 6
-Target __________________________________ ${resJson.target ?? 'N/A'}
-Transactions ____________________________ 0
-    `.trim(),
-    );
+    expectToMatchLines(res, [
+      `<<--------------- ${resJson.hash.startsWith('mh_') ? 'MicroBlock' : 'KeyBlock'} --------------->>`,
+      `Block hash ______________________________ ${resJson.hash}`,
+      `Block height ____________________________ ${resJson.height}`,
+      `State hash ______________________________ ${resJson.stateHash}`,
+      `Nonce ___________________________________ ${resJson.nonce ?? 'N/A'}`,
+      `Miner ___________________________________ ${resJson.miner ?? 'N/A'}`,
+      `Time ____________________________________ ${new Date(resJson.time).toString()}`,
+      `Previous block hash _____________________ ${resJson.prevHash}`,
+      `Previous key block hash _________________ ${resJson.prevKeyHash}`,
+      `Version _________________________________ 6`,
+      `Target __________________________________ ${resJson.target ?? 'N/A'}`,
+      `Transactions ____________________________ 0`,
+    ]);
   });
 
   it('prints status', async () => {
@@ -65,21 +64,19 @@ Transactions ____________________________ 0
     });
 
     const res = await executeChain('status');
-    expect(res).to.equal(
-      `
-Difficulty ______________________________ ${resJson.difficulty}
-Node version ____________________________ 7.3.0-rc3
-Consensus protocol version ______________ 6 (Ceres)
-Node revision ___________________________ 57bc00b760dbb3ccd10be51f447e33cb3a2f56e3
-Genesis hash ____________________________ ${resJson.genesisKeyBlockHash}
-Network ID ______________________________ ae_dev
-Listening _______________________________ true
-Peer count ______________________________ 0
-Pending transactions count ______________ 0
-Solutions _______________________________ 0
-Syncing _________________________________ false
-    `.trim(),
-    );
+    expectToMatchLines(res, [
+      `Difficulty ______________________________ ${resJson.difficulty}`,
+      `Node version ____________________________ 7.3.0-rc3`,
+      `Consensus protocol version ______________ 6 (Ceres)`,
+      `Node revision ___________________________ 57bc00b760dbb3ccd10be51f447e33cb3a2f56e3`,
+      `Genesis hash ____________________________ ${resJson.genesisKeyBlockHash}`,
+      `Network ID ______________________________ ae_dev`,
+      `Listening _______________________________ true`,
+      `Peer count ______________________________ 0`,
+      `Pending transactions count ______________ 0`,
+      `Solutions _______________________________ 0`,
+      `Syncing _________________________________ false`,
+    ]);
   });
 
   it('plays by limit', async () => {
@@ -106,11 +103,9 @@ Syncing _________________________________ false
     });
 
     const res = await executeChain('ttl', 10);
-    expect(res).to.equal(
-      `
-Absolute TTL ____________________________ 10
-Relative TTL ____________________________ ${resJson.relativeTtl}
-    `.trim(),
-    );
+    expectToMatchLines(res, [
+      `Absolute TTL ____________________________ 10`,
+      `Relative TTL ____________________________ ${resJson.relativeTtl}`,
+    ]);
   });
 });

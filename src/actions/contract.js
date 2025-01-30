@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import { encode } from '@aeternity/aepp-sdk';
+import { encode, Contract } from '@aeternity/aepp-sdk';
 import { initSdk, initSdkByWalletFile } from '../utils/cli.js';
 import { print, printTransaction, printUnderscored } from '../utils/print.js';
 import CliError from '../utils/CliError.js';
@@ -23,7 +23,7 @@ async function getContractParams(
   const { address, ...other } = descriptor;
   return {
     address: contractAddress ?? address,
-    // TODO: either remove calldata methods in cli or reconsider initializeContract requirements
+    // TODO: either remove calldata methods in cli or reconsider Contract::initialize requirements
     ...(dummyBytecode && { bytecode: 'cb_invalid-bytecode' }),
     ...other,
     ...(contractSource && { sourceCodePath: contractSource }),
@@ -36,7 +36,8 @@ async function getContractParams(
 
 export async function compile(contractSource, options) {
   const aeSdk = initSdk(options);
-  const contract = await aeSdk.initializeContract({
+  const contract = await Contract.initialize({
+    ...aeSdk.getContext(),
     sourceCodePath: contractSource,
   });
   const bytecode = await contract.$compile();
@@ -50,7 +51,10 @@ export async function encodeCalldata(fn, args, options) {
     dummyBytecode: true,
   });
   delete contractParams.address; // TODO: remove after dropping Iris support
-  const contract = await aeSdk.initializeContract(contractParams);
+  const contract = await Contract.initialize({
+    ...aeSdk.getContext(),
+    ...contractParams,
+  });
   const calldata = contract._calldata.encode(contract._name, fn, args);
   if (options.json) print({ calldata });
   else print(`Contract encoded calldata: ${calldata}`);
@@ -58,9 +62,10 @@ export async function encodeCalldata(fn, args, options) {
 
 export async function decodeCallResult(fn, calldata, options) {
   const aeSdk = initSdk(options);
-  const contract = await aeSdk.initializeContract(
-    await getContractParams(options, { dummyBytecode: true }),
-  );
+  const contract = await Contract.initialize({
+    ...aeSdk.getContext(),
+    ...(await getContractParams(options, { dummyBytecode: true })),
+  });
   const decoded = contract._calldata.decode(contract._name, fn, calldata);
   if (options.json) print({ decoded });
   else {
@@ -71,9 +76,10 @@ export async function decodeCallResult(fn, calldata, options) {
 
 export async function deploy(walletPath, args, options) {
   const aeSdk = await initSdkByWalletFile(walletPath, options);
-  const contract = await aeSdk.initializeContract(
-    await getContractParams(options, { descrMayNotExist: true }),
-  );
+  const contract = await Contract.initialize({
+    ...aeSdk.getContext(),
+    ...(await getContractParams(options, { descrMayNotExist: true })),
+  });
   const result = await contract.$deploy(args, options);
   const filename = options.contractSource ?? options.contractBytecode;
   options.descrPath ??= getFullPath(`${filename}.deploy.${result.address.slice(3)}.json`);
@@ -99,7 +105,10 @@ export async function call(fn, args, walletPath, options) {
     throw new CliError('wallet_path is required for on-chain calls');
   }
   const aeSdk = await initSdkByWalletFile(walletPath, options);
-  const contract = await aeSdk.initializeContract(await getContractParams(options));
+  const contract = await Contract.initialize({
+    ...aeSdk.getContext(),
+    ...(await getContractParams(options)),
+  });
   const callResult = await contract.$call(fn, args, {
     ttl: ttl && +ttl,
     gas,

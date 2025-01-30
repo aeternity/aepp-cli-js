@@ -1,7 +1,8 @@
 import { generateKeyPair, MemoryAccount } from '@aeternity/aepp-sdk';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { executeProgram, randomName, getSdk, WALLET_NAME } from './index.js';
+import { executeProgram, getSdk, WALLET_NAME } from './index.js';
+import { randomName } from './utils.js';
 
 const executeName = executeProgram.bind(null, 'name');
 const executeInspect = executeProgram.bind(null, 'inspect');

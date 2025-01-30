@@ -242,9 +242,9 @@ A name in arguments should end with ".chain". Be careful, shorter names are more
 `--nameFee [nameFee]`  
 Amount of coins to pay for name.  
 `--nameTtl [nameTtl]`  
-Validity of name. (default: 180000).  
+A number of blocks until name expires (default: 180000 (1 year)).  
 `--clientTtl [clientTtl]`  
-A suggestion measured in seconds on how long clients should cache name pointers (default: 1 hour).  
+A suggestion measured in seconds on how long clients should cache name pointers (default: 3600 (1 hour)).  
 `-u, --url [nodeUrl]`  
 Node to connect to (default: mainnet, env: AECLI_NODE_URL).  
 `-T, --ttl [ttl]`  
@@ -385,9 +385,9 @@ Update a name pointer.
 `--extendPointers`  
 Extend pointers (default: false).  
 `--nameTtl [nameTtl]`  
-A number of blocks until name expires (default: 180000).  
+A number of blocks until name expires (default: 180000 (1 year)).  
 `--clientTtl [clientTtl]`  
-A suggestion measured in seconds on how long clients should cache name pointers (default: 1 hour).  
+A suggestion measured in seconds on how long clients should cache name pointers (default: 3600 (1 hour)).  
 `-u, --url [nodeUrl]`  
 Node to connect to (default: mainnet, env: AECLI_NODE_URL).  
 `-T, --ttl [ttl]`  
@@ -422,12 +422,12 @@ Extend name TTL.
 `wallet_path`  
 `name`  
 `nameTtl`  
-A number of blocks until name expires (default: 180000).
+A number of blocks until name expires (default: 180000 (1 year)).
 
 #### Options
 
 `--clientTtl [clientTtl]`  
-A suggestion measured in seconds on how long clients should cache name pointers (default: 1 hour).  
+A suggestion measured in seconds on how long clients should cache name pointers (default: 3600 (1 hour)).  
 `-u, --url [nodeUrl]`  
 Node to connect to (default: mainnet, env: AECLI_NODE_URL).  
 `-T, --ttl [ttl]`  
@@ -734,7 +734,7 @@ Register current account as oracle.
 #### Options
 
 `--oracleTtl [oracleTtl]`  
-Relative oracle time to leave (default: 500).  
+A number of blocks until oracle expires (default: 500 (1 day)).  
 `--queryFee [queryFee]`  
 Oracle query fee (default: 0ae).  
 `-P, --password [password]`  
@@ -761,10 +761,16 @@ $ aecli oracle create ./wallet.json string string
 ## extend
 
 ```
-aecli oracle extend [options] <wallet_path> <oracleTtl>
+aecli oracle extend [options] <wallet_path> [oracleTtl]
 ```
 
 Extend oracle's time to leave.
+
+#### Arguments
+
+`wallet_path`  
+`oracleTtl`  
+A number of blocks until oracle expires (default: 500 (1 day)).
 
 #### Options
 
@@ -799,10 +805,10 @@ Create an oracle query.
 
 #### Options
 
-`--responseTtl [responseTtl]`  
-Relative query response time to leave (default: 10).  
 `--queryTtl [queryTtl]`  
-Relative query time to leave (default: 10).  
+A number of blocks while oracle can respond (default: 10 (30 minutes)).  
+`--responseTtl [responseTtl]`  
+A number of blocks while response available (default: 10 (30 minutes)).  
 `--queryFee [queryFee]`  
 Oracle query fee (default: provided by oracle).  
 `-P, --password [password]`  
@@ -837,7 +843,7 @@ Respond to an oracle query.
 #### Options
 
 `--responseTtl [responseTtl]`  
-Query response time to leave (default: 10).  
+A number of blocks while response available (default: 10 (30 minutes)).  
 `-P, --password [password]`  
 Wallet Password, may be recorded to shell history (env: AECLI_WALLET_PASSWORD).  
 `-T, --ttl [ttl]`  
@@ -1142,9 +1148,9 @@ Unique number that is required to sign transaction securely.
 #### Options
 
 `--nameTtl [nameTtl]`  
-Validity of name (default: 180000).  
+A number of blocks until name expires (default: 180000 (1 year)).  
 `--clientTtl [clientTtl]`  
-A suggestion measured in seconds on how long clients should cache name pointers (default: 1 hour).  
+A suggestion measured in seconds on how long clients should cache name pointers (default: 3600 (1 hour)).  
 `-F, --fee [fee]`  
 Override the transaction fee.  
 `-T, --ttl [ttl]`  
@@ -1314,7 +1320,7 @@ Unique number that is required to sign transaction securely.
 `--queryFee [queryFee]`  
 Oracle query fee (default: 0ae).  
 `--oracleTtl [oracleTtl]`  
-Oracle TTL (default: 500).  
+A number of blocks until oracle expires (default: 500 (1 day)).  
 `-F, --fee [fee]`  
 Override the transaction fee.  
 `-T, --ttl [ttl]`  
@@ -1378,10 +1384,10 @@ Unique number that is required to sign transaction securely.
 
 `--queryFee [queryFee]`  
 Oracle query fee (default: provided by oracle).  
-`--queryTtl [oracleTtl]`  
-Oracle TTL (default: 10).  
-`--responseTtl [oracleTtl]`  
-Oracle TTL (default: 10).  
+`--queryTtl [queryTtl]`  
+A number of blocks while oracle can respond (default: 10 (30 minutes)).  
+`--responseTtl [responseTtl]`  
+A number of blocks while response available (default: 10 (30 minutes)).  
 `-F, --fee [fee]`  
 Override the transaction fee.  
 `-T, --ttl [ttl]`  
@@ -1413,8 +1419,8 @@ Unique number that is required to sign transaction securely.
 
 #### Options
 
-`--responseTtl [oracleTtl]`  
-Oracle TTL (default: 10).  
+`--responseTtl [responseTtl]`  
+A number of blocks while response available (default: 10 (30 minutes)).  
 `-F, --fee [fee]`  
 Override the transaction fee.  
 `-T, --ttl [ttl]`  
