@@ -1,11 +1,12 @@
 import fs from 'fs-extra';
 import { before, describe, it } from 'mocha';
-import { expect } from 'chai';
+import { expect, should } from 'chai';
 import prompts from 'prompts';
 import { resolve } from 'path';
 import { getSdk, executeProgram, WALLET_NAME } from './index.js';
 import { expectToMatchLines, toMatch } from './utils.js';
 
+should();
 const executeAccount = executeProgram.bind(null, 'account');
 const walletName = 'test-artifacts/test-wallet.json';
 

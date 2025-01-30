@@ -215,7 +215,7 @@ describe('Transaction Module', () => {
     ]);
 
     nameId = (await aeSdk.api.getNameEntryByName(name)).id;
-  }).timeout(10000);
+  });
 
   it('builds name update tx and sends', async () => {
     nonce += 1;
@@ -247,7 +247,7 @@ describe('Transaction Module', () => {
       'Transaction type        NameUpdateTx (ver. 1)',
       `Account address         ${aeSdk.address}`,
       `Name ID                 ${nameId}`,
-      'Name TTL                180000 (in 1 year)',
+      'Name TTL                180000 (1 year)',
       `Pointer account_pubkey  ${aeSdk.address}`,
       'Client TTL              3600 (1 hour)',
       /Fee                     0.000017\d+ae/,
@@ -359,7 +359,7 @@ describe('Transaction Module', () => {
       /Fee               0.000078\d+ae/,
       `Nonce             ${nonce}`,
     ]);
-  }).timeout(8000);
+  });
 
   it('builds contract call tx and sends', async () => {
     nonce += 1;
@@ -402,7 +402,7 @@ describe('Transaction Module', () => {
       /Fee               0.000182\d+ae/,
       `Nonce             ${nonce}`,
     ]);
-  }).timeout(4000);
+  });
 
   it('builds oracle register tx and sends', async () => {
     nonce += 1;
@@ -466,8 +466,7 @@ describe('Transaction Module', () => {
     ]);
 
     const oracleTtl = await aeSdk.api.getOracleByPubkey(oracleId);
-    const isExtended = +oracleTtl.ttl === +oracleCurrentTtl.ttl + 100;
-    isExtended.should.be.equal(true);
+    expect(+oracleTtl.ttl).to.be.equal(+oracleCurrentTtl.ttl + 100);
   });
 
   it('builds oracle post query tx and sends', async () => {
@@ -508,9 +507,8 @@ describe('Transaction Module', () => {
     ]);
 
     const { oracleQueries: queries } = await aeSdk.api.getOracleQueriesByPubkey(oracleId);
+    expect(queries).to.have.length(1);
     queryId = queries[0].id;
-    const hasQuery = !!queries.length;
-    hasQuery.should.be.equal(true);
   });
 
   it('builds oracle respond tx and sends', async () => {
@@ -541,9 +539,8 @@ describe('Transaction Module', () => {
     ]);
 
     const { oracleQueries: queries } = await aeSdk.api.getOracleQueriesByPubkey(oracleId);
+    expect(queries).to.have.length(1);
     const responseQuery = decode(queries[0].response).toString();
-    const hasQuery = !!queries.length;
-    hasQuery.should.be.equal(true);
-    response.should.be.equal(responseQuery);
+    expect(response).to.be.equal(responseQuery);
   });
 });

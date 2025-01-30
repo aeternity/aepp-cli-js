@@ -217,7 +217,9 @@ contract Identity =
 
   it('Inspect non existing Oracle', async () => {
     const fakeOracleId = MemoryAccount.generate().address.replace('ak_', 'ok_');
-    await executeInspect(fakeOracleId, '--json').should.be.rejectedWith('error: Oracle not found');
+    await expect(executeInspect(fakeOracleId, '--json')).to.be.rejectedWith(
+      'error: Oracle not found',
+    );
   });
 
   it('Inspect Oracle', async () => {
@@ -319,7 +321,7 @@ contract Identity =
       `Pointer oracle_pubkey   ${aeSdk.address}`,
       /TTL                     \d+ \(in 1 year\)/,
     ]);
-  }).timeout(6000);
+  });
 
   it('Inspect Running Auction Name', async () => {
     const auctionName = `a${Math.random().toString().slice(2, 9)}.chain`;
@@ -343,5 +345,5 @@ contract Identity =
       `Ends at height     ${endsAt} (in 1 day)`,
       `Started at height  ${resJson.startedAt} (about now)`,
     ]);
-  }).timeout(4000);
+  });
 });

@@ -122,9 +122,17 @@ export async function call(fn, args, walletPath, options) {
   });
   if (json) print(callResult);
   else {
-    await printTransaction(callResult.txData, json, aeSdk);
+    await printTransaction(
+      callStatic
+        ? { ...callResult, type: 'ContractCallTx', blockHash: 'N/A', signatures: 'N/A' }
+        : callResult.txData,
+      json,
+      aeSdk,
+    );
     print('----------------------Call info-----------------------');
-    const gasCoins = BigInt(callResult.result.gasUsed) * callResult.txData.tx.gasPrice;
+    const gasCoins =
+      BigInt(callResult.result.gasUsed) *
+      (callStatic ? BigInt(callResult.tx.gasPrice) : callResult.txData.tx.gasPrice);
     printTable([
       ['Gas used', `${callResult.result.gasUsed} (${formatCoins(gasCoins)})`],
       ['Return value (encoded)', callResult.result.returnValue],
