@@ -1,7 +1,16 @@
 import fs from 'fs-extra';
 import {
-  AeSdk, Node, MemoryAccount, CompilerCli, CompilerCli8, CompilerHttpNode, recover, sign,
-  getExecutionCost, unpackTx, Tag,
+  AeSdk,
+  Node,
+  MemoryAccount,
+  CompilerCli,
+  CompilerCli8,
+  CompilerHttpNode,
+  recover,
+  sign,
+  getExecutionCost,
+  unpackTx,
+  Tag,
 } from '@aeternity/aepp-sdk';
 import { PROMPT_TYPE, prompt } from './prompt.js';
 import { getFullPath } from './helpers.js';
@@ -13,13 +22,18 @@ export function getCompilerByUrl(url) {
 }
 
 export function initSdk({
-  url, keypair, compilerUrl, force: ignoreVersion, networkId, accounts = [],
+  url,
+  keypair,
+  compilerUrl,
+  force: ignoreVersion,
+  networkId,
+  accounts = [],
 } = {}) {
   return new AeSdk({
     nodes: url ? [{ name: 'test-node', instance: new Node(url, { ignoreVersion }) }] : [],
-    ...compilerUrl && { onCompiler: getCompilerByUrl(compilerUrl) },
+    ...(compilerUrl && { onCompiler: getCompilerByUrl(compilerUrl) }),
     networkId,
-    accounts: [...keypair ? [new MemoryAccount(keypair.secretKey)] : [], ...accounts],
+    accounts: [...(keypair ? [new MemoryAccount(keypair.secretKey)] : []), ...accounts],
   });
 }
 
@@ -39,7 +53,7 @@ export class AccountCli extends MemoryAccount {
 
   async getSecretKey() {
     this.#secretKey ??= await recover(
-      this.#password ?? await prompt(PROMPT_TYPE.askPassword),
+      this.#password ?? (await prompt(PROMPT_TYPE.askPassword)),
       this.#keyFile,
     );
     return this.#secretKey;

@@ -12,8 +12,16 @@ const PROMPT_SCHEMA = {
     message: 'File with that name already exist, do you want to overwrite?',
     type: 'confirm',
   }),
-  [PROMPT_TYPE.askPassword]: () => ({ name: 'password', message: 'Enter your password', type: 'password' }),
-  [PROMPT_TYPE.confirm]: ({ message }) => ({ name: 'value', message, type: 'confirm' }),
+  [PROMPT_TYPE.askPassword]: () => ({
+    name: 'password',
+    message: 'Enter your password',
+    type: 'password',
+  }),
+  [PROMPT_TYPE.confirm]: ({ message }) => ({
+    name: 'value',
+    message,
+    type: 'confirm',
+  }),
 };
 
 export const prompt = async (type, params) => {

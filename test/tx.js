@@ -1,10 +1,13 @@
-import {
-  decode, encode, Encoding, buildTxHash,
-} from '@aeternity/aepp-sdk';
+import { decode, encode, Encoding, buildTxHash } from '@aeternity/aepp-sdk';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import {
-  executeProgram, randomName, getSdk, networkId, expectToMatchLines, WALLET_NAME,
+  executeProgram,
+  randomName,
+  getSdk,
+  networkId,
+  expectToMatchLines,
+  WALLET_NAME,
 } from './index.js';
 
 const executeTx = executeProgram.bind(null, 'tx');
@@ -53,7 +56,8 @@ describe('Transaction Module', () => {
     });
 
     const response = await executeTx(...args);
-    expect(response).to.equal(`
+    expect(response).to.equal(
+      `
 Transaction type ________________________ SpendTx
 Summary
     TAG _________________________________ 12
@@ -68,7 +72,8 @@ Summary
 Output
     Encoded _____________________________ ${responseJson.tx}
 This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to submit the transaction to the network, or verify that it will be accepted with \`tx verify\`.
-    `.trim());
+    `.trim(),
+    );
   });
 
   it('signs tx', async () => {
@@ -93,14 +98,23 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
   });
 
   async function signAndPostAndInspect(txEncoded) {
-    const { signedTx } = await executeProgram('account', 'sign', WALLET_NAME, txEncoded, '--password', 'test', '--json', '--networkId', networkId);
+    const { signedTx } = await executeProgram(
+      'account',
+      'sign',
+      WALLET_NAME,
+      txEncoded,
+      '--password',
+      'test',
+      '--json',
+      '--networkId',
+      networkId,
+    );
     const broadcast = await executeProgram('chain', 'broadcast', signedTx, '--json');
     expect(+broadcast.blockHeight).to.be.above(0);
     const txHash = buildTxHash(signedTx);
 
-    const {
-      blockHash, blockHeight, hash, signatures, tx, encodedTx, ...otherDetailsJson
-    } = await executeProgram('inspect', txHash, '--json');
+    const { blockHash, blockHeight, hash, signatures, tx, encodedTx, ...otherDetailsJson } =
+      await executeProgram('inspect', txHash, '--json');
     const details = await executeProgram('inspect', txHash);
 
     expect(encodedTx).to.be.satisfy((t) => t.startsWith('tx_'));
@@ -151,7 +165,13 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds name preclaim tx and sends', async () => {
     nonce += 1;
-    const { tx, salt: nameSalt } = await executeTx('name-preclaim', aeSdk.address, name, nonce, '--json');
+    const { tx, salt: nameSalt } = await executeTx(
+      'name-preclaim',
+      aeSdk.address,
+      name,
+      nonce,
+      '--json',
+    );
     salt = nameSalt;
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
@@ -206,7 +226,14 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds name update tx and sends', async () => {
     nonce += 1;
-    const { tx } = await executeTx('name-update', aeSdk.address, nameId, nonce, aeSdk.address, '--json');
+    const { tx } = await executeTx(
+      'name-update',
+      aeSdk.address,
+      nameId,
+      nonce,
+      aeSdk.address,
+      '--json',
+    );
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -216,7 +243,9 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
       nameId,
       nameTtl: 180000,
       nonce,
-      pointers: [{ id: aeSdk.address, key: 'account_pubkey' }],
+      pointers: [
+        { id: aeSdk.address, key: 'account_pubkey', encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR' },
+      ],
       type: 'NameUpdateTx',
       version: 1,
       accountId: aeSdk.address,
@@ -235,7 +264,14 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds name transfer tx and sends', async () => {
     nonce += 1;
-    const { tx } = await executeTx('name-transfer', aeSdk.address, aeSdk.address, nameId, nonce, '--json');
+    const { tx } = await executeTx(
+      'name-transfer',
+      aeSdk.address,
+      aeSdk.address,
+      nameId,
+      nonce,
+      '--json',
+    );
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -286,7 +322,6 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
     nonce += 1;
     contract = await aeSdk.initializeContract({ sourceCode: testContract });
     const bytecode = await contract.$compile();
-    // eslint-disable-next-line no-underscore-dangle
     const callData = contract._calldata.encode(contract._name, 'init', []);
     const { tx, contractId: cId } = await executeTx(
       'contract-deploy',
@@ -332,9 +367,17 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds contract call tx and sends', async () => {
     nonce += 1;
-    // eslint-disable-next-line no-underscore-dangle
     const callData = contract._calldata.encode(contract._name, 'test', ['1', '2']);
-    const { tx } = await executeTx('contract-call', aeSdk.address, contractId, callData, nonce, '--json', '--amount', '0.00000042ae');
+    const { tx } = await executeTx(
+      'contract-call',
+      aeSdk.address,
+      contractId,
+      callData,
+      nonce,
+      '--json',
+      '--amount',
+      '0.00000042ae',
+    );
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -367,7 +410,14 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds oracle register tx and sends', async () => {
     nonce += 1;
-    const { tx } = await executeTx('oracle-register', aeSdk.address, '{city: "str"}', '{tmp:""num}', nonce, '--json');
+    const { tx } = await executeTx(
+      'oracle-register',
+      aeSdk.address,
+      '{city: "str"}',
+      '{tmp:""num}',
+      nonce,
+      '--json',
+    );
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
@@ -426,7 +476,14 @@ This is an unsigned transaction. Use \`account sign\` and \`tx broadcast\` to su
 
   it('builds oracle post query tx and sends', async () => {
     nonce += 1;
-    const { tx } = await executeTx('oracle-post-query', aeSdk.address, oracleId, '{city: "Berlin"}', nonce, '--json');
+    const { tx } = await executeTx(
+      'oracle-post-query',
+      aeSdk.address,
+      oracleId,
+      '{city: "Berlin"}',
+      nonce,
+      '--json',
+    );
 
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');

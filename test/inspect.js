@@ -1,8 +1,6 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import {
-  AbiVersion, generateKeyPair, produceNameId, Tag, VmVersion,
-} from '@aeternity/aepp-sdk';
+import { AbiVersion, generateKeyPair, produceNameId, Tag, VmVersion } from '@aeternity/aepp-sdk';
 import { executeProgram, expectToMatchLines, getSdk } from './index.js';
 
 const executeInspect = executeProgram.bind(null, 'inspect');
@@ -25,16 +23,18 @@ describe('Inspect Module', () => {
       transactions: [],
     });
     const res = await executeInspect(aeSdk.address);
-    expect(res).to.equal(`
+    expect(res).to.equal(
+      `
 Account ID ______________________________ ${aeSdk.address}
 Account balance _________________________ 50ae
 Account nonce ___________________________ ${resJson.nonce}
 No pending transactions
-    `.trim());
+    `.trim(),
+    );
   });
 
   it('Inspect Transaction Hash', async () => {
-    const recipient = (generateKeyPair()).publicKey;
+    const recipient = generateKeyPair().publicKey;
     const amount = '420';
     const { hash } = await aeSdk.spend(amount, recipient);
     const resJson = await executeInspect(hash, '--json');
@@ -75,10 +75,13 @@ No pending transactions
   });
 
   it('Inspect Transaction', async () => {
-    const recipientId = (generateKeyPair()).publicKey;
+    const recipientId = generateKeyPair().publicKey;
     const amount = '420';
     const tx = await aeSdk.buildTx({
-      tag: Tag.SpendTx, amount, recipientId, senderId: aeSdk.address,
+      tag: Tag.SpendTx,
+      amount,
+      recipientId,
+      senderId: aeSdk.address,
     });
     const resJson = await executeInspect(tx, '--json');
     expect(resJson).to.eql({
@@ -93,7 +96,8 @@ No pending transactions
       version: 1,
     });
     const res = await executeInspect(tx);
-    expect(res).to.equal(`
+    expect(res).to.equal(
+      `
 Tx Type _________________________________ SpendTx
 tag _____________________________________ 12
 version _________________________________ 1
@@ -104,7 +108,8 @@ fee _____________________________________ 16700000000000
 ttl _____________________________________ 0
 nonce ___________________________________ ${resJson.nonce}
 payload _________________________________ ba_Xfbg4g==
-    `.trim());
+    `.trim(),
+    );
   });
 
   it('Inspect Block', async () => {
@@ -113,9 +118,10 @@ payload _________________________________ ba_Xfbg4g==
     const keyJson = await executeInspect(prevKeyHash, '--json');
     expect(keyJson).to.eql({
       beneficiary: keyJson.beneficiary,
+      flags: 'ba_wAAAAKv2ZV4=',
       hash: keyJson.hash,
       height: keyJson.height,
-      info: keyJson.info,
+      info: 'cb_AAAC2rLD9E0=',
       miner: keyJson.miner,
       prevHash: keyJson.prevHash,
       prevKeyHash: keyJson.prevKeyHash,
@@ -125,7 +131,8 @@ payload _________________________________ ba_Xfbg4g==
       version: 6,
     });
     const key = await executeInspect(prevKeyHash);
-    expect(key.split('\nTransactions')[0]).to.equal(`
+    expect(key.split('\nTransactions')[0]).to.equal(
+      `
 <<--------------- KeyBlock --------------->>
 Block hash ______________________________ ${keyJson.hash}
 Block height ____________________________ ${keyJson.height}
@@ -137,15 +144,16 @@ Previous block hash _____________________ ${keyJson.prevHash}
 Previous key block hash _________________ ${keyJson.prevKeyHash}
 Version _________________________________ 6
 Target __________________________________ ${keyJson.target}
-    `.trim());
+    `.trim(),
+    );
 
     let microHash = keyJson.prevHash;
     while (microHash.startsWith('kh_')) {
-      // eslint-disable-next-line no-await-in-loop
       microHash = (await executeInspect(microHash, '--json')).prevHash;
     }
     const microJson = await executeInspect(microHash, '--json');
     expect(microJson).to.eql({
+      flags: 'ba_AAAAAIy5ASU=',
       hash: microJson.hash,
       height: microJson.height,
       pofHash: 'no_fraud',
@@ -159,7 +167,8 @@ Target __________________________________ ${keyJson.target}
       version: 6,
     });
     const micro = await executeInspect(microHash);
-    expect(micro.split('\nTransactions')[0]).to.equal(`
+    expect(micro.split('\nTransactions')[0]).to.equal(
+      `
 <<--------------- MicroBlock --------------->>
 Block hash ______________________________ ${microJson.hash}
 Block height ____________________________ ${microJson.height}
@@ -171,7 +180,8 @@ Previous block hash _____________________ ${microJson.prevHash}
 Previous key block hash _________________ ${microJson.prevKeyHash}
 Version _________________________________ 6
 Target __________________________________ N/A
-    `.trim());
+    `.trim(),
+    );
   });
 
   it('Inspect Contract', async () => {
@@ -193,7 +203,8 @@ contract Identity =
       vmVersion: VmVersion.Fate3.toString(),
     });
     const res = await executeInspect(address);
-    expect(res).to.equal(`
+    expect(res).to.equal(
+      `
 id ______________________________________ ${address}
 ownerId _________________________________ ${aeSdk.address}
 vmVersion _______________________________ 8
@@ -201,13 +212,13 @@ abiVersion ______________________________ 3
 active __________________________________ true
 referrerIds _____________________________ []
 deposit _________________________________ 0
-    `.trim());
+    `.trim(),
+    );
   });
 
   it('Inspect non existing Oracle', async () => {
     const fakeOracleId = generateKeyPair().publicKey.replace('ak_', 'ok_');
-    await executeInspect(fakeOracleId, '--json')
-      .should.be.rejectedWith('error: Oracle not found');
+    await executeInspect(fakeOracleId, '--json').should.be.rejectedWith('error: Oracle not found');
   });
 
   it('Inspect Oracle', async () => {
@@ -217,20 +228,22 @@ deposit _________________________________ 0
     expect(resJson).to.eql({
       id: oracleId,
       abiVersion: AbiVersion.NoAbi.toString(),
-      queries: [{
-        fee: '0',
-        id: queryId,
-        oracleId,
-        query: 'ov_SGVsbG8/0oNcUw==',
-        response: 'or_Xfbg4g==',
-        responseTtl: {
-          type: 'delta',
-          value: '10',
+      queries: [
+        {
+          fee: '0',
+          id: queryId,
+          oracleId,
+          query: 'ov_SGVsbG8/0oNcUw==',
+          response: 'or_Xfbg4g==',
+          responseTtl: {
+            type: 'delta',
+            value: '10',
+          },
+          senderId: aeSdk.address,
+          senderNonce: '4',
+          ttl: resJson.queries[0].ttl,
         },
-        senderId: aeSdk.address,
-        senderNonce: '4',
-        ttl: resJson.queries[0].ttl,
-      }],
+      ],
       queryFee: '0',
       queryFormat: '<request format>',
       responseFormat: '<response format>',
@@ -238,7 +251,8 @@ deposit _________________________________ 0
     });
     const res = await executeInspect(oracleId);
     // TODO: "no response" message instead of empty string in "Response decoded"
-    expect(res).to.equal(`
+    expect(res).to.equal(
+      `
 Oracle ID _______________________________ ${oracleId}
 Oracle Query Fee ________________________ 0
 Oracle Query Format _____________________ <request format>
@@ -258,7 +272,8 @@ Sender Id _______________________________ ${aeSdk.address}
 Sender Nonce ____________________________ 4
 Ttl _____________________________________ ${resJson.queries[0].ttl}
 ------------------------------------------------------------------------------
-    `.trim());
+    `.trim(),
+    );
   });
 
   it('Inspect Invalid Name', async () => {
@@ -274,14 +289,18 @@ Ttl _____________________________________ ${resJson.queries[0].ttl}
       status: 'AVAILABLE',
     });
     const res = await executeInspect(name);
-    expect(res).to.equal(`
+    expect(res).to.equal(
+      `
 Status __________________________________ AVAILABLE
 Name hash _______________________________ ${produceNameId(name)}
-    `.trim());
+    `.trim(),
+    );
   });
 
   it('Inspect Claimed Name', async () => {
-    await (await (await aeSdk.aensPreclaim(name)).claim()).update({
+    await (
+      await (await aeSdk.aensPreclaim(name)).claim()
+    ).update({
       myKey: aeSdk.address,
       account_pubkey: aeSdk.address,
       oracle_pubkey: aeSdk.address,
@@ -291,9 +310,9 @@ Name hash _______________________________ ${produceNameId(name)}
       id: resJson.id,
       owner: aeSdk.address,
       pointers: [
-        { id: aeSdk.address, key: 'myKey' },
-        { id: aeSdk.address, key: 'account_pubkey' },
-        { id: aeSdk.address, key: 'oracle_pubkey' },
+        { id: aeSdk.address, key: 'myKey', encoded_key: 'ba_bXlLZXltwTZ7' },
+        { id: aeSdk.address, key: 'account_pubkey', encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR' },
+        { id: aeSdk.address, key: 'oracle_pubkey', encoded_key: 'ba_b3JhY2xlX3B1YmtleV2vKNs=' },
       ],
       status: 'CLAIMED',
       ttl: resJson.ttl,
@@ -324,13 +343,15 @@ Name hash _______________________________ ${produceNameId(name)}
       status: 'AUCTION',
     });
     const res = await executeInspect(auctionName);
-    expect(res).to.equal(`
+    expect(res).to.equal(
+      `
 Status __________________________________ AUCTION
 Name hash _______________________________ ${resJson.id}
 Highest bidder __________________________ ${aeSdk.address}
 Highest bid _____________________________ 19.6418ae
 Ends at height __________________________ ${endsAt} (in 1 day)
 Started at height _______________________ ${resJson.startedAt} (about now)
-    `.trim());
+    `.trim(),
+    );
   }).timeout(4000);
 });

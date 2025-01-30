@@ -1,9 +1,7 @@
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { generateKeyPair } from '@aeternity/aepp-sdk';
-import {
-  getSdk, executeProgram, WALLET_NAME, expectToMatchLines,
-} from './index.js';
+import { getSdk, executeProgram, WALLET_NAME, expectToMatchLines } from './index.js';
 
 const executeSpend = executeProgram.bind(null, 'spend', WALLET_NAME, '--password', 'test');
 
@@ -62,7 +60,9 @@ describe('Spend', () => {
 
   it('spends in ae', async () => {
     const receiverKeys = generateKeyPair();
-    const { tx: { fee } } = await executeSpend('--json', receiverKeys.publicKey, '1ae', '--fee', '0.02ae');
+    const {
+      tx: { fee },
+    } = await executeSpend('--json', receiverKeys.publicKey, '1ae', '--fee', '0.02ae');
     expect(await aeSdk.getBalance(receiverKeys.publicKey)).to.be.equal('1000000000000000000');
     expect(fee).to.be.equal('20000000000000000');
   });
@@ -71,15 +71,15 @@ describe('Spend', () => {
     const { publicKey } = generateKeyPair();
     const balanceBefore = await aeSdk.getBalance(aeSdk.address);
     await executeSpend(publicKey, '42%');
-    expect(+await aeSdk.getBalance(publicKey)).to.be.equal(balanceBefore * 0.42);
+    expect(+(await aeSdk.getBalance(publicKey))).to.be.equal(balanceBefore * 0.42);
   });
 
   it('spends to contract', async () => {
     const contract = await aeSdk.initializeContract({
-      sourceCode: ''
-        + 'payable contract Main =\n'
-        + '  record state = { key: int }\n'
-        + '  entrypoint init() = { key = 0 }\n',
+      sourceCode:
+        'payable contract Main =\n' +
+        '  record state = { key: int }\n' +
+        '  entrypoint init() = { key = 0 }\n',
     });
     const { address } = await contract.$deploy([]);
     await executeSpend(address, 100);

@@ -34,25 +34,28 @@ const command = new Command('spend')
   .addOption(passwordOption)
   .addOption(forceOption)
   .addOption(jsonOption)
-  .action(async (
-    walletPath,
-    receiverNameOrAddress,
-    { amount, fraction },
-    {
-      ttl, json, nonce, fee, payload, ...options
-    },
-  ) => {
-    const aeSdk = await initSdkByWalletFile(walletPath, options);
-    const tx = await aeSdk[amount != null ? 'spend' : 'transferFunds'](
-      amount ?? fraction / 100,
+  .action(
+    async (
+      walletPath,
       receiverNameOrAddress,
-      {
-        ttl, nonce, payload: encode(Buffer.from(payload), Encoding.Bytearray), fee,
-      },
-    );
-    if (!json) print('Transaction mined');
-    await printTransaction(tx, json, aeSdk);
-  });
+      { amount, fraction },
+      { ttl, json, nonce, fee, payload, ...options },
+    ) => {
+      const aeSdk = await initSdkByWalletFile(walletPath, options);
+      const tx = await aeSdk[amount != null ? 'spend' : 'transferFunds'](
+        amount ?? fraction / 100,
+        receiverNameOrAddress,
+        {
+          ttl,
+          nonce,
+          payload: encode(Buffer.from(payload), Encoding.Bytearray),
+          fee,
+        },
+      );
+      if (!json) print('Transaction mined');
+      await printTransaction(tx, json, aeSdk);
+    },
+  );
 
 addExamples(command, [
   `./wallet.json ${exampleAddress1} 100`,

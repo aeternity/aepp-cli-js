@@ -7,33 +7,38 @@ import { formatCoins, getFullPath } from '../utils/helpers.js';
 
 const DESCRIPTOR_VERSION = 1;
 
-async function getContractParams({
-  descrPath, contractAddress, contractSource, contractBytecode, contractAci,
-}, { dummyBytecode, descrMayNotExist } = {}) {
+async function getContractParams(
+  { descrPath, contractAddress, contractSource, contractBytecode, contractAci },
+  { dummyBytecode, descrMayNotExist } = {},
+) {
   let descriptor = {};
-  if (descrPath && (!descrMayNotExist || await fs.exists(getFullPath(descrPath)))) {
+  if (descrPath && (!descrMayNotExist || (await fs.exists(getFullPath(descrPath))))) {
     descriptor = await fs.readJson(getFullPath(descrPath));
     if (descriptor.version !== DESCRIPTOR_VERSION) {
-      throw new CliError(`Unsupported contract descriptor: version ${descriptor.version}, supported ${DESCRIPTOR_VERSION}`);
+      throw new CliError(
+        `Unsupported contract descriptor: version ${descriptor.version}, supported ${DESCRIPTOR_VERSION}`,
+      );
     }
   }
-  const { address, version, ...other } = descriptor;
+  const { address, ...other } = descriptor;
   return {
     address: contractAddress ?? address,
     // TODO: either remove calldata methods in cli or reconsider initializeContract requirements
-    ...dummyBytecode && { bytecode: 'cb_invalid-bytecode' },
+    ...(dummyBytecode && { bytecode: 'cb_invalid-bytecode' }),
     ...other,
-    ...contractSource && { sourceCodePath: contractSource },
-    ...contractBytecode && {
+    ...(contractSource && { sourceCodePath: contractSource }),
+    ...(contractBytecode && {
       bytecode: encode(await fs.readFile(getFullPath(contractBytecode)), 'cb'),
-    },
-    ...contractAci && { aci: await fs.readJson(getFullPath(contractAci)) },
+    }),
+    ...(contractAci && { aci: await fs.readJson(getFullPath(contractAci)) }),
   };
 }
 
 export async function compile(contractSource, options) {
   const aeSdk = initSdk(options);
-  const contract = await aeSdk.initializeContract({ sourceCodePath: contractSource });
+  const contract = await aeSdk.initializeContract({
+    sourceCodePath: contractSource,
+  });
   const bytecode = await contract.$compile();
   if (options.json) print({ bytecode });
   else print(`Contract bytecode: ${bytecode}`);
@@ -41,10 +46,11 @@ export async function compile(contractSource, options) {
 
 export async function encodeCalldata(fn, args, options) {
   const aeSdk = initSdk(options);
-  const contractParams = await getContractParams(options, { dummyBytecode: true });
+  const contractParams = await getContractParams(options, {
+    dummyBytecode: true,
+  });
   delete contractParams.address; // TODO: remove after dropping Iris support
   const contract = await aeSdk.initializeContract(contractParams);
-  // eslint-disable-next-line no-underscore-dangle
   const calldata = contract._calldata.encode(contract._name, fn, args);
   if (options.json) print({ calldata });
   else print(`Contract encoded calldata: ${calldata}`);
@@ -52,8 +58,9 @@ export async function encodeCalldata(fn, args, options) {
 
 export async function decodeCallResult(fn, calldata, options) {
   const aeSdk = initSdk(options);
-  const contract = await aeSdk.initializeContract(await getContractParams(options, { dummyBytecode: true }));
-  // eslint-disable-next-line no-underscore-dangle
+  const contract = await aeSdk.initializeContract(
+    await getContractParams(options, { dummyBytecode: true }),
+  );
   const decoded = contract._calldata.decode(contract._name, fn, calldata);
   if (options.json) print({ decoded });
   else {
@@ -64,7 +71,9 @@ export async function decodeCallResult(fn, calldata, options) {
 
 export async function deploy(walletPath, args, options) {
   const aeSdk = await initSdkByWalletFile(walletPath, options);
-  const contract = await aeSdk.initializeContract(await getContractParams(options, { descrMayNotExist: true }));
+  const contract = await aeSdk.initializeContract(
+    await getContractParams(options, { descrMayNotExist: true }),
+  );
   const result = await contract.$deploy(args, options);
   const filename = options.contractSource ?? options.contractBytecode;
   options.descrPath ??= getFullPath(`${filename}.deploy.${result.address.slice(3)}.json`);
@@ -72,7 +81,6 @@ export async function deploy(walletPath, args, options) {
     version: DESCRIPTOR_VERSION,
     address: result.address,
     bytecode: contract.$options.bytecode,
-    // eslint-disable-next-line no-underscore-dangle
     aci: contract._aci,
   };
   await fs.outputJson(options.descrPath, descriptor);
@@ -86,9 +94,7 @@ export async function deploy(walletPath, args, options) {
 }
 
 export async function call(fn, args, walletPath, options) {
-  const {
-    callStatic, json, top, ttl, gas, gasPrice, nonce, amount,
-  } = options;
+  const { callStatic, json, top, ttl, gas, gasPrice, nonce, amount } = options;
   if (callStatic !== true && walletPath == null) {
     throw new CliError('wallet_path is required for on-chain calls');
   }

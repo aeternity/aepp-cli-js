@@ -1,7 +1,18 @@
 import {
-  Tag, ORACLE_TTL_TYPES,
-  Node, genSalt, unpackTx, commitmentHash, buildContractId, verifyTransaction,
-  getDefaultPointerKey, buildTx, encode, Encoding, VmVersion, AbiVersion,
+  Tag,
+  ORACLE_TTL_TYPES,
+  Node,
+  genSalt,
+  unpackTx,
+  commitmentHash,
+  buildContractId,
+  verifyTransaction,
+  getDefaultPointerKey,
+  buildTx,
+  encode,
+  Encoding,
+  VmVersion,
+  AbiVersion,
 } from '@aeternity/aepp-sdk';
 import { print, printUnderscored, printValidation } from '../utils/print.js';
 import { validateName, decode } from '../utils/helpers.js';
@@ -17,12 +28,14 @@ function buildAndPrintTx(params, json, extraKeys = {}) {
   printUnderscored('Transaction type', Tag[params.tag]);
   print('Summary');
   // TODO: print the same way as transactions from node
-  Object
-    .entries({ ...txObject, ...extraKeys })
-    .forEach(([key, value]) => printUnderscored(`    ${key.toUpperCase()}`, value));
+  Object.entries({ ...txObject, ...extraKeys }).forEach(([key, value]) =>
+    printUnderscored(`    ${key.toUpperCase()}`, value),
+  );
   print('Output');
   printUnderscored('    Encoded', tx);
-  print('This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.');
+  print(
+    'This is an unsigned transaction. Use `account sign` and `tx broadcast` to submit the transaction to the network, or verify that it will be accepted with `tx verify`.',
+  );
 }
 
 export function spend(senderId, recipientId, amount, nonce, { json, payload, ...options }) {
@@ -130,9 +143,13 @@ export function contractCall(callerId, contractId, callData, nonce, { json, gas,
   buildAndPrintTx(params, json);
 }
 
-export function oracleRegister(accountId, queryFormat, responseFormat, nonce, {
-  json, oracleTtl, ...options
-}) {
+export function oracleRegister(
+  accountId,
+  queryFormat,
+  responseFormat,
+  nonce,
+  { json, oracleTtl, ...options },
+) {
   const params = {
     tag: Tag.OracleRegisterTx,
     ...options,
@@ -146,9 +163,13 @@ export function oracleRegister(accountId, queryFormat, responseFormat, nonce, {
   buildAndPrintTx(params, json);
 }
 
-export function oraclePostQuery(senderId, oracleId, query, nonce, {
-  json, queryTtl, responseTtl, ...options
-}) {
+export function oraclePostQuery(
+  senderId,
+  oracleId,
+  query,
+  nonce,
+  { json, queryTtl, responseTtl, ...options },
+) {
   const params = {
     tag: Tag.OracleQueryTx,
     ...options,
@@ -176,9 +197,13 @@ export function oracleExtend(oracleId, oracleTtl, nonce, { json, ...options }) {
   buildAndPrintTx(params, json);
 }
 
-export function oracleRespond(oracleId, queryId, response, nonce, {
-  json, responseTtl, ...options
-}) {
+export function oracleRespond(
+  oracleId,
+  queryId,
+  response,
+  nonce,
+  { json, responseTtl, ...options },
+) {
   const params = {
     tag: Tag.OracleResponseTx,
     ...options,

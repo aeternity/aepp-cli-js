@@ -1,7 +1,6 @@
-version: '3'
 services:
   node:
-    image: aeternity/aeternity:v7.0.0-bundle
+    image: aeternity/aeternity:v7.3.0-rc3-bundle
     ports: [3013:3013, 3313:3313]
     # TODO: remove after releasing https://github.com/aeternity/aeternity/pull/4292
     healthcheck:

@@ -1,6 +1,9 @@
 import fs from 'fs-extra';
 import {
-  generateKeyPair, verifyMessage as _verifyMessage, getAddressFromPriv, dump,
+  generateKeyPair,
+  verifyMessage as _verifyMessage,
+  getAddressFromPriv,
+  dump,
 } from '@aeternity/aepp-sdk';
 import { getFullPath } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
@@ -43,7 +46,7 @@ export async function verifyMessage(address, hexSignature, dataArray = [], optio
 
 export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...options }) {
   const aeSdk = await initSdkByWalletFile(walletPath, options);
-  const networkId = networkIdOpt ?? await aeSdk.api.getNetworkId();
+  const networkId = networkIdOpt ?? (await aeSdk.api.getNetworkId());
   const signedTx = await aeSdk.signTransaction(tx, { networkId });
   const { address } = aeSdk;
   if (json) {
@@ -58,18 +61,20 @@ export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...o
 }
 
 export async function getAddress(walletPath, options) {
-  const {
-    privateKey, forcePrompt = false, json, password,
-  } = options;
+  const { privateKey, forcePrompt = false, json, password } = options;
   const account = await AccountCli.read(walletPath, password);
-  const printPrivateKey = privateKey && (forcePrompt
-    || await prompt(PROMPT_TYPE.confirm, { message: 'Are you sure you want print your secret key?' }));
+  const printPrivateKey =
+    privateKey &&
+    (forcePrompt ||
+      (await prompt(PROMPT_TYPE.confirm, {
+        message: 'Are you sure you want print your secret key?',
+      })));
 
-  const secretKey = printPrivateKey && await account.getSecretKey();
+  const secretKey = printPrivateKey && (await account.getSecretKey());
   if (json) {
     print({
       publicKey: account.address,
-      ...printPrivateKey && { secretKey },
+      ...(printPrivateKey && { secretKey }),
     });
   } else {
     printUnderscored('Address', account.address);
@@ -84,7 +89,7 @@ export async function createWallet(
 ) {
   secretKey = Buffer.from(secretKey, 'hex');
   walletPath = getFullPath(walletPath);
-  if (!overwrite && await fs.exists(walletPath) && !await prompt(PROMPT_TYPE.askOverwrite)) {
+  if (!overwrite && (await fs.exists(walletPath)) && !(await prompt(PROMPT_TYPE.askOverwrite))) {
     throw new CliError(`Wallet already exist at ${walletPath}`);
   }
   password ??= await prompt(PROMPT_TYPE.askPassword);
