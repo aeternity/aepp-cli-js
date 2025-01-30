@@ -72,7 +72,7 @@ addWalletOptions(command, [
 
 command = program
   .command('create <wallet_path>')
-  .argument('[secretKey]', '`sk_`-encoded secret key')
+  .argument('[secretKey]', 'secret key in `sk_` or hex encoding')
   .option('--overwrite', 'Overwrite if exist')
   .summary('create a wallet by a secret key or generate a new one')
   .description(

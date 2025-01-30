@@ -3,7 +3,7 @@ import { before, describe, it } from 'mocha';
 import { expect, should } from 'chai';
 import prompts from 'prompts';
 import { resolve } from 'path';
-import { MemoryAccount } from '@aeternity/aepp-sdk';
+import { decode, MemoryAccount } from '@aeternity/aepp-sdk';
 import { getSdk, executeProgram, WALLET_NAME } from './index.js';
 import { expectToMatchLines, toMatch } from './utils.js';
 
@@ -17,6 +17,9 @@ describe('Account Module', () => {
   const fileName = 'test-artifacts/message.txt';
   const fileData = 'Hello world!';
   const account = new MemoryAccount('sk_2Y8wfdohj4iVqL7hkTtJhVjjTKzwFh223djZCy4vGmiBLjsoAU');
+  const secretKeyHex = Buffer.concat([decode(account.secretKey), decode(account.address)]).toString(
+    'hex',
+  );
   let aeSdk;
 
   before(async () => {
@@ -68,6 +71,21 @@ describe('Account Module', () => {
     });
   });
 
+  it('Create Wallet From Secret Key in hex', async () => {
+    const createRes = await executeAccount(
+      'create',
+      walletName,
+      '--password',
+      'test',
+      secretKeyHex,
+      '--overwrite',
+    );
+    expectToMatchLines(createRes, [
+      `Address  ${account.address}`,
+      `Path     ${resolve(walletName)}`,
+    ]);
+  });
+
   it('Check Wallet Address', async () => {
     await fs.writeJson(walletName, {
       name: 'test-wallet',
@@ -113,7 +131,11 @@ describe('Account Module', () => {
       '--secretKey',
       '--forcePrompt',
     );
-    expectToMatchLines(res, [`Address     ${account.address}`, `Secret Key  ${account.secretKey}`]);
+    expectToMatchLines(res, [
+      `Address            ${account.address}`,
+      `Secret Key         ${account.secretKey}`,
+      `Secret Key in hex  ${secretKeyHex}`,
+    ]);
   });
 
   it('asks for password if it not provided', async () => {

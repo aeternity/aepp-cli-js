@@ -163,7 +163,7 @@ Create a password-encrypted wallet by a secret key. Secret key can be provided i
 
 `wallet_path`  
 `secretKey`  
-`sk_`-encoded secret key.
+Secret key in `sk_` or hex encoding.
 
 #### Options
 

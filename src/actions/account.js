@@ -1,6 +1,13 @@
 import fs from 'fs-extra';
 import { parse } from 'path';
-import { MemoryAccount, verifyMessage as _verifyMessage } from '@aeternity/aepp-sdk';
+import {
+  Encoding,
+  MemoryAccount,
+  verifyMessage as _verifyMessage,
+  decode,
+  encode,
+  isAddressValid,
+} from '@aeternity/aepp-sdk';
 import { dump } from '../utils/keystore.js';
 import { getFullPath } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
@@ -74,19 +81,30 @@ export async function getAddress(walletPath, options) {
       }))) &&
     (await account.getSecretKey());
 
+  // TODO: remove after sk_-encoded keys become supported everywhere
+  const secretKeyHex =
+    secretKey && Buffer.concat([decode(secretKey), decode(account.address)]).toString('hex');
   if (json) {
     print({
       publicKey: account.address,
-      ...(secretKey && { secretKey }),
+      ...(secretKey && { secretKey, secretKeyHex }),
     });
   } else {
-    printTable([['Address', account.address], ...(secretKey ? [['Secret Key', secretKey]] : [])]);
+    printTable([
+      ['Address', account.address],
+      ...(secretKey
+        ? [
+            ['Secret Key', secretKey],
+            ['Secret Key in hex', secretKeyHex],
+          ]
+        : []),
+    ]);
   }
 }
 
 export async function createWallet(
   walletPath,
-  secretKey = MemoryAccount.generate().secretKey,
+  secretKeyInSkOrHex = MemoryAccount.generate().secretKey,
   { password, overwrite, json },
 ) {
   walletPath = getFullPath(walletPath);
@@ -94,6 +112,9 @@ export async function createWallet(
     throw new CliError(`Wallet already exist at ${walletPath}`);
   }
   password ??= await prompt(PROMPT_TYPE.askPassword);
+  const secretKey = isAddressValid(secretKeyInSkOrHex, Encoding.AccountSecretKey)
+    ? secretKeyInSkOrHex
+    : encode(Buffer.from(secretKeyInSkOrHex, 'hex').subarray(0, 32), Encoding.AccountSecretKey);
   await fs.outputJson(walletPath, await dump(parse(walletPath).name, password, secretKey));
   const { address } = new MemoryAccount(secretKey);
   if (json) {
