@@ -7,8 +7,8 @@
   },
   "type": "module",
   "dependencies": {
-    "@aeternity/aepp-sdk": "^13.3.3",
-    "@azure/core-rest-pipeline": "~1.14.0",
+    "@aeternity/aepp-sdk": "^14.0.0",
+    "@azure/core-rest-pipeline": "^1.18.2",
     "argon2": "^0.41.1",
     "bignumber.js": "^9.1.2",
     "commander": "^13.0.0",

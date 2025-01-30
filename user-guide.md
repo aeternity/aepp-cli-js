@@ -18,9 +18,9 @@ The account (wallet) [commands](./reference.md#account-group) are those which cr
 Use [`aecli account create`](./reference.md#create) to create a new wallet.
 You can specify a password for accessing your wallet or just press Enter if you do not want to set a password. The wallet is created at the specified path.
 
-Alternatively, you can pass the private key in `[privkey]` argument to generate a corresponding wallet.
+Alternatively, you can pass the secret key in `[secretKey]` argument to generate a corresponding wallet.
 
-View the address (public key) of your wallet using [`aecli account address`](./reference.md#address) command. Also, it can be used to reveal your private key.
+View the address (public key) of your wallet using [`aecli account address`](./reference.md#address) command. Also, it can be used to reveal your secret key.
 
 ## The name group
 

@@ -1,10 +1,6 @@
 import fs from 'fs-extra';
 import { parse } from 'path';
-import {
-  generateKeyPair,
-  verifyMessage as _verifyMessage,
-  getAddressFromPriv,
-} from '@aeternity/aepp-sdk';
+import { MemoryAccount, verifyMessage as _verifyMessage } from '@aeternity/aepp-sdk';
 import { dump } from '../utils/keystore.js';
 import { getFullPath } from '../utils/helpers.js';
 import CliError from '../utils/CliError.js';
@@ -68,47 +64,43 @@ export async function sign(walletPath, tx, { networkId: networkIdOpt, json, ...o
 }
 
 export async function getAddress(walletPath, options) {
-  const { privateKey, forcePrompt = false, json, password } = options;
+  const { forcePrompt = false, json, password } = options;
   const account = await AccountCli.read(walletPath, password);
-  const printPrivateKey =
-    privateKey &&
+  const secretKey =
+    options.secretKey &&
     (forcePrompt ||
       (await prompt(PROMPT_TYPE.confirm, {
         message: 'Are you sure you want print your secret key?',
-      })));
+      }))) &&
+    (await account.getSecretKey());
 
-  const secretKey = printPrivateKey && (await account.getSecretKey());
   if (json) {
     print({
       publicKey: account.address,
-      ...(printPrivateKey && { secretKey }),
+      ...(secretKey && { secretKey }),
     });
   } else {
-    printTable([
-      ['Address', account.address],
-      ...(printPrivateKey ? [['Secret Key', secretKey]] : []),
-    ]);
+    printTable([['Address', account.address], ...(secretKey ? [['Secret Key', secretKey]] : [])]);
   }
 }
 
 export async function createWallet(
   walletPath,
-  secretKey = generateKeyPair().secretKey,
+  secretKey = MemoryAccount.generate().secretKey,
   { password, overwrite, json },
 ) {
-  secretKey = Buffer.from(secretKey, 'hex');
   walletPath = getFullPath(walletPath);
   if (!overwrite && (await fs.exists(walletPath)) && !(await prompt(PROMPT_TYPE.askOverwrite))) {
     throw new CliError(`Wallet already exist at ${walletPath}`);
   }
   password ??= await prompt(PROMPT_TYPE.askPassword);
   await fs.outputJson(walletPath, await dump(parse(walletPath).name, password, secretKey));
-  const publicKey = getAddressFromPriv(secretKey);
+  const { address } = new MemoryAccount(secretKey);
   if (json) {
-    print({ publicKey, path: walletPath });
+    print({ publicKey: address, path: walletPath });
   } else {
     printTable([
-      ['Address', publicKey],
+      ['Address', address],
       ['Path', walletPath],
     ]);
   }

@@ -237,7 +237,7 @@ describe('Transaction Module', () => {
       nameTtl: 180000,
       nonce,
       pointers: [
-        { id: aeSdk.address, key: 'account_pubkey', encoded_key: 'ba_YWNjb3VudF9wdWJrZXn8jckR' },
+        { id: aeSdk.address, key: 'account_pubkey', encodedKey: 'ba_YWNjb3VudF9wdWJrZXn8jckR' },
       ],
       type: 'NameUpdateTx',
       version: 1,
@@ -332,8 +332,8 @@ describe('Transaction Module', () => {
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
-      abiVersion: '3',
-      vmVersion: '8',
+      abiVersion: 3,
+      vmVersion: 8,
       amount: '0',
       callData,
       code: bytecode,
@@ -378,7 +378,7 @@ describe('Transaction Module', () => {
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
-      abiVersion: '3',
+      abiVersion: 3,
       amount: '420000000000',
       callData,
       callerId: aeSdk.address,
@@ -418,11 +418,11 @@ describe('Transaction Module', () => {
     const [detailsJson, details] = await signAndPostAndInspect(tx);
     expect(detailsJson.fee).to.be.a('string');
     expect(detailsJson).to.eql({
-      abiVersion: '0',
+      abiVersion: 0,
       accountId: aeSdk.address,
       fee: detailsJson.fee,
       nonce,
-      oracleTtl: { type: 'delta', value: '500' },
+      oracleTtl: { type: 'delta', value: 500 },
       queryFee: '0',
       queryFormat: '{city: "str"}',
       responseFormat: '{tmp:""num}',
@@ -453,7 +453,7 @@ describe('Transaction Module', () => {
       fee: detailsJson.fee,
       nonce,
       oracleId,
-      oracleTtl: { type: 'delta', value: '100' },
+      oracleTtl: { type: 'delta', value: 100 },
       type: 'OracleExtendTx',
       version: 1,
     });
@@ -488,8 +488,8 @@ describe('Transaction Module', () => {
       oracleId,
       query: '{city: "Berlin"}',
       queryFee: '0',
-      queryTtl: { type: 'delta', value: '10' },
-      responseTtl: { type: 'delta', value: '10' },
+      queryTtl: { type: 'delta', value: 10 },
+      responseTtl: { type: 'delta', value: 10 },
       senderId: aeSdk.address,
       type: 'OracleQueryTx',
       version: 1,
@@ -524,7 +524,7 @@ describe('Transaction Module', () => {
       oracleId,
       queryId,
       response: '{tmp: 10}',
-      responseTtl: { type: 'delta', value: '10' },
+      responseTtl: { type: 'delta', value: 10 },
       type: 'OracleRespondTx',
       version: 1,
     });

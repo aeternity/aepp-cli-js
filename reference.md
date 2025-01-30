@@ -4,8 +4,8 @@
   - [`sign`](#sign) — sign a transaction using wallet
   - [`sign-message`](#sign-message) — sign a personal message using wallet
   - [`verify-message`](#verify-message) — check if message was signed by address
-  - [`address`](#address) — get wallet address and optionally private key
-  - [`create`](#create) — create a wallet by a private key or generate a new one
+  - [`address`](#address) — get wallet address and optionally secret key
+  - [`create`](#create) — create a wallet by a secret key or generate a new one
 - [`spend`](#spend) — send coins to another account or contract
 - `name`
   - [`full-claim`](#full-claim) — claim an AENS name in a single command
@@ -131,12 +131,12 @@ $ aecli account verify-message ak_21A27UVVt3hDkBE5J7rhhqnH5YNb4Y1dqo4PnSybrH85pn
 aecli account address [options] <wallet_path>
 ```
 
-Get wallet address and optionally private key.
+Get wallet address and optionally secret key.
 
 #### Options
 
-`--privateKey`  
-Print private key.  
+`--secretKey`  
+Print secret key.  
 `--forcePrompt`  
 Force prompting.  
 `-P, --password [password]`  
@@ -148,13 +148,13 @@ Print result in json format.
 
 ```
 $ aecli account address ./wallet.json  # show only public key
-$ aecli account address ./wallet.json --privateKey  # show public key and private key
+$ aecli account address ./wallet.json --secretKey  # show public key and secret key
 ```
 
 ## create
 
 ```
-aecli account create [options] <wallet_path> [privkey]
+aecli account create [options] <wallet_path> [secretKey]
 ```
 
 Create a password-encrypted wallet by a secret key. Secret key can be provided in options, or cli will generate one. This command creates ethereum-like keyfile.
@@ -162,8 +162,8 @@ Create a password-encrypted wallet by a secret key. Secret key can be provided i
 #### Arguments
 
 `wallet_path`  
-`privkey`  
-Secret key as 64-bytes encoded as hex.
+`secretKey`  
+`sk_`-encoded secret key.
 
 #### Options
 
@@ -178,7 +178,7 @@ Print result in json format.
 
 ```
 $ aecli account create ./wallet.json
-$ aecli account create ./wallet.json 9ebd7beda0c79af72a42ece3821a56eff16359b6df376cf049aee995565f022f840c974b97164776454ba119d84edc4d6058a8dec92b6edc578ab2d30b4c4200
+$ aecli account create ./wallet.json sk_2CuofqWZHrABCrM7GY95YSQn8PyFvKQadnvFnpwhjUnDCFAWmf
 ```
 
 ## spend

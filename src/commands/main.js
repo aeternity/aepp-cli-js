@@ -128,7 +128,6 @@ command = program
     const nodes = [
       { name: 'Mainnet', url: 'https://mainnet.aeternity.io/' },
       { name: 'Testnet', url: 'https://testnet.aeternity.io/' },
-      { name: 'Next', url: 'https://next.aeternity.io/' },
     ];
     await addToConfig({
       url: await askUrl('node', nodes, getNodeDescription, url),
@@ -142,9 +141,8 @@ command = program
   .summary('specify compiler to use in other commands')
   .action(async (url) => {
     const compilers = [
-      { name: 'Stable v7', url: 'https://v7.compiler.aepps.com/' },
-      { name: 'Integrated compiler, FATE 2 (requires Erlang)', url: 'cli' },
-      { name: 'Integrated compiler, FATE 3 (requires Erlang)', url: 'cli8' },
+      { name: 'Stable v8', url: 'https://v8.compiler.aepps.com/' },
+      { name: 'Integrated compiler (requires Erlang)', url: 'cli8' },
     ];
     await addToConfig({
       compilerUrl: await askUrl('compiler', compilers, getCompilerDescription, url),
