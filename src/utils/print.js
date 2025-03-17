@@ -32,12 +32,15 @@ export function print(msg, obj) {
 }
 
 export function printTable(data) {
-  const firstColumnWidth = Math.max(...data.map(([key]) => key.length));
-  for (const [key, val] of data) {
-    console.log(
-      key.padEnd(firstColumnWidth + 1),
-      typeof val !== 'object' ? val : JsonStringifyEs(val),
-    );
+  data = data.map((row) =>
+    row.map((cell) => (typeof cell !== 'object' ? String(cell) : JsonStringifyEs(cell))),
+  );
+  const columnCount = Math.max(...data.map((row) => row.length));
+  const columnWidths = new Array(columnCount - 1)
+    .fill()
+    .map((_, idx) => Math.max(...data.map((row) => row[idx].length)));
+  for (const row of data) {
+    console.log(...row.map((cell, idx) => cell.padEnd(columnWidths[idx] + 1)));
   }
 }
 

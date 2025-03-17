@@ -17,6 +17,7 @@ import { compilerOption, nodeOption } from '../arguments.js';
 import { getCompilerByUrl } from '../utils/cli.js';
 import { addToConfig } from '../utils/config.js';
 import CliError from '../utils/CliError.js';
+import { printTable } from '../utils/print.js';
 
 const program = new Command('aecli');
 
@@ -62,8 +63,10 @@ let command = program
   .addOption(nodeOption)
   .addOption(compilerOption)
   .action(async ({ url, compilerUrl }) => {
-    console.log('Node', url, await getNodeDescription(url));
-    console.log('Compiler', compilerUrl, await getCompilerDescription(compilerUrl));
+    printTable([
+      ['Node', url, await getNodeDescription(url)],
+      ['Compiler', compilerUrl, await getCompilerDescription(compilerUrl)],
+    ]);
   });
 addCommonOptions(command);
 
