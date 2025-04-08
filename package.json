@@ -2,6 +2,7 @@
   "name": "@aeternity/aepp-cli",
   "version": "7.0.0",
   "description": "Aeternity command line interface",
+  "homepage": "https://docs.aeternity.com/developer-documentation/aepp-cli-js",
   "bin": {
     "aecli": "src/aecli.js"
   },
