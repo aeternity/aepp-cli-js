@@ -5,7 +5,7 @@ import { executeProgram } from './index.js';
 describe('Other tests', () => {
   it('Config', async () => {
     expect(await executeProgram('config')).to.equal(
-      'Node      https://mainnet.aeternity.io   network id ae_mainnet, version 7.2.0, protocol 6 (Ceres)\n' +
+      'Node      https://mainnet.aeternity.io   network id ae_mainnet, version 7.2.1, protocol 6 (Ceres)\n' +
         'Compiler  https://v8.compiler.aepps.com  version 8.0.0',
     );
   });
